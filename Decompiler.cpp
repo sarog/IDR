@@ -9535,6 +9535,11 @@ void __fastcall TDecompiler::GetMemItem(int CurAdr, PITEM Dst, BYTE Op)
                 if (_itemBase.Name != "") Dst->Name = _itemBase.Name + "[]";
                 return;
             }
+            if (Env->StackSize < _itemBase.IntValue + _offset)
+            {
+                Env->ErrAdr = CurAdr;
+                throw Exception("Invalid Stack Address");
+            }
             _item = Env->Stack[_itemBase.IntValue + _offset];
             //Arg
             if (_item.Flags & IF_ARG)
