@@ -68,3 +68,7 @@ __astcache/
 
 # Exclude this folders
 !Dll/*
+
+.idea/
+.cmake
+cmake-build-bcc*
