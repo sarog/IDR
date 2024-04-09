@@ -122,7 +122,7 @@ private:
 	void __fastcall FormatInstr(PDISINFO pDisInfo, char* disLine);
 	void __fastcall FormatArg(int argno, DWORD cmd, DWORD arg, PDISINFO pDisInfo, char* disLine);
 	int __fastcall OutputGeneralRegister(char *dst, int reg, int size);
-	void __fastcall OutputHex(char *dst, DWORD val);
+	static void __fastcall OutputHex(char *dst, DWORD val);
 	DWORD __fastcall GetAddress();
 	void __fastcall OutputSegPrefix(char* dst, PDISINFO pDisInfo);
 	int __fastcall EvaluateOperandSize();

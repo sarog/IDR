@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <SyncObjs.hpp>
 */
+#include <stdio.h>
+
 #include "Disasm.h"
 //---------------------------------------------------------------------------
 extern  BYTE *Code;
@@ -239,7 +241,8 @@ int __fastcall MDisasm::Disassemble(BYTE* from, __int64 address, PDISINFO pDisIn
 //---------------------------------------------------------------------------
 void __fastcall MDisasm::FormatInstr(PDISINFO pDisInfo, char* disLine)
 {
-    BYTE    _repPrefix, p, *OpName, *ArgInfo;
+    BYTE    _repPrefix, p, *ArgInfo;
+    const char *OpName;
     int     i, Bytes = 0;
     DWORD   Cmd, Arg;
 

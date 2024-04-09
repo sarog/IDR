@@ -32,7 +32,7 @@ inline T* TSingleton<T>::CreateInstance() {
 // ---------------------------------------------------------------------------
 template<typename T>
 TSingleton<T>::~TSingleton() {
-	if (Singleton::_instance != 0) {
+	if (this->_instance != 0) {
 		delete TSingleton::_instance;
 	}
 	TSingleton::_instance = 0;

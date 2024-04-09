@@ -77,7 +77,7 @@ extern RegClassInfo RegClasses[];
 
 int dummy = 0; // for debugging purposes!!!
 
-MDisasm Disasm; // Дизассемблер для анализатора кода
+MDisasm Disasm; // Дизассемблер для анализатора кода / Disassembler for code analyzer
 MKnowledgeBase KnowledgeBase;
 TResourceInfo *ResInfo = 0; // Information about forms
 int CodeHistorySize; // Current size of Code navigation History Array
@@ -85,7 +85,7 @@ int CodeHistoryPtr; // Curent pointer of Code navigation History Array
 int CodeHistoryMax; // Max pointer position of Code navigation History Array (for ->)
 DynamicArray<PROCHISTORYREC>CodeHistory; // Code navigation History Array
 
-TAnalyzeThread *AnalyzeThread = 0; // Поток для фонового анализа кода
+TAnalyzeThread *AnalyzeThread = 0; // Поток для фонового анализа кода / Background code analysis thread
 int AnalyzeThreadRetVal = 0;
 bool SourceIsLibrary = false;
 bool ClassTreeDone;
@@ -95,7 +95,7 @@ bool SplitIDC = false;
 int SplitSize = 0;
 // Common variables
 String IDPFile;
-int MaxBufLen; // Максимальная длина буфера (для загрузки)
+int MaxBufLen; // Максимальная длина буфера (для загрузки) / Maximum buffer length (for downloading)
 int DelphiVersion;
 DWORD EP;
 DWORD ImageBase;
@@ -116,7 +116,7 @@ BYTE *Data = 0;
 
 TList *ExpFuncList; // Exported functions list (temporary)
 TList *ImpFuncList; // Imported functions list (temporary)
-TStringList *ImpModuleList; // Imported modules   list (temporary)
+TStringList *ImpModuleList; // Imported modules list (temporary)
 TList *SegmentList; // Information about Image Segments
 TList *VmtList; // VMT list
 

@@ -57,7 +57,7 @@ void __fastcall TFPlugins::FormShow(TObject *Sender) {
 void __fastcall TFPlugins::cklbPluginsListClickCheck(TObject *Sender) {
 	if (cklbPluginsList->State[cklbPluginsList->ItemIndex]) {
 		for (int n = 0; n < cklbPluginsList->Items->Count; n++) {
-			cklbPluginsList->State[n] = (n == cklbPluginsList->ItemIndex);
+			cklbPluginsList->State[n] = (n == cklbPluginsList->ItemIndex) ? cbChecked : cbUnchecked;
 		}
 	}
 }

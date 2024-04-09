@@ -199,7 +199,7 @@ typedef struct {
 #define		ikPointer		0x14
 #define		ikProcedure		0x15
 
-// Дополнительные типы
+// Г„Г®ГЇГ®Г«Г­ГЁГІГҐГ«ГјГ­Г»ГҐ ГІГЁГЇГ»
 #define     ikCString       0x20    //PChar, PAnsiChar
 #define     ikWCString      0x21    //PWideChar
 
