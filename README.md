@@ -1,34 +1,27 @@
-# IDR
-Interactive Delphi Reconstructor
-IDR (Interactive Delphi Reconstructor) – a decompiler of executable files (EXE) and dynamic libraries (DLL), written in Delphi 
-and executed in Windows32 environment.
+# IDR - Interactive Delphi Reconstructor
 
-The program firstly is intended for the companies, engaged by development of anti-virus software. It can also help programmers 
-to recover lost source code of programs appreciably.
+IDR is originally written by [crypto](https://github.com/crypto2011/IDR).
 
-The current version of the program can process files (GUI and console applications), compiled by Delphi compilers of versions 
-Delphi2 – Delphi XE4.
+This fork is based on commit [PR #38](https://github.com/crypto2011/IDR/pull/38) merged with the latest IDR release.
 
-Final project goal is development of the program capable to restore the most part of initial Delphi source codes from the 
-compiled file but IDR, as well as others Delphi decompilers, cannot do it yet. Nevertheless, IDR is in a status considerably 
-to facilitate such process. In comparison with other well known Delphi decompilers the result of IDR analysis has the greatest 
-completeness and reliability. Moreover interactivity does work with the program comfortable and (we shall not be afraid of 
-this word) pleasant.
+## Overview
 
-IDR make static analysis (analyzed file is not loaded to memory and executed) that allows to safely investigate viruses, 
-trojans and other malware applications, those which executing is dangerous or is not desirable.
+IDR is a decompiler of executable files (EXE) and dynamic libraries (DLL) that are written in Delphi and executed in a Windows environment.
+It is mainly targeted for use by the anti-malware and forensics industry. It can also help developers recover lost source code of programs. 
+Since the analyzed file is not loaded to memory, this makes IDR a safe tool for forensic investigations and malware analysis.
 
-The program does not require any installation activity and does not do any records in Windows registry.
+Currently, IDR can decompile Delphi programs written in Delphi 2 to Delphi XE4. Versions past XE4 can be loaded with limited support.
 
-~~Use Borland C++ Builder 6 to build this project.~~
+## Building IDR
 
-**Use Embarcadero C++ Builder 10.2 Tokyo to build this project.**
+C++ Builder 10.2 (Tokyo) or higher is required. You can also use JetBrains CLion with a custom compiler.
 
-# Embarcadero C++ Builder 10.2 Tokyo Version
-### *State:* **Testing**
-## Notes
-```Bins``` directory is used for all .bin files
-## To-Do List
- * Make previews of forms work
- * Make process dumper work
- * Test all!!
+The `Bins` directory is where the Knowledge Base (.bin) files are stored.
+
+## Roadmap
+
+- Ensure all existing features work correctly
+- Cleanup/format existing code
+- Add Unicode support
+- Add support for newer Delphi versions
+- Add 64-bit support
