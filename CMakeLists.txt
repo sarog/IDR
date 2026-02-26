@@ -19,6 +19,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_DEPFILE_FLAGS_CXX "-md -mo\"<DEPFILE>\"")
 
+
 # https://docwiki.embarcadero.com/RADStudio/Tokyo/en/BCC32.EXE,_the_C%2B%2B_32-bit_Command-Line_Compiler
 # https://docwiki.embarcadero.com/RADStudio/Sydney/en/Message_Options
 # -w-csu -w-aus -w-mcc
@@ -53,7 +54,7 @@ set_embt_target(VCL DynamicRuntime)
 # https://docwiki.embarcadero.com/RADStudio/Tokyo/en/Using_ILINK32_and_ILINK64_on_the_Command_Line
 add_link_options(-tV -tW -lr -lGl -lGpr -laa -lTpe) #-lL.\\Win32\\Debug\\Obj
 
-add_executable(${APP} Idr.cpp ${SOURCES} WIN32)
+add_executable(${APP} Idr.cpp ${SOURCES} WIN32 Idr.rc)
 
 # bin\cgrc.exe -c65001 .\Win32\Release\Obj\Idr.vrc -fo.\Win32\Release\Obj\Idr.res
 target_precompile_headers(${APP} PUBLIC IdrPCH1.h)
@@ -65,8 +66,9 @@ target_link_directories(${APP} PRIVATE
 set(EMBT_BPI_DIR "${ROOTDIR}/lib/win32/release")
 
 target_link_libraries(${APP} PRIVATE
-        "${EMBT_BPI_DIR}/rtl.bpi"
         "${EMBT_BPI_DIR}/vcl.bpi"
+        "${EMBT_BPI_DIR}/rtl.bpi"
+        "${EMBT_BPI_DIR}/bcbsmp.bpi"
         "${EMBT_BPI_DIR}/vclx.bpi"
         "${EMBT_BPI_DIR}/vclimg.bpi"
         "Idr.res"
@@ -103,5 +105,5 @@ target_sources(${APP} PRIVATE ${SOURCES_DFM})
 install(TARGETS ${APP}
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib/static
+        ARCHIVE DESTINATION lib
 )
