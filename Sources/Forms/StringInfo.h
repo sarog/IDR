@@ -6,10 +6,11 @@
 #include <Vcl.Controls.hpp>
 #include <Vcl.StdCtrls.hpp>
 
+// #include "TntStdCtrls.hpp"
 // ---------------------------------------------------------------------------
 class TFStringInfo_11011981 : public TForm {
 __published: // IDE-managed Components
-	TMemo *memStringInfo;
+    TMemo *memStringInfo; // or: TTntMemo *memStringInfo;
 
 	void __fastcall FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift);
 	void __fastcall FormCreate(TObject *Sender);

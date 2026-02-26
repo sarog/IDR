@@ -41,7 +41,7 @@ private:
 
 public:
 	static DWORD EvaluateInitTable(BYTE* Data, DWORD Size, DWORD Base);
-	int LoadImage(FILE* f, bool loadExp, bool loadImp);
+	int LoadImageFile(FILE* f, int version, bool loadExp, bool loadImp, bool BCB, DWORD EP);
 
 	__property TPEHeader32 PEHeader32 = {read = FPEHeader32};
 };

@@ -33,22 +33,75 @@ extern int DelphiVersion;
 extern TList *SegmentList;
 extern TList *OwnTypeList;
 extern TList *VmtList;
-extern int VmtSelfPtr;
-extern int VmtIntfTable;
-extern int VmtInitTable;
-extern int VmtParent;
-extern int VmtClassName;
-extern int VmtInstanceSize;
+extern  int         cVmtSelfPtr;
+extern  int         cVmtIntfTable;
+extern  int         cVmtInitTable;
+extern  int         cVmtParent;
+extern  int         cVmtClassName;
+extern  int         cVmtInstanceSize;
 extern char* Reg8Tab[8];
 extern char* Reg16Tab[8];
 extern char* Reg32Tab[8];
 extern char* SegRegTab[8];
 
 // ---------------------------------------------------------------------------
+/*WideString __fastcall TUnicodeClipboard::GetAsUnicodeText()
+{
+    WideString res;
+    Open();
+    HANDLE data = GetClipboardData(CF_UNICODETEXT);
+    try
+    {
+        if (data)
+            res = (wchar_t *)GlobalLock(data);
+        else
+            res = "";
+    }
+    __finally
+    {
+        if (data) GlobalUnlock(data);
+        Close();
+    }
+    return res;
+}*/
+//Add by ZGL-----------------------------------------------------------------
+/*void __fastcall TUnicodeClipboard::SetAsUnicodeText(const WideString Value)
+{
+    SetBuffer(CF_UNICODETEXT, (wchar_t *)Value, (wcslen(Value) + 1) * sizeof(WideChar));
+}*/
+//---------------------------------------------------------------------------
+/*WideString __fastcall UnicodeEncode(String Str, int CodePage)
+{
+    int         Len;
+    WideString  Result;
+
+    Len = Str.Length() + 1;
+    Result.SetLength(Len);
+    Len = MultiByteToWideChar(CodePage, 0, PChar(Str.c_str()), -1, PWideChar(Result), Len);
+    Result.SetLength(Len - 1); //end is #0
+    return Result;
+};
+//---------------------------------------------------------------------------
+String __fastcall UnicodeDecode(WideString Str, int CodePage)
+{
+    int     Len;
+    String  Result;
+
+    Len = Str.Length() * 2 + 1; //one for #0
+    Result.SetLength(Len);
+    Len = WideCharToMultiByte(CodePage, 0, PWideChar(Str), -1, PChar(Result.c_str()), Len, 0, 0);
+    Result.SetLength(Len - 1);
+    return Result;
+};*/
+//---------------------------------------------------------------------------
 void __fastcall ScaleForm(TForm* AForm) {
 	HDC _hdc = GetDC(0);
 	if (_hdc) {
-		AForm->ScaleBy(GetDeviceCaps(_hdc, 0x58), 100);
+        //Modified by ZGL
+        int LogicalScreenHeight = GetDeviceCaps(_hdc, VERTRES);
+        int PhysicalScreenHeight = GetDeviceCaps(_hdc, DESKTOPVERTRES);
+        AForm->ScaleBy(PhysicalScreenHeight, LogicalScreenHeight);
+        //Modified end
 		ReleaseDC(0, _hdc);
 	}
 }
@@ -217,13 +270,13 @@ String __fastcall TrimTypeName(const String& TypeName) {
 	// No '.' in TypeName or TypeName begins with '.'
 	if (pos == 0 || pos == 1)
 		return TypeName;
-	// или это имя типа range
+	// пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ range
 	else if (TypeName[pos + 1] == '.')
 		return TypeName;
 	else {
 		char c, *p = AnsiString(TypeName.c_str()).c_str();
 		// Check special symbols upto '.'
-		while (1 && TypeName.Length()) {
+        while (1) {
 			c = *p++;
 			if (c == '.')
 				break;
@@ -236,6 +289,7 @@ String __fastcall TrimTypeName(const String& TypeName) {
 
 // ---------------------------------------------------------------------------
 bool __fastcall IsValidImageAdr(DWORD Adr) {
+    if (Adr >> 8 == 0x408D) return false; //Add by ZGL assigned global byte or boolean variable
 	if (Adr >= CodeBase && Adr < CodeBase + ImageSize)
 		return true;
 	else
@@ -608,13 +662,58 @@ int __fastcall GetProcSize(DWORD fromAdr) {
 }
 
 // ---------------------------------------------------------------------------
-int __fastcall GetRecordSize(String AName) {
+int __fastcall StrGetRecordSize(String str) {
+    int _size = 0;
+    int _bpos = str.Pos("size=");
+    int _epos = str.LastDelimiter("\n");
+    if (_bpos && _epos)
+    {
+        String _sz = str.SubString(_bpos + 5, _epos - _bpos - 5);
+        _size = StrToInt("$" + _sz);
+    }
+    return _size;
+}
+//---------------------------------------------------------------------------
+int __fastcall StrGetRecordFieldOffset(String str)
+{
+    int _offset = -1;
+    int _bpos = str.Pos("//");
+    int _epos = str.LastDelimiter("\n");
+    if (_bpos && _epos)
+    {
+        String _ofs = str.SubString(_bpos + 2, _epos - _bpos - 2);
+        _offset = StrToInt("$" + _ofs);
+    }
+    return _offset;
+}
+//---------------------------------------------------------------------------
+String __fastcall StrGetRecordFieldName(String str)
+{
+    String _name = "";
+    int _pos = str.Pos(":");
+    if (_pos)
+        _name = str.SubString(1, _pos - 1);
+    return _name;
+}
+//---------------------------------------------------------------------------
+String __fastcall StrGetRecordFieldType(String str)
+{
+    String _type = "";
+    int _epos = str.LastDelimiter(";");
+    int _bpos = str.Pos(":");
+    if (_bpos && _epos)
+        _type = str.SubString(_bpos + 1, _epos - _bpos - 1);
+    return _type;
+}
+//---------------------------------------------------------------------------
+int __fastcall GetRecordSize(String AName)
+{
 	BYTE _len;
 	WORD *_uses;
 	int _idx, _pos, _size;
 	MTypeInfo _tInfo;
 	PTypeRec _recT;
-	String _str;
+    String      _str, _sz;
 
 	// File
 	AnsiString _recFileName = FMain_11011981->WrkDir + "\\types.idr";
@@ -625,14 +724,11 @@ int __fastcall GetRecordSize(String AName) {
 				break;
 			_str = String(StringBuf);
 			if (_str.Pos(AName + "=") == 1) {
-				_pos = _str.Pos("size=");
-				if (_pos) {
-					sscanf(StringBuf + _pos + 4, "%lX", &_size);
+                _size = StrGetRecordSize(_str);
 					fclose(_recFile);
 					return _size;
 				}
 			}
-		}
 		fclose(_recFile);
 	}
 	// KB
@@ -659,23 +755,68 @@ int __fastcall GetRecordSize(String AName) {
 	// Manual
 	return 0;
 }
+//---------------------------------------------------------------------------
+PFIELDINFO __fastcall GetClassField(String TypeName, int Offset)
+{
+    int         n, Ofs1, Ofs2;
+    DWORD       classAdr, prevClassAdr = 0;
+    PInfoRec    recN;
+    PFIELDINFO	fInfo1, fInfo2;
 
+    classAdr = GetClassAdr(TypeName);
+    while (classAdr && Offset < GetClassSize(classAdr))
+    {
+        prevClassAdr = classAdr;
+        classAdr = GetParentAdr(classAdr);
+    }
+    classAdr = prevClassAdr;
+    if (classAdr)
+    {
+        recN = GetInfoRec(classAdr);
+        if (recN && recN->vmtInfo && recN->vmtInfo->fields)
+        {
+            for (n = 0; n < recN->vmtInfo->fields->Count; n++)
+            {
+                fInfo1 = (PFIELDINFO)recN->vmtInfo->fields->Items[n]; Ofs1 = fInfo1->Offset;
+                if (n == recN->vmtInfo->fields->Count - 1)
+                {
+                    Ofs2 = GetClassSize(classAdr);
+                }
+                else
+                {
+                    fInfo2 = (PFIELDINFO)recN->vmtInfo->fields->Items[n + 1];
+                    Ofs2 = fInfo2->Offset;
+                }
+                if (Offset >= Ofs1 && Offset < Ofs2)
+                {
+                    return fInfo1;
+                }
+            }
+        }
+    }
+    return 0;
+}
 // ---------------------------------------------------------------------------
-String __fastcall GetRecordFields(int AOfs, String ARecType) {
+int __fastcall GetRecordField(String ARecType, int AOfs, String& name, String& type)
+{
+    bool        _brk;
 	BYTE _len, _numOps, _kind;
-	char *p;
-	WORD _dw, _len1;
+    char        *p, *ps;
+    WORD        _dw;
 	WORD *_uses;
-	int i, k, _idx, _pos, _elNum, _elOfs, _size, _case, _offset;
+    int         n, m, k, _idx, _pos, _elNum, Ofs, Ofs1, Ofs2, _case, _fieldsNum, _size;
 	DWORD _typeAdr;
 	PTypeRec _recT;
 	MTypeInfo _tInfo;
-	String _str, _name, _typeName, _result = "";
+    String      _str, _prevstr, _name, _typeName, _ofs, _sz, _result = "";
+    int         _fieldOfsets[1024];
+    CaseInfo    _cases[256];
 
-	if (ARecType == "")
-		return _result;
+    if (ARecType == "") return -1;
 
-	_pos = ARecType.Pos(".");
+    name = ""; type = "";
+
+    _pos = ARecType.LastDelimiter(".");
 	if (_pos > 1 && ARecType[_pos + 1] != ':')
 		ARecType = ARecType.SubString(_pos + 1, ARecType.Length());
 
@@ -688,28 +829,39 @@ String __fastcall GetRecordFields(int AOfs, String ARecType) {
 				break;
 			_str = String(StringBuf);
 			if (_str.Pos(ARecType + "=") == 1) {
+                _size = StrGetRecordSize(_str);
+
+                _prevstr = ""; _brk = false;
+                //Ofs2 = _size;
 				while (1) {
 					if (!fgets(StringBuf, 1024, _recFile))
 						break;
 					_str = String(StringBuf);
-					if (_str.Pos("end;"))
-						break;
-					if (_str.Pos("//" + Val2Str0(AOfs))) {
-						_result = _str;
-						_pos = _result.LastDelimiter(";");
-						if (_pos)
-							_result.SetLength(_pos - 1);
+                    Ofs1 = StrGetRecordFieldOffset(_prevstr);
+                    if (_str.Pos("end;")) {
+                        Ofs2 = _size;
+                        _brk = true;
+                    }
+                    else
+                        Ofs2 = StrGetRecordFieldOffset(_str);
+                    if (Ofs1 >= 0 && AOfs >= Ofs1 && AOfs < Ofs2) {
+                        name = StrGetRecordFieldName(_prevstr);
+                        type = StrGetRecordFieldType(_prevstr);
 						fclose(_recFile);
-						return _result;
+                        return Ofs1;
 					}
+                    if (_brk) break;
+                    _prevstr = _str;
 				}
+                fclose(_recFile);
 			}
 		}
 		fclose(_recFile);
 	}
 
 	int tries = 5;
-	while (tries-- >= 0) {
+    while (tries >= 0) {
+        tries--;
 		// KB
 		_uses = KnowledgeBase.GetTypeUses(AnsiString(ARecType).c_str());
 		_idx = KnowledgeBase.GetTypeIdxByModuleIds(_uses, AnsiString(ARecType).c_str());
@@ -720,38 +872,62 @@ String __fastcall GetRecordFields(int AOfs, String ARecType) {
 			_idx = KnowledgeBase.TypeOffsets[_idx].NamId;
 			if (KnowledgeBase.GetTypeInfo(_idx, INFO_FIELDS, &_tInfo)) {
 				if (_tInfo.FieldsNum) {
-					p = (char*)_tInfo.Fields;
-					for (k = 0; k < _tInfo.FieldsNum; k++) {
+                    memset(_cases, 0, 256 * sizeof(CaseInfo));
+                    p = _tInfo.Fields;
+                    for (m = 0, n = 0; n < _tInfo.FieldsNum; n++) {
 						// Scope
 						p++;
-						_offset = *((int*)p);
 						p += 4;
-						_case = *((int*)p);
-						p += 4;
+                        _case = *((int*)p); p += 4;//case
+                        if (!_cases[m].count) {
+                            _cases[m].caseno = _case;
+                        } else if (_cases[m].caseno != _case) {
+                            m++;
+                            _cases[m].caseno = _case;
+                        }
+                        _cases[m].count++;
+                        _len = *((WORD*)p); p += _len + 3;//name
+                        _len = *((WORD*)p); p += _len + 3;//type
+                    }
 						// Name
-						_len1 = *((WORD*)p);
-						p += 2;
-						_name = String((char*)p, _len1);
-						p += _len1 + 1;
-						// Type
-						_len1 = *((WORD*)p);
-						p += 2;
-						_typeName = TrimTypeName(String((char*)p, _len1));
-						p += _len1 + 1;
-						_kind = GetTypeKind(_typeName, &_size);
-						if (_kind == ikRecord) {
-							_size = GetRecordSize(_typeName);
-							if (AOfs >= _offset && AOfs < _offset + _size)
-								_result += _name + "." + GetRecordFields(AOfs - _offset, _typeName);
+                    for (m = 0; m < 256; m++) {
+                        if (_cases[m].count)
+                        {
+                            p = _tInfo.Fields;
+                            for (n = 0, k = 0; n < _tInfo.FieldsNum; n++)
+                            {
+                                ps = p;
+                                p++;//scope
+                                Ofs1 = *((int*)p); p += 4;//offset
+                                _case = *((int*)p); p += 4;//case
+                                _len = *((WORD*)p); p += _len + 3;//name
+                                _len = *((WORD*)p); p += _len + 3;//type
+                                if (_case == _cases[m].caseno)
+                                {
+                                    if (k == _cases[m].count - 1)
+                                    {
+                                        Ofs2 = GetRecordSize(ARecType);
 						}
-						else if (AOfs >= _offset && AOfs < _offset + _size) {
-							if (_size > 4)
-								_result = _name + "+" + String(AOfs - _elOfs) + ":" + _typeName;
 							else
-								_result = _name + ":" + _typeName;
+                                    {
+                                        Ofs2 = *((int*)(p + 1));
+                                    }
+                                    if (AOfs >= Ofs1 && AOfs < Ofs2)
+                                    {
+                                        p = ps;
+                                        p++;//scope
+                                        Ofs1 = *((int*)p); p += 4;//offset
+                                        p += 4;//case
+                                        _len = *((WORD*)p); p += 2;
+                                        name = String(p, _len); p += _len + 1;
+                                        _len = *((WORD*)p); p += 2;
+                                        type = String(p, _len); p += _len + 1;
+                                        return Ofs1;
+                                    }
+                                    k++;
+                                }
+                            }
 						}
-						if (_result != "")
-							return _result;
 					}
 				}
 				else if (_tInfo.Decl != "") {
@@ -768,75 +944,125 @@ String __fastcall GetRecordFields(int AOfs, String ARecType) {
 		_pos = Adr2Pos(_recT->adr);
 		_pos += 4; // SelfPtr
 		_pos++; // TypeKind
-		_len = Code[_pos];
-		_pos += _len + 1; // Name
+        _len = Code[_pos]; _pos++;
+        _name = String((char*)(Code + _pos), _len); _pos += _len;//Name
 		_pos += 4; // Size
-		_elNum = *((DWORD*)(Code + _pos));
-		_pos += 4;
-		for (i = 0; i < _elNum; i++) {
-			_typeAdr = *((DWORD*)(Code + _pos));
-			_pos += 4;
-			_elOfs = *((DWORD*)(Code + _pos));
-			_pos += 4;
-			_typeName = GetTypeName(_typeAdr);
-			_kind = GetTypeKind(_typeName, &_size);
-			if (_kind == ikRecord) {
-				_size = GetRecordSize(_typeName);
-				if (AOfs >= _elOfs && AOfs < _elOfs + _size)
-					_result = "f" + Val2Str0(_elOfs) + "." + GetRecordFields(AOfs - _elOfs, _typeName);
-			}
-			else if (AOfs >= _elOfs && AOfs < _elOfs + _size) {
-				if (_size > 4)
-					_result = "f" + Val2Str0(_elOfs) + "+" + String(AOfs - _elOfs) + ":" + _typeName;
-				else
-					_result = "f" + Val2Str0(_elOfs) + ":" + _typeName;
+        _elNum = *((DWORD*)(Code + _pos)); _pos += 4;
+        for (n = 0; n < _elNum; n++)
+        {
+            _typeAdr = *((DWORD*)(Code + _pos)); _pos += 4;
+            Ofs1 = *((DWORD*)(Code + _pos)); _pos += 4;
+            if (n == _elNum - 1)
+                Ofs2 = 0;
+			else
+                Ofs2 = *((DWORD*)(Code + _pos + 4));
+            if (AOfs >= Ofs1 && AOfs < Ofs2)
+            {
+                name = _name + ".f" + Val2Str0(Ofs1);
+                type = GetTypeName(_typeAdr);
+                return Ofs1;
 			}
 		}
 		if (DelphiVersion >= 2010) {
 			// NumOps
-			_numOps = Code[_pos];
-			_pos++;
-			for (i = 0; i < _numOps; i++) // RecOps
+            _numOps = Code[_pos]; _pos++;
+            for (n = 0; n < _numOps; n++)    //RecOps
 			{
 				_pos += 4;
 			}
 			_elNum = *((DWORD*)(Code + _pos));
 			_pos += 4; // RecFldCnt
 
-			for (i = 0; i < _elNum; i++) {
+            for (n = 0; n < _elNum; n++)
+            {
+                _typeAdr = *((DWORD*)(Code + _pos)); _pos += 4;
+                Ofs1 = *((DWORD*)(Code + _pos)); _pos += 4;
+                _pos++;//Flags
+                _len = Code[_pos]; _pos++;
+                _name = String((char*)(Code + _pos), _len); _pos += _len;
 				// TypeRef
-				_typeAdr = *((DWORD*)(Code + _pos));
-				_pos += 4;
-				// FldOffset
-				_elOfs = *((DWORD*)(Code + _pos));
-				_pos += 4;
+                _dw = *((WORD*)(Code + _pos));
+                _pos += _dw;//ATR!!
+
+                if (n == _elNum - 1)
+                    Ofs2 = 0;
+                else
+                    Ofs2 = *((DWORD*)(Code + _pos + 4));
+
+                if (AOfs >= Ofs1 && AOfs < Ofs2)
+                {
+                    if (_name != "")
+                        name = _name;
+                    else
+                        name = "f" + Val2Str0(Ofs1);
+                    type = GetTypeName(_typeAdr);
+                    return Ofs1;
+                }
+            }
+        }
+    }
+    return -1;
+}
+// FldOffset
+int __fastcall GetField(String TypeName, int Offset, String& name, String& type)
+{
+    int         size, kind, ofs;
+    PFIELDINFO	fInfo;
+    String      _fname, _ftype, _type = TypeName;
+
+    _fname = ""; _ftype = "";
+
+    while (Offset >= 0)
+    {
+        kind = GetTypeKind(_type, &size);
+        if (kind != ikVMT && kind != ikArray && kind != ikRecord && kind != ikDynArray) break;
+        
+        if (kind == ikVMT)
+        {
+            if (!Offset) return 0;
+            fInfo = GetClassField(_type, Offset);
+            if (name != "")
+                name += ".";
+            if (fInfo->Name != "")
+                name += fInfo->Name;
+            else
+                name += "f" + IntToHex((int)fInfo->Offset, 0);
+            type = fInfo->Type;
+
+            _type = fInfo->Type;
+            Offset -= fInfo->Offset;
 				// Flags
-				_pos++;
+            continue;
+        }
+        if (kind == ikRecord)
+        {
+            ofs = GetRecordField(_type, Offset, _fname, _ftype);
+            if (ofs == -1) return -1;
+            if (name != "")
+                name += ".";
+            name += _fname;
+            type = _ftype;
+
+            _type = _ftype;
+            Offset -= ofs;
 				// Name
-				_len = Code[_pos];
-				_pos++;
-				_name = String((char*)(Code + _pos), _len);
-				_pos += _len;
-				_typeName = GetTypeName(_typeAdr);
-				_kind = GetTypeKind(_typeName, &_size);
-				if (_kind == ikRecord) {
-					_size = GetRecordSize(_typeName);
-					if (AOfs >= _elOfs && AOfs < _elOfs + _size)
-						_result = _name + "." + GetRecordFields(AOfs - _elOfs, _typeName);
+            continue;
 				}
-				else if (AOfs >= _elOfs && AOfs < _elOfs + _size) {
-					if (_size > 4)
-						_result = _name + "+" + String(AOfs - _elOfs) + ":" + _typeName;
-					else
-						_result = _name + ":" + _typeName;
-				}
+        if (kind == ikArray || kind == ikDynArray)
+        {
 				// AttrData
-				_dw = *((WORD*)(Code + _pos));
-				_pos += _dw; // ATR!!
+            break;
 			}
 		}
+    return Offset;
 	}
-	return _result;
+//---------------------------------------------------------------------------
+String __fastcall GetRecordFields(int AOfs, String ARecType)
+{
+    String      _name, _typeName;
+
+    if (ARecType == "" || GetField(ARecType, AOfs, _name, _typeName) < 0) return "";
+    return _name + ":" + _typeName;
 }
 
 // ---------------------------------------------------------------------------
@@ -933,14 +1159,14 @@ DWORD __fastcall GetParentAdr(DWORD Adr) {
 	if (!IsValidImageAdr(Adr))
 		return 0;
 
-	DWORD vmtAdr = Adr - VmtSelfPtr;
-	DWORD pos = Adr2Pos(vmtAdr) + VmtParent;
+    DWORD vmtAdr = Adr - cVmtSelfPtr;
+    DWORD pos = Adr2Pos(vmtAdr) + cVmtParent;
 	DWORD adr = *((DWORD*)(Code + pos));
 	if (IsValidImageAdr(adr) && IsFlagSet(cfImport, Adr2Pos(adr)))
 		return 0;
 
 	if (DelphiVersion == 2 && adr)
-		adr += VmtSelfPtr;
+		adr += cVmtSelfPtr;
 	return adr;
 }
 
@@ -961,8 +1187,8 @@ int __fastcall GetClassSize(DWORD adr) {
 	if (!IsValidImageAdr(adr))
 		return 0;
 
-	DWORD vmtAdr = adr - VmtSelfPtr;
-	DWORD pos = Adr2Pos(vmtAdr) + VmtInstanceSize;
+    DWORD vmtAdr = adr - cVmtSelfPtr;
+    DWORD pos = Adr2Pos(vmtAdr) + cVmtInstanceSize;
 	int size = *((int*)(Code + pos));
 	if (DelphiVersion >= 2009)
 		return size - 4;
@@ -974,10 +1200,10 @@ String __fastcall GetClsName(DWORD adr) {
 	if (!IsValidImageAdr(adr))
 		return "";
 
-	DWORD vmtAdr = adr - VmtSelfPtr;
-	DWORD pos = Adr2Pos(vmtAdr) + VmtClassName;
+    DWORD vmtAdr = adr - cVmtSelfPtr;
+    DWORD pos = Adr2Pos(vmtAdr) + cVmtClassName;
 	if (IsFlagSet(cfImport, pos)) {
-		PInfoRec recN = GetInfoRec(vmtAdr + VmtClassName);
+        PInfoRec recN = GetInfoRec(vmtAdr + cVmtClassName);
 		return recN->GetName();
 	}
 	DWORD nameAdr = *((DWORD*)(Code + pos));
@@ -1073,7 +1299,7 @@ bool __fastcall IsInheritsByProcName(const String& Name1, const String& Name2) {
 // ---------------------------------------------------------------------------
 String __fastcall TransformString(char* str, int len) {
 	bool s = true; // true - print string, false - print #XX
-	BYTE c, *p = (BYTE*)str;
+    BYTE        c, *p = str;
 	String res = "";
 
 	for (int k = 0; k < len; k++) {
@@ -1134,16 +1360,17 @@ DWORD __fastcall GetStopAt(DWORD VmtAdr) {
 	DWORD pos, pointer, stopAt = CodeBase + TotalSize;
 
 	if (DelphiVersion != 2) {
-		pos = Adr2Pos(VmtAdr) + VmtIntfTable;
-		for (m = VmtIntfTable; m != VmtInstanceSize; m += 4, pos += 4) {
+        pos = Adr2Pos(VmtAdr) + cVmtIntfTable;
+        for (m = cVmtIntfTable; m != cVmtInstanceSize; m += 4, pos += 4)
+        {
 			pointer = *((DWORD*)(Code + pos));
 			if (pointer >= VmtAdr && pointer < stopAt)
 				stopAt = pointer;
 		}
 	}
 	else {
-		pos = Adr2Pos(VmtAdr) + VmtInitTable;
-		for (m = VmtInitTable; m != VmtInstanceSize; m += 4, pos += 4) {
+        pos = Adr2Pos(VmtAdr) + cVmtInitTable;
+        for (m = cVmtInitTable; m != cVmtInstanceSize; m += 4, pos += 4) {
 			if (Adr2Pos(VmtAdr) < 0)
 				return 0;
 			pointer = *((DWORD*)(Code + pos));
@@ -1166,33 +1393,16 @@ String __fastcall GetTypeName(DWORD adr) {
 	int pos = Adr2Pos(adr);
 	if (IsFlagSet(cfRTTI, pos))
 		pos += 4;
+    else
+        adr -= 4;
 	// TypeKind
 	BYTE kind = *(Code + pos);
 	pos++;
 	BYTE len = *(Code + pos);
 	pos++;
 	String Result = String((char*)(Code + pos), len);
-	if (Result[1] == '.') {
-		PUnitRec recU = FMain_11011981->GetUnit(adr);
-		if (recU) {
-			String prefix;
-			switch (kind) {
-			case ikEnumeration:
-				prefix = "_Enum_";
-				break;
-			case ikArray:
-				prefix = "_Arr_";
-				break;
-			case ikDynArray:
-				prefix = "_DynArr_";
-				break;
-			default:
-				prefix = FMain_11011981->GetUnitName(recU);
-				break;
-			}
-			Result = prefix + String((int)recU->iniOrder) + "_" + Result.SubString(2, len);
-		}
-	}
+    if (Result.Pos(":") > 0)
+        Result = TransformShadowName(Result, kind, adr);//SHADOW
 	return Result;
 }
 
@@ -1342,12 +1552,20 @@ int __fastcall GetRTTIRecordSize(DWORD adr) {
 }
 
 // ---------------------------------------------------------------------------
-BYTE __fastcall GetTypeKind(String AName, int* size) {
-	BYTE res;
-	int pos, idx = -1, kind;
+BYTE __fastcall GetTypeKind(DWORD Adr) {
+    int _ap = Adr2Pos(Adr);
+    int pos = _ap;
+    pos += 4;
+    return Code[pos];
+}
+//---------------------------------------------------------------------------
+BYTE __fastcall GetTypeKind(String AName, int* size)
+{
+    BYTE        res, kind;
+    int         pos, idx = -1;
 	WORD* uses;
 	MTypeInfo tInfo;
-	String name, typeName, str;
+    String      name, typeName, str, sz;
 
 	*size = 4;
 	if (AName != "") {
@@ -1363,38 +1581,26 @@ BYTE __fastcall GetTypeKind(String AName, int* size) {
 		else
 			name = AName;
 
-		if (SameText(name, "Boolean") || SameText(name, "ByteBool") || SameText(name, "WordBool") || SameText(name, "LongBool")) {
-			return ikEnumeration;
+        if (SameText(name, "Byte")) {
+            *size = 1;
+            return ikInteger;
 		}
-		if (SameText(name, "ShortInt") || SameText(name, "Byte") || SameText(name, "SmallInt") || SameText(name, "Word") || SameText(name, "Dword") || SameText(name, "Integer") || SameText(name,
-			"LongInt") || SameText(name, "LongWord") || SameText(name, "Cardinal")) {
+        if (SameText(name, "Word")) {
+            *size = 2;
 			return ikInteger;
 		}
-		if (SameText(name, "Char")) {
-			return ikChar;
-		}
-		if (SameText(name, "Text") || SameText(name, "File")) {
-			return ikRecord;
-		}
 
-		if (SameText(name, "Int64")) {
-			*size = 8;
-			return ikInt64;
-		}
-		if (SameText(name, "Single")) {
-			return ikFloat;
-		}
-		if (SameText(name, "Real48") || SameText(name, "Real") || SameText(name, "Double") || SameText(name, "TDate") || SameText(name, "TTime") || SameText(name, "TDateTime") || SameText(name,
-			"Comp") || SameText(name, "Currency")) {
-			*size = 8;
-			return ikFloat;
-		}
-		if (SameText(name, "Extended")) {
-			*size = 12;
-			return ikFloat;
-		}
+        if (SameText(name, "Dword"))
+            return ikInteger;
+
+        if (name[1] == '^' || SameText(name, "Pointer"))
+            return ikPointer;
+
 		if (SameText(name, "ShortString"))
+        {
+            *size = 256;
 			return ikString;
+        }
 		if (SameText(name, "String") || SameText(name, "AnsiString"))
 			return ikLString;
 		if (SameText(name, "WideString"))
@@ -1406,30 +1612,25 @@ BYTE __fastcall GetTypeKind(String AName, int* size) {
 		if (SameText(name, "PWideChar"))
 			return ikWCString;
 		if (SameText(name, "Variant"))
+        {
+            *size = 16;
 			return ikVariant;
-		if (SameText(name, "Pointer"))
-			return ikPointer;
+        }
 
-		// File
-		AnsiString recFileName = FMain_11011981->WrkDir + "\\types.idr";
-		FILE* recFile = fopen(recFileName.c_str(), "rt");
-		if (recFile) {
-			while (1) {
-				if (!fgets(StringBuf, 1024, recFile))
-					break;
-				str = String(StringBuf);
-				if (str.Pos(AName + "=") == 1) {
-					if (str.Pos("=record")) {
-						fclose(recFile);
-						return ikRecord;
+        if (SameText(name, "Int64"))
+        {
+            *size = 8;
+            return ikInt64;
 					}
+        if (SameText(name, "Single"))
+        {
+            return ikFloat;
 				}
-			}
-			fclose(recFile);
-		}
+
 		// RTTI
 		PTypeRec recT = GetOwnTypeByName(name);
-		if (recT) {
+        if (recT)
+        {
 			*size = GetRTTIRecordSize(recT->adr);
 			if (!*size)
 				* size = 4;
@@ -1445,8 +1646,13 @@ BYTE __fastcall GetTypeKind(String AName, int* size) {
 			idx = KnowledgeBase.TypeOffsets[idx].NamId;
 			if (KnowledgeBase.GetTypeInfo(idx, INFO_DUMP, &tInfo)) {
 				if (tInfo.Kind == 'Z') // drAlias???
+                {
+                    *size = 1;
 						return ikUnknown;
-				if (tInfo.Decl != "" && tInfo.Decl[1] == '^') {
+                }
+                if (tInfo.Decl != "" && tInfo.Decl[1] == '^')
+                {
+                    *size = 1;
 					return ikUnknown;
 					// res = GetTypeKind(tInfo.Decl.SubString(2, tInfo.Decl.Length()), size);
 					// if (res) return res;
@@ -1467,24 +1673,97 @@ BYTE __fastcall GetTypeKind(String AName, int* size) {
 				case drInterfaceDef:
 					return ikInterface;
 				}
-				if (tInfo.Decl != "") {
+                if (tInfo.Decl != "" && tInfo.Decl != AName)
+                {
 					res = GetTypeKind(tInfo.Decl, size);
 					if (res)
+                    {
 						return res;
 				}
 			}
 		}
+        }
+
+        if (SameText(name, "Boolean") ||
+            SameText(name, "ByteBool") ||
+            SameText(name, "WordBool") ||
+            SameText(name, "LongBool"))
+        {
+            return ikEnumeration;
+        }
+        if (SameText(name, "ShortInt") ||
+            SameText(name, "SmallInt") ||
+            SameText(name, "Integer")  ||
+            SameText(name, "LongInt")  ||
+            SameText(name, "LongWord") ||
+            SameText(name, "Cardinal"))
+        {
+            return ikInteger;
+        }
+        if (SameText(name, "Char"))
+        {
+            return ikChar;
+        }
+        if (SameText(name, "Text") || SameText(name, "File"))
+        {
+            return ikRecord;
+        }
+
+        if (SameText(name, "Real48")   ||
+            SameText(name, "Real")     ||
+            SameText(name, "Double")   ||
+            SameText(name, "TDate")    ||
+            SameText(name, "TTime")    ||
+            SameText(name, "TDateTime")||
+            SameText(name, "Comp")     ||
+            SameText(name, "Currency"))
+        {
+            *size = 8;
+            return ikFloat;
+        }
+        if (SameText(name, "Extended"))
+        {
+            *size = 12;
+            return ikFloat;
+        }
+        //if (SameText(name, "Pointer")) return ikPointer;
+
+        //File
+        /*
+        String recFileName = FMain_11011981->WrkDir + "\\types.idr";
+        FILE* recFile = fopen(recFileName.c_str(), "rt");
+        if (recFile)
+        {
+            while (1)
+            {
+                if (!fgets(StringBuf, 1024, recFile)) break;
+                str = String(StringBuf);
+                if (str.Pos(AName + "=") == 1)
+                {
+                    if (str.Pos("=record"))
+                    {
+                        *size = StrGetRecordSize(str);
+                        fclose(recFile);
+                        return ikRecord;
+                    }
+                }
+            }
+            fclose(recFile);
+        }
+        */
 		// May be Interface name
 		if (AName[1] == 'I') {
 			AName[1] = 'T';
 			if (GetTypeKind(AName, size) == ikVMT)
+            {
 				return ikInterface;
 		}
 		// Manual
 	}
-	return 0;
 }
-
+    *size = 1;
+    return ikUnknown;
+}
 // ---------------------------------------------------------------------------
 int __fastcall GetPackedTypeSize(String AName) {
 	int _size;
@@ -2111,14 +2390,14 @@ void __fastcall Copy2Clipboard(TStrings* items, int leftMargin, bool asmCode) {
 		line = items->Strings[n];
 		bufLen += line.Length() + 2;
 	}
-	// Последний символ должен быть 0
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ 0
 	bufLen++;
 
 	if (bufLen) {
 		char* buf = new char[bufLen];
 		if (buf) {
 			Clipboard()->Open();
-			// Запихиваем все данные в буфер
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ
 			char *p = buf;
 			for (n = 0; n < items->Count; n++) {
 				line = items->Strings[n];
@@ -2132,6 +2411,7 @@ void __fastcall Copy2Clipboard(TStrings* items, int leftMargin, bool asmCode) {
 			}
 
 			*p = 0;
+			// todo? ((TUnicodeClipboard *)Clipboard())->AsUnicodeText = buf;
 			Clipboard()->SetTextBuf(String(buf).c_str());
 			Clipboard()->Close();
 
@@ -2570,43 +2850,6 @@ bool __fastcall IsXorMayBeSkipped(DWORD fromAdr) {
 	return false;
 }
 
-// ---------------------------------------------------------------------------
-String __fastcall UnmangleName(String Name) {
-	int pos;
-	// skip first '@'
-	String Result = Name.SubString(2, Name.Length());
-	AnsiString LeftPart = Result;
-	AnsiString RightPart = "";
-
-	int breakPos = Result.Pos("$");
-	if (breakPos) {
-		if (breakPos == 1) //
-				LeftPart = Result.SubString(1, breakPos - 1);
-		RightPart = Result.SubString(breakPos + 1, Result.Length());
-	}
-	if (*LeftPart.AnsiLastChar() == '@')
-		LeftPart.SetLength(LeftPart.Length() - 1);
-	while (1) {
-		pos = LeftPart.Pos("@@");
-		if (!pos)
-			break;
-		LeftPart[pos + 1] = '_';
-	}
-	int num = 0;
-	while (1) {
-		pos = LeftPart.Pos("@");
-		if (!pos)
-			break;
-		LeftPart[pos] = '.';
-		num++;
-	}
-	while (1) {
-		pos = LeftPart.Pos("._");
-		if (!pos)
-			break;
-		LeftPart[pos + 1] = '@';
-	}
-}
 
 // ---------------------------------------------------------------------------
 // Check construction (after cdq)
@@ -2671,8 +2914,8 @@ int _fastcall IsIntOver(DWORD fromAdr) {
 // sub reg, 4
 // mov reg, [reg]
 int __fastcall IsInlineLengthTest(DWORD fromAdr) {
-	int _curPos = Adr2Pos(fromAdr), _instrLen, _regIdx = -1;
-	DWORD _dd, _adr = 0, _curAdr = fromAdr;
+    int         _curPos = Adr2Pos(fromAdr), _instrLen, _regIdx;
+    DWORD       _dd, _adr, _curAdr = fromAdr;
 	DISINFO _disInfo;
 
 	_instrLen = Disasm.Disassemble(Code + _curPos, (__int64)_curAdr, &_disInfo, 0);
@@ -2720,9 +2963,9 @@ int __fastcall IsInlineLengthTest(DWORD fromAdr) {
 // mov [lvar], reg
 int __fastcall IsInlineLengthCmp(DWORD fromAdr) {
 	BYTE _op;
-	int _curPos = Adr2Pos(fromAdr), _instrLen, _regIdx = -1;
+    int         _curPos = Adr2Pos(fromAdr), _instrLen, _regIdx;
 	int _baseReg, _offset;
-	DWORD _dd, _adr = 0, _curAdr = fromAdr;
+    DWORD       _dd, _adr, _curAdr = fromAdr;
 	DISINFO _disInfo;
 
 	_instrLen = Disasm.Disassemble(Code + _curPos, (__int64)_curAdr, &_disInfo, 0);
@@ -2780,7 +3023,7 @@ int __fastcall IsInlineLengthCmp(DWORD fromAdr) {
 // @1
 int __fastcall IsInlineDiv(DWORD fromAdr, int* div) {
 	BYTE _op;
-	int _curPos = Adr2Pos(fromAdr), _instrLen, _regIdx = -1;
+    int         _curPos = Adr2Pos(fromAdr), _instrLen, _regIdx;
 	DWORD _dd, _adr, _curAdr = fromAdr, _imm;
 	DISINFO _disInfo;
 
@@ -2825,8 +3068,8 @@ int __fastcall IsInlineDiv(DWORD fromAdr, int* div) {
 // @1
 int __fastcall IsInlineMod(DWORD fromAdr, int* mod) {
 	BYTE _op;
-	int _curPos = Adr2Pos(fromAdr), _instrLen, _regIdx = -1;
-	DWORD _dd, _adr = 0, _curAdr = fromAdr, _imm;
+    int         _curPos = Adr2Pos(fromAdr), _instrLen, _regIdx;
+    DWORD       _dd, _adr, _curAdr = fromAdr, _imm;
 	DISINFO _disInfo;
 
 	_instrLen = Disasm.Disassemble(Code + _curPos, (__int64)_curAdr, &_disInfo, 0);
@@ -2866,7 +3109,82 @@ int __fastcall IsInlineMod(DWORD fromAdr, int* mod) {
 	}
 	return 0;
 }
+//---------------------------------------------------------------------------
+//test reg1, reg1
+//js @1
+//@2:mov reg2, [reg3+reg1...]
+//dec reg1
+//push reg2
+//jns @2
+//@1:mov reg4, esp
+int __fastcall IsCopyDynArrayToStack(DWORD fromAdr)
+{
+    BYTE        _op;
+    int         _curPos = Adr2Pos(fromAdr), _instrLen, _reg1Idx, _reg2Idx;
+    DWORD       _dd, _adr1, _adr2, _curAdr = fromAdr, _imm;
+    DISINFO     _disInfo;
 
+    _instrLen = Disasm.Disassemble(Code + _curPos, (__int64)_curAdr, &_disInfo, 0);
+    _op = Disasm.GetOp(_disInfo.Mnem);
+    if (_op == OP_TEST &&
+        _disInfo.OpType[0] == otREG &&
+        _disInfo.OpType[1] == otREG &&
+        _disInfo.OpRegIdx[0] == _disInfo.OpRegIdx[1])
+    {
+        _reg1Idx = _disInfo.OpRegIdx[0];
+        _curPos += _instrLen; _curAdr += _instrLen;
+        _instrLen = Disasm.Disassemble(Code + _curPos, (__int64)_curAdr, &_disInfo, 0);
+        _dd = *((DWORD*)_disInfo.Mnem);
+        if (_dd == 'sj')
+        {
+            _adr1 = _disInfo.Immediate;
+            _curPos += _instrLen; _curAdr += _instrLen;
+            _adr2 = _curAdr;
+            _instrLen = Disasm.Disassemble(Code + _curPos, (__int64)_curAdr, &_disInfo, 0);
+            _op = Disasm.GetOp(_disInfo.Mnem);
+            if (_op == OP_MOV &&
+                _disInfo.OpType[0] == otREG &&
+                _disInfo.OpType[1] == otMEM)
+            {
+                _reg2Idx = _disInfo.OpRegIdx[0];
+                _curPos += _instrLen; _curAdr += _instrLen;
+                _instrLen = Disasm.Disassemble(Code + _curPos, (__int64)_curAdr, &_disInfo, 0);
+                _op = Disasm.GetOp(_disInfo.Mnem);
+                if (_op == OP_DEC &&
+                    _disInfo.OpType[0] == otREG &&
+                    _disInfo.OpRegIdx[0] == _reg1Idx)
+                {
+                    _curPos += _instrLen; _curAdr += _instrLen;
+                    _instrLen = Disasm.Disassemble(Code + _curPos, (__int64)_curAdr, &_disInfo, 0);
+                    _op = Disasm.GetOp(_disInfo.Mnem);
+                    if (_op == OP_PUSH &&
+                        _disInfo.OpType[0] == otREG &&
+                        _disInfo.OpRegIdx[0] == _reg2Idx)
+                    {
+                        _curPos += _instrLen; _curAdr += _instrLen;
+                        _instrLen = Disasm.Disassemble(Code + _curPos, (__int64)_curAdr, &_disInfo, 0);
+                        _dd = *((DWORD*)_disInfo.Mnem);
+                        if (_dd == 'snj' && _disInfo.Immediate == _adr2)
+                        {
+                            _curPos += _instrLen; _curAdr += _instrLen;
+                            _instrLen = Disasm.Disassemble(Code + _curPos, (__int64)_curAdr, &_disInfo, 0);
+                            _op = Disasm.GetOp(_disInfo.Mnem);
+                            if (_adr1 == _curAdr &&
+                                _op == OP_MOV &&
+                                _disInfo.OpType[0] == otREG &&
+                                _disInfo.OpType[1] == otREG &&
+                                _disInfo.OpRegIdx[1] == 20)//esp
+                            {
+                                return (_curAdr + _instrLen) - fromAdr;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return 0;
+}
 // ---------------------------------------------------------------------------
 int __fastcall GetLastLocPos(int fromAdr) {
 	int _pos = Adr2Pos(fromAdr);
@@ -4111,14 +4429,115 @@ int __fastcall IsInt64Shl(DWORD fromAdr) {
 			_val = _disInfo.Immediate;
 		}
 		else if (n == 2) {
-			if (!(_op == OP_SHL && _disInfo.OpNum == 2 && _disInfo.OpType[0] == otREG && _disInfo.OpType[2] == otIMM && _disInfo.OpRegIdx[0] == _idx && _disInfo.Immediate == _val))
+            if (!(_op == OP_SHL && _disInfo.OpNum == 2 && _disInfo.OpType[0] == otREG && _disInfo.OpType[2] == otIMM && _disInfo.OpRegIdx[0] == _idx &&_disInfo.Immediate == _val)) break;
+            return _curAdr + _instrLen - fromAdr;
+        }
+        if (_disInfo.Ret) return 0;
+        _curAdr += _instrLen;
+    }
+    return 0;
+}
+//---------------------------------------------------------------------------
+bool __fastcall LineContainsShadowName(String line)
+{
+    if (line.Pos("Enum_")       ||
+        line.Pos("Array_")      ||
+        line.Pos("DynArray_")   ||
+        line.Pos("Set_")        ||
+        line.Pos("Record_")     ||
+        line.Pos("Unknown_"))
+        return true;
+    return false;
+}
+//---------------------------------------------------------------------------
+int __fastcall GetAdrOfsFromShadowName(String name)
+{
+    int pos = name.Pos("Enum_");
+    if (pos)
+        return pos + 5;
+    pos = name.Pos("DynArray_");
+    if (pos)
+        return pos + 9;
+    pos = name.Pos("Array_");
+    if (pos)
+        return pos + 6;
+    pos = name.Pos("Set_");
+    if (pos)
+        return pos + 4;
+    pos = name.Pos("Record_");
+    if (pos)
+        return pos + 7;
+    pos = name.Pos("Unknown_");
+    if (pos)
+        return pos + 8;
+    return -1;
+}
+//---------------------------------------------------------------------------
+//Replace symbols like '<', '>', ',', '.' to 'L', 'R', 'C', 'D'
+String __fastcall SanitizeName(String name)
+{
+    int     pos;
+    
+    while (pos = name.Pos("<")) name[pos] = 'L';
+    while (pos = name.Pos(">")) name[pos] = 'R';
+    while (pos = name.Pos(",")) name[pos] = 'C';
+    while (pos = name.Pos(".")) name[pos] = 'D';
+    return name;
+}
+//---------------------------------------------------------------------------
+//Shadow name is name like ":1"
+String __fastcall TransformShadowName(String name, BYTE typeKind, DWORD typeAdr)
+{
+    String prefix;
+    switch (typeKind)
+    {
+    case ikEnumeration:
+        prefix = "Enum_";
+        break;
+    case ikArray:
+        prefix = "Array_";
+        break;
+    case ikDynArray:
+        prefix = "DynArray_";
+        break;
+    case ikSet:
+        prefix = "Set_";
+        break;
+    case ikRecord:
+        prefix = "Record_";
+        break;
+    default:
+        prefix = "Unknown_";
 				break;
-			return _curAdr + _instrLen - fromAdr;
 		}
-		if (_disInfo.Ret)
+    return prefix + Val2Str8(typeAdr);// - 4
+}
+//---------------------------------------------------------------------------
+int __fastcall FieldsCmpFunction(void *item1, void *item2)
+{
+    PFIELDINFO rec1 = (PFIELDINFO)item1;
+    PFIELDINFO rec2 = (PFIELDINFO)item2;
+    if (rec1->Offset > rec2->Offset) return 1;
+    if (rec1->Offset < rec2->Offset) return -1;
+    return 0;
+}
+//---------------------------------------------------------------------------
+int __fastcall LocalsCmpFunction(void *item1, void *item2)
+{
+    PLOCALINFO rec1 = (PLOCALINFO)item1;
+    PLOCALINFO rec2 = (PLOCALINFO)item2;
+
+    if (rec1->Ofs > rec2->Ofs) return 1;
+    if (rec1->Ofs < rec2->Ofs) return -1;
 			return 0;
-		_curAdr += _instrLen;
 	}
+//---------------------------------------------------------------------------
+int __fastcall FieldInfoCmpFunction(void* item1, void* item2)
+{
+    if (((FIELD_INFO*)item1)->Offset > ((FIELD_INFO*)item2)->Offset)
+        return 1;
+    if (((FIELD_INFO*)item1)->Offset < ((FIELD_INFO*)item2)->Offset)
+        return -1;
 	return 0;
 }
 // ---------------------------------------------------------------------------

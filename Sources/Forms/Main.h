@@ -20,6 +20,7 @@
 #include "UFileDropper.h"
 
 #include "PEHeader.h"
+// #include "TntStdCtrls.hpp"
 // ---------------------------------------------------------------------------
 #define USER_KNOWLEDGEBASE      0x80000000
 #define SOURCE_LIBRARY          0x40000000
@@ -88,16 +89,12 @@ typedef struct {
 	String Name;
 } SegmentInfo, *PSegmentInfo;
 
-/*
- typedef struct
- {
- DWORD    dwRVAFunctionNameList;
- DWORD    dwUseless1;
- DWORD    dwUseless2;
- DWORD    dwRVAModuleName;
- DWORD    dwRVAFunctionAddressList;
- } IMAGE_IMPORT_DIRECTORY;
- */
+typedef struct
+{
+    int         caseno;
+    int         count;
+} CaseInfo, *PCaseInfo;
+
 #define cfUndef         0x00000000
 #define cfCode          0x00000001
 #define cfData          0x00000002
@@ -359,7 +356,7 @@ __published: // IDE-managed Components
 	TTabSheet *tsClassView;
 	TTreeView *tvClassesFull;
 	TTabSheet *tsStrings;
-	TListBox *lbStrings;
+	TListBox *lbStrings; // TTntListBox *lbStrings;
 	TPanel *Panel1;
 	TPopupMenu *pmUnits;
 	TMenuItem *miSearchUnit;
@@ -514,7 +511,13 @@ __published: // IDE-managed Components
 	TMenuItem *miDelphiXE4;
 	TMenuItem *miProcessDumper;
 	TMenuItem *miSetlvartype;
-
+    TPopupMenu *pmNames;
+    TMenuItem *miCopytoClipboardNames;
+    TMenuItem *miHiewGenerator;
+    TMenuItem *mniShellIntegration1;
+    TMenuItem *mniN3;
+    TMenuItem *mniN4;
+    TMenuItem *mCreateCHeaderFile;
 	void __fastcall miExitClick(TObject *Sender);
 	void __fastcall miAutodetectVersionClick(TObject *Sender);
 	void __fastcall FormCreate(TObject *Sender);
@@ -619,7 +622,7 @@ __published: // IDE-managed Components
 	void __fastcall lbStringsClick(TObject *Sender);
 	void __fastcall miViewClassClick(TObject *Sender);
 	void __fastcall pmVMTsPopup(TObject *Sender);
-	void __fastcall lbStringsDrawItem(TWinControl *Control, int Index, TRect &Rect, TOwnerDrawState State);
+	// void __fastcall lbStringsDrawItem(TWinControl *Control, int Index, TRect &Rect, TOwnerDrawState State);
 	void __fastcall ShowSXrefsClick(TObject *Sender);
 	void __fastcall miAboutClick(TObject *Sender);
 	void __fastcall miHelpClick(TObject *Sender);
@@ -680,7 +683,18 @@ __published: // IDE-managed Components
 	void __fastcall lbSourceCodeClick(TObject *Sender);
 	void __fastcall miSetlvartypeClick(TObject *Sender);
 	void __fastcall pmSourceCodePopup(TObject *Sender);
-
+    void __fastcall miCopytoClipboardNamesClick(TObject *Sender);
+    void __fastcall miHiewGeneratorClick(TObject *Sender);
+    void __fastcall mniShellIntegration1Click(TObject *Sender);
+    void __fastcall mCreateCHeaderFileClick(TObject *Sender);
+    void __fastcall OutputForwardDeclarationsHeader(FILE* hF);
+    void __fastcall OutputForwardDeclarationsOfKind(FILE* hF, BYTE kind);
+    void __fastcall CreateCppHeaderFile(FILE* hF);
+        //void __fastcall mniMap1Click(TObject *Sender);
+        //void __fastcall mniCopyAllToClipboardClick(TObject *Sender);
+        //void __fastcall lstMapDblClick(TObject *Sender);
+        //void __fastcall mniCopyLinesClick(TObject *Sender);
+        //void __fastcall mniCopyLinesStrings1Click(TObject *Sender);
 private: // User declarations
 	bool ProjectLoaded;
 
@@ -692,10 +706,11 @@ private: // User declarations
 	void __fastcall LoadFile(String FileName, int version);
 	void __fastcall LoadDelphiFile(int version);
 	void __fastcall LoadDelphiFile1(String FileName, int version, bool loadExp, bool loadImp);
-	void __fastcall ReadNode(TStream* stream, TTreeNode* node, char* buf);
+    void __fastcall ReadNode(FILE* fIn, TTreeNode* node, char* buf);
+    //void __fastcall ReadNode(TStream* stream, TTreeNode* node, char* buf);
 	void __fastcall OpenProject(String FileName);
-	bool __fastcall ImportsValid(DWORD ImpRVA, DWORD ImpSize);
-	int __fastcall LoadImage(FILE* f, bool loadExp, bool loadImp);
+	// bool __fastcall ImportsValid(DWORD ImpRVA, DWORD ImpSize);
+    // int __fastcall LoadImage(FILE* f, int version, bool loadExp, bool loadImp);
 	void __fastcall FindExports();
 	void __fastcall FindImports();
 	int __fastcall GetDelphiVersion();
@@ -710,7 +725,7 @@ private: // User declarations
 	void __fastcall ShowCodeXrefs(DWORD Adr, int selIdx);
 	void __fastcall ShowStringXrefs(DWORD Adr, int selIdx);
 	void __fastcall ShowNameXrefs(DWORD Adr, int selIdx);
-	void __fastcall WriteNode(TStream* stream, TTreeNode* node);
+    void __fastcall WriteNode(FILE* f, TTreeNode* node);//void __fastcall WriteNode(TStream* stream, TTreeNode* node);
 	void __fastcall SaveProject(String FileName);
 	void __fastcall CloseProject();
 	void __fastcall CleanProject();
@@ -746,7 +761,7 @@ private: // User declarations
 
 public: // User declarations
 	String AppDir;
-	String BinsDir;
+	String BinsDir; // Knowledge Base files
 	String WrkDir;
 	String SourceFile;
 	int SysProcsNum; // Number of elements in SysProcs array
@@ -789,7 +804,7 @@ public: // User declarations
 	void __fastcall ClearPassFlags();
 	DWORD __fastcall FollowInstructions(DWORD fromAdr, DWORD toAdr);
 	int __fastcall EstimateProcSize(DWORD fromAdr);
-	int __fastcall GetField(String TypeName, int Offset, String& name, String& type);
+    // DWORD __fastcall EvaluateInitTable(BYTE* Data, DWORD Size, DWORD Base);
 	PFIELDINFO __fastcall GetField(String TypeName, int Offset, bool* vmt, DWORD* vmtAdr, String prefix);
 	PFIELDINFO __fastcall AddField(DWORD ProcAdr, int ProcOfs, String TypeName, BYTE Scope, int Offset, int Case, String Name, String Type);
 	int __fastcall GetMethodOfs(PInfoRec rec, DWORD procAdr);
@@ -845,6 +860,7 @@ public: // User declarations
 	int __fastcall LoadIntfTable(DWORD adr, TStringList* dstList);
 	int __fastcall LoadAutoTable(DWORD adr, TStringList* dstList);
 	int __fastcall LoadFieldTable(DWORD adr, TList* dstList);
+    int __fastcall LoadAllFields(DWORD adr, TList* dstList);
 	int __fastcall LoadMethodTable(DWORD adr, TList* dstList);
 	int __fastcall LoadMethodTable(DWORD adr, TStringList* dstList);
 	int __fastcall LoadDynamicTable(DWORD adr, TList* dstList);

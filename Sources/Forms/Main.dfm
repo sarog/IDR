@@ -309,7 +309,6 @@ object FMain_11011981: TFMain_11011981
         TabOrder = 0
         OnClick = lbStringsClick
         OnDblClick = lbStringsDblClick
-        OnDrawItem = lbStringsDrawItem
         OnMouseMove = lbStringsMouseMove
       end
       object Panel3: TPanel

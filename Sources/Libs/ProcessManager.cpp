@@ -120,7 +120,6 @@ void TProcessManager::DumpProcess(DWORD PID, TMemoryStream * MemStream, DWORD * 
 
 	_hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, PID); // 0x1F0FFF
 	if (_hProcess) {
-
 		EnumProcessModules(_hProcess, &hMod, sizeof(hMod), &ModulesNum);
 		GetModuleInformation(_hProcess, hMod, &_moduleInfo, sizeof(_moduleInfo));
 

@@ -116,17 +116,17 @@ bool TPEHeader::ImportsValid(DWORD ImpRVA, DWORD ImpSize) {
 		IMAGE_IMPORT_DESCRIPTOR ImportDescriptor;
 
 		while (1) {
-			memmove(&ImportDescriptor, (this->FPEHeader32.Image + Adr2Pos(EntryRVA +this->FPEHeader32.ImageBase)), sizeof(IMAGE_IMPORT_DESCRIPTOR));
+			memmove(&ImportDescriptor, (this->FPEHeader32.Image + Adr2Pos(EntryRVA + this->FPEHeader32.ImageBase)), sizeof(IMAGE_IMPORT_DESCRIPTOR));
 
 			if (!ImportDescriptor.OriginalFirstThunk && !ImportDescriptor.TimeDateStamp && !ImportDescriptor.ForwarderChain && !ImportDescriptor.Name && !ImportDescriptor.FirstThunk)
 				break;
 
-			if (!IsValidImageAdr(ImportDescriptor.Name +this->FPEHeader32.ImageBase))
+			if (!IsValidImageAdr(ImportDescriptor.Name + this->FPEHeader32.ImageBase))
 				return false;
-			int NameLength = strlen((char*)(this->FPEHeader32.Image + Adr2Pos(ImportDescriptor.Name +this->FPEHeader32.ImageBase)));
+			int NameLength = strlen((char*)(this->FPEHeader32.Image + Adr2Pos(ImportDescriptor.Name + this->FPEHeader32.ImageBase)));
 			if (NameLength < 0 || NameLength > 256)
 				return false;
-			if (!IsValidModuleName(NameLength, Adr2Pos(ImportDescriptor.Name +this->FPEHeader32.ImageBase)))
+			if (!IsValidModuleName(NameLength, Adr2Pos(ImportDescriptor.Name + this->FPEHeader32.ImageBase)))
 				return false;
 
 			EntryRVA += sizeof(IMAGE_IMPORT_DESCRIPTOR);
@@ -138,7 +138,7 @@ bool TPEHeader::ImportsValid(DWORD ImpRVA, DWORD ImpSize) {
 }
 
 // ---------------------------------------------------------------------------
-int TPEHeader::LoadImage(FILE* f, bool loadExp, bool loadImp) {
+int TPEHeader::LoadImageFile(FILE* f, int version, bool loadExp, bool loadImp, bool BCB, DWORD EP) {
 	int i, n, m, bytes, pos, SectionsNum, ExpNum, NameLength;
 	DWORD DataEnd, Items;
 	String moduleName, modName, sEP;
@@ -190,10 +190,11 @@ int TPEHeader::LoadImage(FILE* f, bool loadExp, bool loadImp) {
 	this->FPEHeader32.TotalSize = 0;
 	DWORD rsrcVA = NTHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_RESOURCE].VirtualAddress;
 	DWORD relocVA = NTHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].VirtualAddress;
+
 	// Fill SegmentList
 	for (i = 0; i < SectionsNum; i++) {
 		PSegmentInfo segInfo = new SegmentInfo;
-		segInfo->Start = SectionHeaders[i].VirtualAddress +this->FPEHeader32.ImageBase;
+		segInfo->Start = SectionHeaders[i].VirtualAddress + this->FPEHeader32.ImageBase;
 		segInfo->Flags = SectionHeaders[i].Characteristics;
 
 		if (i + 1 < SectionsNum)
@@ -251,69 +252,74 @@ int TPEHeader::LoadImage(FILE* f, bool loadExp, bool loadImp) {
 	this->FPEHeader32.CodeStart = 0;
 	this->FPEHeader32.Code = this->FPEHeader32.Image +this->FPEHeader32.CodeStart;
 	this->FPEHeader32.CodeBase = this->FPEHeader32.ImageBase + SectionHeaders[0].VirtualAddress;
-
+    EP = NTHeaders.OptionalHeader.AddressOfEntryPoint + this->FPEHeader32.ImageBase;//temporary assignment to evaluate BCB ini and fin tables
+    BCB = false;
 	DWORD evalInitTable = TPEHeader::EvaluateInitTable(this->FPEHeader32.Image, this->FPEHeader32.TotalSize, this->FPEHeader32.CodeBase);
-	if (!evalInitTable) {
-		ShowMessage("Cannot find initialization table");
-		delete[]SectionHeaders;
-		delete[]this->FPEHeader32.Image;
-		this->FPEHeader32.Image = 0;
-		return 0;
-	}
 
-	DWORD evalEP = 0;
-	// Find instruction mov eax,offset InitTable
-	for (n = 0; n < this->FPEHeader32.TotalSize - 5; n++) {
-		if (this->FPEHeader32.Image[n] == 0xB8 && *((DWORD*)(this->FPEHeader32.Image + n + 1)) == evalInitTable) {
-			evalEP = n;
-			break;
-		}
-	}
-	// Scan up until bytes 0x55 (push ebp) and 0x8B,0xEC (mov ebp,esp)
-	if (evalEP) {
-		while (evalEP != 0) {
-			if (this->FPEHeader32.Image[evalEP] == 0x55 && this->FPEHeader32.Image[evalEP + 1] == 0x8B && this->FPEHeader32.Image[evalEP + 2] == 0xEC)
-				break;
-			evalEP--;
-		}
-	}
-	// Check evalEP
-	if (evalEP +this->FPEHeader32.CodeBase != NTHeaders.OptionalHeader.AddressOfEntryPoint +this->FPEHeader32.ImageBase) {
-		sprintf(
-			msg,
-			"Possible invalid EP (NTHeader:%lX, Evaluated:%lX). Input valid EP?",
-			NTHeaders.OptionalHeader.AddressOfEntryPoint +this->FPEHeader32.ImageBase,
-			evalEP +this->FPEHeader32.CodeBase
-			);
+	 if (version != 2) {
+        DWORD evalInitTable = TPEHeader::EvaluateInitTable(this->FPEHeader32.Image, this->FPEHeader32.TotalSize, this->FPEHeader32.CodeBase);
+        if (!evalInitTable) {
+            ShowMessage("Cannot find initialization table");
+            delete[]SectionHeaders;
+            delete[]this->FPEHeader32.Image;
+            this->FPEHeader32.Image = 0;
+            return 0;
+        }
 
-		if (Application->MessageBox(String(msg).c_str(), L"Confirmation", MB_YESNO) == IDYES) {
-			sEP = InputDialogExec("New EP", "EP:", Val2Str0(NTHeaders.OptionalHeader.AddressOfEntryPoint +this->FPEHeader32.ImageBase));
-			if (sEP != "") {
-				sscanf(AnsiString(sEP).c_str(), "%lX", &this->FPEHeader32.EP);
-				if (!IsValidImageAdr(this->FPEHeader32.EP)) {
-					delete[]SectionHeaders;
-					delete[]this->FPEHeader32.Image;
-					this->FPEHeader32.Image = 0;
-					return 0;
-				}
-			}
-			else {
-				delete[]SectionHeaders;
-				delete[]this->FPEHeader32.Image;
-				this->FPEHeader32.Image = 0;
-				return 0;
-			}
-		}
-		else {
-			delete[]SectionHeaders;
-			delete[]this->FPEHeader32.Image;
-			this->FPEHeader32.Image = 0;
-			return 0;
-		}
-	}
-	else {
-		this->FPEHeader32.EP = NTHeaders.OptionalHeader.AddressOfEntryPoint +this->FPEHeader32.ImageBase;
-	}
+        DWORD evalEP = 0;
+        // Find instruction mov eax,offset InitTable
+        for (n = 0; n < this->FPEHeader32.TotalSize - 5; n++) {
+            if (this->FPEHeader32.Image[n] == 0xB8 && *((DWORD*)(this->FPEHeader32.Image + n + 1)) == evalInitTable) {
+                evalEP = n;
+                break;
+            }
+        }
+        // Scan up until bytes 0x55 (push ebp) and 0x8B,0xEC (mov ebp,esp)
+        if (evalEP) {
+            while (evalEP != 0) {
+                if (this->FPEHeader32.Image[evalEP] == 0x55 && this->FPEHeader32.Image[evalEP + 1] == 0x8B && this->FPEHeader32.Image[evalEP + 2] == 0xEC)
+                    break;
+                evalEP--;
+            }
+        }
+        // Check evalEP
+        if (evalEP + this->FPEHeader32.CodeBase != NTHeaders.OptionalHeader.AddressOfEntryPoint + this->FPEHeader32.ImageBase) {
+            sprintf(
+                msg,
+                "Possible invalid EP (NTHeader:%lX, Evaluated:%lX). Input valid EP?",
+                NTHeaders.OptionalHeader.AddressOfEntryPoint + this->FPEHeader32.ImageBase,
+                evalEP + this->FPEHeader32.CodeBase
+                );
+
+            if (Application->MessageBox(String(msg).c_str(), L"Confirmation", MB_YESNO) == IDYES) {
+                sEP = InputDialogExec("New EP", "EP:", Val2Str0(NTHeaders.OptionalHeader.AddressOfEntryPoint + this->FPEHeader32.ImageBase));
+                if (sEP != "") {
+                    sscanf(AnsiString(sEP).c_str(), "%lX", &this->FPEHeader32.EP);
+                    if (!IsValidImageAdr(this->FPEHeader32.EP)) {
+                        delete[]SectionHeaders;
+                        delete[]this->FPEHeader32.Image;
+                        this->FPEHeader32.Image = 0;
+                        return 0;
+                    }
+                }
+                else {
+                    delete[]SectionHeaders;
+                    delete[]this->FPEHeader32.Image;
+                    this->FPEHeader32.Image = 0;
+                    return 0;
+                }
+            }
+            else {
+                delete[]SectionHeaders;
+                delete[]this->FPEHeader32.Image;
+                this->FPEHeader32.Image = 0;
+                return 0;
+            }
+        }
+        else {
+            this->FPEHeader32.EP = NTHeaders.OptionalHeader.AddressOfEntryPoint +this->FPEHeader32.ImageBase;
+        }
+    }
 	// Find DataStart
 	// DWORD _codeEnd = DataEnd;
 	// DataStart = CodeStart;
@@ -346,7 +352,7 @@ int TPEHeader::LoadImage(FILE* f, bool loadExp, bool loadImp) {
 
 		if (ExpRVA) {
 			IMAGE_EXPORT_DIRECTORY ExportDescriptor;
-			memmove(&ExportDescriptor, (this->FPEHeader32.Image + Adr2Pos(ExpRVA +this->FPEHeader32.ImageBase)), sizeof(IMAGE_EXPORT_DIRECTORY));
+			memmove(&ExportDescriptor, (this->FPEHeader32.Image + Adr2Pos(ExpRVA + this->FPEHeader32.ImageBase)), sizeof(IMAGE_EXPORT_DIRECTORY));
 			ExpNum = ExportDescriptor.NumberOfFunctions;
 			DWORD ExpFuncNamPos = ExportDescriptor.AddressOfNames;
 			DWORD ExpFuncAdrPos = ExportDescriptor.AddressOfFunctions;
@@ -355,12 +361,12 @@ int TPEHeader::LoadImage(FILE* f, bool loadExp, bool loadImp) {
 			for (i = 0; i < ExpNum; i++) {
 				PExportNameRec recE = new ExportNameRec;
 
-				DWORD dp = *((DWORD*)(this->FPEHeader32.Image + Adr2Pos(ExpFuncNamPos +this->FPEHeader32.ImageBase)));
-				NameLength = strlen((char*)(this->FPEHeader32.Image + Adr2Pos(dp +this->FPEHeader32.ImageBase)));
-				recE->name = String((char*)(this->FPEHeader32.Image + Adr2Pos(dp +this->FPEHeader32.ImageBase)), NameLength);
+				DWORD dp = *((DWORD*)(this->FPEHeader32.Image + Adr2Pos(ExpFuncNamPos + this->FPEHeader32.ImageBase)));
+				NameLength = strlen((char*)(this->FPEHeader32.Image + Adr2Pos(dp + this->FPEHeader32.ImageBase)));
+				recE->name = String((char*)(this->FPEHeader32.Image + Adr2Pos(dp + this->FPEHeader32.ImageBase)), NameLength);
 
-				WORD dw = *((WORD*)(this->FPEHeader32.Image + Adr2Pos(ExpFuncOrdPos +this->FPEHeader32.ImageBase)));
-				recE->address = *((DWORD*)(this->FPEHeader32.Image + Adr2Pos(ExpFuncAdrPos + 4 * dw +this->FPEHeader32.ImageBase)))+this->FPEHeader32.ImageBase;
+				WORD dw = *((WORD*)(this->FPEHeader32.Image + Adr2Pos(ExpFuncOrdPos + this->FPEHeader32.ImageBase)));
+				recE->address = *((DWORD*)(this->FPEHeader32.Image + Adr2Pos(ExpFuncAdrPos + 4 * dw + this->FPEHeader32.ImageBase)))+this->FPEHeader32.ImageBase;
 				recE->ord = dw + ExportDescriptor.Base;
 				this->FPEHeader32.ExpFuncList->Add((void*)recE);
 
@@ -398,13 +404,13 @@ int TPEHeader::LoadImage(FILE* f, bool loadExp, bool loadImp) {
 			EndRVA = ImpRVA + ImpSize;
 
 			while (1) {
-				memmove(&ImportDescriptor, (this->FPEHeader32.Image + Adr2Pos(EntryRVA +this->FPEHeader32.ImageBase)), sizeof(IMAGE_IMPORT_DESCRIPTOR));
+				memmove(&ImportDescriptor, (this->FPEHeader32.Image + Adr2Pos(EntryRVA + this->FPEHeader32.ImageBase)), sizeof(IMAGE_IMPORT_DESCRIPTOR));
 				// All descriptor fields are NULL - end of list, break
 				if (!ImportDescriptor.OriginalFirstThunk && !ImportDescriptor.TimeDateStamp && !ImportDescriptor.ForwarderChain && !ImportDescriptor.Name && !ImportDescriptor.FirstThunk)
 					break;
 
-				NameLength = strlen((char*)(this->FPEHeader32.Image + Adr2Pos(ImportDescriptor.Name +this->FPEHeader32.ImageBase)));
-				moduleName = String((char*)(this->FPEHeader32.Image + Adr2Pos(ImportDescriptor.Name +this->FPEHeader32.ImageBase)), NameLength);
+				NameLength = strlen((char*)(this->FPEHeader32.Image + Adr2Pos(ImportDescriptor.Name + this->FPEHeader32.ImageBase)));
+				moduleName = String((char*)(this->FPEHeader32.Image + Adr2Pos(ImportDescriptor.Name + this->FPEHeader32.ImageBase)), NameLength);
 
 				int pos = moduleName.Pos(".");
 				if (pos)
@@ -428,7 +434,7 @@ int TPEHeader::LoadImage(FILE* f, bool loadExp, bool loadImp) {
 				// Get Imported Functions
 				while (1) {
 					// Names or ordinals get from LookupTable (this table can be inside OriginalFirstThunk or FirstThunk)
-					ThunkValue = *((DWORD*)(this->FPEHeader32.Image + Adr2Pos(LookupRVA +this->FPEHeader32.ImageBase)));
+					ThunkValue = *((DWORD*)(this->FPEHeader32.Image + Adr2Pos(LookupRVA + this->FPEHeader32.ImageBase)));
 					if (!ThunkValue)
 						break;
 
@@ -448,8 +454,8 @@ int TPEHeader::LoadImage(FILE* f, bool loadExp, bool loadImp) {
 					else {
 						// by name
 						Hint = *((WORD*)(this->FPEHeader32.Image + Adr2Pos(ThunkValue +this->FPEHeader32.ImageBase)));
-						NameLength = lstrlen((char*)(this->FPEHeader32.Image + Adr2Pos(ThunkValue + 2+this->FPEHeader32.ImageBase)));
-						impFuncName = String((char*)(this->FPEHeader32.Image + Adr2Pos(ThunkValue + 2+this->FPEHeader32.ImageBase)), NameLength);
+						NameLength = lstrlen((char*)(this->FPEHeader32.Image + Adr2Pos(ThunkValue + 2+ this->FPEHeader32.ImageBase)));
+						impFuncName = String((char*)(this->FPEHeader32.Image + Adr2Pos(ThunkValue + 2+ this->FPEHeader32.ImageBase)), NameLength);
 
 						// if (hLib)
 						// {

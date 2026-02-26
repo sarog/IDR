@@ -9,6 +9,7 @@
 #include <Vcl.ExtCtrls.hpp>
 #include <Vcl.Menus.hpp>
 #include <Vcl.StdCtrls.hpp>
+// #include "TntStdCtrls.hpp"
 // ---------------------------------------------------------------------------
 #define     DEFINE_AS_CODE      1
 #define     DEFINE_AS_STRING    2

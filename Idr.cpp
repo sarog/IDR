@@ -27,7 +27,9 @@ USEFORM("Sources\Forms\InputDlg.cpp", FInputDlg_11011981);
 //---------------------------------------------------------------------------
 int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int) {
 	try {
+        // Randomize();
 		Application->Initialize();
+		// Application->HelpFile = "";
 		Application->MainFormOnTaskBar = true;
 		Application->CreateForm(__classid(TFMain_11011981), &FMain_11011981);
 		Application->CreateForm(__classid(TFExplorer_11011981), &FExplorer_11011981);

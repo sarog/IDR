@@ -180,7 +180,7 @@ private:
 
 class IdrDfmDefaultControl : public TPanel {
 public:
-	__fastcall IdrDfmDefaultControl(TComponent* Owner);
+    __fastcall IdrDfmDefaultControl(TComponent* Owner);
 
 	bool IsVisible();
 	void SetClassName(const String& name, const String& mappedName);

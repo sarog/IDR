@@ -159,8 +159,8 @@ void __fastcall TFEditFieldsDlg_11011981::bApplyClick(TObject *Sender) {
 	switch (Op) {
 	case FD_OP_EDIT:
 		fInfo = (PFIELDINFO)fieldsList->Items[lbFields->ItemIndex];
-		fInfo->Name = edtName->Text;
-		fInfo->Type = edtType->Text;
+		fInfo->Name = Trim(edtName->Text);
+		fInfo->Type = Trim(edtType->Text);
 		// Delete all fields (if exists) that covered by new type
 		fromOfs = fInfo->Offset;
 		if (GetTypeKind(edtType->Text, &size) == ikRecord) {
@@ -181,7 +181,7 @@ void __fastcall TFEditFieldsDlg_11011981::bApplyClick(TObject *Sender) {
 		if (Op == FD_OP_ADD) {
 			fInfo = FMain_11011981->GetField(recN->GetName(), offset, &vmt, &adr, "");
 			if (!fInfo || Application->MessageBox(L"Field already exists", L"Replace?", MB_YESNO) == IDYES)
-				recN->vmtInfo->AddField(0, 0, FIELD_PUBLIC, offset, -1, edtName->Text, edtType->Text);
+				recN->vmtInfo->AddField(0, 0, FIELD_PUBLIC, offset, -1, Trim(edtName->Text), Trim(edtType->Text));
 			if (fInfo && fInfo->Scope == SCOPE_TMP)
 				delete fInfo;
 		}

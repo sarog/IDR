@@ -1252,7 +1252,7 @@ PREPNAMEINFO __fastcall TIDCGen::GetNameInfo(int idx) {
 }
 
 // ---------------------------------------------------------------------------
-__fastcall TSaveIDCDialog::TSaveIDCDialog(TComponent* AOwner, char* TemplateName) : TOpenDialog(AOwner) {
+__fastcall TSaveIDCDialog::TSaveIDCDialog(TComponent* AOwner, char* TemplateName) : TSaveDialog(AOwner) {
 	Options >> ofEnableSizing;
 	Template = String(TemplateName).c_str();
 	CheckDlgButton(Handle, 101, SplitIDC ? BST_CHECKED : BST_UNCHECKED);

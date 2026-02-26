@@ -64,141 +64,141 @@ extern PInfoRec *Infos;
 bool ClassesRegistered = false;
 
 RegClassInfo RegClasses[] = {
-/*	 //Standard
-	 {__classid(Forms::TFrame), "TFrame"},
-	 {__classid(Menus::TMainMenu), "TMainMenu"},
-	 {__classid(Menus::TPopupMenu), "TPopupMenu"},
-	 {__classid(TLabel), "TLabel"},
-	 {__classid(TEdit), "TEdit"},
-	 {__classid(TLabeledEdit), "TLabeledEdit"},
-	 {__classid(TMemo), "TMemo"},
-	 {__classid(TButton), "TButton"},
-	 {__classid(TCheckBox), "TCheckBox"},
-	 {__classid(TRadioButton), "TRadioButton"},
-	 {__classid(TListBox), "TListBox"},
-	 {__classid(TComboBox), "TComboBox"},
-	 {__classid(TScrollBar), "TScrollBar"},
-	 {__classid(TGroupBox), "TGroupBox"},
-	 {__classid(TRadioGroup), "TRadioGroup"},
-	 {__classid(TPanel), "TPanel"},
-	 {__classid(TActionList), "TActionList"},
-	 {__classid(TAction), "TAction"},
-	 {__classid(Stdactns::TEditCut), "TEditCut"},
-	 {__classid(Stdactns::TEditCopy), "TEditCopy"},
-	 {__classid(Stdactns::TEditPaste), "TEditPaste"},
-	 {__classid(Stdactns::TEditSelectAll), "TEditSelectAll"},
-	 {__classid(Stdactns::TEditUndo), "TEditUndo"},
-	 {__classid(Stdactns::TEditDelete), "TEditDelete"},
-	 {__classid(Stdactns::TWindowClose), "TWindowClose"},
-	 {__classid(Stdactns::TWindowCascade), "TWindowCascade"},
-	 {__classid(Stdactns::TWindowTileHorizontal), "TWindowTileHorizontal"},
-	 {__classid(Stdactns::TWindowTileVertical), "TWindowTileVertical"},
-	 {__classid(Stdactns::TWindowMinimizeAll), "TWindowMinimizeAll"},
-	 {__classid(Stdactns::TWindowArrange), "TWindowArrange"},
-	 {__classid(Stdactns::THelpContents), "THelpContents"},
-	 {__classid(Stdactns::THelpTopicSearch), "THelpTopicSearch"},
-	 {__classid(Stdactns::THelpOnHelp), "THelpOnHelp"},
-	 {__classid(Stdactns::THelpContextAction), "THelpContextAction"},
-	 {__classid(Stdactns::TFileOpen), "TFileOpen"},
-	 {__classid(Stdactns::TFileOpenWith), "TFileOpenWith"},
-	 {__classid(Stdactns::TFileSaveAs), "TFileSaveAs"},
-	 {__classid(Stdactns::TFilePrintSetup), "TFilePrintSetup"},
-	 {__classid(Stdactns::TFileExit), "TFileExit"},
-	 {__classid(Stdactns::TSearchFind), "TSearchFind"},
-	 {__classid(Stdactns::TSearchReplace), "TSearchReplace"},
-	 {__classid(Stdactns::TSearchFindFirst), "TSearchFindFirst"},
-	 {__classid(Stdactns::TSearchFindNext), "TSearchFindNext"},
-	 {__classid(Stdactns::TFontEdit), "TFontEdit"},
-	 {__classid(Stdactns::TColorSelect), "TColorSelect"},
-	 {__classid(Stdactns::TPrintDlg), "TPrintDlg"},
-	 //TRichEditxxx actions?
-	 //TListControlXXX ?
-	 {__classid(Extactns::TOpenPicture), "TOpenPicture"},
-	 {__classid(Extactns::TSavePicture), "TSavePicture"},
-	 //Additional
-	 {__classid(Buttons::TBitBtn), "TBitBtn"},
-	 {__classid(Buttons::TSpeedButton), "TSpeedButton"},
-	 {__classid(Mask::TMaskEdit), "TMaskEdit"},
-	 {__classid(Grids::TStringGrid), "TStringGrid"},
-	 {__classid(Grids::TDrawGrid), "TDrawGrid"},
-	 {__classid(Extctrls::TImage), "TImage"},
-	 {__classid(Graphics::TPicture), "TPicture"},
-	 {__classid(Graphics::TBitmap), "TBitmap"},
-	 {__classid(Graphics::TGraphic), "TGraphic"},
-	 {__classid(Graphics::TMetafile), "TMetafile"},
-	 {__classid(Graphics::TIcon), "TIcon"},
+    //Standard
+    /*{__classid(Forms::TFrame), "TFrame"},
+    {__classid(Menus::TMainMenu), "TMainMenu"},
+    {__classid(Menus::TPopupMenu), "TPopupMenu"},
+    {__classid(TLabel), "TLabel"},
+    {__classid(TEdit), "TEdit"},
+    {__classid(TLabeledEdit), "TLabeledEdit"},
+    {__classid(TMemo), "TMemo"},
+    {__classid(TButton), "TButton"},
+    {__classid(TCheckBox), "TCheckBox"},
+    {__classid(TRadioButton), "TRadioButton"},
+    {__classid(TListBox), "TListBox"},
+    {__classid(TComboBox), "TComboBox"},
+    {__classid(TScrollBar), "TScrollBar"},
+    {__classid(TGroupBox), "TGroupBox"},
+    {__classid(TRadioGroup), "TRadioGroup"},
+    {__classid(TPanel), "TPanel"},
+    {__classid(TActionList), "TActionList"},
+    {__classid(TAction), "TAction"},
+    {__classid(Stdactns::TEditCut), "TEditCut"},
+    {__classid(Stdactns::TEditCopy), "TEditCopy"},
+    {__classid(Stdactns::TEditPaste), "TEditPaste"},
+    {__classid(Stdactns::TEditSelectAll), "TEditSelectAll"},
+    {__classid(Stdactns::TEditUndo), "TEditUndo"},
+    {__classid(Stdactns::TEditDelete), "TEditDelete"},
+    {__classid(Stdactns::TWindowClose), "TWindowClose"},
+    {__classid(Stdactns::TWindowCascade), "TWindowCascade"},
+    {__classid(Stdactns::TWindowTileHorizontal), "TWindowTileHorizontal"},
+    {__classid(Stdactns::TWindowTileVertical), "TWindowTileVertical"},
+    {__classid(Stdactns::TWindowMinimizeAll), "TWindowMinimizeAll"},
+    {__classid(Stdactns::TWindowArrange), "TWindowArrange"},
+    {__classid(Stdactns::THelpContents), "THelpContents"},
+    {__classid(Stdactns::THelpTopicSearch), "THelpTopicSearch"},
+    {__classid(Stdactns::THelpOnHelp), "THelpOnHelp"},
+    {__classid(Stdactns::THelpContextAction), "THelpContextAction"},
+    {__classid(Stdactns::TFileOpen), "TFileOpen"},
+    {__classid(Stdactns::TFileOpenWith), "TFileOpenWith"},
+    {__classid(Stdactns::TFileSaveAs), "TFileSaveAs"},
+    {__classid(Stdactns::TFilePrintSetup), "TFilePrintSetup"},
+    {__classid(Stdactns::TFileExit), "TFileExit"},
+    {__classid(Stdactns::TSearchFind), "TSearchFind"},
+    {__classid(Stdactns::TSearchReplace), "TSearchReplace"},
+    {__classid(Stdactns::TSearchFindFirst), "TSearchFindFirst"},
+    {__classid(Stdactns::TSearchFindNext), "TSearchFindNext"},
+    {__classid(Stdactns::TFontEdit), "TFontEdit"},
+    {__classid(Stdactns::TColorSelect), "TColorSelect"},
+    {__classid(Stdactns::TPrintDlg), "TPrintDlg"},
+    //TRichEditxxx actions?
+    //TListControlXXX ?
+    {__classid(Extactns::TOpenPicture), "TOpenPicture"},
+    {__classid(Extactns::TSavePicture), "TSavePicture"},
+    //Additional
+    {__classid(Buttons::TBitBtn), "TBitBtn"},
+    {__classid(Buttons::TSpeedButton), "TSpeedButton"},
+    {__classid(Mask::TMaskEdit), "TMaskEdit"},
+    {__classid(Grids::TStringGrid), "TStringGrid"},
+    {__classid(Grids::TDrawGrid), "TDrawGrid"},
+    {__classid(Extctrls::TImage), "TImage"},
+    {__classid(Graphics::TPicture), "TPicture"},
+    {__classid(Graphics::TBitmap), "TBitmap"},
+    {__classid(Graphics::TGraphic), "TGraphic"},
+    {__classid(Graphics::TMetafile), "TMetafile"},
+    {__classid(Graphics::TIcon), "TIcon"},
 
-	 {__classid(TShape), "TShape"},
-	 {__classid(TBevel), "TBevel"},
-	 {__classid(Forms::TScrollBox), "TScrollBox"},
-	 {__classid(TCheckListBox), "TCheckListBox"},
-	 {__classid(TSplitter), "TSplitter"},
-	 {__classid(TStaticText), "TStaticText"},
-	 {__classid(TControlBar), "TControlBar"},
-	 {__classid(Chart::TChart), "TChart"},
-	 {__classid(Series::TBarSeries), "TBarSeries"},
-	 {__classid(Series::THorizBarSeries), "THorizBarSeries"},
-	 {__classid(Series::TPointSeries),  "TPointSeries"},
-	 {__classid(Series::TAreaSeries), "TAreaSeries"},
-	 {__classid(Series::TLineSeries), "TLineSeries"},
-	 {__classid(Series::TFastLineSeries), "TFastLineSeries"},
-	 {__classid(Series::TPieSeries), "TPieSeries"},
-	 {__classid(TColorBox), "TColorBox"},
-	 //Win32
-	 {__classid(TTabControl), "TTabControl"},
-	 {__classid(TPageControl), "TPageControl"},
-	 {__classid(TTabSheet), "TTabSheet"},
-	 {__classid(TImageList), "TImageList"},
-	 {__classid(TRichEdit), "TRichEdit"},
-	 {__classid(TTrackBar), "TTrackBar"},
-	 {__classid(TProgressBar), "TProgressBar"},
-	 {__classid(TUpDown), "TUpDown"},
-	 {__classid(THotKey), "THotKey"},
-	 {__classid(TAnimate), "TAnimate"},
-	 {__classid(TDateTimePicker), "TDateTimePicker"},
-	 {__classid(TMonthCalendar), "TMonthCalendar"},
-	 {__classid(TTreeView), "TTreeView"},
-	 {__classid(TListView), "TListView"},
-	 {__classid(THeaderControl), "THeaderControl"},
-	 {__classid(TStatusBar), "TStatusBar"},
-	 {__classid(TToolBar), "TToolBar"},
-	 {__classid(TToolButton), "TToolButton"},
-	 {__classid(TCoolBar), "TCoolBar"},
-	 {__classid(TComboBoxEx), "TComboBoxEx"},
-	 {__classid(TPageScroller), "TPageScroller"},
-	 //System
-	 //__classid(TPaintBox),
-	 {__classid(TMediaPlayer), "TMediaPlayer"},
-	 //Win 3.1
-	 {__classid(Tabs::TTabSet), "TTabSet"},
-	 {__classid(Outline::TOutline), "TOutline"},
-	 {__classid(Tabnotbk::TTabbedNotebook), "TTabbedNotebook"},
-	 {__classid(TNotebook), "TNotebook"},
-	 {__classid(TPage), "TPage"},
-	 {__classid(THeader), "THeader"},
-	 {__classid(TFileListBox), "TFileListBox"},
-	 {__classid(TDirectoryListBox), "TDirectoryListBox"},
-	 {__classid(TDriveComboBox), "TDriveComboBox"},
-	 {__classid(TFilterComboBox), "TFilterComboBox"},
-	 //Samples
-	 {__classid(TPerformanceGraph), "TPerformanceGraph"},
-	 {__classid(TCSpinButton), "TCSpinButton"},
-	 {__classid(TTimerSpeedButton), "TTimerSpeedButton"},
-	 {__classid(TCSpinEdit), "TCSpinEdit"},
-	 {__classid(TColorGrid), "TColorGrid"},
-	 {__classid(TCGauge), "TCGauge"},
-	 {__classid(TCDirectoryOutline), "TCDirectoryOutline"},
-	 {__classid(TCCalendar), "TCCalendar"},
-	 {__classid(TPie), "TPie"},
-	 //
-	 {__classid(TValueListEditor), "TValueListEditor"},
-	 //
-	 {__classid(IdrDfmDefaultControl), "Default"},
-	 {0, 0}
-	 */ };
-
-// ---------------------------------------------------------------------------
-__fastcall TDfm::TDfm() {
+    {__classid(TShape), "TShape"},
+    {__classid(TBevel), "TBevel"},
+    {__classid(Forms::TScrollBox), "TScrollBox"},
+    {__classid(TCheckListBox), "TCheckListBox"},
+    {__classid(TSplitter), "TSplitter"},
+    {__classid(TStaticText), "TStaticText"},
+    {__classid(TControlBar), "TControlBar"},
+    {__classid(Chart::TChart), "TChart"},
+    {__classid(Series::TBarSeries), "TBarSeries"},
+    {__classid(Series::THorizBarSeries), "THorizBarSeries"},
+    {__classid(Series::TPointSeries),  "TPointSeries"},
+    {__classid(Series::TAreaSeries), "TAreaSeries"},
+    {__classid(Series::TLineSeries), "TLineSeries"},
+    {__classid(Series::TFastLineSeries), "TFastLineSeries"},
+    {__classid(Series::TPieSeries), "TPieSeries"},
+    {__classid(TColorBox), "TColorBox"},
+    //Win32
+    {__classid(TTabControl), "TTabControl"},
+    {__classid(TPageControl), "TPageControl"},
+    {__classid(TTabSheet), "TTabSheet"},
+    {__classid(TImageList), "TImageList"},
+    {__classid(TRichEdit), "TRichEdit"},
+    {__classid(TTrackBar), "TTrackBar"},
+    {__classid(TProgressBar), "TProgressBar"},
+    {__classid(TUpDown), "TUpDown"},
+    {__classid(THotKey), "THotKey"},
+    {__classid(TAnimate), "TAnimate"},
+    {__classid(TDateTimePicker), "TDateTimePicker"},
+    {__classid(TMonthCalendar), "TMonthCalendar"},
+    {__classid(TTreeView), "TTreeView"},
+    {__classid(TListView), "TListView"},
+    {__classid(THeaderControl), "THeaderControl"},
+    {__classid(TStatusBar), "TStatusBar"},
+    {__classid(TToolBar), "TToolBar"},
+    {__classid(TToolButton), "TToolButton"},
+    {__classid(TCoolBar), "TCoolBar"},
+    {__classid(TComboBoxEx), "TComboBoxEx"},
+    {__classid(TPageScroller), "TPageScroller"},
+    //System
+    //__classid(TPaintBox),
+    {__classid(TMediaPlayer), "TMediaPlayer"},
+    //Win 3.1
+    {__classid(Tabs::TTabSet), "TTabSet"},
+    {__classid(Outline::TOutline), "TOutline"},
+    {__classid(Tabnotbk::TTabbedNotebook), "TTabbedNotebook"},
+    {__classid(TNotebook), "TNotebook"},
+    {__classid(TPage), "TPage"},
+    {__classid(THeader), "THeader"},
+    {__classid(TFileListBox), "TFileListBox"},
+    {__classid(TDirectoryListBox), "TDirectoryListBox"},
+    {__classid(TDriveComboBox), "TDriveComboBox"},
+    {__classid(TFilterComboBox), "TFilterComboBox"},
+    //Samples
+    {__classid(TPerformanceGraph), "TPerformanceGraph"},
+    {__classid(TCSpinButton), "TCSpinButton"},
+    {__classid(TTimerSpeedButton), "TTimerSpeedButton"},
+    {__classid(TCSpinEdit), "TCSpinEdit"},
+    {__classid(TColorGrid), "TColorGrid"},
+    {__classid(TCGauge), "TCGauge"},
+    {__classid(TCDirectoryOutline), "TCDirectoryOutline"},
+    {__classid(TCCalendar), "TCCalendar"},
+    {__classid(TPie), "TPie"},
+    //
+    {__classid(TValueListEditor), "TValueListEditor"},
+    //
+    {__classid(IdrDfmDefaultControl), "Default"},
+    {0, 0}*/
+};
+//---------------------------------------------------------------------------
+__fastcall TDfm::TDfm()
+{
 	Open = 0;
 	Flags = 0;
 	ResName = "";
@@ -405,7 +405,7 @@ bool __stdcall EnumResNameProcedure(int hModule, char* Type, char* Name, long Pa
 				ms->Read(signature, 4);
 				if (signature[0] == 'T' && signature[1] == 'P' && signature[2] == 'F' && (signature[3] >= '0' && signature[3] <= '7')) {
 					if (signature[3] == '0') {
-						// Добавляем в список ресурсов
+						// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 						dfm = new TDfm;
 						dfm->ResName = Name;
 						dfm->MemStream = ms;
@@ -459,9 +459,10 @@ bool __fastcall TResourceInfo::EnumResources(String FileName) {
 	hFormPlugin = LoadLibrary(AnsiString(FMain_11011981->AppDir + "Plugins\\" + FormPluginName).c_str());
 	HINSTANCE hInst = LoadLibraryEx(AnsiString(FileName).c_str(), 0, LOAD_LIBRARY_AS_DATAFILE);
 	if (hInst) {
-		// EnumResourceNames(hInst, RT_RCDATA, (int(__stdcall*)(HINSTANCE, const char*, char*, long))EnumResNameProcedure, (long)this);
-		EnumResourceNames(hInst, RT_RCDATA, (ENUMRESNAMEPROC)EnumResNameProcedure, (long)this);
-		FreeLibrary(hInst);
+	    // EnumResourceNames(hInst, RT_RCDATA, (int (__stdcall*)())EnumResNameProcedure, (long)this);
+	    // EnumResourceNames(hInst, RT_RCDATA, (int(__stdcall*)(HINSTANCE, const char*, char*, long))EnumResNameProcedure, (long)this);
+	    EnumResourceNames(hInst, RT_RCDATA, (ENUMRESNAMEPROC)EnumResNameProcedure, (long)this);
+        FreeLibrary(hInst);
 		return true;
 	}
 	if (hFormPlugin) {
@@ -575,7 +576,7 @@ void __fastcall TResourceInfo::InitAliases() {
 		if (!className.Pos("=")) {
 			String alias = "";
 			try {
-				// TMetaClass *componentClass = FindClass(className);
+                TMetaClass *componentClass = FindClass(className);
 			}
 			catch (Exception& e) {
 				if (SameText(className, "TDBGrid"))
@@ -750,7 +751,7 @@ void __fastcall TResourceInfo::GetEventsList(String FormName, TList* Lst) {
 			item->CompName = FormName;
 			item->EventName = eInfo->EventName; // eInfo->ProcName;
 			String methodName = dfm->ClassName + "." + eInfo->ProcName;
-			// Ищем адрес соответствующего метода
+			// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 			PMethodRec recM = FMain_11011981->GetMethodInfo(recN, methodName);
 			item->Adr = (recM) ? recM->address : 0;
 			Lst->Add(item);
@@ -1017,26 +1018,26 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
 	DWORD classAdr = GetClassAdr(dfm->ClassName);
 	PInfoRec recN = (IsValidImageAdr(classAdr)) ? Infos[Adr2Pos(classAdr)] : 0;
 
-	// Форма?
+	// пїЅпїЅпїЅпїЅпїЅ?
 	if (SameText(dfm->Name, ControlName)) {
-		// Inherited - начали заполнять меню
+		// Inherited - пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 		if (dfm->Flags & FF_INHERITED) {
 			TDfm* parentDfm = ResInfo->GetParentDfm(dfm);
 			if (parentDfm)
 				ShowMyPopupMenu(parentDfm->Name, parentDfm->Name, false);
-			// В конце добавляем разделитель
+			// пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			mi = new TMenuItem(evPopup);
 			mi->Caption = "-";
 			evPopup->Items->Add(mi);
 		}
 
-		// Первая строка меню - название контрола
+		// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		mi = new TMenuItem(evPopup);
 		mi->Caption = dfm->Name + "." + dfm->ClassName;
 		mi->Tag = classAdr;
 		mi->OnClick = miPopupClick;
 		evPopup->Items->Add(mi);
-		// Вторая строка меню - разделитель
+		// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		mi = new TMenuItem(evPopup);
 		mi->Caption = "-";
 		evPopup->Items->Add(mi);
@@ -1049,7 +1050,7 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
 			mi = new TMenuItem(evPopup);
 			mi->Caption = eInfo->EventName + " = " + eInfo->ProcName;
 			String methodName = dfm->ClassName + "." + eInfo->ProcName;
-			// Ищем адрес соответствующего метода
+			// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 			PMethodRec recM = FMain_11011981->GetMethodInfo(recN, methodName);
 			mi->Tag = (recM) ? recM->address : 0;
 			mi->OnClick = miPopupClick;
@@ -1062,14 +1063,14 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
 		}
 		return;
 	}
-	// Компонента формы?
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ?
 	else {
-		// Inherited - начали заполнять меню
+		// Inherited - пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 		if (dfm->Flags & FF_INHERITED) {
 			TDfm* parentDfm = ResInfo->GetParentDfm(dfm);
 			if (parentDfm)
 				ShowMyPopupMenu(parentDfm->Name, ControlName, false);
-			// В конце добавляем разделитель
+			// пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			mi = new TMenuItem(evPopup);
 			mi->Caption = "-";
 			evPopup->Items->Add(mi);
@@ -1077,17 +1078,17 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
 
 		for (int m = 0; m < dfm->Components->Count; m++) {
 			PComponentInfo cInfo = (PComponentInfo)dfm->Components->Items[m];
-			// Нашли компоненту, которой принадлежит control
+			// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ control
 			if (SameText(cInfo->Name, ControlName)) {
-				// Чистим evPopup
+				// пїЅпїЅпїЅпїЅпїЅпїЅ evPopup
 				evPopup->Items->Clear();
-				// Первая строка меню - название контрола
+				// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 				mi = new TMenuItem(evPopup);
 				mi->Caption = cInfo->Name + "." + cInfo->ClassName;
 				mi->Tag = GetClassAdr(cInfo->ClassName);
 				mi->OnClick = miPopupClick;
 				evPopup->Items->Add(mi);
-				// Вторая строка меню - разделитель
+				// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 				mi = new TMenuItem(evPopup);
 				mi->Caption = "-";
 				evPopup->Items->Add(mi);
@@ -1100,22 +1101,22 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
 					String methodName = "";
 					// Action
 					if (SameText(eInfo->EventName, "Action")) {
-						// Имя eInfo->ProcName может иметь вид FormName.Name
+						// пїЅпїЅпїЅ eInfo->ProcName пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ FormName.Name
 						int dotpos = eInfo->ProcName.Pos(".");
 						if (dotpos) {
 							String moduleName = eInfo->ProcName.SubString(1, dotpos - 1);
 							String actionName = eInfo->ProcName.SubString(dotpos + 1, eInfo->ProcName.Length() - dotpos);
-							// Ищем форму moduleName
+							// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ moduleName
 							for (int j = 0; j < ResInfo->FormList->Count; j++) {
 								TDfm* dfm1 = (TDfm*)ResInfo->FormList->Items[j];
 								if (SameText(dfm1->Name, moduleName)) {
 									classAdr = GetClassAdr(dfm1->ClassName);
 									recN = (IsValidImageAdr(classAdr)) ? Infos[Adr2Pos(classAdr)] : 0;
-									// Ищем компоненту actionName
+									// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ actionName
 									for (int r = 0; r < dfm1->Components->Count; r++) {
 										PComponentInfo cInfo1 = (PComponentInfo)dfm1->Components->Items[r];
 										if (SameText(cInfo1->Name, actionName)) {
-										// Ищем событие OnExecute
+										// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ OnExecute
 										TList* ev1 = cInfo1->Events;
 										for (int i = 0; i < ev1->Count; i++) {
 										PEventInfo eInfo1 = (PEventInfo)ev1->Items[i];
@@ -1132,11 +1133,11 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
 							}
 						}
 						else {
-							// Ищем компоненту eInfo->ProcName
+							// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ eInfo->ProcName
 							for (int r = 0; r < dfm->Components->Count; r++) {
 								PComponentInfo cInfo1 = (PComponentInfo)dfm->Components->Items[r];
 								if (SameText(cInfo1->Name, eInfo->ProcName)) {
-									// Ищем событие OnExecute
+									// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ OnExecute
 									TList* ev1 = cInfo1->Events;
 									for (int i = 0; i < ev1->Count; i++) {
 										PEventInfo eInfo1 = (PEventInfo)ev1->Items[i];
@@ -1153,7 +1154,7 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
 					else {
 						methodName = dfm->ClassName + "." + eInfo->ProcName;
 					}
-					// Ищем адрес соответствующего метода
+					// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 					PMethodRec recM = FMain_11011981->GetMethodInfo(recN, methodName);
 					mi->Tag = (recM) ? recM->address : 0;
 					mi->OnClick = miPopupClick;
@@ -1191,10 +1192,10 @@ void __fastcall IdrDfmForm::miPopupClick(TObject *Sender) {
 void __fastcall IdrDfmForm::SetupControlHint(String FormName, TControl* Control, String InitHint) {
 	for (int n = 0; n < ResInfo->FormList->Count; n++) {
 		TDfm* dfm = (TDfm*)ResInfo->FormList->Items[n];
-		// Нашли форму, которой принадлежит control
+		// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ control
 		if (SameText(dfm->Name, FormName)) {
 			String hint = InitHint;
-			// Сама форма?
+			// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ?
 			if (SameText(dfm->Name, Control->Name)) {
 				if (hint != "")
 					hint += "\n";
@@ -1212,7 +1213,7 @@ void __fastcall IdrDfmForm::SetupControlHint(String FormName, TControl* Control,
 			else {
 				for (int m = 0; m < dfm->Components->Count; m++) {
 					PComponentInfo cInfo = (PComponentInfo)dfm->Components->Items[m];
-					// Нашли компоненту, которой принадлежит control
+					// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ control
 					if (SameText(cInfo->Name, Control->Name)) {
 						if (hint != "")
 							hint += "\n";
@@ -1244,7 +1245,7 @@ void __fastcall IdrDfmForm::SetupMenuItem(TMenuItem* mi, String searchName) {
 		// as: I dont like this, maybe put TDfm* into IdrDfmForm?
 		TDfm* dfm = (TDfm*)ResInfo->FormList->Items[n];
 
-		// Нашли форму, которой принадлежит control
+		// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ control
 		if (SameText(dfm->Name, searchName)) {
 			curDfm = dfm;
 			formInherited = dfm->Flags & FF_INHERITED;
@@ -1252,7 +1253,7 @@ void __fastcall IdrDfmForm::SetupMenuItem(TMenuItem* mi, String searchName) {
 			for (int m = 0; m < dfm->Components->Count; m++) {
 				PComponentInfo cInfo = (PComponentInfo)dfm->Components->Items[m];
 
-				// Нашли компоненту, которой принадлежит mi
+				// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ mi
 				if (SameText(cInfo->Name, mi->Name)) {
 					DWORD classAdr = GetClassAdr(dfm->ClassName);
 					PInfoRec recN = (IsValidImageAdr(classAdr)) ? Infos[Adr2Pos(classAdr)] : 0;
@@ -1265,7 +1266,7 @@ void __fastcall IdrDfmForm::SetupMenuItem(TMenuItem* mi, String searchName) {
 						PMethodRec recM;
 						if (SameText(eInfo->EventName, "OnClick")) {
 							methodName = dfm->ClassName + "." + eInfo->ProcName;
-							// Ищем адрес соответствующего метода
+							// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 							recM = FMain_11011981->GetMethodInfo(recN, methodName);
 							mi->Tag = (recM) ? recM->address : 0;
 							mi->OnClick = miPopupClick;
@@ -1274,11 +1275,11 @@ void __fastcall IdrDfmForm::SetupMenuItem(TMenuItem* mi, String searchName) {
 						}
 						// Action
 						if (SameText(eInfo->EventName, "Action")) {
-							// Ищем компоненту с именем eInfo->ProcName
+							// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ eInfo->ProcName
 							for (int r = 0; r < dfm->Components->Count; r++) {
 								PComponentInfo cInfo1 = (PComponentInfo)dfm->Components->Items[r];
 								if (SameText(cInfo1->Name, eInfo->ProcName)) {
-									// Ищем событие OnExecute
+									// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ OnExecute
 									TList* ev1 = cInfo1->Events;
 									for (int i = 0; i < ev1->Count; i++) {
 										PEventInfo eInfo1 = (PEventInfo)ev1->Items[i];
