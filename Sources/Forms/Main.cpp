@@ -12915,20 +12915,17 @@ void __fastcall TFMain_11011981::pmSourceCodePopup(TObject *Sender) {
 	miSetlvartype->Enabled = (pLocalInfo);
 }
 // ---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::miCopytoClipboardNamesClick(
-      TObject *Sender)
-{
+void __fastcall TFMain_11011981::miCopytoClipboardNamesClick(TObject *Sender) {
     Copy2Clipboard(lbNames->Items, 0, false);
 }
 //---------------------------------------------------------------------------
 //Added by TerminatorX 30.12.2018
 //TerminatorX code BEGIN
-void __fastcall TFMain_11011981::miHiewGeneratorClick(TObject *Sender)
-{
-    int     _posNamet;
-    String  procName;
-    String  nametName = "";
-    String  SourceFileNamet = "";
+void __fastcall TFMain_11011981::miHiewGeneratorClick(TObject *Sender) {
+    int _posNamet;
+    String procName;
+    String nametName = "";
+    String SourceFileNamet = "";
     String moduleName = "";
 
     if (SourceFile != "") nametName = ChangeFileExt(SourceFile, ".namet");
@@ -12940,35 +12937,29 @@ void __fastcall TFMain_11011981::miHiewGeneratorClick(TObject *Sender)
 
     if (!SaveDlg->Execute()) return;
     nametName = SaveDlg->FileName;
-    if (FileExists(nametName))
-    {
-        if (Application->MessageBox(L"File already exists. Overwrite?", L"Warning", MB_YESNO+MB_ICONWARNING) == IDNO) return;
+    if (FileExists(nametName)) {
+        if (Application->MessageBox(L"File already exists. Overwrite?", L"Warning", MB_YESNO + MB_ICONWARNING) == IDNO)
+            return;
     }
     Screen->Cursor = crHourGlass;
     FILE *fNamet = fopen(AnsiString(nametName).c_str(), "wt+");
-    if (!fNamet)
-    {
+    if (!fNamet) {
         MessageDlg(L"Cannot open namet file", mtWarning, TMsgDlgButtons() << mbOK, 0);
         return;
     }
     SourceFileNamet = SourceFile;
     _posNamet = SourceFileNamet.LastDelimiter("");
     if (_posNamet) SourceFileNamet = SourceFileNamet.SubString(_posNamet + 1, SourceFileNamet.Length());
-    for (int n = 0; n < CodeSize; n++)
-    {
-        if (IsFlagSet(cfProcStart, n) && !IsFlagSet(cfEmbedded, n))
-        {
+    for (int n = 0; n < CodeSize; n++) {
+        if (IsFlagSet(cfProcStart, n) && !IsFlagSet(cfEmbedded, n)) {
             int adr = Pos2Adr(n);
             PInfoRec recN = GetInfoRec(adr);
-            if (recN)
-            {
+            if (recN) {
                 if (adr == EP)
                     fprintf(fNamet, ".%08X Entry Point_%08X\n", adr, adr);
-                else
-                {
+                else {
                     PUnitRec recU = GetUnit(adr);
-                    if (recU)
-                    {
+                    if (recU) {
                         moduleName = GetUnitName(recU);
                         if (adr == recU->iniadr)
                             procName = "Initialization";
@@ -12976,9 +12967,7 @@ void __fastcall TFMain_11011981::miHiewGeneratorClick(TObject *Sender)
                             procName = "Finalization";
                         else
                             procName = recN->MakeMapName(adr);
-                    }
-                    else
-                    {
+                    } else {
                         moduleName = "";
                         procName = recN->MakeMapName(adr);
                     }

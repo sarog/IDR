@@ -42,6 +42,7 @@ object FMain_11011981: TFMain_11011981
     Left = 250
     Top = 0
     Height = 605
+    Cursor = crHSplit
     AutoSnap = False
     Beveled = True
     Color = clGray
@@ -54,8 +55,9 @@ object FMain_11011981: TFMain_11011981
     Top = 0
     Width = 764
     Height = 605
-    ActivePage = tsCodeView
+    ActivePage = tsClassView
     Align = alClient
+    TabIndex = 1
     TabOrder = 1
     OnChange = pcWorkAreaChange
     object tsCodeView: TTabSheet
@@ -302,7 +304,7 @@ object FMain_11011981: TFMain_11011981
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -12
-        Font.Name = 'Courier New'
+        Font.Name = 'Fixedsys'
         Font.Style = []
         ParentFont = False
         PopupMenu = pmStrings
@@ -403,6 +405,7 @@ object FMain_11011981: TFMain_11011981
         Font.Style = []
         ItemHeight = 15
         ParentFont = False
+        PopupMenu = pmNames
         TabOrder = 0
         OnClick = lbNamesClick
       end
@@ -488,6 +491,7 @@ object FMain_11011981: TFMain_11011981
     Height = 605
     ActivePage = tsRTTIs
     Align = alLeft
+    TabIndex = 1
     TabOrder = 0
     OnChange = pcInfoChange
     object tsUnits: TTabSheet
@@ -518,7 +522,7 @@ object FMain_11011981: TFMain_11011981
         TabOrder = 0
         OnClick = lbUnitsClick
         OnDblClick = lbUnitsDblClick
-        OnDrawItem = lbUnitsDrawItem
+        OnDrawItem = lbUnitItemsDrawItem
         OnKeyDown = lbUnitsKeyDown
         OnMouseMove = lbUnitsMouseMove
       end
@@ -918,6 +922,10 @@ object FMain_11011981: TFMain_11011981
         Caption = '&IDC Generator'
         OnClick = miIDCGeneratorClick
       end
+      object miHiewGenerator: TMenuItem
+        Caption = 'HIEW Generator'
+        OnClick = miHiewGeneratorClick
+      end
       object miLister: TMenuItem
         Caption = 'Lister'
         OnClick = miListerClick
@@ -937,6 +945,10 @@ object FMain_11011981: TFMain_11011981
       object miHex2Double: TMenuItem
         Caption = '&Hex->Double'
         OnClick = miHex2DoubleClick
+      end
+      object mCreateCHeaderFile: TMenuItem
+        Caption = 'Create C header file'
+        OnClick = mCreateCHeaderFileClick
       end
     end
     object miTabs: TMenuItem
@@ -1016,6 +1028,10 @@ object FMain_11011981: TFMain_11011981
           Action = acFontAll
           Caption = 'Fonts'
         end
+        object mniShellIntegration1: TMenuItem
+          Caption = 'Shell Integration'
+          OnClick = mniShellIntegration1Click
+        end
       end
     end
   end
@@ -1053,18 +1069,24 @@ object FMain_11011981: TFMain_11011981
       Enabled = False
       OnClick = miEditFunctionCClick
     end
+    object mniN3: TMenuItem
+      Caption = '-'
+    end
+    object miCopyAddressCode: TMenuItem
+      Caption = 'Copy Address'
+      OnClick = miCopyAddressCodeClick
+    end
     object miCopyCode: TMenuItem
       Caption = 'Copy to Clipboard'
       OnClick = miCopyCodeClick
+    end
+    object mniN4: TMenuItem
+      Caption = '-'
     end
     object miFuzzyScanKB: TMenuItem
       Caption = 'Fuzzy scan KB'
       Enabled = False
       OnClick = miFuzzyScanKBClick
-    end
-    object miCopyAddressCode: TMenuItem
-      Caption = 'Copy Address'
-      OnClick = miCopyAddressCodeClick
     end
     object miXRefs: TMenuItem
       Caption = 'XRefs'
@@ -1316,6 +1338,14 @@ object FMain_11011981: TFMain_11011981
     object miSetlvartype: TMenuItem
       Caption = 'Set lvar type'
       OnClick = miSetlvartypeClick
+    end
+  end
+  object pmNames: TPopupMenu
+    Left = 464
+    Top = 96
+    object miCopytoClipboardNames: TMenuItem
+      Caption = 'Copy to Clipboard'
+      OnClick = miCopytoClipboardNamesClick
     end
   end
 end
