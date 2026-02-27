@@ -1,0 +1,47 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "bcc32",
+      "generator": "Ninja",
+      "binaryDir": "cmake-build-bcc32",
+      "toolchainFile": "embarcadero-toolchain.cmake"
+    },
+    {
+      "name": "bcc32c",
+      "generator": "Ninja",
+      "binaryDir": "cmake-build-bcc32c",
+      "toolchainFile": "embarcadero-toolchain.cmake",
+      "hidden": true
+    },
+    {
+      "name": "bcc32x",
+      "generator": "Ninja",
+      "binaryDir": "cmake-build-bcc32x",
+      "toolchainFile": "embarcadero-toolchain.cmake",
+      "hidden": true
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "BCC32",
+      "displayName": "Embarcadero BCC32",
+      "description": "BCC32 classic compiler",
+      "configurePreset": "bcc32"
+    },
+    {
+      "name": "BCC32C",
+      "displayName": "Embarcadero BCC32C",
+      "description": "BCC32C Clangd-based compiler",
+      "configurePreset": "bcc32c",
+      "hidden": true
+    },
+    {
+      "name": "BCC32X",
+      "displayName": "Embarcadero BCC32X",
+      "description": "BCC32X Clangd-based compiler",
+      "configurePreset": "bcc32x",
+      "hidden": true
+    }
+  ]
+}
