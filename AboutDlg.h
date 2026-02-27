@@ -10,11 +10,11 @@
 #include <Vcl.Graphics.hpp>
 #include <Vcl.Imaging.jpeg.hpp>
 #include <Vcl.StdCtrls.hpp>
+
 //----------------------------------------------------------------------------
-class TFAboutDlg_11011981 : public TForm
-{
-__published:
-    TPanel *Panel3;
+class TFAboutDlg_11011981 : public TForm {
+    __published:
+    TPanel * Panel3;
     TButton *Button2;
     TPageControl *PageControl1;
     TTabSheet *tsIDR;
@@ -36,12 +36,14 @@ __published:
     TLabel *Label7;
     TLabel *Label8;
     TLabel *lblHint;
-	void __fastcall FormCreate(TObject *Sender);
+    void __fastcall FormCreate(TObject *Sender);
+
 private:
 public:
-	virtual __fastcall TFAboutDlg_11011981(TComponent* AOwner);
+    virtual __fastcall TFAboutDlg_11011981(TComponent *AOwner);
 };
+
 //----------------------------------------------------------------------------
 extern PACKAGE TFAboutDlg_11011981 *FAboutDlg_11011981;
 //----------------------------------------------------------------------------
-#endif    
+#endif

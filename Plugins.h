@@ -7,11 +7,11 @@
 #include <Vcl.CheckLst.hpp>
 #include <Vcl.Controls.hpp>
 #include <Vcl.StdCtrls.hpp>
+
 //---------------------------------------------------------------------------
-class TFPlugins : public TForm
-{
-__published:	// IDE-managed Components
-    TCheckListBox *cklbPluginsList;
+class TFPlugins : public TForm {
+    __published: // IDE-managed Components
+    TCheckListBox * cklbPluginsList;
     TButton *bOk;
     TButton *bCancel;
     void __fastcall FormShow(TObject *Sender);
@@ -20,12 +20,14 @@ __published:	// IDE-managed Components
     void __fastcall bOkClick(TObject *Sender);
     void __fastcall bCancelClick(TObject *Sender);
     void __fastcall FormCreate(TObject *Sender);
-private:	// User declarations
-public:		// User declarations
-    __fastcall TFPlugins(TComponent* Owner);
-    String  PluginsPath;
-    String  PluginName;
+
+private: // User declarations
+public:  // User declarations
+    __fastcall TFPlugins(TComponent *Owner);
+    String PluginsPath;
+    String PluginName;
 };
+
 //---------------------------------------------------------------------------
 extern PACKAGE TFPlugins *FPlugins;
 //---------------------------------------------------------------------------

@@ -5,41 +5,42 @@
 #include <Classes.hpp>
 #include "Main.h"
 #include "ProgressBar.h"
+
 //---------------------------------------------------------------------------
-enum ThreadAnalysisOperation
-{
+enum ThreadAnalysisOperation {
     taStartPrBar, taUpdatePrBar, taUpdateStBar,
     taUpdateUnits, taUpdateRTTIs, taUpdateVmtList, taUpdateStrings, taUpdateCode, taUpdateXrefs,
     taUpdateShortClassViewer, taUpdateClassViewer, taUpdateBeforeClassViewer,
     taFinished
 };
-struct ThreadAnalysisData
-{
-    ThreadAnalysisData(int steps, const String& txt)
-        :pbSteps(steps), sbText(txt) {}
+
+struct ThreadAnalysisData {
+    ThreadAnalysisData(int steps, const String &txt)
+        : pbSteps(steps), sbText(txt) {}
+
     int pbSteps;
     String sbText;
 };
 
-typedef struct
-{
-    int     height;
-    DWORD   vmtAdr;
+typedef struct {
+    int height;
+    DWORD vmtAdr;
 } CVPair, *PCVPair;
+
 //---------------------------------------------------------------------------
 #define LAST_ANALYZE_STEP   19
-class TAnalyzeThread : public TThread
-{
+
+class TAnalyzeThread : public TThread {
 private:
     TFMain_11011981 *mainForm;
-    TFProgressBar   *pbForm;
-    int             adrCnt;
+    TFProgressBar *pbForm;
+    int adrCnt;
 
-    int __fastcall StartProgress(int pbMaxCount, const String& sbText);
+    int __fastcall StartProgress(int pbMaxCount, const String &sbText);
     void __fastcall UpdateProgress();
     void __fastcall StopProgress();
     void __fastcall UpdateStatusBar(int adr);
-    void __fastcall UpdateStatusBar(const String& sbText);
+    void __fastcall UpdateStatusBar(const String &sbText);
     void __fastcall UpdateAddrInStatusBar(DWORD adr);
     void __fastcall UpdateUnits();
     void __fastcall UpdateRTTIs();
@@ -52,7 +53,7 @@ private:
     void __fastcall UpdateBeforeClassViewer();
     void __fastcall StrapSysProcs();
     void __fastcall FindRTTIs();
-    void __fastcall FindVMTs2();                //Для версии Дельфи2 (другая структура!)
+    void __fastcall FindVMTs2(); //Для версии Дельфи2 (другая структура!)
     void __fastcall FindVMTs();
     void __fastcall FindTypeFields();
     String __fastcall FindEvent(DWORD VmtAdr, String Name);
@@ -75,11 +76,13 @@ private:
 
 protected:
     void __fastcall Execute();
+
 public:
-    __fastcall TAnalyzeThread(TFMain_11011981* AForm, TFProgressBar* ApbForm, bool AllValues);
+    __fastcall TAnalyzeThread(TFMain_11011981 *AForm, TFProgressBar *ApbForm, bool AllValues);
     __fastcall ~TAnalyzeThread();
     int __fastcall GetRetVal();
-    bool            all;    //if false, only ClassViewer
+    bool all; //if false, only ClassViewer
 };
+
 //---------------------------------------------------------------------------
 #endif

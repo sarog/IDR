@@ -9,12 +9,12 @@
 #include <map>
 //---------------------------------------------------------------------------
 
-typedef std::map<const void*, TTreeNode*> TTreeNodeMap;
+typedef std::map<const void *, TTreeNode *> TTreeNodeMap;
+
 //---------------------------------------------------------------------------
-class TIdrDfmFormTree_11011981 : public TForm
-{
-__published:	// IDE-managed Components
-    TTreeView *tvForm;
+class TIdrDfmFormTree_11011981 : public TForm {
+    __published: // IDE-managed Components
+    TTreeView * tvForm;
     TFindDialog *dlgFind;
     TPopupMenu *mnuTree;
     TMenuItem *Expand1;
@@ -28,43 +28,43 @@ __published:	// IDE-managed Components
     void __fastcall Find1Click(TObject *Sender);
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
     void __fastcall FormKeyDown(TObject *Sender, WORD &Key,
-          TShiftState Shift);
+                                TShiftState Shift);
     void __fastcall FormCreate(TObject *Sender);
-private:	// User declarations
-    String MakeNodeCaption(TComponent* curCompo);
-    String MakeNodeEventCaption(void* item);
-    void BorderTheControl(TControl* aControl);
 
-    void __fastcall AddEventsToNode(String compName, TTreeNode* dstNode, TList* evList);
-    TTreeNode* __fastcall FindTreeNodeByText(TTreeNode* nodeFrom, const String& txt, bool caseSensitive);    
-    TTreeNode* __fastcall FindTreeNodeByTag(const void* tag);
-    void __fastcall AddTreeNodeWithTag(TTreeNode* node, const void* tag);    
+private: // User declarations
+    String MakeNodeCaption(TComponent *curCompo);
+    String MakeNodeEventCaption(void *item);
+    void BorderTheControl(TControl *aControl);
+
+    void __fastcall AddEventsToNode(String compName, TTreeNode *dstNode, TList *evList);
+    TTreeNode * __fastcall FindTreeNodeByText(TTreeNode *nodeFrom, const String &txt, bool caseSensitive);
+    TTreeNode * __fastcall FindTreeNodeByTag(const void *tag);
+    void __fastcall AddTreeNodeWithTag(TTreeNode *node, const void *tag);
     TTreeNodeMap NodesMap;
 
-    bool __fastcall IsEventNode(TTreeNode* selNode);
-public:		// User declarations
-    __fastcall TIdrDfmFormTree_11011981(TComponent* Owner);
+    bool __fastcall IsEventNode(TTreeNode *selNode);
+
+public: // User declarations
+    __fastcall TIdrDfmFormTree_11011981(TComponent *Owner);
 };
 
 //---------------------------------------------------------------------------
 //show thinking cursor (ctor - show, dtor - hide with restore previous)
 
-class ThinkCursor
-{
+class ThinkCursor {
 public:
-    inline ThinkCursor()
-    {
-        prevCursor      = Screen->Cursor;
-        Screen->Cursor  = crHourGlass;
+    inline ThinkCursor() {
+        prevCursor = Screen->Cursor;
+        Screen->Cursor = crHourGlass;
         Application->ProcessMessages();
     }
-    inline ~ThinkCursor()
-    {
+
+    inline ~ThinkCursor() {
         Screen->Cursor = prevCursor;
     }
 
 private:
-     Controls::TCursor prevCursor;
+    Controls::TCursor prevCursor;
 };
 
 //---------------------------------------------------------------------------

@@ -11,11 +11,11 @@
 #include <Grids.hpp>
 #include <ComCtrls.hpp>
 #include "Main.h"
+
 //----------------------------------------------------------------------------
-class TFEditFunctionDlg_11011981 : public TForm
-{
-__published:
-    TPanel *Panel1;
+class TFEditFunctionDlg_11011981 : public TForm {
+    __published:
+    TPanel * Panel1;
     TButton *bEdit;
     TButton *bAdd;
     TButton *bRemoveSelected;
@@ -50,7 +50,7 @@ __published:
     TLabeledEdit *lStackSize;
     TButton *bRemoveAll;
     void __fastcall FormKeyDown(TObject *Sender, WORD &Key,
-          TShiftState Shift);
+                                TShiftState Shift);
     void __fastcall bEditClick(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall pcChange(TObject *Sender);
@@ -66,24 +66,27 @@ __published:
     void __fastcall cbMethodClick(TObject *Sender);
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall bRemoveAllClick(TObject *Sender);
+
 private:
-    bool    TypModified;
-    bool    VarModified;
-    int     ArgEdited;
-    int     VmtCandidatesNum;
-    int     StackSize;
-    DWORD   SFlags;
-    String  SName;
+    bool TypModified;
+    bool VarModified;
+    int ArgEdited;
+    int VmtCandidatesNum;
+    int StackSize;
+    DWORD SFlags;
+    String SName;
     void __fastcall FillVMTCandidates();
     void __fastcall FillType();
     void __fastcall FillArgs();
     void __fastcall FillVars();
+
 public:
-    DWORD   Adr;
-    DWORD   EndAdr;
-	virtual __fastcall TFEditFunctionDlg_11011981(TComponent* AOwner);
+    DWORD Adr;
+    DWORD EndAdr;
+    virtual __fastcall TFEditFunctionDlg_11011981(TComponent *AOwner);
 };
+
 //----------------------------------------------------------------------------
 extern PACKAGE TFEditFunctionDlg_11011981 *FEditFunctionDlg_11011981;
 //----------------------------------------------------------------------------
-#endif    
+#endif

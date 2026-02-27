@@ -7,10 +7,9 @@
 #include <Vcl.StdCtrls.hpp>
 
 //---------------------------------------------------------------------------
-class TFLegend_11011981 : public TForm
-{
-__published:	// IDE-managed Components
-    TGroupBox *gb1;
+class TFLegend_11011981 : public TForm {
+    __published: // IDE-managed Components
+    TGroupBox * gb1;
     TLabel *Label1;
     TLabel *Label2;
     TLabel *Label3;
@@ -28,12 +27,14 @@ __published:	// IDE-managed Components
     TLabel *lblUnk;
     TButton *btnOK;
     void __fastcall FormKeyDown(TObject *Sender, WORD &Key,
-          TShiftState Shift);
+                                TShiftState Shift);
     void __fastcall FormCreate(TObject *Sender);
-private:	// User declarations
-public:		// User declarations
-    __fastcall TFLegend_11011981(TComponent* Owner);
+
+private: // User declarations
+public:  // User declarations
+    __fastcall TFLegend_11011981(TComponent *Owner);
 };
+
 //---------------------------------------------------------------------------
 extern PACKAGE TFLegend_11011981 *FLegend_11011981;
 //---------------------------------------------------------------------------

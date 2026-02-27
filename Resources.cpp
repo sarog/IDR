@@ -27,15 +27,22 @@
 #include "ccalendr.h"
 #include "pies.h"
 
-int (__stdcall *fnGetDstSize)(BYTE*, int);
-boolean (__stdcall *fnDecrypt)(BYTE*, int, BYTE*, int);
+int (__stdcall *fnGetDstSize)(BYTE *, int);
+boolean(__stdcall * fnDecrypt)(BYTE*
+,
+int
+,
+BYTE *
+,
+int
+);
 
-extern  TResourceInfo   *ResInfo;
-extern  DWORD       CodeBase;
-extern  PInfoRec    *Infos;
+extern TResourceInfo *ResInfo;
+extern DWORD CodeBase;
+extern PInfoRec *Infos;
 
 //---------------------------------------------------------------------------
-bool	ClassesRegistered = false;
+bool ClassesRegistered = false;
 
 RegClassInfo RegClasses[] =
 {
@@ -172,10 +179,9 @@ RegClassInfo RegClasses[] =
     {0, 0}*/
 };
 //---------------------------------------------------------------------------
-__fastcall TDfm::TDfm()
-{
+__fastcall TDfm::TDfm() {
     Open = 0;
-	Flags = 0;
+    Flags = 0;
     ResName = "";
     Name = "";
     ClassName = "";
@@ -186,24 +192,22 @@ __fastcall TDfm::TDfm()
     Form = 0;
     Loader = 0;
 }
+
 //---------------------------------------------------------------------------
-__fastcall TDfm::~TDfm()
-{
+__fastcall TDfm::~TDfm() {
     delete MemStream;
 
     int cnt = Events->Count;
     for (int n = 0; n < cnt; n++)
-    	delete (PEventInfo)Events->Items[n];
+        delete (PEventInfo) Events->Items[n];
     delete Events;
 
     cnt = Components->Count;
-    for (int n = 0; n < cnt; n++)
-    {
-    	PComponentInfo cInfo = (PComponentInfo)Components->Items[n];
-    	if (cInfo->Events)
-        {
+    for (int n = 0; n < cnt; n++) {
+        PComponentInfo cInfo = (PComponentInfo) Components->Items[n];
+        if (cInfo->Events) {
             for (int m = 0; m < cInfo->Events->Count; m++)
-                delete (PEventInfo)cInfo->Events->Items[m];
+                delete (PEventInfo) cInfo->Events->Items[m];
             delete cInfo->Events;
         }
         delete cInfo;
@@ -212,64 +216,57 @@ __fastcall TDfm::~TDfm()
     if (Form) delete Form;
     if (Loader) delete Loader;
 }
+
 //---------------------------------------------------------------------------
-bool __fastcall TDfm::IsFormComponent(String CompName)
-{
+bool __fastcall TDfm::IsFormComponent(String CompName) {
     int cnt = Components->Count;
-    for (int n = 0; n < cnt; n++)
-    {
-        PComponentInfo cInfo = (PComponentInfo)Components->Items[n];
+    for (int n = 0; n < cnt; n++) {
+        PComponentInfo cInfo = (PComponentInfo) Components->Items[n];
         if (SameText(CompName, cInfo->Name)) return true;
     }
     return false;
 }
+
 //---------------------------------------------------------------------------
-__fastcall TResourceInfo::TResourceInfo()
-{
-	citadel = false;
+__fastcall TResourceInfo::TResourceInfo() {
+    citadel = false;
     Counter = 0;
     hFormPlugin = 0;
     FormPluginName = "";
     FormList = new TList;
     Aliases = new TStringList;
 
-    if (!ClassesRegistered)
-    {
-        for (int n = 0;; n++)
-        {
+    if (!ClassesRegistered) {
+        for (int n = 0;; n++) {
             if (!RegClasses[n].RegClass) break;
             Classes::RegisterClass(RegClasses[n].RegClass);
         }
         ClassesRegistered = true;
     }
 }
+
 //---------------------------------------------------------------------------
-__fastcall TResourceInfo::~TResourceInfo()
-{
-    if (hFormPlugin)
-    {
+__fastcall TResourceInfo::~TResourceInfo() {
+    if (hFormPlugin) {
         FreeLibrary(hFormPlugin);
         hFormPlugin = 0;
     }
     int cnt = FormList->Count;
-    for (int n = 0; n < cnt; n++)
-    {
-        TDfm* dfm = (TDfm*)FormList->Items[n];
+    for (int n = 0; n < cnt; n++) {
+        TDfm *dfm = (TDfm *) FormList->Items[n];
         delete dfm;
     }
 
     delete FormList;
     delete Aliases;
-
 }
-//---------------------------------------------------------------------------
-int __fastcall AnalyzeSection(TDfm* Dfm, TStringList* FormText, int From, PComponentInfo CInfo, int objAlign)
-{
-    int     n, pos, align;
-    String  componentName, componentClass, eventName, procName;
 
-    for (n = From; n < FormText->Count; n++)
-    {
+//---------------------------------------------------------------------------
+int __fastcall AnalyzeSection(TDfm *Dfm, TStringList *FormText, int From, PComponentInfo CInfo, int objAlign) {
+    int n, pos, align;
+    String componentName, componentClass, eventName, procName;
+
+    for (n = From; n < FormText->Count; n++) {
         String line = FormText->Strings[n].Trim();
         if (line == "") continue;
         align = FormText->Strings[n].Pos(line);
@@ -278,24 +275,22 @@ int __fastcall AnalyzeSection(TDfm* Dfm, TStringList* FormText, int From, PCompo
 
         bool inherited = (line.Pos("inherited ") == 1);
 
-        if (line.Pos("object ") == 1 || inherited)
-        {
+        if (line.Pos("object ") == 1 || inherited) {
             int pos = line.Pos(":");
             int end = line.Length();
-            int tmp = line.Pos(" [");   //eg: object Label1: TLabel [1]
+            int tmp = line.Pos(" ["); //eg: object Label1: TLabel [1]
             if (tmp) end = tmp - 1;
             int off = (inherited ? 10 : 7);
 
             //object Label1: TLabel
-            if (pos)
-            {
+            if (pos) {
                 componentName = line.SubString(off, pos - off).Trim();
                 componentClass = line.SubString(pos + 1, end - pos).Trim();
             }
             //object TLabel
-            else
-            {
-                componentName = "_" + Val2Str4(ResInfo->Counter) + "_"; ResInfo->Counter++;
+            else {
+                componentName = "_" + Val2Str4(ResInfo->Counter) + "_";
+                ResInfo->Counter++;
                 componentClass = line.SubString(off, end - off + 1).Trim();
             }
 
@@ -306,97 +301,87 @@ int __fastcall AnalyzeSection(TDfm* Dfm, TStringList* FormText, int From, PCompo
             cInfo->ClassName = componentClass;
             cInfo->Events = new TList;
 
-            Dfm->Components->Add((void*)cInfo);
+            Dfm->Components->Add((void *) cInfo);
 
             if (ResInfo->Aliases->IndexOf(cInfo->ClassName) == -1)
                 ResInfo->Aliases->Add(cInfo->ClassName);
-             
+
             n = AnalyzeSection(Dfm, FormText, n + 1, cInfo, align);
         }
         //Events begins with "On" or "Action". But events of TDataSet may begin with no these prefixes!!!
         if ((pos = line.Pos("=")) != 0 &&
-        	((line[1] == 'O' && line[2] == 'n') || (line.Pos("Action ") == 1)))
-        {
-            eventName = line.SubString(1, pos - 1).Trim();   //Include "On"
+            ((line[1] == 'O' && line[2] == 'n') || (line.Pos("Action ") == 1))) {
+            eventName = line.SubString(1, pos - 1).Trim(); //Include "On"
             procName = line.SubString(pos + 1, line.Length() - pos).Trim();
             PEventInfo eInfo = new EventInfo;
             eInfo->EventName = eventName;
             eInfo->ProcName = procName;
             //Form itself
-            if (!CInfo)
-            {
-                Dfm->Events->Add((void*)eInfo);
-            }
-            else
-            {
-            	CInfo->Events->Add((void*)eInfo);
+            if (!CInfo) {
+                Dfm->Events->Add((void *) eInfo);
+            } else {
+                CInfo->Events->Add((void *) eInfo);
             }
         }
         //Has property Glyph?
         if (line.Pos("Glyph.Data =") == 1)
-        	CInfo->HasGlyph = true;
+            CInfo->HasGlyph = true;
     }
     return n;
 }
-//---------------------------------------------------------------------------
-bool __stdcall EnumResNameProcedure(int hModule, char* Type, char* Name, long Param)
-{
-    bool                res;
-    TFilerFlags         flags;
-    int                 position, srcSize, dstSize;
-    TDfm*               dfm;
-    TStringList*        formText;
-    TMemoryStream*      ms;
-    TResourceStream*    resStream;
-    String              className, vmtName;
-    BYTE                signature[4];
 
-    if (Type == RT_RCDATA || Type == RT_BITMAP)
-    {
-		resStream = new TResourceStream(hModule, String(Name), String(Type).c_str());
-        if (Type == RT_RCDATA)
-        {
+//---------------------------------------------------------------------------
+bool __stdcall EnumResNameProcedure(int hModule, char *Type, char *Name, long Param) {
+    bool res;
+    TFilerFlags flags;
+    int position, srcSize, dstSize;
+    TDfm *dfm;
+    TStringList *formText;
+    TMemoryStream *ms;
+    TResourceStream *resStream;
+    String className, vmtName;
+    BYTE signature[4];
+
+    if (Type == RT_RCDATA || Type == RT_BITMAP) {
+        resStream = new TResourceStream(hModule, String(Name), String(Type).c_str());
+        if (Type == RT_RCDATA) {
             ms = new TMemoryStream;
             ms->LoadFromStream(resStream);
             res = true;
-            if (ResInfo->hFormPlugin)
-            {
-                fnGetDstSize = (int (__stdcall*)(BYTE*, int))GetProcAddress(ResInfo->hFormPlugin, "GetDstSize");
-                fnDecrypt = (boolean (__stdcall*)(BYTE*, int, BYTE*, int))GetProcAddress(ResInfo->hFormPlugin, "Decrypt");
+            if (ResInfo->hFormPlugin) {
+                fnGetDstSize = (int(__stdcall *)
+                (BYTE *, int)
+                )
+                GetProcAddress(ResInfo->hFormPlugin, "GetDstSize");
+                fnDecrypt = (boolean(__stdcall *)(BYTE *, int, BYTE *, int))
+                GetProcAddress(ResInfo->hFormPlugin, "Decrypt");
                 res = (fnGetDstSize && fnDecrypt);
-                if (res)
-                {
+                if (res) {
                     srcSize = ms->Size;
-                    dstSize = fnGetDstSize((BYTE*)ms->Memory, srcSize);
-                    if (srcSize != dstSize)
-                    {
+                    dstSize = fnGetDstSize((BYTE *) ms->Memory, srcSize);
+                    if (srcSize != dstSize) {
                         TMemoryStream *ds = new TMemoryStream;
                         ds->Size = dstSize;
-                        res = fnDecrypt((BYTE*)ms->Memory, srcSize, (BYTE*)ds->Memory, dstSize);
+                        res = fnDecrypt((BYTE *) ms->Memory, srcSize, (BYTE *) ds->Memory, dstSize);
                         ms->Size = dstSize;
                         ms->CopyFrom(ds, dstSize);
                         delete ds;
-                    }
-                    else
-                    {
-                        res = fnDecrypt((BYTE*)ms->Memory, srcSize, (BYTE*)ms->Memory, dstSize);
+                    } else {
+                        res = fnDecrypt((BYTE *) ms->Memory, srcSize, (BYTE *) ms->Memory, dstSize);
                     }
                 }
-                if (res)
-                {
-                    BYTE *mp = (BYTE*)ms->Memory;
+                if (res) {
+                    BYTE *mp = (BYTE *) ms->Memory;
                     BYTE len = *(mp + 4);
-                    res = (len == strlen(Name) && SameText(Name, String((char*)mp + 5, len)));
+                    res = (len == strlen(Name) && SameText(Name, String((char *) mp + 5, len)));
                 }
             }
-            if (res)
-            {
+            if (res) {
                 ms->Seek(0, soFromBeginning);
                 ms->Read(signature, 4);
-                if (signature[0] == 'T' && signature[1] == 'P' && signature[2] == 'F' && (signature[3] >= '0' && signature[3] <= '7'))
-                {
-                    if (signature[3] == '0')
-                    {
+                if (signature[0] == 'T' && signature[1] == 'P' && signature[2] == 'F' && (
+                        signature[3] >= '0' && signature[3] <= '7')) {
+                    if (signature[3] == '0') {
                         //????????? ? ?????? ????????
                         dfm = new TDfm;
                         dfm->ResName = Name;
@@ -410,8 +395,7 @@ bool __stdcall EnumResNameProcedure(int hModule, char* Type, char* Name, long Pa
                         bool inherited = (line.Pos("inherited ") == 1);
                         if (inherited)
                             dfm->Flags |= FF_INHERITED;
-                        if (line.Pos("object ") == 1 || inherited)
-                        {
+                        if (line.Pos("object ") == 1 || inherited) {
                             int off = (inherited ? 10 : 7);
                             int pos = line.Pos(":");
                             dfm->Name = line.SubString(off, pos - off).Trim();
@@ -420,73 +404,63 @@ bool __stdcall EnumResNameProcedure(int hModule, char* Type, char* Name, long Pa
                         }
                         delete formText;
 
-                        ((TResourceInfo*)Param)->FormList->Add((void*)dfm);
-                    }
-                    else if (!ResInfo->citadel)
-                    {
+                        ((TResourceInfo *) Param)->FormList->Add((void *) dfm);
+                    } else if (!ResInfo->citadel) {
                         ShowMessage("Citadel for Delphi detected, forms cannot be loaded");
                         ResInfo->citadel = true;
                     }
-                }
-                else
-                {
+                } else {
                     delete ms;
                 }
-            }
-            else
-            {
+            } else {
                 delete ms;
             }
-        }
-        else if (Type == RT_BITMAP)
-        {
+        } else if (Type == RT_BITMAP) {
             dfm = new TDfm;
             dfm->ResName = Name;
             dfm->MemStream->LoadFromStream(resStream);
-            ((TResourceInfo*)Param)->FormList->Add((void*)dfm);
+            ((TResourceInfo *) Param)->FormList->Add((void *) dfm);
         }
         delete resStream;
     }
     return true;
 }
+
 //---------------------------------------------------------------------------
-bool __fastcall TResourceInfo::EnumResources(String FileName)
-{
-	citadel = false;
+bool __fastcall TResourceInfo::EnumResources(String FileName) {
+    citadel = false;
     hFormPlugin = LoadLibrary(AnsiString(FMain_11011981->AppDir + "Plugins\\" + FormPluginName).c_str());
     HINSTANCE hInst = LoadLibraryEx(AnsiString(FileName).c_str(), 0, LOAD_LIBRARY_AS_DATAFILE);
-    if (hInst)
-    {
-        EnumResourceNames(hInst, RT_RCDATA, (ENUMRESNAMEPROC)EnumResNameProcedure, (long)this);
+    if (hInst) {
+        EnumResourceNames(hInst, RT_RCDATA, (ENUMRESNAMEPROC) EnumResNameProcedure, (long) this);
         FreeLibrary(hInst);
         return true;
     }
-    if (hFormPlugin)
-    {
+    if (hFormPlugin) {
         FreeLibrary(hFormPlugin);
         hFormPlugin = 0;
     }
     return false;
 }
+
 //---------------------------------------------------------------------------
-void __fastcall TResourceInfo::ShowResources(TListBox* ListBox)
-{
+void __fastcall TResourceInfo::ShowResources(TListBox *ListBox) {
     ListBox->Clear();
 
-    int     wid, maxwid = 0;
+    int wid, maxwid = 0;
     TCanvas *canvas = ListBox->Canvas;
     int cnt = FormList->Count;
-    for (int n = 0; n < cnt; n++)
-    {
-        TDfm *dfm = (TDfm*)FormList->Items[n];
+    for (int n = 0; n < cnt; n++) {
+        TDfm *dfm = (TDfm *) FormList->Items[n];
         ListBox->Items->Add(dfm->ResName + " {" + dfm->Name + "}");
-        wid = canvas->TextWidth(dfm->ResName); if (wid > maxwid) maxwid = wid;
+        wid = canvas->TextWidth(dfm->ResName);
+        if (wid > maxwid) maxwid = wid;
     }
     ListBox->ScrollWidth = maxwid + 2;
 }
+
 //---------------------------------------------------------------------------
-void __fastcall TResourceInfo::GetFormAsText(TDfm* Dfm, TStrings* DstList)
-{
+void __fastcall TResourceInfo::GetFormAsText(TDfm *Dfm, TStrings *DstList) {
     TMemoryStream *memStream = new TMemoryStream;
     memStream->Size = Dfm->MemStream->Size;
     Dfm->MemStream->Seek(0, soFromBeginning);
@@ -495,39 +469,35 @@ void __fastcall TResourceInfo::GetFormAsText(TDfm* Dfm, TStrings* DstList)
     DstList->LoadFromStream(memStream);
     delete memStream;
 }
+
 //---------------------------------------------------------------------------
-void __fastcall TResourceInfo::GetBitmap(TDfm* Dfm, Graphics::TBitmap* DstBitmap)
-{
+void __fastcall TResourceInfo::GetBitmap(TDfm *Dfm, Graphics::TBitmap *DstBitmap) {
     Dfm->MemStream->Seek(0, soFromBeginning);
     DstBitmap->LoadFromStream(Dfm->MemStream);
 }
+
 //---------------------------------------------------------------------------
-TDfm* __fastcall TResourceInfo::GetParentDfm(TDfm* Dfm)
-{
+TDfm * __fastcall TResourceInfo::GetParentDfm(TDfm *Dfm) {
     String parentName = GetParentName(Dfm->ClassName);
     int cnt = FormList->Count;
-    for (int n = 0; n < cnt; n++)
-    {
-        TDfm* dfm1 = (TDfm*)FormList->Items[n];
+    for (int n = 0; n < cnt; n++) {
+        TDfm *dfm1 = (TDfm *) FormList->Items[n];
         if (SameText(dfm1->ClassName, parentName)) return dfm1;
     }
     return 0;
 }
+
 //---------------------------------------------------------------------------
-void __fastcall TResourceInfo::CloseAllForms()
-{
+void __fastcall TResourceInfo::CloseAllForms() {
     int cnt = FormList->Count;
-    for (int n = 0; n < cnt; n++)
-    {
-        TDfm* dfm = (TDfm*)FormList->Items[n];
-        if (dfm->Open == 2)
-        {
+    for (int n = 0; n < cnt; n++) {
+        TDfm *dfm = (TDfm *) FormList->Items[n];
+        if (dfm->Open == 2) {
             if (dfm->Form && dfm->Form->Visible) dfm->Form->Close();
             dfm->Form = 0;
             dfm->Open = 1;
         }
-        if (dfm->Open == 1)
-        {
+        if (dfm->Open == 1) {
             if (dfm->Loader) delete dfm->Loader;
             dfm->Form = 0;
             dfm->Loader = 0;
@@ -540,17 +510,15 @@ void __fastcall TResourceInfo::CloseAllForms()
     //and we'll not have a new form with name [old_name]_1 !
     Application->ProcessMessages();
 }
+
 //---------------------------------------------------------------------------
-void __fastcall TResourceInfo::ReopenAllForms()
-{
+void __fastcall TResourceInfo::ReopenAllForms() {
     int cnt = FormList->Count;
-    for (int n = 0; n < cnt; n++)
-    {
-        TDfm* dfm = (TDfm*)FormList->Items[n];
+    for (int n = 0; n < cnt; n++) {
+        TDfm *dfm = (TDfm *) FormList->Items[n];
         if (dfm->Open == 2) //still opened
         {
-            if (dfm->Form && dfm->Form->Visible)
-            {
+            if (dfm->Form && dfm->Form->Visible) {
                 String FormName = dfm->Form->Name;
                 dfm->Form->Close();
 
@@ -560,29 +528,24 @@ void __fastcall TResourceInfo::ReopenAllForms()
                 Application->ProcessMessages();
 
                 int frmIdx = -1;
-                TDfm* dfm = GetFormIdx(FormName, &frmIdx);
+                TDfm *dfm = GetFormIdx(FormName, &frmIdx);
                 FMain_11011981->ShowDfm(dfm);
             }
         }
     }
 }
+
 //---------------------------------------------------------------------------
-void __fastcall TResourceInfo::InitAliases()
-{
+void __fastcall TResourceInfo::InitAliases() {
     //return;
     int cnt = Aliases->Count;
-    for (int n = 0; n < cnt; n++)
-    {
+    for (int n = 0; n < cnt; n++) {
         String className = Aliases->Strings[n];
-        if (!className.Pos("="))
-        {
+        if (!className.Pos("=")) {
             String alias = "";
-            try
-            {
+            try {
                 TMetaClass *componentClass = FindClass(className);
-            }
-            catch (Exception& e)
-            {
+            } catch (Exception &e) {
                 if (SameText(className, "TDBGrid"))
                     alias = "TStringGrid";
                 else if (SameText(className, "TDBText"))
@@ -611,7 +574,7 @@ void __fastcall TResourceInfo::InitAliases()
                     alias = "TStringGrid";
                 else if (SameText(className, "TDBChart"))
                     alias = "TChart";
-                //sample components are redirected to TCxxx components
+                    //sample components are redirected to TCxxx components
                 else if (SameText(className, "TGauge"))
                     alias = "TCGauge";
                 else if (SameText(className, "TSpinEdit"))
@@ -624,8 +587,7 @@ void __fastcall TResourceInfo::InitAliases()
                     alias = "TCDirectoryOutline";
                 else if (SameText(className, "TShellImageList"))
                     alias = "TImageList"; //special case, if not handled- crash (eg:1st Autorun Express app)
-                else if (!GetClass(className))
-                {
+                else if (!GetClass(className)) {
                     if (IsInheritsByClassName(className, "TBasicAction"))
                         alias = "TAction";
                     else if (IsInheritsByClassName(className, "TMainMenu"))
@@ -633,8 +595,8 @@ void __fastcall TResourceInfo::InitAliases()
                     else if (IsInheritsByClassName(className, "TPopupMenu"))
                         alias = "TPopupMenu";
                     else if (IsInheritsByClassName(className, "TCustomLabel")
-                        || AnsiContainsText (className, "Label") //evristika
-                        )
+                             || AnsiContainsText(className, "Label") //evristika
+                    )
                         alias = "TLabel";
                     else if (IsInheritsByClassName(className, "TCustomEdit"))
                         alias = "TEdit";
@@ -691,25 +653,22 @@ void __fastcall TResourceInfo::InitAliases()
         }
     }
 }
+
 //---------------------------------------------------------------------------
-String __fastcall TResourceInfo::GetAlias(String ClassName)
-{
-    for (int n = 0; n < Aliases->Count; n++)
-    {
+String __fastcall TResourceInfo::GetAlias(String ClassName) {
+    for (int n = 0; n < Aliases->Count; n++) {
         if (SameText(ClassName, Aliases->Names[n]))
             return Aliases->Values[ClassName];
     }
     return "";
 }
+
 //---------------------------------------------------------------------------
-TDfm* __fastcall TResourceInfo::GetFormIdx(String FormName, int* idx)
-{
-    for (int n = 0; n < FormList->Count; n++)
-    {
-    	TDfm* dfm = (TDfm*)FormList->Items[n];
+TDfm * __fastcall TResourceInfo::GetFormIdx(String FormName, int *idx) {
+    for (int n = 0; n < FormList->Count; n++) {
+        TDfm *dfm = (TDfm *) FormList->Items[n];
         //Find form
-        if (SameText(dfm->Name, FormName))
-        {
+        if (SameText(dfm->Name, FormName)) {
             *idx = n;
             return dfm;
         }
@@ -717,51 +676,46 @@ TDfm* __fastcall TResourceInfo::GetFormIdx(String FormName, int* idx)
     *idx = -1;
     return 0;
 }
+
 //---------------------------------------------------------------------------
-TDfm* __fastcall TResourceInfo::GetFormByClassName(String ClassName)
-{
-    for (int n = 0; n < FormList->Count; n++)
-    {
-    	TDfm* dfm = (TDfm*)FormList->Items[n];
+TDfm * __fastcall TResourceInfo::GetFormByClassName(String ClassName) {
+    for (int n = 0; n < FormList->Count; n++) {
+        TDfm *dfm = (TDfm *) FormList->Items[n];
         //Find form
         if (SameText(dfm->ClassName, ClassName)) return dfm;
     }
     return 0;
 }
-//---------------------------------------------------------------------------
-void __fastcall TResourceInfo::GetEventsList(String FormName, TList* Lst)
-{
-    int             n, evCnt, evCnt1, compCnt, compCnt1, frmCnt;
-    PEventListItem  item;
-    PInfoRec        recN, recN1;
 
-    TDfm* dfm = GetFormIdx(FormName, &n);
+//---------------------------------------------------------------------------
+void __fastcall TResourceInfo::GetEventsList(String FormName, TList *Lst) {
+    int n, evCnt, evCnt1, compCnt, compCnt1, frmCnt;
+    PEventListItem item;
+    PInfoRec recN, recN1;
+
+    TDfm *dfm = GetFormIdx(FormName, &n);
     if (!dfm) return;
 
     DWORD classAdr = GetClassAdr(dfm->ClassName);
     recN = (IsValidImageAdr(classAdr)) ? Infos[Adr2Pos(classAdr)] : 0;
     //Form
     //Inherited - begin fill list
-    if (dfm->Flags & FF_INHERITED)
-    {
-        TDfm* parentDfm = GetParentDfm(dfm);
-        if (parentDfm)
-        {
+    if (dfm->Flags & FF_INHERITED) {
+        TDfm *parentDfm = GetParentDfm(dfm);
+        if (parentDfm) {
             GetEventsList(parentDfm->Name, Lst);
             int evCount = Lst->Count;
             evCount = evCount;
         }
     }
-    if (dfm->Events->Count)
-    {
-        TList* ev = dfm->Events;
+    if (dfm->Events->Count) {
+        TList *ev = dfm->Events;
         evCnt = ev->Count;
-        for (int k = 0; k < evCnt; k++)
-        {
-            PEventInfo eInfo = (PEventInfo)ev->Items[k];
+        for (int k = 0; k < evCnt; k++) {
+            PEventInfo eInfo = (PEventInfo) ev->Items[k];
             item = new EventListItem;
             item->CompName = FormName;
-            item->EventName = eInfo->EventName;//eInfo->ProcName;
+            item->EventName = eInfo->EventName; //eInfo->ProcName;
             String methodName = dfm->ClassName + "." + eInfo->ProcName;
             //???? ????? ???????????????? ??????
             PMethodRec recM = FMain_11011981->GetMethodInfo(recN, methodName);
@@ -771,54 +725,44 @@ void __fastcall TResourceInfo::GetEventsList(String FormName, TList* Lst)
     }
     //Components
     compCnt = dfm->Components->Count;
-    for (int m = 0; m < compCnt; m++)
-    {
-        PComponentInfo cInfo = (PComponentInfo)dfm->Components->Items[m];
+    for (int m = 0; m < compCnt; m++) {
+        PComponentInfo cInfo = (PComponentInfo) dfm->Components->Items[m];
         if (!cInfo->Events->Count) continue;
 
-        TList* ev = cInfo->Events;
+        TList *ev = cInfo->Events;
         evCnt = ev->Count;
-        for (int k = 0; k < evCnt; k++)
-        {
+        for (int k = 0; k < evCnt; k++) {
             recN1 = recN;
-            PEventInfo eInfo = (PEventInfo)ev->Items[k];
+            PEventInfo eInfo = (PEventInfo) ev->Items[k];
             item = new EventListItem;
             item->CompName = cInfo->Name;
-            item->EventName = eInfo->EventName;//eInfo->ProcName;
+            item->EventName = eInfo->EventName; //eInfo->ProcName;
             String methodName = "";
             //Action
-            if (SameText(eInfo->EventName, "Action"))
-            {
+            if (SameText(eInfo->EventName, "Action")) {
                 //Name eInfo->ProcName like FormName.Name
                 int dotpos = eInfo->ProcName.Pos(".");
-                if (dotpos)
-                {
+                if (dotpos) {
                     String moduleName = eInfo->ProcName.SubString(1, dotpos - 1);
                     String actionName = eInfo->ProcName.SubString(dotpos + 1, eInfo->ProcName.Length() - dotpos);
                     //Find form moduleName
                     frmCnt = FormList->Count;
-                    for (int j = 0; j < frmCnt; j++)
-                    {
-                        TDfm* dfm1 = (TDfm*)FormList->Items[j];
-                        if (SameText(dfm1->Name, moduleName))
-                        {
+                    for (int j = 0; j < frmCnt; j++) {
+                        TDfm *dfm1 = (TDfm *) FormList->Items[j];
+                        if (SameText(dfm1->Name, moduleName)) {
                             classAdr = GetClassAdr(dfm1->ClassName);
                             recN1 = (IsValidImageAdr(classAdr)) ? Infos[Adr2Pos(classAdr)] : 0;
                             //Find component actionName
                             compCnt1 = dfm1->Components->Count;
-                            for (int r = 0; r < compCnt1; r++)
-                            {
-                                PComponentInfo cInfo1 = (PComponentInfo)dfm1->Components->Items[r];
-                                if (SameText(cInfo1->Name, actionName))
-                                {
+                            for (int r = 0; r < compCnt1; r++) {
+                                PComponentInfo cInfo1 = (PComponentInfo) dfm1->Components->Items[r];
+                                if (SameText(cInfo1->Name, actionName)) {
                                     //Find event OnExecute
-                                    TList* ev1 = cInfo1->Events;
+                                    TList *ev1 = cInfo1->Events;
                                     evCnt1 = ev1->Count;
-                                    for (int i = 0; i < evCnt1; i++)
-                                    {
-                                        PEventInfo eInfo1 = (PEventInfo)ev1->Items[i];
-                                        if (SameText(eInfo1->EventName, "OnExecute"))
-                                        {
+                                    for (int i = 0; i < evCnt1; i++) {
+                                        PEventInfo eInfo1 = (PEventInfo) ev1->Items[i];
+                                        if (SameText(eInfo1->EventName, "OnExecute")) {
                                             methodName = dfm1->ClassName + "." + eInfo1->ProcName;
                                             break;
                                         }
@@ -829,24 +773,18 @@ void __fastcall TResourceInfo::GetEventsList(String FormName, TList* Lst)
                             break;
                         }
                     }
-                }
-                else
-                {
+                } else {
                     //Find component eInfo->ProcName
                     compCnt = dfm->Components->Count;
-                    for (int r = 0; r < compCnt; r++)
-                    {
-                        PComponentInfo cInfo1 = (PComponentInfo)dfm->Components->Items[r];
-                        if (SameText(cInfo1->Name, eInfo->ProcName))
-                        {
+                    for (int r = 0; r < compCnt; r++) {
+                        PComponentInfo cInfo1 = (PComponentInfo) dfm->Components->Items[r];
+                        if (SameText(cInfo1->Name, eInfo->ProcName)) {
                             //Find event OnExecute
-                            TList* ev1 = cInfo1->Events;
+                            TList *ev1 = cInfo1->Events;
                             evCnt1 = ev1->Count;
-                            for (int i = 0; i < evCnt1; i++)
-                            {
-                                PEventInfo eInfo1 = (PEventInfo)ev1->Items[i];
-                                if (SameText(eInfo1->EventName, "OnExecute"))
-                                {
+                            for (int i = 0; i < evCnt1; i++) {
+                                PEventInfo eInfo1 = (PEventInfo) ev1->Items[i];
+                                if (SameText(eInfo1->EventName, "OnExecute")) {
                                     methodName = dfm->ClassName + "." + eInfo1->ProcName;
                                     break;
                                 }
@@ -855,9 +793,7 @@ void __fastcall TResourceInfo::GetEventsList(String FormName, TList* Lst)
                         }
                     }
                 }
-            }
-            else
-            {
+            } else {
                 methodName = dfm->ClassName + "." + eInfo->ProcName;
             }
             //Find method address
@@ -867,32 +803,30 @@ void __fastcall TResourceInfo::GetEventsList(String FormName, TList* Lst)
         }
     }
 }
+
 //---------------------------------------------------------------------------
 //IdrDfmReader
 //---------------------------------------------------------------------------
-__fastcall IdrDfmReader::IdrDfmReader(TStream* Stream, int BufSize) :TReader(Stream, BufSize)
-{
-}
+__fastcall IdrDfmReader::IdrDfmReader(TStream *Stream, int BufSize) : TReader(Stream, BufSize) {}
 //---------------------------------------------------------------------------
 //TComponentEvents
 //---------------------------------------------------------------------------
-__fastcall TComponentEvents::TComponentEvents(TCollection* Owner) : TCollectionItem(Owner)
-{
+__fastcall TComponentEvents::TComponentEvents(TCollection *Owner) : TCollectionItem(Owner) {
     Component = 0;
     FoundEvents = new TStringList();
     FoundEvents->Sorted = true;
 }
+
 //---------------------------------------------------------------------------
-__fastcall TComponentEvents::~TComponentEvents()
-{
-	delete FoundEvents;
+__fastcall TComponentEvents::~TComponentEvents() {
+    delete FoundEvents;
 }
+
 //---------------------------------------------------------------------------
 //IdrDfmForm
 //---------------------------------------------------------------------------
-__fastcall IdrDfmForm::IdrDfmForm(TComponent* Owner) : TForm(Owner)
-{
-	compsEventsList = 0;
+__fastcall IdrDfmForm::IdrDfmForm(TComponent *Owner) : TForm(Owner) {
+    compsEventsList = 0;
     current = 0;
     evPopup = new TPopupMenu(0);
     evPopup->AutoPopup = false;
@@ -901,10 +835,10 @@ __fastcall IdrDfmForm::IdrDfmForm(TComponent* Owner) : TForm(Owner)
 
     KeyPreview = true;
 }
+
 //---------------------------------------------------------------------------
-__fastcall IdrDfmForm::IdrDfmForm(TComponent* Owner, int Dummy) : TForm(Owner, Dummy)
-{
-	compsEventsList = 0;
+__fastcall IdrDfmForm::IdrDfmForm(TComponent *Owner, int Dummy) : TForm(Owner, Dummy) {
+    compsEventsList = 0;
     current = 0;
     evPopup = new TPopupMenu(0);
     evPopup->AutoPopup = false;
@@ -913,90 +847,82 @@ __fastcall IdrDfmForm::IdrDfmForm(TComponent* Owner, int Dummy) : TForm(Owner, D
 
     KeyPreview = true;
 }
+
 //---------------------------------------------------------------------------
-__fastcall IdrDfmForm::~IdrDfmForm()
-{
+__fastcall IdrDfmForm::~IdrDfmForm() {
     if (compsEventsList) delete compsEventsList;
     compsEventsList = 0;
     delete evPopup;
     if (frmTree) delete frmTree;
     frmTree = 0;
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmForm::SetDesigning(bool value, bool SetChildren)
-{
-   TComponent::SetDesigning(value, SetChildren);
+void __fastcall IdrDfmForm::SetDesigning(bool value, bool SetChildren) {
+    TComponent::SetDesigning(value, SetChildren);
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmForm::CreateHandle()
-{
-    if (FormStyle == fsMDIChild)
-    {
+void __fastcall IdrDfmForm::CreateHandle() {
+    if (FormStyle == fsMDIChild) {
         FormStyle = Vcl::Forms::fsNormal;
         return;
     }
 
     TForm::CreateHandle();
 }
+
 //---------------------------------------------------------------------------
 //this is required action as sometimes ShortCut from target exe could be same as ours...
-void __fastcall IdrDfmForm::SetupControlResetShortcut(TComponent* component)
-{
-    TCustomAction* action = dynamic_cast<TCustomAction*>(component);
+void __fastcall IdrDfmForm::SetupControlResetShortcut(TComponent *component) {
+    TCustomAction *action = dynamic_cast<TCustomAction *>(component);
     if (action && action->ShortCut)
         action->ShortCut = 0;
 
-    TMenuItem* mi = dynamic_cast<TMenuItem*>(component);
+    TMenuItem *mi = dynamic_cast<TMenuItem *>(component);
     if (mi && mi->ShortCut)
         mi->ShortCut = 0;
 }
+
 //---------------------------------------------------------------------------
 //different fine-tuning and fixes for components of the DFM Forms
-void __fastcall IdrDfmForm::SetupControls()
-{
-    TComponent* component = this;
-    TControl* control = dynamic_cast<TControl*>(this);
-    if (control)
-    {
+void __fastcall IdrDfmForm::SetupControls() {
+    TComponent *component = this;
+    TControl *control = dynamic_cast<TControl *>(this);
+    if (control) {
         SetupControlHint(Name, control, GetShortHint(control->Hint));
-        ((TMyControl*)control)->OnMouseDown = ControlMouseDown;
-        if (((TMyControl*)control)->PopupMenu) ((TMyControl*)control)->PopupMenu = 0;
+        ((TMyControl *) control)->OnMouseDown = ControlMouseDown;
+        if (((TMyControl *) control)->PopupMenu) ((TMyControl *) control)->PopupMenu = 0;
     }
 
-    TBasicAction* action = dynamic_cast<TBasicAction*>(component);
+    TBasicAction *action = dynamic_cast<TBasicAction *>(component);
     if (action) action->OnExecute = ActionExecute;
     SetupControlResetShortcut(component);
 
-    for (int n = 0; n < ComponentCount; n++)
-    {
+    for (int n = 0; n < ComponentCount; n++) {
         component = Components[n];
         const String curName = component->Name;
         SetupControlResetShortcut(component);
 
-        control = dynamic_cast<TControl*>(component);
-        if (control)
-        {
+        control = dynamic_cast<TControl *>(component);
+        if (control) {
             SetupControlHint(Name, control, GetShortHint(control->Hint));
             control->Visible = true;
             control->Enabled = true;
-            ((TMyControl*)control)->OnMouseDown = ControlMouseDown;
-            if (((TMyControl*)control)->PopupMenu) ((TMyControl*)control)->PopupMenu = 0;
+            ((TMyControl *) control)->OnMouseDown = ControlMouseDown;
+            if (((TMyControl *) control)->PopupMenu) ((TMyControl *) control)->PopupMenu = 0;
         }
 
-        if (TPageControl* pageControl = dynamic_cast<TPageControl*>(component))
-        {
+        if (TPageControl *pageControl = dynamic_cast<TPageControl *>(component)) {
             if (pageControl->PageCount > 0)
                 pageControl->ActivePageIndex = pageControl->PageCount - 1;
-        }
-
-        else if(TTabSheet* ts = dynamic_cast<TTabSheet*>(component))
+        } else if (TTabSheet *ts = dynamic_cast<TTabSheet *>(component))
             ts->TabVisible = true;
 
-        else if (TBasicAction* action = dynamic_cast<TBasicAction*>(component))
+        else if (TBasicAction *action = dynamic_cast<TBasicAction *>(component))
             action->OnExecute = ActionExecute;
 
-        else if (TMenuItem* mi = dynamic_cast<TMenuItem*>(component))
-        {
+        else if (TMenuItem *mi = dynamic_cast<TMenuItem *>(component)) {
             SetupMenuItem(mi, Name); //we start from this form name
             mi->Enabled = true;
         }
@@ -1008,51 +934,47 @@ void __fastcall IdrDfmForm::SetupControls()
         //    FProgressBar->sb->AutoHint = false;
     }
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmForm::ControlMouseDown(TObject* Sender, TMouseButton Button, TShiftState Shift, int X, int Y)
-{
-	if (Button == mbRight)
-    {
-        TControl* control = dynamic_cast<TControl*>(Sender);
-        if (control)
-        {
+void __fastcall IdrDfmForm::ControlMouseDown(TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y) {
+    if (Button == mbRight) {
+        TControl *control = dynamic_cast<TControl *>(Sender);
+        if (control) {
             evPopup->Items->Clear();
             ShowMyPopupMenu(Name, control->Name, true);
         }
     }
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmForm::miClick(TObject* Sender)
-{
-    TMenuItem* mi = dynamic_cast<TMenuItem*>(Sender);
+void __fastcall IdrDfmForm::miClick(TObject *Sender) {
+    TMenuItem *mi = dynamic_cast<TMenuItem *>(Sender);
     if (mi->Tag) FMain_11011981->ShowCode(mi->Tag, 0, -1, -1);
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmForm::ActionExecute(TObject* Sender)
-{
+void __fastcall IdrDfmForm::ActionExecute(TObject *Sender) {
     //note: this is stub, you shold not stop here.....
     //if you are here -> smth not OK
-    int x=10;
+    int x = 10;
     ++x;
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName, bool show)
-{
-    int         n;
-    TMenuItem   *mi;
-    TDfm* dfm = ResInfo->GetFormIdx(FormName, &n);
+void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName, bool show) {
+    int n;
+    TMenuItem *mi;
+    TDfm *dfm = ResInfo->GetFormIdx(FormName, &n);
     if (!dfm) return;
 
     DWORD classAdr = GetClassAdr(dfm->ClassName);
     PInfoRec recN = (IsValidImageAdr(classAdr)) ? Infos[Adr2Pos(classAdr)] : 0;
 
     //??????
-    if (SameText(dfm->Name, ControlName))
-    {
+    if (SameText(dfm->Name, ControlName)) {
         //Inherited - ?????? ????????? ????
-        if (dfm->Flags & FF_INHERITED)
-        {
-            TDfm* parentDfm = ResInfo->GetParentDfm(dfm);
+        if (dfm->Flags & FF_INHERITED) {
+            TDfm *parentDfm = ResInfo->GetParentDfm(dfm);
             if (parentDfm) ShowMyPopupMenu(parentDfm->Name, parentDfm->Name, false);
             //? ????? ????????? ???????????
             mi = new TMenuItem(evPopup);
@@ -1073,10 +995,9 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
 
         PInfoRec recN = (IsValidImageAdr(classAdr)) ? Infos[Adr2Pos(classAdr)] : 0;
 
-        TList* ev = dfm->Events;
-        for (int k = 0; k < ev->Count; k++)
-        {
-            PEventInfo eInfo = (PEventInfo)ev->Items[k];
+        TList *ev = dfm->Events;
+        for (int k = 0; k < ev->Count; k++) {
+            PEventInfo eInfo = (PEventInfo) ev->Items[k];
             mi = new TMenuItem(evPopup);
             mi->Caption = eInfo->EventName + " = " + eInfo->ProcName;
             String methodName = dfm->ClassName + "." + eInfo->ProcName;
@@ -1086,8 +1007,7 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
             mi->OnClick = miPopupClick;
             evPopup->Items->Add(mi);
         }
-        if (show && evPopup->Items->Count)
-        {
+        if (show && evPopup->Items->Count) {
             TPoint cursorPos;
             GetCursorPos(&cursorPos);
             evPopup->Popup(cursorPos.x, cursorPos.y);
@@ -1095,12 +1015,10 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
         return;
     }
     //?????????? ??????
-    else
-    {
+    else {
         //Inherited - ?????? ????????? ????
-        if (dfm->Flags & FF_INHERITED)
-        {
-            TDfm* parentDfm = ResInfo->GetParentDfm(dfm);
+        if (dfm->Flags & FF_INHERITED) {
+            TDfm *parentDfm = ResInfo->GetParentDfm(dfm);
             if (parentDfm) ShowMyPopupMenu(parentDfm->Name, ControlName, false);
             //? ????? ????????? ???????????
             mi = new TMenuItem(evPopup);
@@ -1108,12 +1026,10 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
             evPopup->Items->Add(mi);
         }
 
-        for (int m = 0; m < dfm->Components->Count; m++)
-        {
-            PComponentInfo cInfo = (PComponentInfo)dfm->Components->Items[m];
+        for (int m = 0; m < dfm->Components->Count; m++) {
+            PComponentInfo cInfo = (PComponentInfo) dfm->Components->Items[m];
             //????? ??????????, ??????? ??????????? control
-            if (SameText(cInfo->Name, ControlName))
-            {
+            if (SameText(cInfo->Name, ControlName)) {
                 //?????? evPopup
                 evPopup->Items->Clear();
                 //?????? ?????? ???? - ???????? ????????
@@ -1127,43 +1043,35 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
                 mi->Caption = "-";
                 evPopup->Items->Add(mi);
 
-                TList* ev = cInfo->Events;
-                for (int k = 0; k < ev->Count; k++)
-                {
-                    PEventInfo eInfo = (PEventInfo)ev->Items[k];
+                TList *ev = cInfo->Events;
+                for (int k = 0; k < ev->Count; k++) {
+                    PEventInfo eInfo = (PEventInfo) ev->Items[k];
                     mi = new TMenuItem(evPopup);
                     mi->Caption = eInfo->EventName + " = " + eInfo->ProcName;
                     String methodName = "";
                     //Action
-                    if (SameText(eInfo->EventName, "Action"))
-                    {
+                    if (SameText(eInfo->EventName, "Action")) {
                         //??? eInfo->ProcName ????? ????? ??? FormName.Name
                         int dotpos = eInfo->ProcName.Pos(".");
-                        if (dotpos)
-                        {
+                        if (dotpos) {
                             String moduleName = eInfo->ProcName.SubString(1, dotpos - 1);
-                            String actionName = eInfo->ProcName.SubString(dotpos + 1, eInfo->ProcName.Length() - dotpos);
+                            String actionName = eInfo->ProcName.
+                                    SubString(dotpos + 1, eInfo->ProcName.Length() - dotpos);
                             //???? ????? moduleName
-                            for (int j = 0; j < ResInfo->FormList->Count; j++)
-                            {
-                                TDfm* dfm1 = (TDfm*)ResInfo->FormList->Items[j];
-                                if (SameText(dfm1->Name, moduleName))
-                                {
+                            for (int j = 0; j < ResInfo->FormList->Count; j++) {
+                                TDfm *dfm1 = (TDfm *) ResInfo->FormList->Items[j];
+                                if (SameText(dfm1->Name, moduleName)) {
                                     classAdr = GetClassAdr(dfm1->ClassName);
                                     recN = (IsValidImageAdr(classAdr)) ? Infos[Adr2Pos(classAdr)] : 0;
                                     //???? ?????????? actionName
-                                    for (int r = 0; r < dfm1->Components->Count; r++)
-                                    {
-                                        PComponentInfo cInfo1 = (PComponentInfo)dfm1->Components->Items[r];
-                                        if (SameText(cInfo1->Name, actionName))
-                                        {
+                                    for (int r = 0; r < dfm1->Components->Count; r++) {
+                                        PComponentInfo cInfo1 = (PComponentInfo) dfm1->Components->Items[r];
+                                        if (SameText(cInfo1->Name, actionName)) {
                                             //???? ??????? OnExecute
-                                            TList* ev1 = cInfo1->Events;
-                                            for (int i = 0; i < ev1->Count; i++)
-                                            {
-                                                PEventInfo eInfo1 = (PEventInfo)ev1->Items[i];
-                                                if (SameText(eInfo1->EventName, "OnExecute"))
-                                                {
+                                            TList *ev1 = cInfo1->Events;
+                                            for (int i = 0; i < ev1->Count; i++) {
+                                                PEventInfo eInfo1 = (PEventInfo) ev1->Items[i];
+                                                if (SameText(eInfo1->EventName, "OnExecute")) {
                                                     methodName = dfm1->ClassName + "." + eInfo1->ProcName;
                                                     break;
                                                 }
@@ -1174,22 +1082,16 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
                                     break;
                                 }
                             }
-                        }
-                        else
-                        {
+                        } else {
                             //???? ?????????? eInfo->ProcName
-                            for (int r = 0; r < dfm->Components->Count; r++)
-                            {
-                                PComponentInfo cInfo1 = (PComponentInfo)dfm->Components->Items[r];
-                                if (SameText(cInfo1->Name, eInfo->ProcName))
-                                {
+                            for (int r = 0; r < dfm->Components->Count; r++) {
+                                PComponentInfo cInfo1 = (PComponentInfo) dfm->Components->Items[r];
+                                if (SameText(cInfo1->Name, eInfo->ProcName)) {
                                     //???? ??????? OnExecute
-                                    TList* ev1 = cInfo1->Events;
-                                    for (int i = 0; i < ev1->Count; i++)
-                                    {
-                                        PEventInfo eInfo1 = (PEventInfo)ev1->Items[i];
-                                        if (SameText(eInfo1->EventName, "OnExecute"))
-                                        {
+                                    TList *ev1 = cInfo1->Events;
+                                    for (int i = 0; i < ev1->Count; i++) {
+                                        PEventInfo eInfo1 = (PEventInfo) ev1->Items[i];
+                                        if (SameText(eInfo1->EventName, "OnExecute")) {
                                             methodName = dfm->ClassName + "." + eInfo1->ProcName;
                                             break;
                                         }
@@ -1198,9 +1100,7 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
                                 }
                             }
                         }
-                    }
-                    else
-                    {
+                    } else {
                         methodName = dfm->ClassName + "." + eInfo->ProcName;
                     }
                     //???? ????? ???????????????? ??????
@@ -1209,8 +1109,7 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
                     mi->OnClick = miPopupClick;
                     evPopup->Items->Add(mi);
                 }
-                if (evPopup->Items->Count)
-                {
+                if (evPopup->Items->Count) {
                     TPoint cursorPos;
                     GetCursorPos(&cursorPos);
                     evPopup->Popup(cursorPos.x, cursorPos.y);
@@ -1220,66 +1119,54 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
         }
     }
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmForm::miPopupClick(TObject *Sender)
-{
-    TMenuItem* mi = (TMenuItem*)Sender;
+void __fastcall IdrDfmForm::miPopupClick(TObject *Sender) {
+    TMenuItem *mi = (TMenuItem *) Sender;
     DWORD Adr = mi->Tag;
-    if (Adr && IsValidImageAdr(Adr))
-    {
-    	PInfoRec recN = GetInfoRec(Adr);
-        if (recN)
-        {
-        	if (recN->kind == ikVMT)
-            	FMain_11011981->ShowClassViewer(Adr);
+    if (Adr && IsValidImageAdr(Adr)) {
+        PInfoRec recN = GetInfoRec(Adr);
+        if (recN) {
+            if (recN->kind == ikVMT)
+                FMain_11011981->ShowClassViewer(Adr);
             else
-    			FMain_11011981->ShowCode(Adr, 0, -1, -1);
+                FMain_11011981->ShowCode(Adr, 0, -1, -1);
         }
-    }
-    else
+    } else
         ShowMessage("Handler not found");
 }
-//---------------------------------------------------------------------------
-void __fastcall IdrDfmForm::SetupControlHint(String FormName, TControl* Control, String InitHint)
-{
-    for (int n = 0; n < ResInfo->FormList->Count; n++)
-    {
-    	TDfm* dfm = (TDfm*)ResInfo->FormList->Items[n];
-        //????? ?????, ??????? ??????????? control
-        if (SameText(dfm->Name, FormName))
-        {
-        	String hint = InitHint;
-            //???? ??????
-            if (SameText(dfm->Name, Control->Name))
-            {
-                if (hint != "") hint += "\n";
-            	hint += dfm->Name + ":" + dfm->ClassName;
 
-            	TList* ev = dfm->Events;
-                for (int k = 0; k < ev->Count; k++)
-                {
-                    PEventInfo eInfo = (PEventInfo)ev->Items[k];
+//---------------------------------------------------------------------------
+void __fastcall IdrDfmForm::SetupControlHint(String FormName, TControl *Control, String InitHint) {
+    for (int n = 0; n < ResInfo->FormList->Count; n++) {
+        TDfm *dfm = (TDfm *) ResInfo->FormList->Items[n];
+        //????? ?????, ??????? ??????????? control
+        if (SameText(dfm->Name, FormName)) {
+            String hint = InitHint;
+            //???? ??????
+            if (SameText(dfm->Name, Control->Name)) {
+                if (hint != "") hint += "\n";
+                hint += dfm->Name + ":" + dfm->ClassName;
+
+                TList *ev = dfm->Events;
+                for (int k = 0; k < ev->Count; k++) {
+                    PEventInfo eInfo = (PEventInfo) ev->Items[k];
                     hint += "\n" + eInfo->EventName + " = " + eInfo->ProcName;
                 }
                 Control->Hint = hint;
                 Control->ShowHint = true;
                 return;
-            }
-            else
-            {
-                for (int m = 0; m < dfm->Components->Count; m++)
-                {
-                    PComponentInfo cInfo = (PComponentInfo)dfm->Components->Items[m];
+            } else {
+                for (int m = 0; m < dfm->Components->Count; m++) {
+                    PComponentInfo cInfo = (PComponentInfo) dfm->Components->Items[m];
                     //????? ??????????, ??????? ??????????? control
-                    if (SameText(cInfo->Name, Control->Name))
-                    {
-                    	if (hint != "") hint += "\n";
-                    	hint += cInfo->Name + ":" + cInfo->ClassName;
+                    if (SameText(cInfo->Name, Control->Name)) {
+                        if (hint != "") hint += "\n";
+                        hint += cInfo->Name + ":" + cInfo->ClassName;
 
-                        TList* ev = cInfo->Events;
-                        for (int k = 0; k < ev->Count; k++)
-                        {
-                            PEventInfo eInfo = (PEventInfo)ev->Items[k];
+                        TList *ev = cInfo->Events;
+                        for (int k = 0; k < ev->Count; k++) {
+                            PEventInfo eInfo = (PEventInfo) ev->Items[k];
                             hint += "\n" + eInfo->EventName + " = " + eInfo->ProcName;
                         }
                         Control->Hint = hint;
@@ -1291,43 +1178,38 @@ void __fastcall IdrDfmForm::SetupControlHint(String FormName, TControl* Control,
         }
     }
 }
+
 //---------------------------------------------------------------------------
 //find menu item handler (inherited forms supported)
-void __fastcall IdrDfmForm::SetupMenuItem(TMenuItem* mi, String searchName)
-{
+void __fastcall IdrDfmForm::SetupMenuItem(TMenuItem *mi, String searchName) {
     bool menuFound = false;
     bool formInherited = false;
-    TDfm* curDfm = 0;
+    TDfm *curDfm = 0;
 
-    for (int n = 0; n < ResInfo->FormList->Count; n++)
-    {
+    for (int n = 0; n < ResInfo->FormList->Count; n++) {
         //as: I dont like this, maybe put TDfm* into IdrDfmForm?
-    	TDfm* dfm = (TDfm*)ResInfo->FormList->Items[n];
+        TDfm *dfm = (TDfm *) ResInfo->FormList->Items[n];
 
         //????? ?????, ??????? ??????????? control
-        if (SameText(dfm->Name, searchName))
-        {
+        if (SameText(dfm->Name, searchName)) {
             curDfm = dfm;
             formInherited = dfm->Flags & FF_INHERITED;
 
-            for (int m = 0; m < dfm->Components->Count; m++)
-            {
-                PComponentInfo cInfo = (PComponentInfo)dfm->Components->Items[m];
+            for (int m = 0; m < dfm->Components->Count; m++) {
+                PComponentInfo cInfo = (PComponentInfo) dfm->Components->Items[m];
 
                 //????? ??????????, ??????? ??????????? mi
-                if (SameText(cInfo->Name, mi->Name))
-                {
+                if (SameText(cInfo->Name, mi->Name)) {
                     DWORD classAdr = GetClassAdr(dfm->ClassName);
                     PInfoRec recN = (IsValidImageAdr(classAdr)) ? Infos[Adr2Pos(classAdr)] : 0;
 
-                    TList* ev = cInfo->Events;
-                    for (int k = 0; k < ev->Count; k++)
-                    {
-                        PEventInfo eInfo = (PEventInfo)ev->Items[k];
+                    TList *ev = cInfo->Events;
+                    for (int k = 0; k < ev->Count; k++) {
+                        PEventInfo eInfo = (PEventInfo) ev->Items[k];
                         //OnClick
-                        String methodName = ""; PMethodRec recM;
-                        if (SameText(eInfo->EventName, "OnClick"))
-                        {
+                        String methodName = "";
+                        PMethodRec recM;
+                        if (SameText(eInfo->EventName, "OnClick")) {
                             methodName = dfm->ClassName + "." + eInfo->ProcName;
                             //???? ????? ???????????????? ??????
                             recM = FMain_11011981->GetMethodInfo(recN, methodName);
@@ -1337,21 +1219,16 @@ void __fastcall IdrDfmForm::SetupMenuItem(TMenuItem* mi, String searchName)
                             continue;
                         }
                         //Action
-                        if (SameText(eInfo->EventName, "Action"))
-                        {
+                        if (SameText(eInfo->EventName, "Action")) {
                             //???? ?????????? ? ?????? eInfo->ProcName
-                            for (int r = 0; r < dfm->Components->Count; r++)
-                            {
-                                PComponentInfo cInfo1 = (PComponentInfo)dfm->Components->Items[r];
-                                if (SameText(cInfo1->Name, eInfo->ProcName))
-                                {
+                            for (int r = 0; r < dfm->Components->Count; r++) {
+                                PComponentInfo cInfo1 = (PComponentInfo) dfm->Components->Items[r];
+                                if (SameText(cInfo1->Name, eInfo->ProcName)) {
                                     //???? ??????? OnExecute
-                                    TList* ev1 = cInfo1->Events;
-                                    for (int i = 0; i < ev1->Count; i++)
-                                    {
-                                        PEventInfo eInfo1 = (PEventInfo)ev1->Items[i];
-                                        if (SameText(eInfo1->EventName, "OnExecute"))
-                                        {
+                                    TList *ev1 = cInfo1->Events;
+                                    for (int i = 0; i < ev1->Count; i++) {
+                                        PEventInfo eInfo1 = (PEventInfo) ev1->Items[i];
+                                        if (SameText(eInfo1->EventName, "OnExecute")) {
                                             methodName = dfm->ClassName + "." + eInfo1->ProcName;
                                             recM = FMain_11011981->GetMethodInfo(recN, methodName);
                                             mi->Tag = (recM) ? recM->address : 0;
@@ -1372,29 +1249,27 @@ void __fastcall IdrDfmForm::SetupMenuItem(TMenuItem* mi, String searchName)
         }
     }
 
-    if (!menuFound && formInherited && curDfm && curDfm->ParentDfm)
-    {
+    if (!menuFound && formInherited && curDfm && curDfm->ParentDfm) {
         searchName = curDfm->ParentDfm->Name;
         //recursive call in the parent form, trying to find the menu handler...
         SetupMenuItem(mi, searchName);
     }
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmForm::DoFindMethod(String& methodName)
-{
+void __fastcall IdrDfmForm::DoFindMethod(String &methodName) {
     if (FOnFindMethod) FOnFindMethod(this, getFormName(), methodName);
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmForm::CMDialogKey(TCMDialogKey& Message)
-{
-	//allows for example Ctrl+Tab in TabSheet
+void __fastcall IdrDfmForm::CMDialogKey(TCMDialogKey &Message) {
+    //allows for example Ctrl+Tab in TabSheet
     if (Message.CharCode != VK_ESCAPE) TForm::Dispatch(&Message);
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmForm::MyFormShow(TObject *Sender)
-{
-    if (!frmTree)
-    {
+void __fastcall IdrDfmForm::MyFormShow(TObject *Sender) {
+    if (!frmTree) {
         frmTree = new TIdrDfmFormTree_11011981(this);
         int ScrWid = Screen->WorkAreaWidth;
         int ScrHei = Screen->WorkAreaHeight;
@@ -1413,110 +1288,103 @@ void __fastcall IdrDfmForm::MyFormShow(TObject *Sender)
         frmTree->Show();
     }
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmForm::MyFormClose(TObject *Sender, TCloseAction &Action)
-{
-    for (int n = 0; n < ResInfo->FormList->Count; n++)
-    {
-        TDfm* dfm = (TDfm*)ResInfo->FormList->Items[n];
+void __fastcall IdrDfmForm::MyFormClose(TObject *Sender, TCloseAction &Action) {
+    for (int n = 0; n < ResInfo->FormList->Count; n++) {
+        TDfm *dfm = (TDfm *) ResInfo->FormList->Items[n];
         if (dfm->Open == 2) dfm->Open = 1;
     }
 
     //notify main window that form is closed (ugly ref to main form - refactor!)
-    ::SendMessage(FMain_11011981->Handle, WM_DFMCLOSED, 0, 0);//Post
+    ::SendMessage(FMain_11011981->Handle, WM_DFMCLOSED, 0, 0); //Post
 
     Action = caFree;
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmForm::MyFormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift)
-{
-    switch (Key)
-    {
-    case VK_ESCAPE:
-        Close();
-        break;
-    case VK_F11:
-        if (frmTree) frmTree->Show();
-        break;
+void __fastcall IdrDfmForm::MyFormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift) {
+    switch (Key) {
+        case VK_ESCAPE:
+            Close();
+            break;
+        case VK_F11:
+            if (frmTree) frmTree->Show();
+            break;
     }
-    
+
     Key = 0;
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmForm::MyShortCutEvent(Messages::TWMKey &Msg, bool &Handled)
-{
-    if (VK_ESCAPE == Msg.CharCode)
-    {
+void __fastcall IdrDfmForm::MyShortCutEvent(Messages::TWMKey &Msg, bool &Handled) {
+    if (VK_ESCAPE == Msg.CharCode) {
         Close();
         Handled = true;
     }
 }
+
 //---------------------------------------------------------------------------
-String __fastcall IdrDfmForm::getFormName()
-{
+String __fastcall IdrDfmForm::getFormName() {
     return String("T") + originalClassName;
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmForm::SetMyHandlers()
-{
+void __fastcall IdrDfmForm::SetMyHandlers() {
     OnShow = MyFormShow;
     OnClose = MyFormClose;
     OnKeyDown = MyFormKeyDown;
     OnShortCut = MyShortCutEvent;
 }
+
 //---------------------------------------------------------------------------
 //IdrDfmLoader
 //---------------------------------------------------------------------------
-__fastcall IdrDfmLoader::IdrDfmLoader(TComponent* Owner) : TComponent(Owner)
-{
+__fastcall IdrDfmLoader::IdrDfmLoader(TComponent *Owner) : TComponent(Owner) {
     dfmForm = 0;
     Counter = 0;
-	Current = 0;
+    Current = 0;
     CompsEventsList = new TCollection(__classid(TComponentEvents));
 }
+
 //---------------------------------------------------------------------------
-__fastcall IdrDfmLoader::~IdrDfmLoader()
-{
+__fastcall IdrDfmLoader::~IdrDfmLoader() {
     if (CompsEventsList) delete CompsEventsList;
     CompsEventsList = 0;
 }
+
 //---------------------------------------------------------------------------
-TForm* __fastcall IdrDfmLoader::LoadForm(TStream* dfmStream, TDfm* dfm, bool loadingParent)
-{
+TForm * __fastcall IdrDfmLoader::LoadForm(TStream *dfmStream, TDfm *dfm, bool loadingParent) {
     dfmForm = 0;
     dfmStream->Seek(0, soFromBeginning);
 
-    if (dfm && dfm->ParentDfm)
-    {
+    if (dfm && dfm->ParentDfm) {
         dfm->Loader = new IdrDfmLoader(0);
-        dfmForm = (IdrDfmForm*)dfm->Loader->LoadForm(dfm->ParentDfm->MemStream, dfm->ParentDfm, true);
+        dfmForm = (IdrDfmForm *) dfm->Loader->LoadForm(dfm->ParentDfm->MemStream, dfm->ParentDfm, true);
         delete dfm->Loader;
         dfm->Loader = 0;
-    }
-    else
-    {
+    } else {
         dfmForm = new IdrDfmForm(Application, 1);
     }
-        
+
     dfmStream->Seek(0, soFromBeginning);
-    TReader* Reader = new IdrDfmReader(dfmStream, 4096);
+    TReader *Reader = new IdrDfmReader(dfmStream, 4096);
 
-    Reader->OnAncestorNotFound   = AncestorNotFound;
+    Reader->OnAncestorNotFound = AncestorNotFound;
     Reader->OnFindComponentClass = FindComponentClass;
-    Reader->OnCreateComponent    = CreateComponent;
-    Reader->OnFindMethod         = FindMethod;
-    Reader->OnError              = ReaderError;
-    Reader->OnSetName            = SetComponentName;
-    Reader->OnReferenceName      = DoReferenceName;
+    Reader->OnCreateComponent = CreateComponent;
+    Reader->OnFindMethod = FindMethod;
+    Reader->OnError = ReaderError;
+    Reader->OnSetName = SetComponentName;
+    Reader->OnReferenceName = DoReferenceName;
 
-    Current = (TComponentEvents*)(CompsEventsList->Add());
+    Current = (TComponentEvents *) (CompsEventsList->Add());
     Current->Component = dfmForm;
 
     TFilerFlags Flags;
     int ChildPos;
 
-    try
-    {
+    try {
         Reader->ReadSignature();
         Reader->ReadPrefix(Flags, ChildPos);
         dfmForm->originalClassType = Reader->ReadStr();
@@ -1549,168 +1417,150 @@ TForm* __fastcall IdrDfmLoader::LoadForm(TStream* dfmStream, TDfm* dfm, bool loa
 
         dfmForm->HelpFile = "";
         CompsEventsList = 0;
-    }
-    catch(Exception &e)
-    {
-        ShowMessage("DFM Load Error\r\n" + e.ClassName() +": " + e.Message);
+    } catch (Exception &e) {
+        ShowMessage("DFM Load Error\r\n" + e.ClassName() + ": " + e.Message);
         dfmForm = 0;
     }
 
     delete Reader;
     return dfmForm;
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmLoader::AncestorNotFound(TReader* Reader, String ComponentName, TMetaClass* ComponentClass, TComponent* &Component)
-{
+void __fastcall IdrDfmLoader::AncestorNotFound(TReader *Reader, String ComponentName, TMetaClass *ComponentClass,
+                                               TComponent * &Component) {
     String s = ComponentClass->ClassName();
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmLoader::FindComponentClass(TReader* Reader, String ClassName, TMetaClass* &ComponentClass)
-{
-    try
-    {
+void __fastcall IdrDfmLoader::FindComponentClass(TReader *Reader, String ClassName, TMetaClass * &ComponentClass) {
+    try {
         ComponentClass = FindClass(ClassName);
-    }
-    catch (Exception& e)
-    {
+    } catch (Exception &e) {
         lastClassAliasName = ClassName;
 
         String alias = ResInfo->GetAlias(ClassName);
-        for (int n = 0;;n++)
-        {
+        for (int n = 0;; n++) {
             if (!RegClasses[n].RegClass) break;
-            if (SameText(alias, RegClasses[n].ClassName))
-            {
+            if (SameText(alias, RegClasses[n].ClassName)) {
                 ComponentClass = RegClasses[n].RegClass;
                 break;
             }
         }
     }
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmLoader::CreateComponent(TReader* Reader, TMetaClass* ComponentClass, TComponent* &Component)
-{
+void __fastcall IdrDfmLoader::CreateComponent(TReader *Reader, TMetaClass *ComponentClass, TComponent * &Component) {
     Current = 0;
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmLoader::FindMethod(TReader* Reader, String MethodName, void* &Address, bool &Error)
-{
-    if (Current)
-    {
-        IdrDfmReader* r = dynamic_cast<IdrDfmReader*>(Reader);
+void __fastcall IdrDfmLoader::FindMethod(TReader *Reader, String MethodName, void * &Address, bool &Error) {
+    if (Current) {
+        IdrDfmReader *r = dynamic_cast<IdrDfmReader *>(Reader);
         if (r) Current->FoundEvents->Add(r->PropName + "=" + MethodName);
     }
 
     Error = false;
     Address = 0;
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmLoader::ReaderError(TReader* Reader, String Message, bool &Handled)
-{
+void __fastcall IdrDfmLoader::ReaderError(TReader *Reader, String Message, bool &Handled) {
     //if something really wrong happened, in order to fix the
     //"DFM Stream read error" - skip fault value!
     if (AnsiEndsStr("Invalid property value", Message)
         || AnsiEndsStr("Unable to insert a line", Message)
         || AnsiContainsText(Message, "List index out of bounds")
-       )
-    {
+    ) {
         //move back to a type position byte
         Reader->Position -= 1;
         //skip the unknown value for known property (eg: Top = 11.453, or bad Items for StringList)
         Reader->SkipValue();
     }
-    
+
     Handled = true;
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmLoader::SetComponentName(TReader* Reader, TComponent* Component, String &Name)
-{
-    if (Name == "")
-    {
+void __fastcall IdrDfmLoader::SetComponentName(TReader *Reader, TComponent *Component, String &Name) {
+    if (Name == "") {
         Name = "_" + Val2Str4(Counter) + "_";
         Counter++;
     }
 
     if (Current && Current->Component == Component) return;
 
-    IdrDfmDefaultControl* rc = dynamic_cast<IdrDfmDefaultControl*>(Component);
-    if (rc)
-    {
+    IdrDfmDefaultControl *rc = dynamic_cast<IdrDfmDefaultControl *>(Component);
+    if (rc) {
         String mappedClassName;
-        try
-        {
+        try {
             mappedClassName =
-            //IdrDfmClassNameAnalyzer::GetInstance().GetMapping(lastClassAliasName);
-            ResInfo->GetAlias(lastClassAliasName);
-        }
-        catch(...)
-        {
-        }
+                    //IdrDfmClassNameAnalyzer::GetInstance().GetMapping(lastClassAliasName);
+                    ResInfo->GetAlias(lastClassAliasName);
+        } catch (...) {}
 
         rc->SetClassName(lastClassAliasName, mappedClassName);
     }
 
-    Current = (TComponentEvents*)(CompsEventsList->Add());
+    Current = (TComponentEvents *) (CompsEventsList->Add());
     Current->Component = Component;
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmLoader::DoReferenceName(TReader* Reader, String &Name)
-{
-    if(dfmForm)
-    {
-        TComponent* Component = dfmForm->FindComponent(Name);
-        if(Component)
-        {
-            IdrDfmDefaultControl* rc = dynamic_cast<IdrDfmDefaultControl*>(Component);
-            if (rc)
-            {
+void __fastcall IdrDfmLoader::DoReferenceName(TReader *Reader, String &Name) {
+    if (dfmForm) {
+        TComponent *Component = dfmForm->FindComponent(Name);
+        if (Component) {
+            IdrDfmDefaultControl *rc = dynamic_cast<IdrDfmDefaultControl *>(Component);
+            if (rc) {
                 Name = "";
             }
         }
     }
 }
+
 //---------------------------------------------------------------------------
-bool __fastcall IdrDfmLoader::HasGlyph(String ClassName)
-{
-    for (int n = 0; n < ResInfo->FormList->Count; n++)
-    {
-    	TDfm* dfm = (TDfm*)ResInfo->FormList->Items[n];
-        for (int m = 0; m < dfm->Components->Count; m++)
-        {
-            PComponentInfo cInfo = (PComponentInfo)dfm->Components->Items[m];
+bool __fastcall IdrDfmLoader::HasGlyph(String ClassName) {
+    for (int n = 0; n < ResInfo->FormList->Count; n++) {
+        TDfm *dfm = (TDfm *) ResInfo->FormList->Items[n];
+        for (int m = 0; m < dfm->Components->Count; m++) {
+            PComponentInfo cInfo = (PComponentInfo) dfm->Components->Items[m];
             if (SameText(cInfo->ClassName, ClassName)) return cInfo->HasGlyph;
         }
     }
     return false;
 }
+
 //---------------------------------------------------------------------------
 //IdrDfmDefaultControl
 //---------------------------------------------------------------------------
-__fastcall IdrDfmDefaultControl::IdrDfmDefaultControl(TComponent* Owner) : TPanel(Owner)
-{
+__fastcall IdrDfmDefaultControl::IdrDfmDefaultControl(TComponent *Owner) : TPanel(Owner) {
     Color = clNone;
     imgIcon = 0;
 }
+
 //---------------------------------------------------------------------------
-bool IdrDfmDefaultControl::IsVisible()
-{
+bool IdrDfmDefaultControl::IsVisible() {
     return (Width > 0 && Height > 0);
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmDefaultControl::ReadState(TReader* Reader)
-{
+void __fastcall IdrDfmDefaultControl::ReadState(TReader *Reader) {
     DisableAlign();
 
-    try{
+    try {
         Width = 24;
         Height = 24;
         TPanel::ReadState(Reader);
     }
     __finally
-    //catch(Exception& e)
-    {
-        EnableAlign();
-    }
+            //catch(Exception& e)
+            {
+                EnableAlign();
+
+            }
 
     /* wow, intersting case seen, D7:
 
@@ -1729,61 +1579,59 @@ void __fastcall IdrDfmDefaultControl::ReadState(TReader* Reader)
     if (Width <= 0)
         Width = 24;
     if (Height <= 0)
-        Height = 24;        
+        Height = 24;
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmDefaultControl::Loaded()
-{
+void __fastcall IdrDfmDefaultControl::Loaded() {
     TPanel::Loaded();
 
     BorderStyle = bsNone;
     if (Color == clNone) Color = clBtnFace;
 }
+
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmDefaultControl::Paint()
-{
+void __fastcall IdrDfmDefaultControl::Paint() {
     Canvas->Brush->Color = Color;
     Canvas->Brush->Style = bsClear;
     Canvas->Pen->Color = clGray;
     Canvas->Pen->Style = psDot;
     Canvas->Rectangle(GetClientRect());
 }
+
 //---------------------------------------------------------------------------
-void IdrDfmDefaultControl::SetClassName(const String& name, const String& mappedName)
-{
+void IdrDfmDefaultControl::SetClassName(const String &name, const String &mappedName) {
     originalClassName = name;
     //as note:
     //here we should have mapped class, eg:
     //we have on form TMyOpenDialog component, it was mapped to TOpenDialog,
     //so I expect to have a string "TOpenDialog in mappedName, not "Default" !
-    
+
     mappedClassName = name;
 
     String usedClassName = (mappedClassName.IsEmpty()) ? originalClassName : mappedClassName;
 
-    if (HasIconForClass(usedClassName))
-    {
+    if (HasIconForClass(usedClassName)) {
         CreateImageIconForClass(usedClassName);
     }
 }
+
 //---------------------------------------------------------------------------
-bool IdrDfmDefaultControl::HasIconForClass(const String& name)
-{
+bool IdrDfmDefaultControl::HasIconForClass(const String &name) {
     return true;
     //TBD: ask dll if it has specified icon for class
     //right now it is implicitly done in CreateImageIconForClass()
 }
+
 //---------------------------------------------------------------------------
-void IdrDfmDefaultControl::CreateImageIconForClass(const String& imgFile)
-{
+void IdrDfmDefaultControl::CreateImageIconForClass(const String &imgFile) {
     static HINSTANCE hResLib = 0;
     static bool IconsDllLoaded = false;
     static bool IconsDllPresent = true;
     if (!IconsDllPresent)
         return;
 
-    if (!IconsDllLoaded)
-    {
+    if (!IconsDllLoaded) {
         hResLib = LoadLibrary("Icons.dll");
         IconsDllLoaded = IconsDllPresent = (hResLib != 0);
         if (!IconsDllPresent)
@@ -1793,8 +1641,8 @@ void IdrDfmDefaultControl::CreateImageIconForClass(const String& imgFile)
     imgIcon = new TImage(this);
     //old way - read from .bmp files on disk
     //imgIcon->Picture->LoadFromFile(imgFile);
-    try{
-        imgIcon->Picture->Bitmap->LoadFromResourceName((int)hResLib, imgFile.UpperCase());
+    try {
+        imgIcon->Picture->Bitmap->LoadFromResourceName((int) hResLib, imgFile.UpperCase());
         imgIcon->AutoSize = true;
         imgIcon->Transparent = true;
         imgIcon->Parent = this;
@@ -1807,8 +1655,7 @@ void IdrDfmDefaultControl::CreateImageIconForClass(const String& imgFile)
             Width = imgIcon->Picture->Bitmap->Width;
         if (Height != imgIcon->Picture->Bitmap->Height)
             Height = imgIcon->Picture->Bitmap->Height;
-        
-    }catch(Exception& e){
+    } catch (Exception &e) {
         //icon not found or other error - free the image!
         imgIcon->Parent = 0;
         delete imgIcon;
@@ -1817,24 +1664,20 @@ void IdrDfmDefaultControl::CreateImageIconForClass(const String& imgFile)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmDefaultControl::ImageMouseDown(TObject* Sender, TMouseButton Button, TShiftState Shift, int X, int Y)
-{
-	if (Button == mbRight)
-    {
+void __fastcall IdrDfmDefaultControl::ImageMouseDown(TObject *Sender, TMouseButton Button, TShiftState Shift, int X,
+                                                     int Y) {
+    if (Button == mbRight) {
         //Sender here is image, but we need this - replacing control!
         if (Parent)
-            ((TMyControl*)Parent)->OnMouseDown(this, Button, Shift, X, Y);
+            ((TMyControl *) Parent)->OnMouseDown(this, Button, Shift, X, Y);
     }
 }
+
 //---------------------------------------------------------------------------
 //IdrImageControl
 //---------------------------------------------------------------------------
-__fastcall IdrImageControl::IdrImageControl(TComponent* Owner) : TImage(Owner)
-{
-}
+__fastcall IdrImageControl::IdrImageControl(TComponent *Owner) : TImage(Owner) {}
 //---------------------------------------------------------------------------
-void __fastcall IdrImageControl::Paint()
-{
-}
+void __fastcall IdrImageControl::Paint() {}
 //---------------------------------------------------------------------------
 

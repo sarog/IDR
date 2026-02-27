@@ -5,6 +5,3 @@
 #define SZVERSION       "Version 1.0\0"
 #define SZAUTHORINFO    "crypto\0"
 // ---------------------------------------------------------------------------
-
-
-

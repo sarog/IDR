@@ -4,18 +4,16 @@
 
 #include "Main.h"
 
-typedef struct
-{
-    int     index;      //Index of name in names
-    int     counter;    //Counter
+typedef struct {
+    int index;   //Index of name in names
+    int counter; //Counter
 } REPNAMEINFO, *PREPNAMEINFO;
 
-class TIDCGen
-{
+class TIDCGen {
 public:
-    __fastcall TIDCGen(FILE* FIdc, int splitSize);
+    __fastcall TIDCGen(FILE *FIdc, int splitSize);
     __fastcall ~TIDCGen();
-    void __fastcall NewIDCPart(FILE* FIdc);
+    void __fastcall NewIDCPart(FILE *FIdc);
     void __fastcall DeleteName(int pos);
     int __fastcall MakeByte(int pos);
     int __fastcall MakeWord(int pos);
@@ -72,24 +70,23 @@ public:
     int __fastcall OutputProc(int pos, PInfoRec recN, bool imp);
     void __fastcall OutputData(int pos, PInfoRec recN);
     PREPNAMEINFO __fastcall GetNameInfo(int idx);
-    FILE*           idcF;
-    String          unitName;
-    String          itemName;
-    TStringList*    names;
-    TList*          repeated;
-    int             SplitSize;//Maximum output bytes if idc splitted
-    int             CurrentPartNo;//Current part number (filename looks like XXX_NN.idc)
-    int             CurrentBytes;//Current part output bytes
+    FILE *idcF;
+    String unitName;
+    String itemName;
+    TStringList *names;
+    TList *repeated;
+    int SplitSize;     //Maximum output bytes if idc splitted
+    int CurrentPartNo; //Current part number (filename looks like XXX_NN.idc)
+    int CurrentBytes;  //Current part output bytes
 };
 
-class TSaveIDCDialog : public TSaveDialog
-{
+class TSaveIDCDialog : public TSaveDialog {
 public:
-	__fastcall TSaveIDCDialog(TComponent* AOwner, char* TemplateName);
+    __fastcall TSaveIDCDialog(TComponent *AOwner, char *TemplateName);
+
 protected:
-	virtual void __fastcall WndProc(Messages::TMessage &Message);
+    virtual void __fastcall WndProc(Messages::TMessage &Message);
 };
+
 //---------------------------------------------------------------------------
 #endif
-
-

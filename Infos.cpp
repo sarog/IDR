@@ -9,45 +9,44 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 //---------------------------------------------------------------------------
-extern  MDisasm     Disasm;
-extern  int         MaxBufLen;
-extern  DWORD       CodeBase;
-extern  DWORD       *Flags;
-extern	PInfoRec	*Infos;
-extern  BYTE        *Code;
-extern  TCriticalSection* CrtSection;
-extern  MKnowledgeBase  KnowledgeBase;
-extern  char        StringBuf[MAXSTRBUFFER];
+extern MDisasm Disasm;
+extern int MaxBufLen;
+extern DWORD CodeBase;
+extern DWORD *Flags;
+extern PInfoRec *Infos;
+extern BYTE *Code;
+extern TCriticalSection *CrtSection;
+extern MKnowledgeBase KnowledgeBase;
+extern char StringBuf[MAXSTRBUFFER];
 //as some statistics for memory leaks detection (remove it when fixed)
 long stat_InfosOverride = 0;
 //---------------------------------------------------------------------------
-__fastcall InfoVmtInfo::InfoVmtInfo()
-{
-	interfaces = 0;
+__fastcall InfoVmtInfo::InfoVmtInfo() {
+    interfaces = 0;
     fields = 0;
     methods = 0;
 }
+
 //---------------------------------------------------------------------------
-__fastcall InfoVmtInfo::~InfoVmtInfo()
-{
-	if (interfaces) delete interfaces;
+__fastcall InfoVmtInfo::~InfoVmtInfo() {
+    if (interfaces) delete interfaces;
     CleanupList<FIELDINFO>(fields);
     CleanupList<MethodRec>(methods);
 }
+
 //---------------------------------------------------------------------------
-void __fastcall InfoVmtInfo::AddInterface(String Value)
-{
+void __fastcall InfoVmtInfo::AddInterface(String Value) {
     if (!interfaces) interfaces = new TStringList;
     interfaces->Add(Value);
 }
+
 //---------------------------------------------------------------------------
-PFIELDINFO __fastcall InfoVmtInfo::AddField(DWORD ProcAdr, int ProcOfs, BYTE Scope, int Offset, int Case, String Name, String Type)
-{
-	PFIELDINFO	fInfo = 0;
+PFIELDINFO __fastcall InfoVmtInfo::AddField(DWORD ProcAdr, int ProcOfs, BYTE Scope, int Offset, int Case, String Name,
+                                            String Type) {
+    PFIELDINFO fInfo = 0;
 
     if (!fields) fields = new TList;
-    if (!fields->Count)
-    {
+    if (!fields->Count) {
         fInfo = new FIELDINFO;
         fInfo->Scope = Scope;
         fInfo->Offset = Offset;
@@ -55,23 +54,21 @@ PFIELDINFO __fastcall InfoVmtInfo::AddField(DWORD ProcAdr, int ProcOfs, BYTE Sco
         fInfo->xrefs = 0;
         fInfo->Name = Name;
         fInfo->Type = Type;
-        fields->Add((void*)fInfo);
+        fields->Add((void *) fInfo);
         return fInfo;
     }
 
     int F = 0, L = fields->Count - 1;
-    while (F < L)
-    {
-        int M = (F + L)/2;
-        fInfo = (PFIELDINFO)fields->Items[M];
+    while (F < L) {
+        int M = (F + L) / 2;
+        fInfo = (PFIELDINFO) fields->Items[M];
         if (Offset <= fInfo->Offset)
             L = M;
         else
             F = M + 1;
     }
-    fInfo = (PFIELDINFO)fields->Items[L];
-    if (fInfo->Offset != Offset)
-    {
+    fInfo = (PFIELDINFO) fields->Items[L];
+    if (fInfo->Offset != Offset) {
         fInfo = new FIELDINFO;
         fInfo->Scope = Scope;
         fInfo->Offset = Offset;
@@ -79,11 +76,9 @@ PFIELDINFO __fastcall InfoVmtInfo::AddField(DWORD ProcAdr, int ProcOfs, BYTE Sco
         fInfo->xrefs = 0;
         fInfo->Name = Name;
         fInfo->Type = Type;
-        fields->Add((void*)fInfo);
+        fields->Add((void *) fInfo);
         fields->Sort(FieldsCmpFunction);
-    }
-    else
-    {
+    } else {
         if (fInfo->Name == "")
             fInfo->Name = Name;
         if (fInfo->Type == "")
@@ -91,48 +86,41 @@ PFIELDINFO __fastcall InfoVmtInfo::AddField(DWORD ProcAdr, int ProcOfs, BYTE Sco
     }
     return fInfo;
 }
+
 //---------------------------------------------------------------------------
-void __fastcall InfoVmtInfo::RemoveField(int Offset)
-{
-    PFIELDINFO  fInfo;
+void __fastcall InfoVmtInfo::RemoveField(int Offset) {
+    PFIELDINFO fInfo;
 
     if (!fields || !fields->Count) return;
     int F = 0, L = fields->Count - 1;
-    while (F < L)
-    {
-        int M = (F + L)/2;
-        fInfo = (PFIELDINFO)fields->Items[M];
+    while (F < L) {
+        int M = (F + L) / 2;
+        fInfo = (PFIELDINFO) fields->Items[M];
         if (Offset <= fInfo->Offset)
             L = M;
         else
             F = M + 1;
     }
 
-    fInfo = (PFIELDINFO)fields->Items[L];
+    fInfo = (PFIELDINFO) fields->Items[L];
     if (fInfo->Offset == Offset) fields->Delete(L);
 }
+
 //---------------------------------------------------------------------------
-bool __fastcall InfoVmtInfo::AddMethod(bool Abstract, char Kind, int Id, DWORD Address, String Name)
-{
-	PMethodRec	recM;
+bool __fastcall InfoVmtInfo::AddMethod(bool Abstract, char Kind, int Id, DWORD Address, String Name) {
+    PMethodRec recM;
 
     if (!methods) methods = new TList;
 
-    for (int n = 0; n < methods->Count; n++)
-    {
-        recM = (PMethodRec)methods->Items[n];
-        if (Kind == 'A' || Kind == 'V')
-        {
-            if (recM->kind == Kind && recM->id == Id)
-            {
-                if (recM->name == ""&& Name != "") recM->name = Name;
+    for (int n = 0; n < methods->Count; n++) {
+        recM = (PMethodRec) methods->Items[n];
+        if (Kind == 'A' || Kind == 'V') {
+            if (recM->kind == Kind && recM->id == Id) {
+                if (recM->name == "" && Name != "") recM->name = Name;
                 return false;
             }
-        }
-        else
-        {
-            if (recM->kind == Kind && recM->address == Address)
-            {
+        } else {
+            if (recM->kind == Kind && recM->address == Address) {
                 if (recM->name == "" && Name != "") recM->name = Name;
                 return false;
             }
@@ -145,13 +133,13 @@ bool __fastcall InfoVmtInfo::AddMethod(bool Abstract, char Kind, int Id, DWORD A
     recM->id = Id;
     recM->address = Address;
     recM->name = Name;
-    methods->Add((void*)recM);
+    methods->Add((void *) recM);
     return true;
 }
+
 //---------------------------------------------------------------------------
-_fastcall InfoProcInfo::InfoProcInfo()
-{
-	flags = 0;
+_fastcall InfoProcInfo::InfoProcInfo() {
+    flags = 0;
     bpBase = 0;
     retBytes = 0;
     procSize = 0;
@@ -159,24 +147,23 @@ _fastcall InfoProcInfo::InfoProcInfo()
     args = 0;
     locals = 0;
 }
+
 //---------------------------------------------------------------------------
-__fastcall InfoProcInfo::~InfoProcInfo()
-{
+__fastcall InfoProcInfo::~InfoProcInfo() {
     CleanupList<ARGINFO>(args);
     CleanupList<LOCALINFO>(locals);
 }
+
 //---------------------------------------------------------------------------
-PARGINFO __fastcall InfoProcInfo::AddArg(PARGINFO aInfo)
-{
+PARGINFO __fastcall InfoProcInfo::AddArg(PARGINFO aInfo) {
     return AddArg(aInfo->Tag, aInfo->Ndx, aInfo->Size, aInfo->Name, aInfo->TypeDef);
 }
+
 //---------------------------------------------------------------------------
-PARGINFO __fastcall InfoProcInfo::AddArg(BYTE Tag, int Ofs, int Size, String Name, String TypeDef)
-{
-    PARGINFO 	argInfo;
+PARGINFO __fastcall InfoProcInfo::AddArg(BYTE Tag, int Ofs, int Size, String Name, String TypeDef) {
+    PARGINFO argInfo;
     if (!args) args = new TList;
-    if (!args->Count)
-    {
+    if (!args->Count) {
         argInfo = new ARGINFO;
         argInfo->Tag = Tag;
         argInfo->Register = false;
@@ -184,14 +171,13 @@ PARGINFO __fastcall InfoProcInfo::AddArg(BYTE Tag, int Ofs, int Size, String Nam
         argInfo->Size = Size;
         argInfo->Name = Name;
         argInfo->TypeDef = TypeDef;
-        args->Add((void*)argInfo);
+        args->Add((void *) argInfo);
         return argInfo;
     }
 
     int F = 0;
-    argInfo = (PARGINFO)args->Items[F];
-    if (Ofs < argInfo->Ndx)
-    {
+    argInfo = (PARGINFO) args->Items[F];
+    if (Ofs < argInfo->Ndx) {
         argInfo = new ARGINFO;
         argInfo->Tag = Tag;
         argInfo->Register = false;
@@ -199,13 +185,12 @@ PARGINFO __fastcall InfoProcInfo::AddArg(BYTE Tag, int Ofs, int Size, String Nam
         argInfo->Size = Size;
         argInfo->Name = Name;
         argInfo->TypeDef = TypeDef;
-        args->Insert(F, (void*)argInfo);
+        args->Insert(F, (void *) argInfo);
         return argInfo;
     }
     int L = args->Count - 1;
-    argInfo = (PARGINFO)args->Items[L];
-    if (Ofs > argInfo->Ndx)
-    {
+    argInfo = (PARGINFO) args->Items[L];
+    if (Ofs > argInfo->Ndx) {
         argInfo = new ARGINFO;
         argInfo->Tag = Tag;
         argInfo->Register = false;
@@ -213,21 +198,19 @@ PARGINFO __fastcall InfoProcInfo::AddArg(BYTE Tag, int Ofs, int Size, String Nam
         argInfo->Size = Size;
         argInfo->Name = Name;
         argInfo->TypeDef = TypeDef;
-        args->Add((void*)argInfo);
+        args->Add((void *) argInfo);
         return argInfo;
     }
-    while (F < L)
-    {
-        int M = (F + L)/2;
-        argInfo = (PARGINFO)args->Items[M];
+    while (F < L) {
+        int M = (F + L) / 2;
+        argInfo = (PARGINFO) args->Items[M];
         if (Ofs <= argInfo->Ndx)
             L = M;
         else
             F = M + 1;
     }
-    argInfo = (PARGINFO)args->Items[L];
-    if (argInfo->Ndx != Ofs)
-    {
+    argInfo = (PARGINFO) args->Items[L];
+    if (argInfo->Ndx != Ofs) {
         argInfo = new ARGINFO;
         argInfo->Tag = Tag;
         argInfo->Register = false;
@@ -235,7 +218,7 @@ PARGINFO __fastcall InfoProcInfo::AddArg(BYTE Tag, int Ofs, int Size, String Nam
         argInfo->Size = Size;
         argInfo->Name = Name;
         argInfo->TypeDef = TypeDef;
-        args->Insert(L, (void*)argInfo);
+        args->Insert(L, (void *) argInfo);
         return argInfo;
     }
 
@@ -244,27 +227,27 @@ PARGINFO __fastcall InfoProcInfo::AddArg(BYTE Tag, int Ofs, int Size, String Nam
     if (!argInfo->Tag) argInfo->Tag = Tag;
     return argInfo;
 }
+
 //---------------------------------------------------------------------------
-String __fastcall InfoProcInfo::AddArgsFromDeclaration(char* Decl, int from, int callKind)
-{
-    bool    fColon;
-    char    *p, *pp, *cp, c, sc;
-    int     ss, num;
+String __fastcall InfoProcInfo::AddArgsFromDeclaration(char *Decl, int from, int callKind) {
+    bool fColon;
+    char *p, *pp, *cp, c, sc;
+    int ss, num;
     ARGINFO argInfo;
-    char    _Name[256];
-    char    _Type[256];
-    char    _Size[256];
+    char _Name[256];
+    char _Type[256];
+    char _Size[256];
 
     p = strchr(Decl, '(');
-    if (p)
-    {
-        p++; pp = p; num = 0; fColon = false;
-        while (1)
-        {
+    if (p) {
+        p++;
+        pp = p;
+        num = 0;
+        fColon = false;
+        while (1) {
             c = *pp;
             if (c == ')') break;
-            if (c == ':' && !fColon)
-            {
+            if (c == ':' && !fColon) {
                 *pp = ' ';
                 num++;
                 fColon = true;
@@ -272,15 +255,13 @@ String __fastcall InfoProcInfo::AddArgsFromDeclaration(char* Decl, int from, int
             if (c == ';') fColon = false;
             pp++;
         }
-        if (num)
-        {
+        if (num) {
             ss = bpBase;
-            for (int arg = from;;arg++)
-            {
+            for (int arg = from;; arg++) {
                 _Name[0] = _Type[0] = 0;
-                sc = ';'; pp = strchr(p, sc);
-                if (!pp)
-                {
+                sc = ';';
+                pp = strchr(p, sc);
+                if (!pp) {
                     sc = ')';
                     pp = strchr(p, sc);
                 }
@@ -289,8 +270,7 @@ String __fastcall InfoProcInfo::AddArgsFromDeclaration(char* Decl, int from, int
                 argInfo.Tag = 0x21;
                 while (*p == ' ') p++;
                 sscanf(AnsiString(p).c_str(), "%s", _Name);
-                if (!stricmp(_Name, "var"))
-                {
+                if (!stricmp(_Name, "var")) {
                     argInfo.Tag = 0x22;
                     p += strlen(_Name);
                     while (*p == ' ') p++;
@@ -299,8 +279,7 @@ String __fastcall InfoProcInfo::AddArgsFromDeclaration(char* Decl, int from, int
                 }
 
                 //Insert by ZGL
-                else if (!stricmp(_Name, "const"))
-                {
+                else if (!stricmp(_Name, "const")) {
                     argInfo.Tag = 0x23;
                     p += strlen(_Name);
                     while (*p == ' ') p++;
@@ -309,8 +288,7 @@ String __fastcall InfoProcInfo::AddArgsFromDeclaration(char* Decl, int from, int
                 }
                 ////////////////
 
-                else if (!stricmp(_Name, "val"))
-                {
+                else if (!stricmp(_Name, "val")) {
                     p += strlen(_Name);
                     while (*p == ' ') p++;
                     //Name
@@ -324,23 +302,19 @@ String __fastcall InfoProcInfo::AddArgsFromDeclaration(char* Decl, int from, int
                 while (*p == ' ') p++;
                 argInfo.Size = 4;
                 cp = strchr(_Type, ':');
-                if (cp)
-                {
+                if (cp) {
                     sscanf(AnsiString(cp).c_str() + 1, "%d", &argInfo.Size);
                     *cp = 0;
                 }
-                if (callKind == 0)//fastcall
+                if (callKind == 0) //fastcall
                 {
                     if (arg < 3 && argInfo.Size == 4)
                         argInfo.Ndx = arg;
-                    else
-                    {
+                    else {
                         argInfo.Ndx = ss;
                         ss += argInfo.Size;
                     }
-                }
-                else
-                {
+                } else {
                     argInfo.Ndx = ss;
                     ss += argInfo.Size;
                 }
@@ -360,186 +334,173 @@ String __fastcall InfoProcInfo::AddArgsFromDeclaration(char* Decl, int from, int
                 if (sc == ')') break;
             }
         }
-    }
-    else
-    {
+    } else {
         p = Decl;
     }
     p = strchr(p, ':');
-    if (p)
-    {
+    if (p) {
         p++;
         pp = strchr(p, ';');
-        if (pp)
-        {
+        if (pp) {
             *pp = 0;
             strcpy(_Name, p);
             *pp = ';';
-        }
-        else
+        } else
             strcpy(_Name, p);
         return String(_Name).Trim();
     }
     return "";
 }
+
 //---------------------------------------------------------------------------
-PARGINFO __fastcall InfoProcInfo::GetArg(int n)
-{
-    if (args && n >= 0 && n < args->Count) return (PARGINFO)args->Items[n];
+PARGINFO __fastcall InfoProcInfo::GetArg(int n) {
+    if (args &&n 
+    >=
+    0 && n < args->Count
+    )
+    return (PARGINFO) args->Items[n];
     return 0;
 }
+
 //---------------------------------------------------------------------------
-void __fastcall InfoProcInfo::DeleteArg(int n)
-{
-    if (args && n >= 0 && n < args->Count) args->Delete(n);
+void __fastcall InfoProcInfo::DeleteArg(int n) {
+    if (args &&n 
+    >=
+    0 && n < args->Count
+    )
+    args->Delete(n);
 }
+
 //---------------------------------------------------------------------------
-void __fastcall InfoProcInfo::DeleteArgs()
-{
-    if (args)
-    {
+void __fastcall InfoProcInfo::DeleteArgs() {
+    if (args) {
         for (int n = 0; n < args->Count; n++) args->Delete(n);
         args->Clear();
     }
 }
+
 //---------------------------------------------------------------------------
-PLOCALINFO __fastcall InfoProcInfo::AddLocal(int Ofs, int Size, String Name, String TypeDef)
-{
-    PLOCALINFO  locInfo;
+PLOCALINFO __fastcall InfoProcInfo::AddLocal(int Ofs, int Size, String Name, String TypeDef) {
+    PLOCALINFO locInfo;
 
     if (!locals) locals = new TList;
-    if (!locals->Count)
-    {
+    if (!locals->Count) {
         locInfo = new LOCALINFO;
         locInfo->Ofs = Ofs;
         locInfo->Size = Size;
         locInfo->Name = Name;
         locInfo->TypeDef = TypeDef;
-        locals->Add((void*)locInfo);
+        locals->Add((void *) locInfo);
         return locInfo;
     }
 
     int F = 0;
-    locInfo = (PLOCALINFO)locals->Items[F];
-    if (-Ofs < -locInfo->Ofs)
-    {
+    locInfo = (PLOCALINFO) locals->Items[F];
+    if (-Ofs < -locInfo->Ofs) {
         locInfo = new LOCALINFO;
         locInfo->Ofs = Ofs;
         locInfo->Size = Size;
         locInfo->Name = Name;
         locInfo->TypeDef = TypeDef;
-        locals->Insert(F, (void*)locInfo);
+        locals->Insert(F, (void *) locInfo);
         return locInfo;
     }
     int L = locals->Count - 1;
-    locInfo = (PLOCALINFO)locals->Items[L];
-    if (-Ofs > -locInfo->Ofs)
-    {
+    locInfo = (PLOCALINFO) locals->Items[L];
+    if (-Ofs > -locInfo->Ofs) {
         locInfo = new LOCALINFO;
         locInfo->Ofs = Ofs;
         locInfo->Size = Size;
         locInfo->Name = Name;
         locInfo->TypeDef = TypeDef;
-        locals->Add((void*)locInfo);
+        locals->Add((void *) locInfo);
         return locInfo;
     }
-    while (F < L)
-    {
-        int M = (F + L)/2;
-        locInfo = (PLOCALINFO)locals->Items[M];
+    while (F < L) {
+        int M = (F + L) / 2;
+        locInfo = (PLOCALINFO) locals->Items[M];
         if (-Ofs <= -locInfo->Ofs)
             L = M;
         else
             F = M + 1;
     }
-    locInfo = (PLOCALINFO)locals->Items[L];
-    if (locInfo->Ofs != Ofs)
-    {
+    locInfo = (PLOCALINFO) locals->Items[L];
+    if (locInfo->Ofs != Ofs) {
         locInfo = new LOCALINFO;
         locInfo->Ofs = Ofs;
         locInfo->Size = Size;
         locInfo->Name = Name;
         locInfo->TypeDef = TypeDef;
-        locals->Insert(L, (void*)locInfo);
-    }
-    else
-    {
+        locals->Insert(L, (void *) locInfo);
+    } else {
         if (Name != "") locInfo->Name = Name;
         if (TypeDef != "") locInfo->TypeDef = TypeDef;
     }
     return locInfo;
 }
+
 //---------------------------------------------------------------------------
-PLOCALINFO __fastcall InfoProcInfo::GetLocal(int Ofs)
-{
-    if (locals)
-    {
-        for (int n = 0; n < locals->Count; n++)
-        {
-            PLOCALINFO  locInfo = (PLOCALINFO)locals->Items[n];
+PLOCALINFO __fastcall InfoProcInfo::GetLocal(int Ofs) {
+    if (locals) {
+        for (int n = 0; n < locals->Count; n++) {
+            PLOCALINFO locInfo = (PLOCALINFO) locals->Items[n];
             if (locInfo->Ofs == Ofs) return locInfo;
         }
     }
     return 0;
 }
+
 //---------------------------------------------------------------------------
-PLOCALINFO __fastcall InfoProcInfo::GetLocal(String Name)
-{
-    if (locals)
-    {
-        for (int n = 0; n < locals->Count; n++)
-        {
-            PLOCALINFO  locInfo = (PLOCALINFO)locals->Items[n];
+PLOCALINFO __fastcall InfoProcInfo::GetLocal(String Name) {
+    if (locals) {
+        for (int n = 0; n < locals->Count; n++) {
+            PLOCALINFO locInfo = (PLOCALINFO) locals->Items[n];
             if (SameText(locInfo->Name, Name)) return locInfo;
         }
     }
     return 0;
 }
+
 //---------------------------------------------------------------------------
-void __fastcall InfoProcInfo::DeleteLocal(int n)
-{
-    if (locals && n >= 0 && n < locals->Count) locals->Delete(n);
+void __fastcall InfoProcInfo::DeleteLocal(int n) {
+    if (locals &&n 
+    >=
+    0 && n < locals->Count
+    )
+    locals->Delete(n);
 }
+
 //---------------------------------------------------------------------------
-void __fastcall InfoProcInfo::DeleteLocals()
-{
-    if (locals)
-    {
+void __fastcall InfoProcInfo::DeleteLocals() {
+    if (locals) {
         for (int n = 0; n < locals->Count; n++) locals->Delete(n);
         locals->Clear();
     }
 }
+
 //---------------------------------------------------------------------------
-void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef)
-{
+void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef) {
     PLOCALINFO locInfo = GetLocal(Ofs);
-    if (locInfo)
-    {
-        String  fname = locInfo->Name;
+    if (locInfo) {
+        String fname = locInfo->Name;
         int pos = fname.Pos(".");
         if (pos)
             fname = fname.SubString(1, pos - 1);
         locInfo->TypeDef = TypeDef;
         int size;
-        if (TypeDef != "" && GetTypeKind(TypeDef, &size) == ikRecord)
-        {
+        if (TypeDef != "" && GetTypeKind(TypeDef, &size) == ikRecord) {
             String recFileName = FMain_11011981->WrkDir + "\\types.idr";
-            FILE* recFile = fopen(AnsiString(recFileName).c_str(), "rt");
-            if (recFile)
-            {
-                while (1)
-                {
+            FILE *recFile = fopen(AnsiString(recFileName).c_str(), "rt");
+            if (recFile) {
+                while (1) {
                     if (!fgets(StringBuf, 1024, recFile)) break;
                     String str = String(StringBuf);
-                    if (str.Pos(TypeDef + "=") == 1)
-                    {
-                        while (1)
-                        {
+                    if (str.Pos(TypeDef + "=") == 1) {
+                        while (1) {
                             if (!fgets(StringBuf, 1024, recFile)) break;
                             str = String(StringBuf);
                             if (str.Pos("end;")) break;
-                            if (str.Pos("//"))
-                            {
+                            if (str.Pos("//")) {
                                 int ofs = StrGetRecordFieldOffset(str);
                                 String name = StrGetRecordFieldName(str);
                                 String type = StrGetRecordFieldType(str);
@@ -551,10 +512,9 @@ void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef)
                 }
                 fclose(recFile);
             }
-            while (1)
-            {
+            while (1) {
                 //KB
-                WORD* uses = KnowledgeBase.GetTypeUses(AnsiString(TypeDef).c_str());
+                WORD *uses = KnowledgeBase.GetTypeUses(AnsiString(TypeDef).c_str());
                 int idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(TypeDef).c_str());
                 if (uses) delete[] uses;
 
@@ -562,29 +522,30 @@ void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef)
 
                 idx = KnowledgeBase.TypeOffsets[idx].NamId;
                 MTypeInfo tInfo;
-                if (KnowledgeBase.GetTypeInfo(idx, INFO_FIELDS, &tInfo))
-                {
-                    if (tInfo.FieldsNum)
-                    {
-                        char* p = tInfo.Fields;
-                        for (int k = 0; k < tInfo.FieldsNum; k++)
-                        {
+                if (KnowledgeBase.GetTypeInfo(idx, INFO_FIELDS, &tInfo)) {
+                    if (tInfo.FieldsNum) {
+                        char *p = tInfo.Fields;
+                        for (int k = 0; k < tInfo.FieldsNum; k++) {
                             //Scope
                             p++;
-                            int elofs = *((int*)p); p += 4;
-                            p += 4;//case
+                            int elofs = *((int *) p);
+                            p += 4;
+                            p += 4; //case
                             //Name
-                            int len = *((WORD*)p); p += 2;
-                            String name = String((char*)p, len); p += len + 1;
+                            int len = *((WORD *) p);
+                            p += 2;
+                            String name = String((char *) p, len);
+                            p += len + 1;
                             //Type
-                            len = *((WORD*)p); p += 2;
-                            String type = TrimTypeName(String((char*)p, len)); p += len + 1;
+                            len = *((WORD *) p);
+                            p += 2;
+                            String type = TrimTypeName(String((char *) p, len));
+                            p += len + 1;
                             AddLocal(Ofs + elofs, 1, fname + "." + name, type);
                         }
                         break;
                     }
-                    if (tInfo.Decl != "")
-                    {
+                    if (tInfo.Decl != "") {
                         TypeDef = tInfo.Decl;
                     }
                 }
@@ -592,9 +553,9 @@ void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef)
         }
     }
 }
+
 //---------------------------------------------------------------------------
-__fastcall InfoRec::InfoRec(int APos, BYTE AKind)
-{
+__fastcall InfoRec::InfoRec(int APos, BYTE AKind) {
     counter = 0;
     kind = AKind;
     kbIdx = -1;
@@ -607,541 +568,543 @@ __fastcall InfoRec::InfoRec(int APos, BYTE AKind)
     procInfo = 0;
 
     if (kind == ikResString)
-    	rsInfo = new InfoResStringInfo;
+        rsInfo = new InfoResStringInfo;
     else if (kind == ikVMT)
-    	vmtInfo = new InfoVmtInfo;
+        vmtInfo = new InfoVmtInfo;
     else if (kind >= ikRefine && kind <= ikFunc)
-    	procInfo = new InfoProcInfo;
+        procInfo = new InfoProcInfo;
 
-    if (APos >= 0)
-    {
-        if (Infos[APos])
-        {
+    if (APos >= 0) {
+        if (Infos[APos]) {
             //as: if we here - memory leak then!
             ++stat_InfosOverride;
         }
         Infos[APos] = this;
     }
 }
+
 //---------------------------------------------------------------------------
-__fastcall InfoRec::~InfoRec()
-{
+__fastcall InfoRec::~InfoRec() {
     if (picode) delete picode;
 
     CleanupList<XrefRec>(xrefs);
 
-    if (kind == ikResString)
-    {
-        delete rsInfo; rsInfo = 0;
-    }
-    else if (kind == ikVMT)
-    {
-        delete vmtInfo; vmtInfo = 0;
-    }
-    else if (kind >= ikRefine && kind <= ikFunc)
-    {
-        delete procInfo; procInfo = 0;
+    if (kind == ikResString) {
+        delete rsInfo;
+        rsInfo = 0;
+    } else if (kind == ikVMT) {
+        delete vmtInfo;
+        vmtInfo = 0;
+    } else if (kind >= ikRefine && kind <= ikFunc) {
+        delete procInfo;
+        procInfo = 0;
     }
 }
+
 //---------------------------------------------------------------------------
-bool __fastcall InfoRec::HasName()
-{
+bool __fastcall InfoRec::HasName() {
     return (name != "");
 }
+
 //---------------------------------------------------------------------------
-String __fastcall InfoRec::GetName()
-{
+String __fastcall InfoRec::GetName() {
     return name;
 }
+
 //---------------------------------------------------------------------------
-int __fastcall InfoRec::GetNameLength()
-{
+int __fastcall InfoRec::GetNameLength() {
     return name.Length();
 }
+
 //---------------------------------------------------------------------------
-void __fastcall InfoRec::SetName(String AValue)
-{
+void __fastcall InfoRec::SetName(String AValue) {
     CrtSection->Enter();
     name = AValue;
     if (ExtractClassName(name) != "" && (kind >= ikRefine && kind <= ikFunc) && procInfo) procInfo->flags |= PF_METHOD;
     CrtSection->Leave();
 }
+
 //---------------------------------------------------------------------------
-void __fastcall InfoRec::ConcatName(String AValue)
-{
+void __fastcall InfoRec::ConcatName(String AValue) {
     name += AValue;
 }
+
 //---------------------------------------------------------------------------
-bool __fastcall InfoRec::SameName(String AValue)
-{
+bool __fastcall InfoRec::SameName(String AValue) {
     return SameText(name, AValue);
 }
-//---------------------------------------------------------------------------
-void __fastcall InfoRec::AddXref(char Type, DWORD Adr, int Offset)
-{
-    PXrefRec 	recX;
 
-	if (!xrefs) xrefs = new TList;
-    if (!xrefs->Count)
-    {
+//---------------------------------------------------------------------------
+void __fastcall InfoRec::AddXref(char Type, DWORD Adr, int Offset) {
+    PXrefRec recX;
+
+    if (!xrefs) xrefs = new TList;
+    if (!xrefs->Count) {
         recX = new XrefRec;
         recX->type = Type;
         recX->adr = Adr;
         recX->offset = Offset;
-        xrefs->Add((void*)recX);
+        xrefs->Add((void *) recX);
         return;
     }
 
     int F = 0;
-    recX = (PXrefRec)xrefs->Items[F];
-    if (Adr + Offset < recX->adr + recX->offset)
-    {
+    recX = (PXrefRec) xrefs->Items[F];
+    if (Adr + Offset < recX->adr + recX->offset) {
         recX = new XrefRec;
         recX->type = Type;
         recX->adr = Adr;
         recX->offset = Offset;
-        xrefs->Insert(F, (void*)recX);
+        xrefs->Insert(F, (void *) recX);
         return;
     }
     int L = xrefs->Count - 1;
-    recX = (PXrefRec)xrefs->Items[L];
-    if (Adr + Offset > recX->adr + recX->offset)
-    {
+    recX = (PXrefRec) xrefs->Items[L];
+    if (Adr + Offset > recX->adr + recX->offset) {
         recX = new XrefRec;
         recX->type = Type;
         recX->adr = Adr;
         recX->offset = Offset;
-        xrefs->Add((void*)recX);
+        xrefs->Add((void *) recX);
         return;
     }
-    while (F < L)
-    {
-        int M = (F + L)/2;
-        recX = (PXrefRec)xrefs->Items[M];
+    while (F < L) {
+        int M = (F + L) / 2;
+        recX = (PXrefRec) xrefs->Items[M];
         if (Adr + Offset <= recX->adr + recX->offset)
             L = M;
         else
             F = M + 1;
     }
-    recX = (PXrefRec)xrefs->Items[L];
-    if (recX->adr + recX->offset != Adr + Offset)
-    {
+    recX = (PXrefRec) xrefs->Items[L];
+    if (recX->adr + recX->offset != Adr + Offset) {
         recX = new XrefRec;
         recX->type = Type;
         recX->adr = Adr;
         recX->offset = Offset;
-        xrefs->Insert(L, (void*)recX);
+        xrefs->Insert(L, (void *) recX);
     }
 }
+
 //---------------------------------------------------------------------------
-void __fastcall InfoRec::DeleteXref(DWORD Adr)
-{
-    for (int n = 0; n < xrefs->Count; n++)
-    {
-        PXrefRec recX = (PXrefRec)xrefs->Items[n];
-        if (Adr == recX->adr + recX->offset)
-        {
+void __fastcall InfoRec::DeleteXref(DWORD Adr) {
+    for (int n = 0; n < xrefs->Count; n++) {
+        PXrefRec recX = (PXrefRec) xrefs->Items[n];
+        if (Adr == recX->adr + recX->offset) {
             xrefs->Delete(n);
             break;
         }
     }
 }
+
 //---------------------------------------------------------------------------
-void __fastcall InfoRec::ScanUpItemAndAddRef(int fromPos, DWORD itemAdr, char refType, DWORD refAdr)
-{
-    while (fromPos >= 0)
-    {
+void __fastcall InfoRec::ScanUpItemAndAddRef(int fromPos, DWORD itemAdr, char refType, DWORD refAdr) {
+    while (fromPos >= 0) {
         fromPos--;
         if (IsFlagSet(cfProcStart, fromPos))
             break;
-        if (IsFlagSet(cfInstruction, fromPos))
-        {
+        if (IsFlagSet(cfInstruction, fromPos)) {
             DISINFO _disInfo;
-            Disasm.Disassemble(Code + fromPos, (__int64)Pos2Adr(fromPos), &_disInfo, 0);
-            if (_disInfo.Immediate == itemAdr || _disInfo.Offset == itemAdr)
-            {
+            Disasm.Disassemble(Code + fromPos, (__int64) Pos2Adr(fromPos), &_disInfo, 0);
+            if (_disInfo.Immediate == itemAdr || _disInfo.Offset == itemAdr) {
                 AddXref(refType, refAdr, Pos2Adr(fromPos) - refAdr);
                 break;
             }
         }
     }
 }
+
 //---------------------------------------------------------------------------
-void __fastcall InfoRec::Save(FILE* outs)
+void __fastcall InfoRec::Save(FILE *outs)
 //void __fastcall InfoRec::Save(TStream* outs)
 {
-    int     m, xm, num, xnum, len;
+    int m, xm, num, xnum, len;
 
     //kbIdx
-    fwrite(&kbIdx, sizeof(kbIdx), 1, outs);//outs->Write(&kbIdx, sizeof(kbIdx));
+    fwrite(&kbIdx, sizeof(kbIdx), 1, outs); //outs->Write(&kbIdx, sizeof(kbIdx));
     //name
-    len = name.Length(); if (len > MaxBufLen) MaxBufLen = len;
-    fwrite(&len, sizeof(len), 1, outs);//outs->Write(&len, sizeof(len));
-    fwrite(name.c_str(), len, 1, outs);//outs->Write(name.c_str(), len);
+    len = name.Length();
+    if (len > MaxBufLen) MaxBufLen = len;
+    fwrite(&len, sizeof(len), 1, outs); //outs->Write(&len, sizeof(len));
+    fwrite(name.c_str(), len, 1, outs); //outs->Write(name.c_str(), len);
     //type
-    len = type.Length(); if (len > MaxBufLen) MaxBufLen = len;
-    fwrite(&len, sizeof(len), 1, outs);//outs->Write(&len, sizeof(len));
-    fwrite(type.c_str(), len, 1, outs);//outs->Write(type.c_str(), len);
+    len = type.Length();
+    if (len > MaxBufLen) MaxBufLen = len;
+    fwrite(&len, sizeof(len), 1, outs); //outs->Write(&len, sizeof(len));
+    fwrite(type.c_str(), len, 1, outs); //outs->Write(type.c_str(), len);
     //picode
-    fwrite(&picode, sizeof(picode), 1, outs);//outs->Write(&picode, sizeof(picode));
-    if (picode)
-    {
-    	//Op
-        fwrite(&picode->Op, sizeof(picode->Op), 1, outs);//outs->Write(&picode->Op, sizeof(picode->Op));
+    fwrite(&picode, sizeof(picode), 1, outs); //outs->Write(&picode, sizeof(picode));
+    if (picode) {
+        //Op
+        fwrite(&picode->Op, sizeof(picode->Op), 1, outs); //outs->Write(&picode->Op, sizeof(picode->Op));
         //Ofs
         if (picode->Op == OP_CALL)
-        	fwrite(&picode->Ofs.Address, sizeof(picode->Ofs.Address), 1, outs);//outs->Write(&picode->Ofs.Address, sizeof(picode->Ofs.Address));
+            fwrite(&picode->Ofs.Address, sizeof(picode->Ofs.Address), 1, outs);
+            //outs->Write(&picode->Ofs.Address, sizeof(picode->Ofs.Address));
         else
-        	fwrite(&picode->Ofs.Offset, sizeof(picode->Ofs.Offset), 1, outs);//outs->Write(&picode->Ofs.Offset, sizeof(picode->Ofs.Offset));
+            fwrite(&picode->Ofs.Offset, sizeof(picode->Ofs.Offset), 1, outs);
+        //outs->Write(&picode->Ofs.Offset, sizeof(picode->Ofs.Offset));
         //Name
-        len = picode->Name.Length(); if (len > MaxBufLen) MaxBufLen = len;
-        fwrite(&len, sizeof(len), 1, outs);//outs->Write(&len, sizeof(len));
-        fwrite(picode->Name.c_str(), len, 1, outs);//outs->Write(picode->Name.c_str(), len);
+        len = picode->Name.Length();
+        if (len > MaxBufLen) MaxBufLen = len;
+        fwrite(&len, sizeof(len), 1, outs);         //outs->Write(&len, sizeof(len));
+        fwrite(picode->Name.c_str(), len, 1, outs); //outs->Write(picode->Name.c_str(), len);
     }
     //xrefs
-    if (xrefs && xrefs->Count)
-    	num = xrefs->Count;
+    if (xrefs &&xrefs
+    ->
+    Count
+    )
+    num = xrefs->Count;
     else
-    	num = 0;
-    fwrite(&num, sizeof(num), 1, outs);//outs->Write(&num, sizeof(num));
-    for (m = 0; m < num; m++)
-    {
-        PXrefRec recX = (PXrefRec)xrefs->Items[m];
+    num = 0;
+    fwrite(&num, sizeof(num), 1, outs); //outs->Write(&num, sizeof(num));
+    for (m = 0; m < num; m++) {
+        PXrefRec recX = (PXrefRec) xrefs->Items[m];
         //type
-        fwrite(&recX->type, sizeof(recX->type), 1, outs);//outs->Write(&recX->type, sizeof(recX->type));
+        fwrite(&recX->type, sizeof(recX->type), 1, outs); //outs->Write(&recX->type, sizeof(recX->type));
         //adr
-        fwrite(&recX->adr, sizeof(recX->adr), 1, outs);//outs->Write(&recX->adr, sizeof(recX->adr));
+        fwrite(&recX->adr, sizeof(recX->adr), 1, outs); //outs->Write(&recX->adr, sizeof(recX->adr));
         //offset
-        fwrite(&recX->offset, sizeof(recX->offset), 1, outs);//outs->Write(&recX->offset, sizeof(recX->offset));
+        fwrite(&recX->offset, sizeof(recX->offset), 1, outs); //outs->Write(&recX->offset, sizeof(recX->offset));
     }
-    if (kind == ikResString)
-    {
+    if (kind == ikResString) {
         //value
-        len = rsInfo->value.Length(); if (len > MaxBufLen) MaxBufLen = len;
-        fwrite(&len, sizeof(len), 1, outs);//outs->Write(&len, sizeof(len));
-        fwrite(rsInfo->value.c_str(), len, 1, outs);//outs->Write(rsInfo->value.c_str(), len);
-    }
-    else if (kind == ikVMT)
-    {
-    	//interfaces
+        len = rsInfo->value.Length();
+        if (len > MaxBufLen) MaxBufLen = len;
+        fwrite(&len, sizeof(len), 1, outs);          //outs->Write(&len, sizeof(len));
+        fwrite(rsInfo->value.c_str(), len, 1, outs); //outs->Write(rsInfo->value.c_str(), len);
+    } else if (kind == ikVMT) {
+        //interfaces
         if (vmtInfo->interfaces && vmtInfo->interfaces->Count)
-        	num = vmtInfo->interfaces->Count;
+            num = vmtInfo->interfaces->Count;
         else
-        	num = 0;
-        fwrite(&num, sizeof(num), 1, outs);//outs->Write(&num, sizeof(num));
-        for (m = 0; m < num; m++)
-        {
-            len = vmtInfo->interfaces->Strings[m].Length(); if (len > MaxBufLen) MaxBufLen = len;
-            fwrite(&len, sizeof(len), 1, outs);//outs->Write(&len, sizeof(len));
-            fwrite(vmtInfo->interfaces->Strings[m].c_str(), len, 1, outs);//outs->Write(vmtInfo->interfaces->Strings[m].c_str(), len);
+            num = 0;
+        fwrite(&num, sizeof(num), 1, outs); //outs->Write(&num, sizeof(num));
+        for (m = 0; m < num; m++) {
+            len = vmtInfo->interfaces->Strings[m].Length();
+            if (len > MaxBufLen) MaxBufLen = len;
+            fwrite(&len, sizeof(len), 1, outs); //outs->Write(&len, sizeof(len));
+            fwrite(vmtInfo->interfaces->Strings[m].c_str(), len, 1, outs);
+            //outs->Write(vmtInfo->interfaces->Strings[m].c_str(), len);
         }
-    	//fields
+        //fields
         if (vmtInfo->fields && vmtInfo->fields->Count)
-        	num = vmtInfo->fields->Count;
+            num = vmtInfo->fields->Count;
         else
-        	num = 0;
-        fwrite(&num, sizeof(num), 1, outs);//outs->Write(&num, sizeof(num));
-        for (m = 0; m < num; m++)
-        {
-            PFIELDINFO fInfo = (PFIELDINFO)vmtInfo->fields->Items[m];
+            num = 0;
+        fwrite(&num, sizeof(num), 1, outs); //outs->Write(&num, sizeof(num));
+        for (m = 0; m < num; m++) {
+            PFIELDINFO fInfo = (PFIELDINFO) vmtInfo->fields->Items[m];
             //Scope
-            fwrite(&fInfo->Scope, sizeof(fInfo->Scope), 1, outs);//outs->Write(&fInfo->Scope, sizeof(fInfo->Scope));
+            fwrite(&fInfo->Scope, sizeof(fInfo->Scope), 1, outs); //outs->Write(&fInfo->Scope, sizeof(fInfo->Scope));
             //Offset
-            fwrite(&fInfo->Offset, sizeof(fInfo->Offset), 1, outs);//outs->Write(&fInfo->Offset, sizeof(fInfo->Offset));
+            fwrite(&fInfo->Offset, sizeof(fInfo->Offset), 1, outs);
+            //outs->Write(&fInfo->Offset, sizeof(fInfo->Offset));
             //Case
-            fwrite(&fInfo->Case, sizeof(fInfo->Case), 1, outs);//outs->Write(&fInfo->Case, sizeof(fInfo->Case));
+            fwrite(&fInfo->Case, sizeof(fInfo->Case), 1, outs); //outs->Write(&fInfo->Case, sizeof(fInfo->Case));
             //Name
-            len = fInfo->Name.Length(); if (len > MaxBufLen) MaxBufLen = len;
-            fwrite(&len, sizeof(len), 1, outs);//outs->Write(&len, sizeof(len));
-            fwrite(fInfo->Name.c_str(), len, 1, outs);//outs->Write(fInfo->Name.c_str(), len);
+            len = fInfo->Name.Length();
+            if (len > MaxBufLen) MaxBufLen = len;
+            fwrite(&len, sizeof(len), 1, outs);        //outs->Write(&len, sizeof(len));
+            fwrite(fInfo->Name.c_str(), len, 1, outs); //outs->Write(fInfo->Name.c_str(), len);
             //Type
-            len = fInfo->Type.Length(); if (len > MaxBufLen) MaxBufLen = len;
-            fwrite(&len, sizeof(len), 1, outs);//outs->Write(&len, sizeof(len));
-            fwrite(fInfo->Type.c_str(), len, 1, outs);//outs->Write(fInfo->Type.c_str(), len);
+            len = fInfo->Type.Length();
+            if (len > MaxBufLen) MaxBufLen = len;
+            fwrite(&len, sizeof(len), 1, outs);        //outs->Write(&len, sizeof(len));
+            fwrite(fInfo->Type.c_str(), len, 1, outs); //outs->Write(fInfo->Type.c_str(), len);
             //xrefs
             if (fInfo->xrefs && fInfo->xrefs->Count)
                 xnum = fInfo->xrefs->Count;
             else
                 xnum = 0;
-            fwrite(&xnum, sizeof(xnum), 1, outs);//outs->Write(&xnum, sizeof(xnum));
-            for (xm = 0; xm < xnum; xm++)
-            {
-                PXrefRec recX = (PXrefRec)fInfo->xrefs->Items[xm];
+            fwrite(&xnum, sizeof(xnum), 1, outs); //outs->Write(&xnum, sizeof(xnum));
+            for (xm = 0; xm < xnum; xm++) {
+                PXrefRec recX = (PXrefRec) fInfo->xrefs->Items[xm];
                 //type
-                fwrite(&recX->type, sizeof(recX->type), 1, outs);//outs->Write(&recX->type, sizeof(recX->type));
+                fwrite(&recX->type, sizeof(recX->type), 1, outs); //outs->Write(&recX->type, sizeof(recX->type));
                 //adr
-                fwrite(&recX->adr, sizeof(recX->adr), 1, outs);//outs->Write(&recX->adr, sizeof(recX->adr));
+                fwrite(&recX->adr, sizeof(recX->adr), 1, outs); //outs->Write(&recX->adr, sizeof(recX->adr));
                 //offset
-                fwrite(&recX->offset, sizeof(recX->offset), 1, outs);//outs->Write(&recX->offset, sizeof(recX->offset));
+                fwrite(&recX->offset, sizeof(recX->offset), 1, outs);
+                //outs->Write(&recX->offset, sizeof(recX->offset));
             }
         }
-    	//methods
+        //methods
         if (vmtInfo->methods && vmtInfo->methods->Count)
-        	num = vmtInfo->methods->Count;
+            num = vmtInfo->methods->Count;
         else
-        	num = 0;
-        fwrite(&num, sizeof(num), 1, outs);//outs->Write(&num, sizeof(num));
-        for (m = 0; m < num; m++)
-        {
-            PMethodRec recM = (PMethodRec)vmtInfo->methods->Items[m];
-            fwrite(&recM->abstract, sizeof(recM->abstract), 1, outs);//outs->Write(&recM->abstract, sizeof(recM->abstract));
-            fwrite(&recM->kind, sizeof(recM->kind), 1, outs);//outs->Write(&recM->kind, sizeof(recM->kind));
-            fwrite(&recM->id, sizeof(recM->id), 1, outs);//outs->Write(&recM->id, sizeof(recM->id));
-            fwrite(&recM->address, sizeof(recM->address), 1, outs);//outs->Write(&recM->address, sizeof(recM->address));
-            len = recM->name.Length(); if (len > MaxBufLen) MaxBufLen = len;
-            fwrite(&len, sizeof(len), 1, outs);//outs->Write(&len, sizeof(len));
-            fwrite(recM->name.c_str(), len, 1, outs);//outs->Write(recM->name.c_str(), len);
+            num = 0;
+        fwrite(&num, sizeof(num), 1, outs); //outs->Write(&num, sizeof(num));
+        for (m = 0; m < num; m++) {
+            PMethodRec recM = (PMethodRec) vmtInfo->methods->Items[m];
+            fwrite(&recM->abstract, sizeof(recM->abstract), 1, outs);
+            //outs->Write(&recM->abstract, sizeof(recM->abstract));
+            fwrite(&recM->kind, sizeof(recM->kind), 1, outs); //outs->Write(&recM->kind, sizeof(recM->kind));
+            fwrite(&recM->id, sizeof(recM->id), 1, outs);     //outs->Write(&recM->id, sizeof(recM->id));
+            fwrite(&recM->address, sizeof(recM->address), 1, outs);
+            //outs->Write(&recM->address, sizeof(recM->address));
+            len = recM->name.Length();
+            if (len > MaxBufLen) MaxBufLen = len;
+            fwrite(&len, sizeof(len), 1, outs);       //outs->Write(&len, sizeof(len));
+            fwrite(recM->name.c_str(), len, 1, outs); //outs->Write(recM->name.c_str(), len);
         }
-    }
-    else if (kind >= ikRefine && kind <= ikFunc)
-    {
+    } else if (kind >= ikRefine && kind <= ikFunc) {
         //flags
-        fwrite(&procInfo->flags, sizeof(procInfo->flags), 1, outs);//outs->Write(&procInfo->flags, sizeof(procInfo->flags));
+        fwrite(&procInfo->flags, sizeof(procInfo->flags), 1, outs);
+        //outs->Write(&procInfo->flags, sizeof(procInfo->flags));
         //bpBase
-        fwrite(&procInfo->bpBase, sizeof(procInfo->bpBase), 1, outs);//outs->Write(&procInfo->bpBase, sizeof(procInfo->bpBase));
+        fwrite(&procInfo->bpBase, sizeof(procInfo->bpBase), 1, outs);
+        //outs->Write(&procInfo->bpBase, sizeof(procInfo->bpBase));
         //retBytes
-        fwrite(&procInfo->retBytes, sizeof(procInfo->retBytes), 1, outs);//outs->Write(&procInfo->retBytes, sizeof(procInfo->retBytes));
+        fwrite(&procInfo->retBytes, sizeof(procInfo->retBytes), 1, outs);
+        //outs->Write(&procInfo->retBytes, sizeof(procInfo->retBytes));
         //procSize
-        fwrite(&procInfo->procSize, sizeof(procInfo->procSize), 1, outs);//outs->Write(&procInfo->procSize, sizeof(procInfo->procSize));
+        fwrite(&procInfo->procSize, sizeof(procInfo->procSize), 1, outs);
+        //outs->Write(&procInfo->procSize, sizeof(procInfo->procSize));
         //stackSize
-        fwrite(&procInfo->stackSize, sizeof(procInfo->stackSize), 1, outs);//outs->Write(&procInfo->stackSize, sizeof(procInfo->stackSize));
-    	//args
+        fwrite(&procInfo->stackSize, sizeof(procInfo->stackSize), 1, outs);
+        //outs->Write(&procInfo->stackSize, sizeof(procInfo->stackSize));
+        //args
         if (procInfo->args && procInfo->args->Count)
-        	num = procInfo->args->Count;
+            num = procInfo->args->Count;
         else
-        	num = 0;
-        fwrite(&num, sizeof(num), 1, outs);//outs->Write(&num, sizeof(num));
-        for (m = 0; m < num; m++)
-        {
-            PARGINFO argInfo = (PARGINFO)procInfo->args->Items[m];
+            num = 0;
+        fwrite(&num, sizeof(num), 1, outs); //outs->Write(&num, sizeof(num));
+        for (m = 0; m < num; m++) {
+            PARGINFO argInfo = (PARGINFO) procInfo->args->Items[m];
             //Tag
-            fwrite(&argInfo->Tag, sizeof(argInfo->Tag), 1, outs);//outs->Write(&argInfo->Tag, sizeof(argInfo->Tag));
+            fwrite(&argInfo->Tag, sizeof(argInfo->Tag), 1, outs); //outs->Write(&argInfo->Tag, sizeof(argInfo->Tag));
             //Register
-            fwrite(&argInfo->Register, sizeof(argInfo->Register), 1, outs);//outs->Write(&argInfo->Register, sizeof(argInfo->Register));
+            fwrite(&argInfo->Register, sizeof(argInfo->Register), 1, outs);
+            //outs->Write(&argInfo->Register, sizeof(argInfo->Register));
             //Ndx
-            fwrite(&argInfo->Ndx, sizeof(argInfo->Ndx), 1, outs);//outs->Write(&argInfo->Ndx, sizeof(argInfo->Ndx));
+            fwrite(&argInfo->Ndx, sizeof(argInfo->Ndx), 1, outs); //outs->Write(&argInfo->Ndx, sizeof(argInfo->Ndx));
             //Size
-            fwrite(&argInfo->Size, sizeof(argInfo->Size), 1, outs);//outs->Write(&argInfo->Size, sizeof(argInfo->Size));
+            fwrite(&argInfo->Size, sizeof(argInfo->Size), 1, outs);
+            //outs->Write(&argInfo->Size, sizeof(argInfo->Size));
             //Name
-            len = argInfo->Name.Length(); if (len > MaxBufLen) MaxBufLen = len;
-            fwrite(&len, sizeof(len), 1, outs);//outs->Write(&len, sizeof(len));
-            fwrite(argInfo->Name.c_str(), len, 1, outs);//outs->Write(argInfo->Name.c_str(), len);
+            len = argInfo->Name.Length();
+            if (len > MaxBufLen) MaxBufLen = len;
+            fwrite(&len, sizeof(len), 1, outs);          //outs->Write(&len, sizeof(len));
+            fwrite(argInfo->Name.c_str(), len, 1, outs); //outs->Write(argInfo->Name.c_str(), len);
             //TypeDef
-            len = argInfo->TypeDef.Length(); if (len > MaxBufLen) MaxBufLen = len;
-            fwrite(&len, sizeof(len), 1, outs);//outs->Write(&len, sizeof(len));
-            fwrite(argInfo->TypeDef.c_str(), len, 1, outs);//outs->Write(argInfo->TypeDef.c_str(), len);
+            len = argInfo->TypeDef.Length();
+            if (len > MaxBufLen) MaxBufLen = len;
+            fwrite(&len, sizeof(len), 1, outs);             //outs->Write(&len, sizeof(len));
+            fwrite(argInfo->TypeDef.c_str(), len, 1, outs); //outs->Write(argInfo->TypeDef.c_str(), len);
         }
         //locals
         if (procInfo->locals && procInfo->locals->Count)
-        	num = procInfo->locals->Count;
+            num = procInfo->locals->Count;
         else
-        	num = 0;
-        fwrite(&num, sizeof(num), 1, outs);//outs->Write(&num, sizeof(num));
-        for (m = 0; m < num; m++)
-        {
-            PLOCALINFO locInfo = (PLOCALINFO)procInfo->locals->Items[m];
+            num = 0;
+        fwrite(&num, sizeof(num), 1, outs); //outs->Write(&num, sizeof(num));
+        for (m = 0; m < num; m++) {
+            PLOCALINFO locInfo = (PLOCALINFO) procInfo->locals->Items[m];
             //Ofs
-            fwrite(&locInfo->Ofs, sizeof(locInfo->Ofs), 1, outs);//outs->Write(&locInfo->Ofs, sizeof(locInfo->Ofs));
+            fwrite(&locInfo->Ofs, sizeof(locInfo->Ofs), 1, outs); //outs->Write(&locInfo->Ofs, sizeof(locInfo->Ofs));
             //Size
-            fwrite(&locInfo->Size, sizeof(locInfo->Size), 1, outs);//outs->Write(&locInfo->Size, sizeof(locInfo->Size));
+            fwrite(&locInfo->Size, sizeof(locInfo->Size), 1, outs);
+            //outs->Write(&locInfo->Size, sizeof(locInfo->Size));
             //Name
-            len = locInfo->Name.Length(); if (len > MaxBufLen) MaxBufLen = len;
-            fwrite(&len, sizeof(len), 1, outs);//outs->Write(&len, sizeof(len));
-            fwrite(locInfo->Name.c_str(), len, 1, outs);//outs->Write(locInfo->Name.c_str(), len);
+            len = locInfo->Name.Length();
+            if (len > MaxBufLen) MaxBufLen = len;
+            fwrite(&len, sizeof(len), 1, outs);          //outs->Write(&len, sizeof(len));
+            fwrite(locInfo->Name.c_str(), len, 1, outs); //outs->Write(locInfo->Name.c_str(), len);
             //TypeDef
-            len = locInfo->TypeDef.Length(); if (len > MaxBufLen) MaxBufLen = len;
-            fwrite(&len, sizeof(len), 1, outs);//outs->Write(&len, sizeof(len));
-            fwrite(locInfo->TypeDef.c_str(), len, 1, outs);//outs->Write(locInfo->TypeDef.c_str(), len);
+            len = locInfo->TypeDef.Length();
+            if (len > MaxBufLen) MaxBufLen = len;
+            fwrite(&len, sizeof(len), 1, outs);             //outs->Write(&len, sizeof(len));
+            fwrite(locInfo->TypeDef.c_str(), len, 1, outs); //outs->Write(locInfo->TypeDef.c_str(), len);
         }
     }
 }
+
 //---------------------------------------------------------------------------
-void __fastcall InfoRec::Load(FILE* ins, char* buf)//void __fastcall InfoRec::Load(TStream* ins, char* buf)
+void __fastcall InfoRec::Load(FILE *ins, char *buf) //void __fastcall InfoRec::Load(TStream* ins, char* buf)
 {
-    int         m, xm, num, xnum, len, xrefAdr, pxrefAdr;
-    XrefRec     recX1;
+    int m, xm, num, xnum, len, xrefAdr, pxrefAdr;
+    XrefRec recX1;
 
     //kbIdx
-    fread(&kbIdx, sizeof(kbIdx), 1, ins);//ins->Read(&kbIdx, sizeof(kbIdx));
+    fread(&kbIdx, sizeof(kbIdx), 1, ins); //ins->Read(&kbIdx, sizeof(kbIdx));
     //name
-    fread(&len, sizeof(len), 1, ins);//ins->Read(&len, sizeof(len));
-    fread(buf, len, 1, ins);//ins->Read(buf, len);
+    fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
+    fread(buf, len, 1, ins);          //ins->Read(buf, len);
     name = String(buf, len);
     //type
-    fread(&len, sizeof(len), 1, ins);//ins->Read(&len, sizeof(len));
-    fread(buf, len, 1, ins);//ins->Read(buf, len);
+    fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
+    fread(buf, len, 1, ins);          //ins->Read(buf, len);
     type = String(buf, len);
     //picode
-    fread(&picode, sizeof(picode), 1, ins);//ins->Read(&picode, sizeof(picode));
-    if (picode)
-    {
-    	picode = new PICODE;
+    fread(&picode, sizeof(picode), 1, ins); //ins->Read(&picode, sizeof(picode));
+    if (picode) {
+        picode = new PICODE;
         //Op
-        fread(&picode->Op, sizeof(picode->Op), 1, ins);//ins->Read(&picode->Op, sizeof(picode->Op));
+        fread(&picode->Op, sizeof(picode->Op), 1, ins); //ins->Read(&picode->Op, sizeof(picode->Op));
         //Ofs
         if (picode->Op == OP_CALL)
-        	fread(&picode->Ofs.Address, sizeof(picode->Ofs.Address), 1, ins);//ins->Read(&picode->Ofs.Address, sizeof(picode->Ofs.Address));
+            fread(&picode->Ofs.Address, sizeof(picode->Ofs.Address), 1, ins);
+            //ins->Read(&picode->Ofs.Address, sizeof(picode->Ofs.Address));
         else
-        	fread(&picode->Ofs.Offset, sizeof(picode->Ofs.Offset), 1, ins);//ins->Read(&picode->Ofs.Offset, sizeof(picode->Ofs.Offset));
+            fread(&picode->Ofs.Offset, sizeof(picode->Ofs.Offset), 1, ins);
+        //ins->Read(&picode->Ofs.Offset, sizeof(picode->Ofs.Offset));
         //Name
-        fread(&len, sizeof(len), 1, ins);//ins->Read(&len, sizeof(len));
-        fread(buf, len, 1, ins);//ins->Read(buf, len);
+        fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
+        fread(buf, len, 1, ins);          //ins->Read(buf, len);
         picode->Name = String(buf, len);
     }
     //xrefs
-    fread(&num, sizeof(num), 1, ins);//ins->Read(&num, sizeof(num));
+    fread(&num, sizeof(num), 1, ins); //ins->Read(&num, sizeof(num));
     if (num) xrefs = new TList;
     pxrefAdr = 0;
-    for (m = 0; m < num; m++)
-    {
+    for (m = 0; m < num; m++) {
         //type
-        fread(&recX1.type, sizeof(recX1.type), 1, ins);//ins->Read(&recX1.type, sizeof(recX1.type));
+        fread(&recX1.type, sizeof(recX1.type), 1, ins); //ins->Read(&recX1.type, sizeof(recX1.type));
         //adr
-        fread(&recX1.adr, sizeof(recX1.adr), 1, ins);//ins->Read(&recX1.adr, sizeof(recX1.adr));
+        fread(&recX1.adr, sizeof(recX1.adr), 1, ins); //ins->Read(&recX1.adr, sizeof(recX1.adr));
         //offset
-        fread(&recX1.offset, sizeof(recX1.offset), 1, ins);//ins->Read(&recX1.offset, sizeof(recX1.offset));
+        fread(&recX1.offset, sizeof(recX1.offset), 1, ins); //ins->Read(&recX1.offset, sizeof(recX1.offset));
         xrefAdr = recX1.adr + recX1.offset;
-        if (!pxrefAdr || pxrefAdr != xrefAdr)   //clear duplicates
+        if (!pxrefAdr || pxrefAdr != xrefAdr) //clear duplicates
         {
-        	PXrefRec recX = new XrefRec;
+            PXrefRec recX = new XrefRec;
             recX->type = recX1.type;
             recX->adr = recX1.adr;
             recX->offset = recX1.offset;
-            xrefs->Add((void*)recX);
+            xrefs->Add((void *) recX);
             pxrefAdr = xrefAdr;
         }
     }
-    if (kind == ikResString)
-    {
-    	//value
-        fread(&len, sizeof(len), 1, ins);//ins->Read(&len, sizeof(len));
-        fread(buf, len, 1, ins);//ins->Read(buf, len);
+    if (kind == ikResString) {
+        //value
+        fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
+        fread(buf, len, 1, ins);          //ins->Read(buf, len);
         rsInfo->value = String(buf, len);
-    }
-    else if (kind == ikVMT)
-    {
-    	//interfaces
-        fread(&num, sizeof(num), 1, ins);//ins->Read(&num, sizeof(num));
+    } else if (kind == ikVMT) {
+        //interfaces
+        fread(&num, sizeof(num), 1, ins); //ins->Read(&num, sizeof(num));
         if (num) vmtInfo->interfaces = new TStringList;
-        for (m = 0; m < num; m++)
-        {
-            fread(&len, sizeof(len), 1, ins);//ins->Read(&len, sizeof(len));
-            fread(buf, len, 1, ins);//ins->Read(buf, len);
+        for (m = 0; m < num; m++) {
+            fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
+            fread(buf, len, 1, ins);          //ins->Read(buf, len);
             vmtInfo->interfaces->Add(String(buf, len));
         }
-    	//fields
-        fread(&num, sizeof(num), 1, ins);//ins->Read(&num, sizeof(num));
+        //fields
+        fread(&num, sizeof(num), 1, ins); //ins->Read(&num, sizeof(num));
         if (num) vmtInfo->fields = new TList;
-        for (m = 0; m < num; m++)
-        {
-        	PFIELDINFO fInfo = new FIELDINFO;
+        for (m = 0; m < num; m++) {
+            PFIELDINFO fInfo = new FIELDINFO;
             //Scope
-            fread(&fInfo->Scope, sizeof(fInfo->Scope), 1, ins);//ins->Read(&fInfo->Scope, sizeof(fInfo->Scope));
+            fread(&fInfo->Scope, sizeof(fInfo->Scope), 1, ins); //ins->Read(&fInfo->Scope, sizeof(fInfo->Scope));
             //Offset
-            fread(&fInfo->Offset, sizeof(fInfo->Offset), 1, ins);//ins->Read(&fInfo->Offset, sizeof(fInfo->Offset));
+            fread(&fInfo->Offset, sizeof(fInfo->Offset), 1, ins); //ins->Read(&fInfo->Offset, sizeof(fInfo->Offset));
             //Case
-            fread(&fInfo->Case, sizeof(fInfo->Case), 1, ins);//ins->Read(&fInfo->Case, sizeof(fInfo->Case));
+            fread(&fInfo->Case, sizeof(fInfo->Case), 1, ins); //ins->Read(&fInfo->Case, sizeof(fInfo->Case));
             //Name
-            fread(&len, sizeof(len), 1, ins);//ins->Read(&len, sizeof(len));
-            fread(buf, len, 1, ins);//ins->Read(buf, len);
+            fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
+            fread(buf, len, 1, ins);          //ins->Read(buf, len);
             fInfo->Name = String(buf, len);
             //Type
-            fread(&len, sizeof(len), 1, ins);//ins->Read(&len, sizeof(len));
-            fread(buf, len, 1, ins);//ins->Read(buf, len);
+            fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
+            fread(buf, len, 1, ins);          //ins->Read(buf, len);
             fInfo->Type = String(buf, len);
             //xrefs
-            fread(&xnum, sizeof(xnum), 1, ins);//ins->Read(&xnum, sizeof(xnum));
+            fread(&xnum, sizeof(xnum), 1, ins); //ins->Read(&xnum, sizeof(xnum));
             if (xnum)
-            	fInfo->xrefs = new TList;
+                fInfo->xrefs = new TList;
             else
-            	fInfo->xrefs = 0;
-            for (xm = 0; xm < xnum; xm++)
-            {
+                fInfo->xrefs = 0;
+            for (xm = 0; xm < xnum; xm++) {
                 PXrefRec recX = new XrefRec;
                 //type
-                fread(&recX->type, sizeof(recX->type), 1, ins);//ins->Read(&recX->type, sizeof(recX->type));
+                fread(&recX->type, sizeof(recX->type), 1, ins); //ins->Read(&recX->type, sizeof(recX->type));
                 //adr
-                fread(&recX->adr, sizeof(recX->adr), 1, ins);//ins->Read(&recX->adr, sizeof(recX->adr));
+                fread(&recX->adr, sizeof(recX->adr), 1, ins); //ins->Read(&recX->adr, sizeof(recX->adr));
                 //offset
-                fread(&recX->offset, sizeof(recX->offset), 1, ins);//ins->Read(&recX->offset, sizeof(recX->offset));
-                fInfo->xrefs->Add((void*)recX);
+                fread(&recX->offset, sizeof(recX->offset), 1, ins); //ins->Read(&recX->offset, sizeof(recX->offset));
+                fInfo->xrefs->Add((void *) recX);
             }
-            vmtInfo->fields->Add((void*)fInfo);
+            vmtInfo->fields->Add((void *) fInfo);
         }
-    	//methods
-        fread(&num, sizeof(num), 1, ins);//ins->Read(&num, sizeof(num));
+        //methods
+        fread(&num, sizeof(num), 1, ins); //ins->Read(&num, sizeof(num));
         if (num) vmtInfo->methods = new TList;
-        for (m = 0; m < num; m++)
-        {
-        	PMethodRec recM = new MethodRec;
-            fread(&recM->abstract, sizeof(recM->abstract), 1, ins);//ins->Read(&recM->abstract, sizeof(recM->abstract));
-            fread(&recM->kind, sizeof(recM->kind), 1, ins);//ins->Read(&recM->kind, sizeof(recM->kind));
-            fread(&recM->id, sizeof(recM->id), 1, ins);//ins->Read(&recM->id, sizeof(recM->id));
-            fread(&recM->address, sizeof(recM->address), 1, ins);//ins->Read(&recM->address, sizeof(recM->address));
-            fread(&len, sizeof(len), 1, ins);//ins->Read(&len, sizeof(len));
-            fread(buf, len, 1, ins);//ins->Read(buf, len);
+        for (m = 0; m < num; m++) {
+            PMethodRec recM = new MethodRec;
+            fread(&recM->abstract, sizeof(recM->abstract), 1, ins);
+            //ins->Read(&recM->abstract, sizeof(recM->abstract));
+            fread(&recM->kind, sizeof(recM->kind), 1, ins);       //ins->Read(&recM->kind, sizeof(recM->kind));
+            fread(&recM->id, sizeof(recM->id), 1, ins);           //ins->Read(&recM->id, sizeof(recM->id));
+            fread(&recM->address, sizeof(recM->address), 1, ins); //ins->Read(&recM->address, sizeof(recM->address));
+            fread(&len, sizeof(len), 1, ins);                     //ins->Read(&len, sizeof(len));
+            fread(buf, len, 1, ins);                              //ins->Read(buf, len);
             recM->name = String(buf, len);
-            vmtInfo->methods->Add((void*)recM);
+            vmtInfo->methods->Add((void *) recM);
         }
-    }
-    else if (kind >= ikRefine && kind <= ikFunc)
-    {
+    } else if (kind >= ikRefine && kind <= ikFunc) {
         //flags
-        fread(&procInfo->flags, sizeof(procInfo->flags), 1, ins);//ins->Read(&procInfo->flags, sizeof(procInfo->flags));
+        fread(&procInfo->flags, sizeof(procInfo->flags), 1, ins);
+        //ins->Read(&procInfo->flags, sizeof(procInfo->flags));
         //bpBase
-        fread(&procInfo->bpBase, sizeof(procInfo->bpBase), 1, ins);//ins->Read(&procInfo->bpBase, sizeof(procInfo->bpBase));
+        fread(&procInfo->bpBase, sizeof(procInfo->bpBase), 1, ins);
+        //ins->Read(&procInfo->bpBase, sizeof(procInfo->bpBase));
         //retBytes
-        fread(&procInfo->retBytes, sizeof(procInfo->retBytes), 1, ins);//ins->Read(&procInfo->retBytes, sizeof(procInfo->retBytes));
+        fread(&procInfo->retBytes, sizeof(procInfo->retBytes), 1, ins);
+        //ins->Read(&procInfo->retBytes, sizeof(procInfo->retBytes));
         //procSize
-        fread(&procInfo->procSize, sizeof(procInfo->procSize), 1, ins);//ins->Read(&procInfo->procSize, sizeof(procInfo->procSize));
+        fread(&procInfo->procSize, sizeof(procInfo->procSize), 1, ins);
+        //ins->Read(&procInfo->procSize, sizeof(procInfo->procSize));
         //stackSize
-        fread(&procInfo->stackSize, sizeof(procInfo->stackSize), 1, ins);//ins->Read(&procInfo->stackSize, sizeof(procInfo->stackSize));
-   		//args
-        fread(&num, sizeof(num), 1, ins);//ins->Read(&num, sizeof(num));
+        fread(&procInfo->stackSize, sizeof(procInfo->stackSize), 1, ins);
+        //ins->Read(&procInfo->stackSize, sizeof(procInfo->stackSize));
+        //args
+        fread(&num, sizeof(num), 1, ins); //ins->Read(&num, sizeof(num));
         if (num) procInfo->args = new TList;
-        for (m = 0; m < num; m++)
-        {
-        	PARGINFO argInfo = new ARGINFO;
+        for (m = 0; m < num; m++) {
+            PARGINFO argInfo = new ARGINFO;
             //Tag
-            fread(&argInfo->Tag, sizeof(argInfo->Tag), 1, ins);//ins->Read(&argInfo->Tag, sizeof(argInfo->Tag));
+            fread(&argInfo->Tag, sizeof(argInfo->Tag), 1, ins); //ins->Read(&argInfo->Tag, sizeof(argInfo->Tag));
             //Register
-            fread(&argInfo->Register, sizeof(argInfo->Register), 1, ins);//ins->Read(&argInfo->Register, sizeof(argInfo->Register));
+            fread(&argInfo->Register, sizeof(argInfo->Register), 1, ins);
+            //ins->Read(&argInfo->Register, sizeof(argInfo->Register));
             //Ndx
-            fread(&argInfo->Ndx, sizeof(argInfo->Ndx), 1, ins);//ins->Read(&argInfo->Ndx, sizeof(argInfo->Ndx));
+            fread(&argInfo->Ndx, sizeof(argInfo->Ndx), 1, ins); //ins->Read(&argInfo->Ndx, sizeof(argInfo->Ndx));
             //Size
-            fread(&argInfo->Size, sizeof(argInfo->Size), 1, ins);//ins->Read(&argInfo->Size, sizeof(argInfo->Size));
+            fread(&argInfo->Size, sizeof(argInfo->Size), 1, ins); //ins->Read(&argInfo->Size, sizeof(argInfo->Size));
             //Name
-            fread(&len, sizeof(len), 1, ins);//ins->Read(&len, sizeof(len));
-            fread(buf, len, 1, ins);//ins->Read(buf, len);
+            fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
+            fread(buf, len, 1, ins);          //ins->Read(buf, len);
             argInfo->Name = String(buf, len);
             //TypeDef
-            fread(&len, sizeof(len), 1, ins);//ins->Read(&len, sizeof(len));
-            fread(buf, len, 1, ins);//ins->Read(buf, len);
+            fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
+            fread(buf, len, 1, ins);          //ins->Read(buf, len);
             argInfo->TypeDef = TrimTypeName(String(buf, len));
-            procInfo->args->Add((void*)argInfo);
+            procInfo->args->Add((void *) argInfo);
         }
-    //locals
-        fread(&num, sizeof(num), 1, ins);//ins->Read(&num, sizeof(num));
+        //locals
+        fread(&num, sizeof(num), 1, ins); //ins->Read(&num, sizeof(num));
         if (num) procInfo->locals = new TList;
-        for (m = 0; m < num; m++)
-        {
-        	PLOCALINFO locInfo = new LOCALINFO;
+        for (m = 0; m < num; m++) {
+            PLOCALINFO locInfo = new LOCALINFO;
             //Ofs
-            fread(&locInfo->Ofs, sizeof(locInfo->Ofs), 1, ins);//ins->Read(&locInfo->Ofs, sizeof(locInfo->Ofs));
+            fread(&locInfo->Ofs, sizeof(locInfo->Ofs), 1, ins); //ins->Read(&locInfo->Ofs, sizeof(locInfo->Ofs));
             //Size
-            fread(&locInfo->Size, sizeof(locInfo->Size), 1, ins);//ins->Read(&locInfo->Size, sizeof(locInfo->Size));
+            fread(&locInfo->Size, sizeof(locInfo->Size), 1, ins); //ins->Read(&locInfo->Size, sizeof(locInfo->Size));
             //Name
-            fread(&len, sizeof(len), 1, ins);//ins->Read(&len, sizeof(len));
-            fread(buf, len, 1, ins);//ins->Read(buf, len);
+            fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
+            fread(buf, len, 1, ins);          //ins->Read(buf, len);
             locInfo->Name = String(buf, len);
             //TypeDef
-            fread(&len, sizeof(len), 1, ins);//ins->Read(&len, sizeof(len));
-            fread(buf, len, 1, ins);//ins->Read(buf, len);
+            fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
+            fread(buf, len, 1, ins);          //ins->Read(buf, len);
             locInfo->TypeDef = TrimTypeName(String(buf, len));
-            procInfo->locals->Add((void*)locInfo);
+            procInfo->locals->Add((void *) locInfo);
         }
     }
 }
+
 //---------------------------------------------------------------------------
 /*
 void __fastcall InfoRec::Skip(TStream* ins, char* buf, BYTE asKind)
@@ -1294,15 +1257,14 @@ void __fastcall InfoRec::Skip(TStream* ins, char* buf, BYTE asKind)
 }
 */
 //---------------------------------------------------------------------------
-String __fastcall InfoRec::MakePrototype(int adr, bool showKind, bool showTail, bool multiline, bool fullName, bool allArgs)
-{
-    BYTE        callKind;
-    int         n, num, argsNum, firstArg;
-    PARGINFO    argInfo;
-    String      result = "";
+String __fastcall InfoRec::MakePrototype(int adr, bool showKind, bool showTail, bool multiline, bool fullName,
+                                         bool allArgs) {
+    BYTE callKind;
+    int n, num, argsNum, firstArg;
+    PARGINFO argInfo;
+    String result = "";
 
-    if (showKind)
-    {
+    if (showKind) {
         if (kind == ikConstructor)
             result += "constructor";
         else if (kind == ikDestructor)
@@ -1315,40 +1277,32 @@ String __fastcall InfoRec::MakePrototype(int adr, bool showKind, bool showTail, 
         if (result != "") result += " ";
     }
 
-    if (name != "")
-    {
+    if (name != "") {
         if (!fullName)
             result += ExtractProcName(name);
         else
             result += name;
-    }
-    else
+    } else
         result += GetDefaultProcName(adr);
 
-    num = argsNum = (procInfo->args) ? procInfo->args->Count : 0; firstArg = 0;
+    num = argsNum = (procInfo->args) ? procInfo->args->Count : 0;
+    firstArg = 0;
 
-    if (num && !allArgs)
-    {
-        if (kind == ikConstructor || kind == ikDestructor)
-        {
+    if (num && !allArgs) {
+        if (kind == ikConstructor || kind == ikDestructor) {
             firstArg = 2;
             num -= 2;
-        }
-        else if (procInfo->flags & PF_ALLMETHODS)
-        {
+        } else if (procInfo->flags & PF_ALLMETHODS) {
             firstArg = 1;
             num--;
         }
     }
-    if (num)
-    {
+    if (num) {
         result += "(";
         if (multiline) result += "\r\n";
 
-        for (n = firstArg; n < argsNum; n++)
-        {
-            if (n != firstArg)
-            {
+        for (n = firstArg; n < argsNum; n++) {
+            if (n != firstArg) {
                 result += ";";
                 if (multiline)
                     result += "\r\n";
@@ -1356,10 +1310,10 @@ String __fastcall InfoRec::MakePrototype(int adr, bool showKind, bool showTail, 
                     result += " ";
             }
 
-            argInfo = (PARGINFO)procInfo->args->Items[n];
+            argInfo = (PARGINFO) procInfo->args->Items[n];
             if (argInfo->Tag == 0x22) result += "var ";
 
-            else if (argInfo->Tag == 0x23) result += "const ";  //Add by ZGL
+            else if (argInfo->Tag == 0x23) result += "const "; //Add by ZGL
 
             if (argInfo->Name != "")
                 result += argInfo->Name;
@@ -1376,8 +1330,7 @@ String __fastcall InfoRec::MakePrototype(int adr, bool showKind, bool showTail, 
         result += ")";
     }
 
-    if (kind == ikFunc)
-    {
+    if (kind == ikFunc) {
         result += ":";
         if (type != "")
             result += TrimTypeName(type);
@@ -1386,28 +1339,26 @@ String __fastcall InfoRec::MakePrototype(int adr, bool showKind, bool showTail, 
     }
     result += ";";
     callKind = procInfo->flags & 7;
-    switch (callKind)
-    {
-    case 1:
-        result += " cdecl;";
-        break;
-    case 2:
-        result += " pascal;";
-        break;
-    case 3:
-        result += " stdcall;";
-        break;
-    case 4:
-        result += " safecall;";
-        break;
+    switch (callKind) {
+        case 1:
+            result += " cdecl;";
+            break;
+        case 2:
+            result += " pascal;";
+            break;
+        case 3:
+            result += " stdcall;";
+            break;
+        case 4:
+            result += " safecall;";
+            break;
     }
     String argres = "";
     //fastcall
-    if (!callKind)//(!IsFlagSet(cfImport, Adr2Pos(Adr)))
+    if (!callKind) //(!IsFlagSet(cfImport, Adr2Pos(Adr)))
     {
-        for (n = 0; n < argsNum; n++)
-        {
-            argInfo = (PARGINFO)procInfo->args->Items[n];
+        for (n = 0; n < argsNum; n++) {
+            argInfo = (PARGINFO) procInfo->args->Items[n];
             if (argInfo->Ndx == 0)
                 argres += "A";
             else if (argInfo->Ndx == 1)
@@ -1416,8 +1367,7 @@ String __fastcall InfoRec::MakePrototype(int adr, bool showKind, bool showTail, 
                 argres += "C";
         }
     }
-    if (showTail)
-    {
+    if (showTail) {
         if (argres != "") result += " in" + argres;
         //output registers
         //if (info.procInfo->flags & PF_OUTEAX) result += " out";
@@ -1430,13 +1380,13 @@ String __fastcall InfoRec::MakePrototype(int adr, bool showKind, bool showTail, 
     }
     return result;
 }
+
 //---------------------------------------------------------------------------
-String __fastcall InfoRec::MakeDelphiPrototype(int Adr, PMethodRec recM)
-{
-    bool        abstract = false;
-    BYTE        callKind;
-    int         n, num, argsNum, firstArg, len = 0;
-    PARGINFO    argInfo;
+String __fastcall InfoRec::MakeDelphiPrototype(int Adr, PMethodRec recM) {
+    bool abstract = false;
+    BYTE callKind;
+    int n, num, argsNum, firstArg, len = 0;
+    PARGINFO argInfo;
 
     if (kind == ikConstructor)
         len = sprintf(StringBuf, "constructor");
@@ -1451,45 +1401,39 @@ String __fastcall InfoRec::MakeDelphiPrototype(int Adr, PMethodRec recM)
 
     if (SameText(name, "@AbstractError")) abstract = true;
 
-    if (name != "")
-    {
+    if (name != "") {
         if (!abstract)
             len += sprintf(StringBuf + len, "%s", ExtractProcName(name).c_str());
         else if (recM->name != "")
             len += sprintf(StringBuf + len, "%s", ExtractProcName(recM->name).c_str());
         else
             len += sprintf(StringBuf + len, "v%X", recM->id);
-    }
-    else
+    } else
         len += sprintf(StringBuf + len, "v%X", recM->id);
 
-    num = argsNum = (procInfo->args) ? procInfo->args->Count : 0; firstArg = 0;
+    num = argsNum = (procInfo->args) ? procInfo->args->Count : 0;
+    firstArg = 0;
 
-    if (num)
-    {
-        if (procInfo->flags & PF_ALLMETHODS)
-        {
+    if (num) {
+        if (procInfo->flags & PF_ALLMETHODS) {
             firstArg = 1;
             num--;
-            if (kind == ikConstructor || kind == ikDestructor)
-            {
+            if (kind == ikConstructor || kind == ikDestructor) {
                 firstArg++;
                 num--;
             }
         }
-        if (num)
-        {
+        if (num) {
             len += sprintf(StringBuf + len, "(");
 
             callKind = procInfo->flags & 7;
-            for (n = firstArg; n < argsNum; n++)
-            {
+            for (n = firstArg; n < argsNum; n++) {
                 if (n != firstArg) len += sprintf(StringBuf + len, "; ");
 
-                argInfo = (PARGINFO)procInfo->args->Items[n];
+                argInfo = (PARGINFO) procInfo->args->Items[n];
                 if (argInfo->Tag == 0x22) len += sprintf(StringBuf + len, "var ");
 
-                else if (argInfo->Tag == 0x23) len += sprintf(StringBuf + len, "const ");   //Add by ZGL
+                else if (argInfo->Tag == 0x23) len += sprintf(StringBuf + len, "const "); //Add by ZGL
 
                 if (argInfo->Name != "")
                     len += sprintf(StringBuf + len, "%s", argInfo->Name.c_str());
@@ -1505,8 +1449,7 @@ String __fastcall InfoRec::MakeDelphiPrototype(int Adr, PMethodRec recM)
         }
     }
 
-    if (kind == ikFunc)
-    {
+    if (kind == ikFunc) {
         len += sprintf(StringBuf + len, ":");
         if (type != "")
             len += sprintf(StringBuf + len, "%s", TrimTypeName(type).c_str());
@@ -1517,33 +1460,31 @@ String __fastcall InfoRec::MakeDelphiPrototype(int Adr, PMethodRec recM)
 
     if (abstract)
         len += sprintf(StringBuf + len, " abstract;");
-    else
-    {
-    switch (callKind)
-    {
-        case 1:
-            len += sprintf(StringBuf + len, " cdecl;");
-            break;
-        case 2:
-            len += sprintf(StringBuf + len, " pascal;");
-            break;
-        case 3:
-            len += sprintf(StringBuf + len, " stdcall;");
-            break;
-        case 4:
-            len += sprintf(StringBuf + len, " safecall;");
-            break;
+    else {
+        switch (callKind) {
+            case 1:
+                len += sprintf(StringBuf + len, " cdecl;");
+                break;
+            case 2:
+                len += sprintf(StringBuf + len, " pascal;");
+                break;
+            case 3:
+                len += sprintf(StringBuf + len, " stdcall;");
+                break;
+            case 4:
+                len += sprintf(StringBuf + len, " safecall;");
+                break;
         }
     }
     return String(StringBuf, len);
 }
+
 //---------------------------------------------------------------------------
-String __fastcall InfoRec::MakeMultilinePrototype(int Adr, int* ArgsBytes, String MethodType)
-{
-    BYTE        callKind;
-    int         n, num, argsNum, firstArg, argsBytes = 0;
-    PARGINFO    argInfo;
-    String      result;
+String __fastcall InfoRec::MakeMultilinePrototype(int Adr, int *ArgsBytes, String MethodType) {
+    BYTE callKind;
+    int n, num, argsNum, firstArg, argsBytes = 0;
+    PARGINFO argInfo;
+    String result;
 
     if (name != "")
         result = name;
@@ -1553,15 +1494,11 @@ String __fastcall InfoRec::MakeMultilinePrototype(int Adr, int* ArgsBytes, Strin
     num = argsNum = (procInfo->args) ? procInfo->args->Count : 0;
     firstArg = 0;
 
-    if (kind == ikConstructor || kind == ikDestructor)
-    {
+    if (kind == ikConstructor || kind == ikDestructor) {
         firstArg = 2;
         num -= 2;
-    }
-    else if (procInfo->flags & PF_ALLMETHODS)
-    {
-        if (!num)
-        {
+    } else if (procInfo->flags & PF_ALLMETHODS) {
+        if (!num) {
             argInfo = new ARGINFO;
             argInfo->Tag = 0x21;
             argInfo->Ndx = 0;
@@ -1569,12 +1506,9 @@ String __fastcall InfoRec::MakeMultilinePrototype(int Adr, int* ArgsBytes, Strin
             argInfo->Name = "Self";
             argInfo->TypeDef = MethodType;
             procInfo->AddArg(argInfo);
-        }
-        else
-        {
-            if (MethodType != "")
-            {
-                argInfo = (PARGINFO)procInfo->args->Items[0];
+        } else {
+            if (MethodType != "") {
+                argInfo = (PARGINFO) procInfo->args->Items[0];
                 argInfo->Name = "Self";
                 argInfo->TypeDef = MethodType;
                 procInfo->args->Items[0] = argInfo;
@@ -1586,15 +1520,14 @@ String __fastcall InfoRec::MakeMultilinePrototype(int Adr, int* ArgsBytes, Strin
 
     if (num > 0) result += "(\r\n";
     callKind = procInfo->flags & 7;
-    for (n = firstArg; n < argsNum; n++)
-    {
+    for (n = firstArg; n < argsNum; n++) {
         if (n != firstArg) result += ";\r\n";
 
-        argInfo = (PARGINFO)procInfo->args->Items[n];
+        argInfo = (PARGINFO) procInfo->args->Items[n];
         //var
         if (argInfo->Tag == 0x22) result += "var ";
 
-        else if (argInfo->Tag == 0x23) result += "const ";  //Add by ZGL
+        else if (argInfo->Tag == 0x23) result += "const "; //Add by ZGL
 
         //name
         if (argInfo->Name != "")
@@ -1614,8 +1547,7 @@ String __fastcall InfoRec::MakeMultilinePrototype(int Adr, int* ArgsBytes, Strin
     }
     if (num > 0) result += "\r\n)";
 
-    if (kind == ikFunc)
-    {
+    if (kind == ikFunc) {
         result += ":";
         if (type != "")
             result += TrimTypeName(type);
@@ -1626,26 +1558,22 @@ String __fastcall InfoRec::MakeMultilinePrototype(int Adr, int* ArgsBytes, Strin
     *ArgsBytes = argsBytes;
     return result;
 }
-//---------------------------------------------------------------------------
-String __fastcall InfoRec::MakeCppPrototype(int Adr, String FType)
-{
-    int         n, argsNum, typeKind, size;
-    PARGINFO    argInfo;
-    String      argType, result = "";
 
-    if (kind == ikFunc)
-    {
-        if (type != "")
-        {
+//---------------------------------------------------------------------------
+String __fastcall InfoRec::MakeCppPrototype(int Adr, String FType) {
+    int n, argsNum, typeKind, size;
+    PARGINFO argInfo;
+    String argType, result = "";
+
+    if (kind == ikFunc) {
+        if (type != "") {
             result = SanitizeName(TrimTypeName(type));
             typeKind = GetTypeKind(result, &size);
             if (typeKind == ikRecord || typeKind == ikVMT)
                 result = "struct " + result + "*";
-        }
-        else
+        } else
             result = "DWORD";
-    }
-    else
+    } else
         result = "void";
 
     result += " __usercall (*";
@@ -1658,23 +1586,18 @@ String __fastcall InfoRec::MakeCppPrototype(int Adr, String FType)
     result += "(";
 
     argsNum = (procInfo->args) ? procInfo->args->Count : 0;
-    for (n = 0; n < argsNum; n++)
-    {
+    for (n = 0; n < argsNum; n++) {
         if (n) result += ", ";
-        argInfo = (PARGINFO)procInfo->args->Items[n];
+        argInfo = (PARGINFO) procInfo->args->Items[n];
         argType = argInfo->TypeDef;
-        if (argType != "" && argType != "?")
-        {
+        if (argType != "" && argType != "?") {
             typeKind = GetTypeKind(argType, &size);
             if (typeKind == ikRecord || typeKind == ikVMT)
                 result += "struct ";
             result += SanitizeName(argType);
             if (typeKind == ikVMT)
                 result += "*";
-
-        }
-        else
-        {
+        } else {
             result += "DWORD";
         }
         if (argInfo->Tag == 0x22) result += "*";
@@ -1688,9 +1611,9 @@ String __fastcall InfoRec::MakeCppPrototype(int Adr, String FType)
     result += ")";
     return result;
 }
+
 //---------------------------------------------------------------------------
-String __fastcall InfoRec::MakeMapName(int Adr)
-{
+String __fastcall InfoRec::MakeMapName(int Adr) {
     String result;
     if (name != "")
         result = name;
@@ -1699,48 +1622,44 @@ String __fastcall InfoRec::MakeMapName(int Adr)
 
     return result;
 }
+
 //---------------------------------------------------------------------------
-bool __fastcall InfoRec::MakeArgsManually()
-{
+bool __fastcall InfoRec::MakeArgsManually() {
     String _sname;
 
-	//if (info.procInfo->flags & PF_KBPROTO) return true;
+    //if (info.procInfo->flags & PF_KBPROTO) return true;
     //Some procedures not begin with '@'
     //function QueryInterface(Self:Pointer; IID:TGUID; var Obj:Pointer);
-    if (name.Pos(".QueryInterface"))
-    {
+    if (name.Pos(".QueryInterface")) {
         kind = ikFunc;
         type = "HRESULT";
         procInfo->flags &= 0xFFFFFFF8;
-        procInfo->flags |= 3;//stdcall
+        procInfo->flags |= 3; //stdcall
         procInfo->AddArg(0x21, 8, 4, "Self", "");
-        procInfo->AddArg(0x23, 12, 4, "IID", "TGUID");  //Midify by ZGL
+        procInfo->AddArg(0x23, 12, 4, "IID", "TGUID"); //Midify by ZGL
         procInfo->AddArg(0x22, 16, 4, "Obj", "Pointer");
         return true;
     }
     //function _AddRef(Self:Pointer):Integer;
     //function _Release(Self:Pointer):Integer;
-    if (name.Pos("._AddRef") || name.Pos("._Release"))
-    {
+    if (name.Pos("._AddRef") || name.Pos("._Release")) {
         kind = ikFunc;
         type = "Integer";
         procInfo->flags &= 0xFFFFFFF8;
-        procInfo->flags |= 3;//stdcall
+        procInfo->flags |= 3; //stdcall
         procInfo->AddArg(0x21, 8, 4, "Self", "");
         return true;
     }
     //procedure DynArrayClear(var arr:Pointer; typeInfo:PDynArrayTypeInfo);
-    if (SameText(name, "DynArrayClear"))
-    {
-    	kind = ikProc;
+    if (SameText(name, "DynArrayClear")) {
+        kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "arr", "Pointer");
         procInfo->AddArg(0x21, 1, 4, "typeInfo", "PDynArrayTypeInfo");
         return true;
     }
     //procedure DynArraySetLength(var arr:Pointer; typeInfo:PDynArrayTypeInfo; dimCnt:Longint; lenVec:PLongint);
-    if (SameText(name, "DynArraySetLength"))
-    {
-    	kind = ikProc;
+    if (SameText(name, "DynArraySetLength")) {
+        kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "arr", "Pointer");
         procInfo->AddArg(0x21, 1, 4, "typeInfo", "PDynArrayTypeInfo");
         procInfo->AddArg(0x21, 2, 4, "dimCnt", "Longint");
@@ -1748,8 +1667,8 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
 
-	if (name[1] != '@') return false;
-    
+    if (name[1] != '@') return false;
+
     //Strings
     if (name[2] == 'L')
         _sname = "AnsiString";
@@ -1760,42 +1679,36 @@ bool __fastcall InfoRec::MakeArgsManually()
     else
         _sname = "?";
 
-    if (_sname != "?")
-    {
+    if (_sname != "?") {
         //@LStrClr, @WStrClr, @UStrClr
-        if (SameText(&name[3], "StrClr"))
-        {
+        if (SameText(&name[3], "StrClr")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "S", _sname);
             return true;
         }
         //@LStrArrayClr, @WStrArrayClr, @UStrArrayClr
-        if (SameText(&name[3], "StrArrayClr"))
-        {
+        if (SameText(&name[3], "StrArrayClr")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "StrArray", "Pointer");
             procInfo->AddArg(0x21, 1, 4, "Count", "Integer");
             return true;
         }
         //@LStrAsg, @WStrAsg, @UStrAsg
-        if (SameText(&name[3], "StrAsg"))
-        {
+        if (SameText(&name[3], "StrAsg")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x21, 1, 4, "Source", _sname);
             return true;
         }
         //@LStrLAsg, @WStrLAsg, @UStrLAsg
-        if (SameText(&name[3], "StrLAsg"))
-        {
+        if (SameText(&name[3], "StrLAsg")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x23, 1, 4, "Source", _sname); //Modify by ZGL
             return true;
         }
         //@LStrFromPCharLen, @WStrFromPCharLen, @UStrFromPCharLen
-        if (SameText(&name[3], "StrFromPCharLen"))
-        {
+        if (SameText(&name[3], "StrFromPCharLen")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x21, 1, 4, "Source", "PAnsiChar");
@@ -1803,8 +1716,7 @@ bool __fastcall InfoRec::MakeArgsManually()
             return true;
         }
         //@LStrFromPWCharLen, @WStrFromPWCharLen, @UStrFromPWCharLen
-        if (SameText(&name[3], "StrFromPWCharLen"))
-        {
+        if (SameText(&name[3], "StrFromPWCharLen")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x21, 1, 4, "Source", "PWideChar");
@@ -1812,48 +1724,42 @@ bool __fastcall InfoRec::MakeArgsManually()
             return true;
         }
         //@LStrFromChar, @WStrFromChar, @UStrFromChar
-        if (SameText(&name[3], "StrFromChar"))
-        {
+        if (SameText(&name[3], "StrFromChar")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x21, 1, 4, "Source", "AnsiChar");
             return true;
         }
         //@LStrFromWChar, @WStrFromWChar, @UStrFromWChar
-        if (SameText(&name[3], "StrFromWChar"))
-        {
+        if (SameText(&name[3], "StrFromWChar")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x21, 1, 4, "Source", "WideChar");
             return true;
         }
         //@LStrFromPChar, @WStrFromPChar, @UStrFromPChar
-        if (SameText(&name[3], "StrFromPChar"))
-        {
+        if (SameText(&name[3], "StrFromPChar")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x21, 1, 4, "Source", "PAnsiChar");
             return true;
         }
         //@LStrFromPWChar, @WStrFromPWChar, @UStrFromPWChar
-        if (SameText(&name[3], "StrFromPWChar"))
-        {
+        if (SameText(&name[3], "StrFromPWChar")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x21, 1, 4, "Source", "PWideChar");
             return true;
         }
         //@LStrFromString, @WStrFromString, @UStrFromString
-        if (SameText(&name[3], "StrFromString"))
-        {
+        if (SameText(&name[3], "StrFromString")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
-            procInfo->AddArg(0x23, 1, 4, "Source", "ShortString");  //Modify by ZGL
+            procInfo->AddArg(0x23, 1, 4, "Source", "ShortString"); //Modify by ZGL
             return true;
         }
         //@LStrFromArray, @WStrFromArray, @UStrFromArray
-        if (SameText(&name[3], "StrFromArray"))
-        {
+        if (SameText(&name[3], "StrFromArray")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x21, 1, 4, "Source", "PAnsiChar");
@@ -1861,8 +1767,7 @@ bool __fastcall InfoRec::MakeArgsManually()
             return true;
         }
         //@LStrFromWArray, @WStrFromWArray, @UStrFromWArray
-        if (SameText(&name[3], "StrFromWArray"))
-        {
+        if (SameText(&name[3], "StrFromWArray")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x21, 1, 4, "Source", "PWideChar");
@@ -1870,16 +1775,14 @@ bool __fastcall InfoRec::MakeArgsManually()
             return 1;
         }
         //@LStrFromWStr, @UStrFromWStr
-        if (SameText(&name[3], "StrFromWStr"))
-        {
+        if (SameText(&name[3], "StrFromWStr")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
-            procInfo->AddArg(0x23, 1, 4, "Source", "WideString");   //Modify by ZGL
+            procInfo->AddArg(0x23, 1, 4, "Source", "WideString"); //Modify by ZGL
             return true;
         }
         //@LStrToString, @WStrToString, @UStrToString
-        if (SameText(&name[3], "StrToString"))
-        {
+        if (SameText(&name[3], "StrToString")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", "ShortString");
             procInfo->AddArg(0x23, 1, 4, "Source", _sname); //Modify by ZGL
@@ -1887,24 +1790,21 @@ bool __fastcall InfoRec::MakeArgsManually()
             return true;
         }
         //@LStrLen, @WStrLen, @UStrLen
-        if (SameText(&name[3], "StrLen"))
-        {
+        if (SameText(&name[3], "StrLen")) {
             kind = ikFunc;
             type = "Integer";
             procInfo->AddArg(0x21, 0, 4, "S", _sname);
             return true;
         }
         //@LStrCat, @WStrCat, @UStrCat
-        if (SameText(&name[3], "StrCat"))
-        {
+        if (SameText(&name[3], "StrCat")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x21, 1, 4, "Source", _sname);
             return true;
         }
         //@LStrCat3, @WStrCat3, @UStrCat3
-        if (SameText(&name[3], "StrCat3"))
-        {
+        if (SameText(&name[3], "StrCat3")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x21, 1, 4, "Source1", _sname);
@@ -1912,8 +1812,7 @@ bool __fastcall InfoRec::MakeArgsManually()
             return true;
         }
         //@LStrCatN, @WStrCatN, @UStrCatN
-        if (SameText(&name[3], "StrCatN"))
-        {
+        if (SameText(&name[3], "StrCatN")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x21, 1, 4, "ArgCnt", "Integer");
@@ -1928,34 +1827,30 @@ bool __fastcall InfoRec::MakeArgsManually()
             return true;
         }
         //@LStrAddRef, @WStrAddRef, @UStrAddRef
-        if (SameText(&name[3], "StrAddRef"))
-        {
+        if (SameText(&name[3], "StrAddRef")) {
             kind = ikFunc;
             type = "Pointer";
             procInfo->AddArg(0x22, 0, 4, "S", _sname);
             return true;
         }
         //@LStrToPChar, @WStrToPChar, @UStrToPChar
-        if (SameText(&name[3], "StrToPChar"))
-        {
+        if (SameText(&name[3], "StrToPChar")) {
             kind = ikFunc;
             type = "PChar";
             procInfo->AddArg(0x21, 0, 4, "S", _sname);
             return true;
         }
         //@LStrCopy, @WStrCopy, @UStrCopy
-        if (SameText(&name[3], "StrCopy"))
-        {
+        if (SameText(&name[3], "StrCopy")) {
             kind = ikFunc;
             type = _sname;
-            procInfo->AddArg(0x23, 0, 4, "S", _sname);  //Modify by ZGL
+            procInfo->AddArg(0x23, 0, 4, "S", _sname); //Modify by ZGL
             procInfo->AddArg(0x21, 1, 4, "Index", "Integer");
             procInfo->AddArg(0x21, 2, 4, "Count", "Integer");
             return true;
         }
         //@LStrDelete, @WStrDelete, @UStrDelete
-        if (SameText(&name[3], "StrDelete"))
-        {
+        if (SameText(&name[3], "StrDelete")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "S", _sname);
             procInfo->AddArg(0x21, 1, 4, "Index", "Integer");
@@ -1963,8 +1858,7 @@ bool __fastcall InfoRec::MakeArgsManually()
             return true;
         }
         //@LStrInsert, @WStrInsert, @UStrInsert
-        if (SameText(&name[3], "StrInsert"))
-        {
+        if (SameText(&name[3], "StrInsert")) {
             kind = ikProc;
             procInfo->AddArg(0x23, 0, 4, "Source", _sname); //Modify by ZGL
             procInfo->AddArg(0x22, 1, 4, "S", _sname);
@@ -1972,25 +1866,22 @@ bool __fastcall InfoRec::MakeArgsManually()
             return true;
         }
         //@LStrPos, @WStrPos, @UStrPos
-        if (SameText(&name[3], "StrPos"))
-        {
+        if (SameText(&name[3], "StrPos")) {
             kind = ikFunc;
             type = "Integer";
             procInfo->AddArg(0x23, 0, 4, "Substr", _sname); //Modify by ZGL
-            procInfo->AddArg(0x23, 1, 4, "S", _sname);  //Modify by ZGL
+            procInfo->AddArg(0x23, 1, 4, "S", _sname);      //Modify by ZGL
             return true;
         }
         //@LStrSetLength, @WStrSetLength, @UStrSetLength
-        if (SameText(&name[3], "StrSetLength"))
-        {
+        if (SameText(&name[3], "StrSetLength")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "S", _sname);
             procInfo->AddArg(0x21, 1, 4, "NewLen", "Integer");
             return true;
         }
         //@LStrOfChar, @WStrOfChar, @UStrOfChar
-        if (SameText(&name[3], "StrOfChar"))
-        {
+        if (SameText(&name[3], "StrOfChar")) {
             kind = ikProc;
             procInfo->AddArg(0x21, 0, 1, "C", "Char");
             procInfo->AddArg(0x21, 1, 4, "Count", "Integer");
@@ -1998,24 +1889,21 @@ bool __fastcall InfoRec::MakeArgsManually()
             return 1;
         }
         //@WStrToPWChar, @UStrToPWChar
-        if (SameText(&name[3], "StrToPWChar"))
-        {
+        if (SameText(&name[3], "StrToPWChar")) {
             kind = ikFunc;
             type = "PWideChar";
             procInfo->AddArg(0x21, 0, 4, "S", _sname);
             return true;
         }
         //@WStrFromLStr, @UStrFromLStr
-        if (SameText(&name[3], "StrFromLStr"))
-        {
+        if (SameText(&name[3], "StrFromLStr")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
-            procInfo->AddArg(0x23, 1, 4, "Source", "AnsiString");   //Modify by ZGL
+            procInfo->AddArg(0x23, 1, 4, "Source", "AnsiString"); //Modify by ZGL
             return true;
         }
         //@WStrOfWChar
-        if (SameText(&name[3], "StrOfWChar"))
-        {
+        if (SameText(&name[3], "StrOfWChar")) {
             kind = ikProc;
             procInfo->AddArg(0x21, 0, 4, "C", "WideChar");
             procInfo->AddArg(0x21, 1, 4, "Count", "Integer");
@@ -2023,8 +1911,7 @@ bool __fastcall InfoRec::MakeArgsManually()
             return true;
         }
         //@UStrEqual
-        if (SameText(&name[3], "StrEqual"))
-        {
+        if (SameText(&name[3], "StrEqual")) {
             kind = ikProc;
             procInfo->AddArg(0x21, 0, 4, "Left", _sname);
             procInfo->AddArg(0x21, 1, 4, "Right", _sname);
@@ -2034,8 +1921,7 @@ bool __fastcall InfoRec::MakeArgsManually()
     //ShortStrings--------------------------------------------------------------
     _sname = "ShortString";
     //@Copy
-    if (SameText(name, "@Copy"))
-    {
+    if (SameText(name, "@Copy")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "S", _sname);
         procInfo->AddArg(0x21, 1, 4, "Index", "Integer");
@@ -2044,8 +1930,7 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@Delete
-    if (SameText(name, "@Delete"))
-    {
+    if (SameText(name, "@Delete")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "S", _sname);
         procInfo->AddArg(0x21, 1, 4, "Index", "Integer");
@@ -2053,8 +1938,7 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@Insert
-    if (SameText(name, "@Insert"))
-    {
+    if (SameText(name, "@Insert")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Source", _sname);
         procInfo->AddArg(0x22, 1, 4, "Dest", "ShortString");
@@ -2062,8 +1946,7 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@Pos
-    if (SameText(name, "@Pos"))
-    {
+    if (SameText(name, "@Pos")) {
         kind = ikFunc;
         type = "Integer";
         procInfo->AddArg(0x21, 0, 4, "Substr", _sname);
@@ -2072,16 +1955,14 @@ bool __fastcall InfoRec::MakeArgsManually()
     }
     _sname = "PShortString";
     //@SetLength
-    if (SameText(name, "@SetLength"))
-    {
+    if (SameText(name, "@SetLength")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "S", _sname);
         procInfo->AddArg(0x21, 1, 4, "NewLength", "Byte");
         return true;
     }
     //@SetString
-    if (SameText(name, "@SetString"))
-    {
+    if (SameText(name, "@SetString")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "S", _sname);
         procInfo->AddArg(0x21, 1, 4, "Buffer", "PChar");
@@ -2089,16 +1970,14 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@PStrCat
-    if (SameText(name, "@PStrCat"))
-    {
+    if (SameText(name, "@PStrCat")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Dest", _sname);
         procInfo->AddArg(0x21, 1, 4, "Source", _sname);
         return true;
     }
     //@PStrNCat
-    if (SameText(name, "@PStrNCat"))
-    {
+    if (SameText(name, "@PStrNCat")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Dest", _sname);
         procInfo->AddArg(0x21, 1, 4, "Source", _sname);
@@ -2106,16 +1985,14 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@PStrCpy
-    if (SameText(name, "@PStrCpy"))
-    {
+    if (SameText(name, "@PStrCpy")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Dest", _sname);
         procInfo->AddArg(0x21, 1, 4, "Source", _sname);
         return true;
     }
     //@PStrNCpy
-    if (SameText(name, "@PStrNCpy"))
-    {
+    if (SameText(name, "@PStrNCpy")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Dest", _sname);
         procInfo->AddArg(0x21, 1, 4, "Source", _sname);
@@ -2123,8 +2000,7 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@AStrCmp
-    if (SameText(name, "@AStrCmp"))
-    {
+    if (SameText(name, "@AStrCmp")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "S1", _sname);
         procInfo->AddArg(0x21, 1, 4, "S2", _sname);
@@ -2132,24 +2008,21 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@PStrCmp
-    if (SameText(name, "@PStrCmp"))
-    {
+    if (SameText(name, "@PStrCmp")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "S1", _sname);
         procInfo->AddArg(0x21, 1, 4, "S2", _sname);
         return true;
     }
     //@Str0Long
-    if (SameText(name, "@Str0Long"))
-    {
+    if (SameText(name, "@Str0Long")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Val", "Longint");
         procInfo->AddArg(0x21, 1, 4, "S", _sname);
         return true;
     }
     //@StrLong
-    if (SameText(name, "@StrLong"))
-    {
+    if (SameText(name, "@StrLong")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Val", "Integer");
         procInfo->AddArg(0x21, 1, 4, "Width", "Integer");
@@ -2158,16 +2031,14 @@ bool __fastcall InfoRec::MakeArgsManually()
     }
     //Files---------------------------------------------------------------------
     //@Append(
-    if (SameText(name, "@Append"))
-    {
+    if (SameText(name, "@Append")) {
         kind = ikFunc;
         type = "Integer";
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         return true;
     }
     //@Assign
-    if (SameText(name, "@Assign"))
-    {
+    if (SameText(name, "@Assign")) {
         kind = ikFunc;
         type = "Integer";
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
@@ -2175,8 +2046,7 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@BlockRead
-    if (SameText(name, "@BlockRead"))
-    {
+    if (SameText(name, "@BlockRead")) {
         kind = ikFunc;
         type = "Longint";
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
@@ -2186,8 +2056,7 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@BlockWrite
-    if (SameText(name, "@BlockWrite"))
-    {
+    if (SameText(name, "@BlockWrite")) {
         kind = ikFunc;
         type = "Longint";
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
@@ -2197,69 +2066,60 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@Close
-    if (SameText(name, "@Close"))
-    {
+    if (SameText(name, "@Close")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         return true;
     }
     //@EofFile
-    if (SameText(name, "@EofFile"))
-    {
+    if (SameText(name, "@EofFile")) {
         kind = ikFunc;
         type = "Boolean";
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         return true;
     }
     //@EofText
-    if (SameText(name, "@EofText"))
-    {
+    if (SameText(name, "@EofText")) {
         kind = ikFunc;
         type = "Boolean";
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
     //@Eoln
-    if (SameText(name, "@Eoln"))
-    {
+    if (SameText(name, "@Eoln")) {
         kind = ikFunc;
         type = "Boolean";
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
     //@Erase
-    if (SameText(name, "@Erase"))
-    {
+    if (SameText(name, "@Erase")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         return true;
     }
     //@FilePos
-    if (SameText(name, "@FilePos"))
-    {
+    if (SameText(name, "@FilePos")) {
         kind = ikFunc;
         type = "Longint";
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         return true;
     }
     //@FileSize
-    if (SameText(name, "@FileSize"))
-    {
+    if (SameText(name, "@FileSize")) {
         kind = ikFunc;
         type = "Longint";
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         return true;
     }
     //@Flush
-    if (SameText(name, "@Flush"))
-    {
+    if (SameText(name, "@Flush")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         return true;
     }
     //@ReadRec
-    if (SameText(name, "@ReadRec"))
-    {
+    if (SameText(name, "@ReadRec")) {
         kind = ikFunc;
         type = "Integer";
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
@@ -2267,24 +2127,21 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@ReadChar
-    if (SameText(name, "@ReadChar"))
-    {
+    if (SameText(name, "@ReadChar")) {
         kind = ikFunc;
         type = "Char";
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
     //@ReadLong
-    if (SameText(name, "@ReadLong"))
-    {
+    if (SameText(name, "@ReadLong")) {
         kind = ikFunc;
         type = "Longint";
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
     //@ReadString
-    if (SameText(name, "@ReadString"))
-    {
+    if (SameText(name, "@ReadString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "PShortString");
@@ -2292,8 +2149,7 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@ReadCString
-    if (SameText(name, "@ReadCString"))
-    {
+    if (SameText(name, "@ReadCString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "PAnsiChar");
@@ -2301,32 +2157,28 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@ReadLString
-    if (SameText(name, "@ReadLString"))
-    {
+    if (SameText(name, "@ReadLString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x22, 1, 4, "S", "AnsiString");
         return true;
     }
     //@ReadWString
-    if (SameText(name, "@ReadWString"))
-    {
+    if (SameText(name, "@ReadWString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x22, 1, 4, "S", "WideString");
         return true;
     }
     //@ReadUString
-    if (SameText(name, "@ReadUString"))
-    {
+    if (SameText(name, "@ReadUString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x22, 1, 4, "S", "UnicodeString");
         return true;
     }
     //@ReadWCString
-    if (SameText(name, "@ReadWCString"))
-    {
+    if (SameText(name, "@ReadWCString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "PWideChar");
@@ -2334,39 +2186,34 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@ReadWChar
-    if (SameText(name, "@ReadWChar"))
-    {
+    if (SameText(name, "@ReadWChar")) {
         kind = ikFunc;
         type = "WideChar";
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
     //@ReadExt
-    if (SameText(name, "@ReadExt"))
-    {
+    if (SameText(name, "@ReadExt")) {
         //kind = ikFunc;
         //type = "Extended";
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
     //@ReadLn
-    if (SameText(name, "@ReadLn"))
-    {
+    if (SameText(name, "@ReadLn")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
     //@Rename
-    if (SameText(name, "@Rename"))
-    {
+    if (SameText(name, "@Rename")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         procInfo->AddArg(0x21, 1, 4, "NewName", "PChar");
         return true;
     }
     //@ResetFile
-    if (SameText(name, "@ResetFile"))
-    {
+    if (SameText(name, "@ResetFile")) {
         kind = ikFunc;
         type = "Integer";
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
@@ -2374,16 +2221,14 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@ResetText
-    if (SameText(name, "@ResetText"))
-    {
+    if (SameText(name, "@ResetText")) {
         kind = ikFunc;
         type = "Integer";
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
     //@RewritFile
-    if (SameText(name, "@RewritFile"))
-    {
+    if (SameText(name, "@RewritFile")) {
         kind = ikFunc;
         type = "Integer";
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
@@ -2391,8 +2236,7 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@RewritText
-    if (SameText(name, "@RewritText"))
-    {
+    if (SameText(name, "@RewritText")) {
         kind = ikFunc;
         type = "Integer";
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
@@ -2400,32 +2244,28 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@Seek
-    if (SameText(name, "@Seek"))
-    {
+    if (SameText(name, "@Seek")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         procInfo->AddArg(0x21, 1, 4, "RecNum", "Longint");
         return true;
     }
     //@SeekEof
-    if (SameText(name, "@SeekEof"))
-    {
+    if (SameText(name, "@SeekEof")) {
         kind = ikFunc;
         type = "Boolean";
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
     //@SeekEoln
-    if (SameText(name, "@SeekEoln"))
-    {
+    if (SameText(name, "@SeekEoln")) {
         kind = ikFunc;
         type = "Boolean";
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
     //@SetTextBuf
-    if (SameText(name, "@SetTextBuf"))
-    {
+    if (SameText(name, "@SetTextBuf")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "P", "Pointer");
@@ -2433,23 +2273,20 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@Truncate
-    if (SameText(name, "@Truncate"))
-    {
+    if (SameText(name, "@Truncate")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         return true;
     }
     //@WriteRec
-    if (SameText(name, "@WriteRec"))
-    {
+    if (SameText(name, "@WriteRec")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         procInfo->AddArg(0x21, 1, 4, "Buffer", "Pointer");
         return true;
     }
     //@WriteChar
-    if (SameText(name, "@WriteChar"))
-    {
+    if (SameText(name, "@WriteChar")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "C", "AnsiChar");
@@ -2457,16 +2294,14 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@Write0Char
-    if (SameText(name, "@Write0Char"))
-    {
+    if (SameText(name, "@Write0Char")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "C", "AnsiChar");
         return true;
     }
     //@WriteBool
-    if (SameText(name, "@WriteBool"))
-    {
+    if (SameText(name, "@WriteBool")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "Val", "Boolean");
@@ -2474,16 +2309,14 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@Write0Bool
-    if (SameText(name, "@Write0Bool"))
-    {
+    if (SameText(name, "@Write0Bool")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "Val", "Boolean");
         return true;
     }
     //@WriteLong
-    if (SameText(name, "@WriteLong"))
-    {
+    if (SameText(name, "@WriteLong")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "Val", "Longint");
@@ -2491,16 +2324,14 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@Write0Long
-    if (SameText(name, "@Write0Long"))
-    {
+    if (SameText(name, "@Write0Long")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "Val", "Longint");
         return true;
     }
     //@WriteString
-    if (SameText(name, "@WriteString"))
-    {
+    if (SameText(name, "@WriteString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "ShortString");
@@ -2508,16 +2339,14 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@Write0String
-    if (SameText(name, "@Write0String"))
-    {
+    if (SameText(name, "@Write0String")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "ShortString");
         return true;
     }
     //@WriteCString
-    if (SameText(name, "@WriteCString"))
-    {
+    if (SameText(name, "@WriteCString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "PAnsiChar");
@@ -2525,16 +2354,14 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@Write0CString
-    if (SameText(name, "@Write0CString"))
-    {
+    if (SameText(name, "@Write0CString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "PAnsiChar");
         return true;
     }
     //@WriteLString
-    if (SameText(name, "@WriteLString"))
-    {
+    if (SameText(name, "@WriteLString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "AnsiString");
@@ -2542,8 +2369,7 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@Write0LString
-    if (SameText(name, "@Write0LString"))
-    {
+    if (SameText(name, "@Write0LString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "AnsiString");
@@ -2551,8 +2377,7 @@ bool __fastcall InfoRec::MakeArgsManually()
     }
     //@Write2Ext
     if (SameText(name, "@Write2Ext") ||
-        SameText(name, "@Str2Ext"))
-    {
+        SameText(name, "@Str2Ext")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 8, 12, "Val", "Extended");
@@ -2561,8 +2386,7 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@WriteWString
-    if (SameText(name, "@WriteWString"))
-    {
+    if (SameText(name, "@WriteWString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "WideString");
@@ -2570,16 +2394,14 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@Write0WString
-    if (SameText(name, "@Write0WString"))
-    {
+    if (SameText(name, "@Write0WString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "WideString");
         return true;
     }
     //@WriteWCString
-    if (SameText(name, "@WriteWCString"))
-    {
+    if (SameText(name, "@WriteWCString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "PWideChar");
@@ -2587,16 +2409,14 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@Write0WCString
-    if (SameText(name, "@Write0WCString"))
-    {
+    if (SameText(name, "@Write0WCString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "PWideChar");
         return true;
     }
     //@WriteWChar
-    if (SameText(name, "@WriteWChar"))
-    {
+    if (SameText(name, "@WriteWChar")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "C", "WideChar");
@@ -2604,38 +2424,33 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@Write0WChar
-    if (SameText(name, "@Write0WChar"))
-    {
+    if (SameText(name, "@Write0WChar")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "C", "WideChar");
         return true;
     }
     //@Write1Ext
-    if (SameText(name, "@Write1Ext"))
-    {
+    if (SameText(name, "@Write1Ext")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "Width", "Longint");
         return true;
     }
     //@Write0Ext
-    if (SameText(name, "@Write0Ext"))
-    {
+    if (SameText(name, "@Write0Ext")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
     //@WriteLn
-    if (SameText(name, "@WriteLn"))
-    {
+    if (SameText(name, "@WriteLn")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
     //@WriteUString
-    if (SameText(name, "@WriteUString"))
-    {
+    if (SameText(name, "@WriteUString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "UnicodeString");
@@ -2643,16 +2458,14 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@Write0UString
-    if (SameText(name, "@Write0UString"))
-    {
+    if (SameText(name, "@Write0UString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "UnicodeString");
         return true;
     }
     //@WriteVariant
-    if (SameText(name, "@WriteVariant"))
-    {
+    if (SameText(name, "@WriteVariant")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "V", "TVarData");
@@ -2660,8 +2473,7 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@Write0Variant
-    if (SameText(name, "@Write0Variant"))
-    {
+    if (SameText(name, "@Write0Variant")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "V", "TVarData");
@@ -2670,8 +2482,7 @@ bool __fastcall InfoRec::MakeArgsManually()
     //Other---------------------------------------------------------------------
     //A
     //function @AsClass(child:TObject; parent:TClass):TObject;
-    if (SameText(name, "@AsClass"))
-    {
+    if (SameText(name, "@AsClass")) {
         kind = ikFunc;
         type = "TObject";
         procInfo->AddArg(0x21, 0, 4, "child", "TObject");
@@ -2679,8 +2490,7 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //procedure @Assert(Message: String; Filename:String; LineNumber:Integer);
-    if (SameText(name, "@Assert"))
-    {
+    if (SameText(name, "@Assert")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Message", "String");
         procInfo->AddArg(0x21, 1, 4, "Filename", "String");
@@ -2688,14 +2498,12 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@BoundErr
-    if (SameText(name, "@BoundErr"))
-    {
+    if (SameText(name, "@BoundErr")) {
         kind = ikProc;
         return true;
     }
     //@CopyArray
-    if (SameText(name, "@CopyArray"))
-    {
+    if (SameText(name, "@CopyArray")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Dest", "Pointer");
         procInfo->AddArg(0x21, 1, 4, "Source", "Pointer");
@@ -2704,8 +2512,7 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@CopyRecord
-    if (SameText(name, "@CopyRecord"))
-    {
+    if (SameText(name, "@CopyRecord")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Dest", "Pointer");
         procInfo->AddArg(0x21, 1, 4, "Source", "Pointer");
@@ -2714,15 +2521,13 @@ bool __fastcall InfoRec::MakeArgsManually()
     }
     //DynArrays
     //@DynArrayAddRef
-    if (SameText(name, "@DynArrayAddRef"))
-    {
+    if (SameText(name, "@DynArrayAddRef")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Arr", "Pointer");
         return true;
     }
     //@DynArrayAsg
-    if (SameText(name, "@DynArrayAsg"))
-    {
+    if (SameText(name, "@DynArrayAsg")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "Dest", "Pointer");
         procInfo->AddArg(0x21, 1, 4, "Source", "Pointer");
@@ -2730,16 +2535,14 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@DynArrayClear
-    if (SameText(name, "@DynArrayClear"))
-    {
+    if (SameText(name, "@DynArrayClear")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "Arr", "Pointer");
         procInfo->AddArg(0x21, 1, 4, "TypeInfo", "PDynArrayTypeInfo");
         return true;
     }
     //@DynArrayCopy
-    if (SameText(name, "@DynArrayCopy"))
-    {
+    if (SameText(name, "@DynArrayCopy")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Arr", "Pointer");
         procInfo->AddArg(0x21, 1, 4, "TypeInfo", "PDynArrayTypeInfo");
@@ -2747,8 +2550,7 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@DynArrayCopyRange
-    if (SameText(name, "@DynArrayCopyRange"))
-    {
+    if (SameText(name, "@DynArrayCopyRange")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Arr", "Pointer");
         procInfo->AddArg(0x21, 1, 4, "TypeInfo", "PDynArrayTypeInfo");
@@ -2758,24 +2560,21 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@DynArrayHigh
-    if (SameText(name, "@DynArrayHigh"))
-    {
+    if (SameText(name, "@DynArrayHigh")) {
         kind = ikFunc;
         type = "Longint";
         procInfo->AddArg(0x21, 0, 4, "Arr", "Pointer");
         return true;
     }
     //@DynArrayLength
-    if (SameText(name, "@DynArrayLength"))
-    {
+    if (SameText(name, "@DynArrayLength")) {
         kind = ikFunc;
         type = "Longint";
         procInfo->AddArg(0x21, 0, 4, "Arr", "Pointer");
         return true;
     }
     //@DynArraySetLength
-    if (SameText(name, "@DynArraySetLength"))
-    {
+    if (SameText(name, "@DynArraySetLength")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "Arr", "Pointer");
         procInfo->AddArg(0x21, 1, 4, "TypeInfo", "PDynArrayTypeInfo");
@@ -2784,8 +2583,7 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@FillChar
-    if (SameText(name, "@FillChar"))
-    {
+    if (SameText(name, "@FillChar")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "dst", "Pointer");
         procInfo->AddArg(0x21, 1, 4, "cnt", "Integer");
@@ -2793,30 +2591,26 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@FreeMem
-    if (SameText(name, "@FreeMem"))
-    {
+    if (SameText(name, "@FreeMem")) {
         kind = ikFunc;
         type = "Integer";
         procInfo->AddArg(0x21, 0, 4, "p", "Pointer");
         return true;
     }
     //@GetMem
-    if (SameText(name, "@GetMem"))
-    {
+    if (SameText(name, "@GetMem")) {
         kind = ikFunc;
         type = "Pointer";
         procInfo->AddArg(0x21, 0, 4, "size", "Integer");
         return true;
     }
     //@IntOver
-    if (SameText(name, "@IntOver"))
-    {
+    if (SameText(name, "@IntOver")) {
         kind = ikProc;
         return true;
     }
     //@IsClass
-    if (SameText(name, "@IsClass"))
-    {
+    if (SameText(name, "@IsClass")) {
         kind = ikFunc;
         type = "Boolean";
         procInfo->AddArg(0x21, 0, 4, "Child", "TObject");
@@ -2824,16 +2618,14 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@RandInt
-    if (SameText(name, "@RandInt"))
-    {
+    if (SameText(name, "@RandInt")) {
         kind = ikFunc;
         type = "Integer";
         procInfo->AddArg(0x21, 0, 4, "Range", "Integer");
         return true;
     }
     //@ReallocMem
-    if (SameText(name, "@ReallocMem"))
-    {
+    if (SameText(name, "@ReallocMem")) {
         kind = ikFunc;
         type = "Pointer";
         procInfo->AddArg(0x22, 0, 4, "P", "Pointer");
@@ -2841,8 +2633,7 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //@SetElem
-    if (SameText(name, "@SetElem"))
-    {
+    if (SameText(name, "@SetElem")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "Dest", "SET");
         procInfo->AddArg(0x21, 1, 1, "Elem", "Byte");
@@ -2850,8 +2641,7 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //Trunc
-    if (SameText(name, "@Trunc"))
-    {
+    if (SameText(name, "@Trunc")) {
         kind = ikFunc;
         type = "Int64";
         procInfo->AddArg(0x21, 0, 12, "X", "Extended");
@@ -2859,16 +2649,14 @@ bool __fastcall InfoRec::MakeArgsManually()
     }
     //V
     //function @ValExt(s:AnsiString; var code:Integer):Extended;
-    if (SameText(name, "@ValExt"))
-    {
+    if (SameText(name, "@ValExt")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "s", "AnsiString");
         procInfo->AddArg(0x22, 1, 4, "code", "Integer");
         return true;
     }
     //function @ValLong(s:AnsiString; var code:Integer):Longint;
-    if (SameText(name, "@ValLong"))
-    {
+    if (SameText(name, "@ValLong")) {
         kind = ikFunc;
         type = "Longint";
         procInfo->AddArg(0x21, 0, 4, "s", "AnsiString");
@@ -2876,24 +2664,21 @@ bool __fastcall InfoRec::MakeArgsManually()
         return true;
     }
     //procedure @VarFromCurr(var v: Variant; val:Currency);
-    if (SameText(name, "@VarFromCurr"))
-    {
+    if (SameText(name, "@VarFromCurr")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "v", "Variant");
         //procInfo->AddArg(0x21, ?, 8, "val", "Currency");
         return true;
     }
     //procedure @VarFromReal(var v:Variant; val:Real);
-    if (SameText(name, "@VarFromReal"))
-    {
+    if (SameText(name, "@VarFromReal")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "v", "Variant");
         //procInfo->AddArg(0x21, ?, 8, "val", "Real"); 	fld!
         return true;
     }
     //procedure @VarFromTDateTime(var v: Variant; val:TDateTime);
-    if (SameText(name, "@VarFromTDateTime"))
-    {
+    if (SameText(name, "@VarFromTDateTime")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "v", "Variant");
         //procInfo->AddArg(0x21, ?, 8, "val", "TDateTime");	fld!
@@ -2913,6 +2698,7 @@ bool __fastcall InfoRec::MakeArgsManually()
     //in <-> bt
     return false;
 }
+
 //---------------------------------------------------------------------------
 /*
 { Procedures and functions that need compiler magic }
@@ -2945,4 +2731,3 @@ function @_llmod(val1:Int64; val2:Int64):Int64; EAX;EDX;[ESP+4]
 function @_llshl(val:Int64):Int64; EAX,EDX
 function @_llushr(val:Int64):Int64; EAX,EDX
 */
-
