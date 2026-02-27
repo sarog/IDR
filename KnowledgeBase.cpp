@@ -12,8 +12,8 @@ extern  DWORD       CodeBase;
 extern  BYTE        *Code;
                                  String __fastcall TrimTypeName(const String& TypeName);
 //---------------------------------------------------------------------------
-#define cfCode          0x00000001  //Байт относится к коду
-#define cfData          0x00000002  //Байт относится к данным
+#define cfCode          0x00000001  //Р‘Р°Р№С‚ РѕС‚РЅРѕСЃРёС‚СЃСЏ Рє РєРѕРґСѓ
+#define cfData          0x00000002  //Р‘Р°Р№С‚ РѕС‚РЅРѕСЃРёС‚СЃСЏ Рє РґР°РЅРЅС‹Рј
 FIELDINFO::~FIELDINFO()
 {
     CleanupList<XrefRec>(xrefs);

@@ -64,10 +64,10 @@ void __fastcall TFMain_11011981::lbXrefsDblClick(TObject *Sender)
             {
                 BranchSearchFrom = tvClassesShort->Items->Item[0];
             }
-            //Ñíà÷àëà èùåì êëàññ
+            //Ð¡Ð½Ð°Ñ‡Ð°Ð»Ð° Ð¸Ñ‰ÐµÐ¼ ÐºÐ»Ð°ÑÑ
             String text = "#" + Val2Str8(adr);
             FindText(text);
-            //Ïîòîì - òåêóùóþ ïðîöåäóðó
+            //ÐŸÐ¾Ñ‚Ð¾Ð¼ - Ñ‚ÐµÐºÑƒÑ‰ÑƒÑŽ Ð¿Ñ€Ð¾Ñ†ÐµÐ´ÑƒÑ€Ñƒ
             if (!rgViewerMode->ItemIndex)
             {
                 if (tvClassesFull->Selected)

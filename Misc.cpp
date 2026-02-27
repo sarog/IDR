@@ -263,7 +263,7 @@ String __fastcall TrimTypeName(const String& TypeName)
     //No '.' in TypeName or TypeName begins with '.'
     if (pos == 0 || pos == 1)
         return TypeName;
-    //или это имя типа range
+    //РёР»Рё СЌС‚Рѕ РёРјСЏ С‚РёРїР° range
     else if (TypeName[pos + 1] == '.')
         return TypeName;
     else
@@ -1028,7 +1028,7 @@ int __fastcall GetField(String TypeName, int Offset, String& name, String& type)
     {
         kind = GetTypeKind(_type, &size);
         if (kind != ikVMT && kind != ikArray && kind != ikRecord && kind != ikDynArray) break;
-        
+
         if (kind == ikVMT)
         {
             if (!Offset) return 0;
@@ -1152,7 +1152,7 @@ bool __fastcall IsValidCString(int pos)
         if (!b) return (len >= 5);
         if (b < ' ' && b != '\t' && b != '\n' && b != '\r') break;
         len++;
-    }           
+    }
     return false;
 }
 //---------------------------------------------------------------------------
@@ -2045,7 +2045,7 @@ void __fastcall OutputDecompilerHeader(FILE* f)
     int n = sprintf(StringBuf, "IDR home page: http://kpnc.org/idr32/en");
     int m = sprintf(StringBuf, "Decompiled by IDR v.%s", IDRVersion.c_str());
     if (n < m) n = m;
-    
+
     memset(StringBuf, '*', n); StringBuf[n] = 0;
     fprintf(f, "//%s\n", StringBuf);
 
@@ -2162,7 +2162,7 @@ void __fastcall AddPicode(int Pos, BYTE Op, String Name, int Ofs)
 
 	PInfoRec recN = GetInfoRec(Pos2Adr(Pos));
     //if (recN && recN->picode) return;
-    
+
     if (!recN)
         recN = new InfoRec(Pos, ikUnknown);
     if (!recN->picode)
@@ -2412,7 +2412,7 @@ void __fastcall Copy2Clipboard(TStrings* items, int leftMargin, bool asmCode)
         line = items->Strings[n];
         bufLen += line.Length() + 2;
     }
-    //Последний символ должен быть 0
+    //РџРѕСЃР»РµРґРЅРёР№ СЃРёРјРІРѕР» РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ 0
     bufLen++;
 
     if (bufLen)
@@ -2421,7 +2421,7 @@ void __fastcall Copy2Clipboard(TStrings* items, int leftMargin, bool asmCode)
         if (buf)
         {
             Clipboard()->Open();
-            //Запихиваем все данные в буфер
+            //Р—Р°РїРёС…РёРІР°РµРј РІСЃРµ РґР°РЅРЅС‹Рµ РІ Р±СѓС„РµСЂ
             char *p = buf;
             for (n = 0; n < items->Count; n++)
             {

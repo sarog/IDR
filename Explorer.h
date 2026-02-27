@@ -50,7 +50,7 @@ __published:	// IDE-managed Components
     void __fastcall btnDefStringClick(TObject *Sender);
     void __fastcall FormCreate(TObject *Sender);
 private:	// User declarations
-    DWORD   Adr;    //Адрес, с которого показывается информация
+    DWORD   Adr;    //РђРґСЂРµСЃ, СЃ РєРѕС‚РѕСЂРѕРіРѕ РїРѕРєР°Р·С‹РІР°РµС‚СЃСЏ РёРЅС„РѕСЂРјР°С†РёСЏ
 public:		// User declarations
     __fastcall TFExplorer_11011981(TComponent* Owner);
     void __fastcall ShowCode(DWORD fromAdr, int maxBytes);

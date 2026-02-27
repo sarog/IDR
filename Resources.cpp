@@ -398,7 +398,7 @@ bool __stdcall EnumResNameProcedure(int hModule, char* Type, char* Name, long Pa
                 {
                     if (signature[3] == '0')
                     {
-                        //Добавляем в список ресурсов
+                        //????????? ? ?????? ????????
                         dfm = new TDfm;
                         dfm->ResName = Name;
                         dfm->MemStream = ms;
@@ -535,10 +535,10 @@ void __fastcall TResourceInfo::CloseAllForms()
             dfm->Open = 0;
         }
     }
-    
+
     //this is a must have call!
     //it removes just closed form from the Screen->Forms[] list!
-    //and we'll not have a new form with name [old_name]_1 ! 
+    //and we'll not have a new form with name [old_name]_1 !
     Application->ProcessMessages();
 }
 //---------------------------------------------------------------------------
@@ -557,7 +557,7 @@ void __fastcall TResourceInfo::ReopenAllForms()
 
                 //this is a must have call!
                 //it removes just closed form from the Screen->Forms[] list!
-                //and we'll not have a new form with name [old_name]_1 ! 
+                //and we'll not have a new form with name [old_name]_1 !
                 Application->ProcessMessages();
 
                 int frmIdx = -1;
@@ -764,7 +764,7 @@ void __fastcall TResourceInfo::GetEventsList(String FormName, TList* Lst)
             item->CompName = FormName;
             item->EventName = eInfo->EventName;//eInfo->ProcName;
             String methodName = dfm->ClassName + "." + eInfo->ProcName;
-            //Ищем адрес соответствующего метода
+            //???? ????? ???????????????? ??????
             PMethodRec recM = FMain_11011981->GetMethodInfo(recN, methodName);
             item->Adr = (recM) ? recM->address : 0;
             Lst->Add(item);
@@ -776,7 +776,7 @@ void __fastcall TResourceInfo::GetEventsList(String FormName, TList* Lst)
     {
         PComponentInfo cInfo = (PComponentInfo)dfm->Components->Items[m];
         if (!cInfo->Events->Count) continue;
-                
+
         TList* ev = cInfo->Events;
         evCnt = ev->Count;
         for (int k = 0; k < evCnt; k++)
@@ -936,7 +936,7 @@ void __fastcall IdrDfmForm::CreateHandle()
         FormStyle = fsNormal;
         return;
     }
-    
+
     TForm::CreateHandle();
 }
 //---------------------------------------------------------------------------
@@ -973,7 +973,7 @@ void __fastcall IdrDfmForm::SetupControls()
         component = Components[n];
         const String curName = component->Name;
         SetupControlResetShortcut(component);
-        
+
         control = dynamic_cast<TControl*>(component);
         if (control)
         {
@@ -992,7 +992,7 @@ void __fastcall IdrDfmForm::SetupControls()
 
         else if(TTabSheet* ts = dynamic_cast<TTabSheet*>(component))
             ts->TabVisible = true;
-                    
+
         else if (TBasicAction* action = dynamic_cast<TBasicAction*>(component))
             action->OnExecute = ActionExecute;
 
@@ -1043,31 +1043,31 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
     TMenuItem   *mi;
     TDfm* dfm = ResInfo->GetFormIdx(FormName, &n);
     if (!dfm) return;
-    
+
     DWORD classAdr = GetClassAdr(dfm->ClassName);
     PInfoRec recN = (IsValidImageAdr(classAdr)) ? Infos[Adr2Pos(classAdr)] : 0;
 
-    //Форма?
+    //??????
     if (SameText(dfm->Name, ControlName))
     {
-        //Inherited - начали заполнять меню
+        //Inherited - ?????? ????????? ????
         if (dfm->Flags & FF_INHERITED)
         {
             TDfm* parentDfm = ResInfo->GetParentDfm(dfm);
             if (parentDfm) ShowMyPopupMenu(parentDfm->Name, parentDfm->Name, false);
-            //В конце добавляем разделитель
+            //? ????? ????????? ???????????
             mi = new TMenuItem(evPopup);
             mi->Caption = "-";
             evPopup->Items->Add(mi);
         }
 
-        //Первая строка меню - название контрола
+        //?????? ?????? ???? - ???????? ????????
         mi = new TMenuItem(evPopup);
         mi->Caption = dfm->Name + "." + dfm->ClassName;
         mi->Tag = classAdr;
         mi->OnClick = miPopupClick;
         evPopup->Items->Add(mi);
-        //Вторая строка меню - разделитель
+        //?????? ?????? ???? - ???????????
         mi = new TMenuItem(evPopup);
         mi->Caption = "-";
         evPopup->Items->Add(mi);
@@ -1081,7 +1081,7 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
             mi = new TMenuItem(evPopup);
             mi->Caption = eInfo->EventName + " = " + eInfo->ProcName;
             String methodName = dfm->ClassName + "." + eInfo->ProcName;
-            //Ищем адрес соответствующего метода
+            //???? ????? ???????????????? ??????
             PMethodRec recM = FMain_11011981->GetMethodInfo(recN, methodName);
             mi->Tag = (recM) ? recM->address : 0;
             mi->OnClick = miPopupClick;
@@ -1095,15 +1095,15 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
         }
         return;
     }
-    //Компонента формы?
+    //?????????? ??????
     else
     {
-        //Inherited - начали заполнять меню
+        //Inherited - ?????? ????????? ????
         if (dfm->Flags & FF_INHERITED)
         {
             TDfm* parentDfm = ResInfo->GetParentDfm(dfm);
             if (parentDfm) ShowMyPopupMenu(parentDfm->Name, ControlName, false);
-            //В конце добавляем разделитель
+            //? ????? ????????? ???????????
             mi = new TMenuItem(evPopup);
             mi->Caption = "-";
             evPopup->Items->Add(mi);
@@ -1112,18 +1112,18 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
         for (int m = 0; m < dfm->Components->Count; m++)
         {
             PComponentInfo cInfo = (PComponentInfo)dfm->Components->Items[m];
-            //Нашли компоненту, которой принадлежит control
+            //????? ??????????, ??????? ??????????? control
             if (SameText(cInfo->Name, ControlName))
             {
-                //Чистим evPopup
+                //?????? evPopup
                 evPopup->Items->Clear();
-                //Первая строка меню - название контрола
+                //?????? ?????? ???? - ???????? ????????
                 mi = new TMenuItem(evPopup);
                 mi->Caption = cInfo->Name + "." + cInfo->ClassName;
                 mi->Tag = GetClassAdr(cInfo->ClassName);
                 mi->OnClick = miPopupClick;
                 evPopup->Items->Add(mi);
-                //Вторая строка меню - разделитель
+                //?????? ?????? ???? - ???????????
                 mi = new TMenuItem(evPopup);
                 mi->Caption = "-";
                 evPopup->Items->Add(mi);
@@ -1138,13 +1138,13 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
                     //Action
                     if (SameText(eInfo->EventName, "Action"))
                     {
-                        //Имя eInfo->ProcName может иметь вид FormName.Name
+                        //??? eInfo->ProcName ????? ????? ??? FormName.Name
                         int dotpos = eInfo->ProcName.Pos(".");
                         if (dotpos)
                         {
                             String moduleName = eInfo->ProcName.SubString(1, dotpos - 1);
                             String actionName = eInfo->ProcName.SubString(dotpos + 1, eInfo->ProcName.Length() - dotpos);
-                            //Ищем форму moduleName
+                            //???? ????? moduleName
                             for (int j = 0; j < ResInfo->FormList->Count; j++)
                             {
                                 TDfm* dfm1 = (TDfm*)ResInfo->FormList->Items[j];
@@ -1152,13 +1152,13 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
                                 {
                                     classAdr = GetClassAdr(dfm1->ClassName);
                                     recN = (IsValidImageAdr(classAdr)) ? Infos[Adr2Pos(classAdr)] : 0;
-                                    //Ищем компоненту actionName
+                                    //???? ?????????? actionName
                                     for (int r = 0; r < dfm1->Components->Count; r++)
                                     {
                                         PComponentInfo cInfo1 = (PComponentInfo)dfm1->Components->Items[r];
                                         if (SameText(cInfo1->Name, actionName))
                                         {
-                                            //Ищем событие OnExecute
+                                            //???? ??????? OnExecute
                                             TList* ev1 = cInfo1->Events;
                                             for (int i = 0; i < ev1->Count; i++)
                                             {
@@ -1178,13 +1178,13 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
                         }
                         else
                         {
-                            //Ищем компоненту eInfo->ProcName
+                            //???? ?????????? eInfo->ProcName
                             for (int r = 0; r < dfm->Components->Count; r++)
                             {
                                 PComponentInfo cInfo1 = (PComponentInfo)dfm->Components->Items[r];
                                 if (SameText(cInfo1->Name, eInfo->ProcName))
                                 {
-                                    //Ищем событие OnExecute
+                                    //???? ??????? OnExecute
                                     TList* ev1 = cInfo1->Events;
                                     for (int i = 0; i < ev1->Count; i++)
                                     {
@@ -1204,7 +1204,7 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
                     {
                         methodName = dfm->ClassName + "." + eInfo->ProcName;
                     }
-                    //Ищем адрес соответствующего метода
+                    //???? ????? ???????????????? ??????
                     PMethodRec recM = FMain_11011981->GetMethodInfo(recN, methodName);
                     mi->Tag = (recM) ? recM->address : 0;
                     mi->OnClick = miPopupClick;
@@ -1246,11 +1246,11 @@ void __fastcall IdrDfmForm::SetupControlHint(String FormName, TControl* Control,
     for (int n = 0; n < ResInfo->FormList->Count; n++)
     {
     	TDfm* dfm = (TDfm*)ResInfo->FormList->Items[n];
-        //Нашли форму, которой принадлежит control
+        //????? ?????, ??????? ??????????? control
         if (SameText(dfm->Name, FormName))
         {
         	String hint = InitHint;
-            //Сама форма?
+            //???? ??????
             if (SameText(dfm->Name, Control->Name))
             {
                 if (hint != "") hint += "\n";
@@ -1271,7 +1271,7 @@ void __fastcall IdrDfmForm::SetupControlHint(String FormName, TControl* Control,
                 for (int m = 0; m < dfm->Components->Count; m++)
                 {
                     PComponentInfo cInfo = (PComponentInfo)dfm->Components->Items[m];
-                    //Нашли компоненту, которой принадлежит control
+                    //????? ??????????, ??????? ??????????? control
                     if (SameText(cInfo->Name, Control->Name))
                     {
                     	if (hint != "") hint += "\n";
@@ -1305,7 +1305,7 @@ void __fastcall IdrDfmForm::SetupMenuItem(TMenuItem* mi, String searchName)
         //as: I dont like this, maybe put TDfm* into IdrDfmForm?
     	TDfm* dfm = (TDfm*)ResInfo->FormList->Items[n];
 
-        //Нашли форму, которой принадлежит control
+        //????? ?????, ??????? ??????????? control
         if (SameText(dfm->Name, searchName))
         {
             curDfm = dfm;
@@ -1315,7 +1315,7 @@ void __fastcall IdrDfmForm::SetupMenuItem(TMenuItem* mi, String searchName)
             {
                 PComponentInfo cInfo = (PComponentInfo)dfm->Components->Items[m];
 
-                //Нашли компоненту, которой принадлежит mi
+                //????? ??????????, ??????? ??????????? mi
                 if (SameText(cInfo->Name, mi->Name))
                 {
                     DWORD classAdr = GetClassAdr(dfm->ClassName);
@@ -1330,7 +1330,7 @@ void __fastcall IdrDfmForm::SetupMenuItem(TMenuItem* mi, String searchName)
                         if (SameText(eInfo->EventName, "OnClick"))
                         {
                             methodName = dfm->ClassName + "." + eInfo->ProcName;
-                            //Ищем адрес соответствующего метода
+                            //???? ????? ???????????????? ??????
                             recM = FMain_11011981->GetMethodInfo(recN, methodName);
                             mi->Tag = (recM) ? recM->address : 0;
                             mi->OnClick = miPopupClick;
@@ -1340,13 +1340,13 @@ void __fastcall IdrDfmForm::SetupMenuItem(TMenuItem* mi, String searchName)
                         //Action
                         if (SameText(eInfo->EventName, "Action"))
                         {
-                            //Ищем компоненту с именем eInfo->ProcName
+                            //???? ?????????? ? ?????? eInfo->ProcName
                             for (int r = 0; r < dfm->Components->Count; r++)
                             {
                                 PComponentInfo cInfo1 = (PComponentInfo)dfm->Components->Items[r];
                                 if (SameText(cInfo1->Name, eInfo->ProcName))
                                 {
-                                    //Ищем событие OnExecute
+                                    //???? ??????? OnExecute
                                     TList* ev1 = cInfo1->Events;
                                     for (int i = 0; i < ev1->Count; i++)
                                     {

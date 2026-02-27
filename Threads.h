@@ -52,7 +52,7 @@ private:
     void __fastcall UpdateBeforeClassViewer();
     void __fastcall StrapSysProcs();
     void __fastcall FindRTTIs();
-    void __fastcall FindVMTs2();                //Для версии Дельфи2 (другая структура!)
+    void __fastcall FindVMTs2();                //Р”Р»СЏ РІРµСЂСЃРёРё Р”РµР»СЊС„Рё2 (РґСЂСѓРіР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР°!)
     void __fastcall FindVMTs();
     void __fastcall FindTypeFields();
     String __fastcall FindEvent(DWORD VmtAdr, String Name);

@@ -1671,7 +1671,8 @@ String __fastcall InfoRec::MakeCppPrototype(int Adr, String FType)
             result += SanitizeName(argType);
             if (typeKind == ikVMT)
                 result += "*";
-        }
+
+        }
         else
         {
             result += "DWORD";

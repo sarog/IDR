@@ -1164,7 +1164,7 @@ void __fastcall TAnalyzeThread::FindVMTs2()
         }
 
         //DWORD StopAt = GetStopAt(classVMT);
-        //Использовали виртуальную таблицу
+        //РСЃРїРѕР»СЊР·РѕРІР°Р»Рё РІРёСЂС‚СѓР°Р»СЊРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ
         SetFlags(cfData, i, StopAt - classVMT - cVmtSelfPtr);
 
         PUnitRec recU = mainForm->GetUnit(classVMT);
@@ -1241,7 +1241,7 @@ void __fastcall TAnalyzeThread::FindVMTs()
             if (typeInfoAdr)
             {
                 if (!IsValidImageAdr(typeInfoAdr)) continue;
-                //По адресу typeInfoAdr должны быть данные о типе, начинающиеся с определенной информации
+                //РџРѕ Р°РґСЂРµСЃСѓ typeInfoAdr РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РґР°РЅРЅС‹Рµ Рѕ С‚РёРїРµ, РЅР°С‡РёРЅР°СЋС‰РёРµСЃСЏ СЃ РѕРїСЂРµРґРµР»РµРЅРЅРѕР№ РёРЅС„РѕСЂРјР°С†РёРё
                 pos = Adr2Pos(typeInfoAdr);
                 BYTE typeKind = *(Code + pos);
                 if (typeKind > ikProcedure) continue;
@@ -1945,9 +1945,9 @@ void __fastcall TAnalyzeThread::FindPrototypes()
 typedef struct
 {
     bool    used;
-    char    *name;   	//имя юнита
-    float   matched;	//максимальное кол-во совпадений
-    int     maxno;  	//номер юнита с максимальным кол-вом совпадений
+    char    *name;   	//РёРјСЏ СЋРЅРёС‚Р°
+    float   matched;	//РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»-РІРѕ СЃРѕРІРїР°РґРµРЅРёР№
+    int     maxno;  	//РЅРѕРјРµСЂ СЋРЅРёС‚Р° СЃ РјР°РєСЃРёРјР°Р»СЊРЅС‹Рј РєРѕР»-РІРѕРј СЃРѕРІРїР°РґРµРЅРёР№
 } StdUnitInfo, *PStdUnitInfo;
 
 #define StdUnitsNum 7
@@ -2255,7 +2255,7 @@ void __fastcall TAnalyzeThread::ScanCode()
             StopProgress();
         }
     }
-    //Теперь попробуем опять пройтись по VMT и поискать их в базе знаний
+    //РўРµРїРµСЂСЊ РїРѕРїСЂРѕР±СѓРµРј РѕРїСЏС‚СЊ РїСЂРѕР№С‚РёСЃСЊ РїРѕ VMT Рё РїРѕРёСЃРєР°С‚СЊ РёС… РІ Р±Р°Р·Рµ Р·РЅР°РЅРёР№
     stepMask = StartProgress(TotalSize, "Scan Units: step 2");
     for (n = 0; n < TotalSize && !Terminated; n++)
     {
@@ -2387,7 +2387,7 @@ void __fastcall TAnalyzeThread::ScanCode1()
     }
     StopProgress();
     StartProgress(StdUnitsNum, "Scan Standard Units more: step1");
-    //Попробуем некоторые стандартные юниты
+    //РџРѕРїСЂРѕР±СѓРµРј РЅРµРєРѕС‚РѕСЂС‹Рµ СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ СЋРЅРёС‚С‹
     for (r = 0; !Terminated; r++)
     {
         UpdateProgress();
@@ -2405,7 +2405,7 @@ void __fastcall TAnalyzeThread::ScanCode1()
             recU = (UnitRec*)Units->Items[n];
             if (recU->trivial) continue;
 
-            //Анализируем непоименованные юниты
+            //РђРЅР°Р»РёР·РёСЂСѓРµРј РЅРµРїРѕРёРјРµРЅРѕРІР°РЅРЅС‹Рµ СЋРЅРёС‚С‹
             if (!recU->names->Count)
             {
                 recU->matchedPercent = 0.0;
@@ -2472,7 +2472,7 @@ void __fastcall TAnalyzeThread::ScanCode1()
         recU = (UnitRec*)Units->Items[n];
         if (recU->trivial) continue;
 
-        //Анализируем непоименованные юниты
+        //РђРЅР°Р»РёР·РёСЂСѓРµРј РЅРµРїРѕРёРјРµРЅРѕРІР°РЅРЅС‹Рµ СЋРЅРёС‚С‹
         if (!recU->names->Count)
         {
             fromPos = Adr2Pos(recU->fromAdr);
@@ -2588,7 +2588,7 @@ void __fastcall TAnalyzeThread::ScanConsts()
             {
                 UpdateAddrInStatusBar(u);
                 ModID = KnowledgeBase.GetModuleID(recU->names->Strings[u].c_str());
-                //Если из базы знаний, вытащим из нее информацию о ResStr
+                //Р•СЃР»Рё РёР· Р±Р°Р·С‹ Р·РЅР°РЅРёР№, РІС‹С‚Р°С‰РёРј РёР· РЅРµРµ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ ResStr
                 if (ModID != 0xFFFF)
                 {
                     for (n = Adr2Pos(recU->fromAdr); (n < Adr2Pos(recU->toAdr)) && !Terminated; n += 4)
@@ -3092,7 +3092,7 @@ void __fastcall TAnalyzeThread::PropagateClassProps()
         {
             BYTE typeKind = recN->kind;
             if (typeKind > ikProcedure) continue;
-            //Пройдемся по свойствам класса и поименуем процедуры
+            //РџСЂРѕР№РґРµРјСЃСЏ РїРѕ СЃРІРѕР№СЃС‚РІР°Рј РєР»Р°СЃСЃР° Рё РїРѕРёРјРµРЅСѓРµРј РїСЂРѕС†РµРґСѓСЂС‹
             if (typeKind == ikClass)
             {
                 int pos = n;
@@ -3319,7 +3319,7 @@ void __fastcall TAnalyzeThread::AnalyzeDC()
     PMethodRec  recM, recM1;
     DISINFO     disInfo;
 
-    //Создаем временный список пар (высота, адрес VMT)
+    //РЎРѕР·РґР°РµРј РІСЂРµРјРµРЅРЅС‹Р№ СЃРїРёСЃРѕРє РїР°СЂ (РІС‹СЃРѕС‚Р°, Р°РґСЂРµСЃ VMT)
     const int cntVmt = VmtList->Count;
     if (!cntVmt) return;
 

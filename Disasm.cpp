@@ -812,10 +812,12 @@ void __fastcall MDisasm::OutputMemAdr16(int argno, char* dst, DWORD arg, bool f1
 
     asm
     {
+        @formatter:off
         mov     ecx, [DIS]
         mov     edx, [ecx+5Ch]
         mov     al, [edx+ecx+3Ch]
         mov     [PostByte], al
+        @formatter:on
     }
     if ((PostByte & 0xC0) == 0xC0)  //mod=11
     {
@@ -1258,9 +1260,11 @@ bool        res;
 
     asm
     {
+        @formatter:off
         mov     ecx, [DIS]
         mov     al, [ecx+50h]
         mov     [res], al
+        @formatter:on
     }
     return res;
 }
@@ -1271,9 +1275,11 @@ bool        res;
 
     asm
     {
+        @formatter:off
         mov     ecx, [DIS]
         mov     al, [ecx+51h]
         mov     [res], al
+        @formatter:on
     }
     return res;
 }

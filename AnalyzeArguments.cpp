@@ -1167,7 +1167,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWORD fromAdr)
                 //delta = 4 and proc can be embbedded - allow that it really embedded
                 if (delta == 4 && (recN->procInfo->flags & PF_MAYBEEMBED))
                 {
-                	//Ñòàâèì ôëàæîê PF_EMBED
+                	//Ð¡Ñ‚Ð°Ð²Ð¸Ð¼ Ñ„Ð»Ð°Ð¶Ð¾Ðº PF_EMBED
                     recN->procInfo->flags |= PF_EMBED;
                     //Skip following after call instrcution "pop ecx"
                     for (int n = 0; n < recN->xrefs->Count; n++)

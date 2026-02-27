@@ -339,7 +339,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWORD fromAdr, bool addArg, bool A
             {
                 if (AnalyzeRetType)
                 {
-                    //Если тип регистра eax не пустой, находим ближайшую сверху инструкцию его инциализации
+                    //Р•СЃР»Рё С‚РёРї СЂРµРіРёСЃС‚СЂР° eax РЅРµ РїСѓСЃС‚РѕР№, РЅР°С…РѕРґРёРј Р±Р»РёР¶Р°Р№С€СѓСЋ СЃРІРµСЂС…Сѓ РёРЅСЃС‚СЂСѓРєС†РёСЋ РµРіРѕ РёРЅС†РёР°Р»РёР·Р°С†РёРё
                     if (registers[16].type != "")
                     {
                         for (Pos = curPos - 1; Pos >= fromPos; Pos--)
@@ -408,7 +408,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWORD fromAdr, bool addArg, bool A
             curPos += instrLen; curAdr += instrLen;
             continue;
         }
-        //Проверим, не попал ли внутрь инструкции Fixup или ThreadVar
+        //РџСЂРѕРІРµСЂРёРј, РЅРµ РїРѕРїР°Р» Р»Рё РІРЅСѓС‚СЂСЊ РёРЅСЃС‚СЂСѓРєС†РёРё Fixup РёР»Рё ThreadVar
         bool    NameInside = false;
         for (int k = 1; k < instrLen; k++)
         {
@@ -446,11 +446,11 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWORD fromAdr, bool addArg, bool A
 
             Pos = curPos + instrLen;
             Adr = curAdr + instrLen;
-            //Адрес таблицы - последние 4 байта инструкции
+            //РђРґСЂРµСЃ С‚Р°Р±Р»РёС†С‹ - РїРѕСЃР»РµРґРЅРёРµ 4 Р±Р°Р№С‚Р° РёРЅСЃС‚СЂСѓРєС†РёРё
             jTblAdr = *((DWORD*)(Code + Pos - 4));
-            //Анализируем промежуток на предмет таблицы cTbl
+            //РђРЅР°Р»РёР·РёСЂСѓРµРј РїСЂРѕРјРµР¶СѓС‚РѕРє РЅР° РїСЂРµРґРјРµС‚ С‚Р°Р±Р»РёС†С‹ cTbl
             if (Adr <= lastMovAdr && lastMovAdr < jTblAdr) cTblAdr = lastMovAdr;
-            //Если есть cTblAdr, пропускаем эту таблицу
+            //Р•СЃР»Рё РµСЃС‚СЊ cTblAdr, РїСЂРѕРїСѓСЃРєР°РµРј СЌС‚Сѓ С‚Р°Р±Р»РёС†Сѓ
             BYTE CTab[256];
             if (cTblAdr)
             {
@@ -599,10 +599,10 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWORD fromAdr, bool addArg, bool A
         if (registers[16].type != "" && registers[16].type[1] == '#')
         {
             DWORD dd = *((DWORD*)(registers[16].type.c_str()));
-            //Если был вызов функции @GetTls, смотрим след. инструкцию вида [eax+N]
+            //Р•СЃР»Рё Р±С‹Р» РІС‹Р·РѕРІ С„СѓРЅРєС†РёРё @GetTls, СЃРјРѕС‚СЂРёРј СЃР»РµРґ. РёРЅСЃС‚СЂСѓРєС†РёСЋ РІРёРґР° [eax+N]
             if (dd == 'SLT#')
             {
-                //Если нет внутреннего имени (Fixup, ThreadVar)
+                //Р•СЃР»Рё РЅРµС‚ РІРЅСѓС‚СЂРµРЅРЅРµРіРѕ РёРјРµРЅРё (Fixup, ThreadVar)
                 if (!NameInside)
                 {
                     //Destination (GlobalLists := TList.Create)
@@ -639,7 +639,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWORD fromAdr, bool addArg, bool A
 					//for constructor type is in eax
                     if (recN->kind == ikConstructor)
                     {
-                        //Если dl = 1, регистр eax после вызова используется
+                        //Р•СЃР»Рё dl = 1, СЂРµРіРёСЃС‚СЂ eax РїРѕСЃР»Рµ РІС‹Р·РѕРІР° РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ
                         if (registers[2].value == 1)
                         {
                             classAdr = GetClassAdr(registers[16].type);
