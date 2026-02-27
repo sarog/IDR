@@ -164,6 +164,8 @@ int __fastcall MDisasm::Disassemble(BYTE* from, __int64 address, PDISINFO pDisIn
 
     asm
     {
+        // @formatter:off
+        // clang-format off
         push    64h
         mov     ecx, [DIS]
         mov     edx, [ecx]
@@ -172,6 +174,8 @@ int __fastcall MDisasm::Disassemble(BYTE* from, __int64 address, PDISINFO pDisIn
         push    dword ptr [address]
         call    dword ptr [edx+18h]
         mov     [InstrLen], eax
+        // clang-format on
+        // @formatter:on
     }
 
     //If address of structure DISINFO not given, return only instruction length
@@ -276,10 +280,14 @@ void __fastcall MDisasm::FormatInstr(PDISINFO pDisInfo, char* disLine)
 
     asm
     {
+        // @formatter:off
+        // clang-format off
         mov     ecx, [DIS]
         mov     edx, [ecx+4Ch]
         mov     eax, [edx]
         mov     [OpName], eax
+        // @formatter:on
+        // clang-format on
     }
 
     if (!GetOperandSize())
@@ -318,11 +326,15 @@ void __fastcall MDisasm::FormatInstr(PDISINFO pDisInfo, char* disLine)
 
     asm
     {
+        // @formatter:off
+        // clang-format off
         mov     ecx, [DIS]
         mov     edx, [ecx+4Ch]
         mov     eax, [edx+4]
         add     eax, 9
         mov     [ArgInfo], eax
+        // @formatter:on
+        // clang-format on
     }
 
     for (i = 0; i < 3; i++)
@@ -337,6 +349,8 @@ void __fastcall MDisasm::FormatInstr(PDISINFO pDisInfo, char* disLine)
         }
         asm
         {
+            // @formatter:off
+            // clang-format off
             mov     ecx, [ArgInfo]
             xor     edx, edx
             xor     eax, eax
@@ -346,6 +360,8 @@ void __fastcall MDisasm::FormatInstr(PDISINFO pDisInfo, char* disLine)
             mov     [Cmd], eax
             add     ecx, 4
             mov     [ArgInfo], ecx
+            // @formatter:on
+            // clang-format on
         }
 
         FormatArg(i, Cmd, Arg, pDisInfo, disLine);
@@ -403,9 +419,13 @@ DWORD       res = 0;
 
     asm
     {
+        // @formatter:off
+        // clang-format off
         mov     ecx, [DIS]
         mov     eax, [ecx+68h]
         mov     [n], eax
+        // @formatter:on
+        // clang-format on
     }
 
     switch (n)
@@ -420,8 +440,12 @@ DWORD       res = 0;
     case 0x11:
         asm
         {
+            // @formatter:off
+            // clang-format off
             xor     eax, eax
             mov     dword ptr [res], eax
+            // @formatter:on
+            // clang-format on
         }
         break;
     case 4:
@@ -430,6 +454,8 @@ DWORD       res = 0;
     case 0xD:
         asm
         {
+            // @formatter:off
+            // clang-format off
             mov     ecx, [DIS]
             mov     eax, [ecx+64h]
             movsx   eax, byte ptr [eax+ecx+3Ch]
@@ -464,6 +490,8 @@ DWORD       res = 0;
             mov     eax, edi
             mov     edx, esi
             mov     dword ptr [res], eax
+            // @formatter:on
+            // clang-format on
         }
         break;
     case 5:
@@ -472,6 +500,8 @@ DWORD       res = 0;
     case 0xF:
         asm
         {
+            // @formatter:off
+            // clang-format off
             mov     al, [ecx+51h]
             test    al, al
             jz      @GA3
@@ -513,15 +543,21 @@ DWORD       res = 0;
             mov     eax, edi
             mov     edx, esi
             mov     dword ptr [res], eax
+            // @formatter:on
+            // clang-format on
         }
         break;
     case 6:
     case 0x10:
         asm
         {
+            // @formatter:off
+            // clang-format off
             mov     edx, [ecx+64h]
             mov     eax, [edx+ecx+3Ch]
             mov     dword ptr [res], eax
+            // @formatter:on
+            // clang-format on
         }
         break;
     }
@@ -574,10 +610,14 @@ int __fastcall MDisasm::EvaluateOperandSize()
     OperandSize = GetOperandSize();
     asm
     {
+        // @formatter:off
+        // clang-format off
         mov     ecx, [DIS]
         mov     ecx, [ecx+4Ch]
         mov     ecx, [ecx+4]
         mov     [Ofs], ecx
+        // @formatter:on
+        // clang-format on
     }
 
     OpSize = (!OperandSize) ? 2: 4;
@@ -662,11 +702,16 @@ void __fastcall MDisasm::OutputMemAdr32(int argno, char* dst, DWORD arg, bool f1
 
     asm
     {
+        // @formatter:off
+        // clang-format off
         mov     ecx, [DIS]
         mov     edx, [ecx+5Ch]
         mov     al, [edx+ecx+3Ch]
         mov     [PostByte], al
+        // @formatter:on
+        // clang-format on
     }
+
     mod = PostByte & 0xC0;
     if (mod == 0xC0)
     {
@@ -686,10 +731,14 @@ void __fastcall MDisasm::OutputMemAdr32(int argno, char* dst, DWORD arg, bool f1
 
     asm
     {
+        // @formatter:off
+        // clang-format off
         mov     ecx, [DIS]
         mov     edx, [ecx+5Ch]
         lea     eax, [edx+ecx+3Dh]
         mov     [pos], eax
+        // @formatter:on
+        // clang-format on
     }
 
     base = PostByte & 7;
@@ -717,7 +766,7 @@ void __fastcall MDisasm::OutputMemAdr32(int argno, char* dst, DWORD arg, bool f1
         if ((sib & 7) == 5 && !mod)
             ofs = true;
     }
-    
+
     offset32 = 0;
     if ((PostByte & 0xC0) == 0x40)  //mod=01
     {
@@ -812,11 +861,16 @@ void __fastcall MDisasm::OutputMemAdr16(int argno, char* dst, DWORD arg, bool f1
 
     asm
     {
+        // @formatter:off
+        // clang-format off
         mov     ecx, [DIS]
         mov     edx, [ecx+5Ch]
         mov     al, [edx+ecx+3Ch]
         mov     [PostByte], al
+        // @formatter:on
+        // clang-format on
     }
+
     if ((PostByte & 0xC0) == 0xC0)  //mod=11
     {
         if (!f1 && !f2)
@@ -855,6 +909,8 @@ void __fastcall MDisasm::OutputMemAdr16(int argno, char* dst, DWORD arg, bool f1
     {
         asm
         {
+            // @formatter:off
+            // clang-format off
             mov     ecx, [DIS]
             mov     edx, [ecx+5Ch]
             mov     al, [edx+ecx+3Dh]
@@ -870,6 +926,8 @@ void __fastcall MDisasm::OutputMemAdr16(int argno, char* dst, DWORD arg, bool f1
         @OM16_2:
             and     eax, 0FFh
             mov     [offset16], eax
+            // @formatter:on
+            // clang-format on
         }
     }
     else if ((PostByte & 0xC0) == 0x80) //mod=10
@@ -894,11 +952,15 @@ void __fastcall MDisasm::OutputMemAdr16(int argno, char* dst, DWORD arg, bool f1
         if (regcomb) strcat(dst, "+");
         asm
         {
+            // @formatter:off
+            // clang-format off
             mov     ecx, [DIS]
             mov     edx, [ecx+5Ch]
             xor     eax, eax
             mov     ax, [ecx+edx+3Dh]
             mov     [dval], eax
+            // @formatter:on
+            // clang-format on
         }
         pDisInfo->Offset = dval;
         sprintf(dst + strlen(dst), "%04lX]", dval);
@@ -931,19 +993,27 @@ void __fastcall MDisasm::FormatArg(int argno, DWORD cmd, DWORD arg, PDISINFO pDi
         {
             asm
             {
+                // @formatter:off
+                // clang-format off
                 mov     ecx, [DIS]
                 mov     edx, [ecx+64h]
                 xor     eax, eax
                 mov     ax, [edx+ecx+40h]
                 mov     [dval], eax
+                // @formatter:on
+                // clang-format on
             }
             p += sprintf(p, "%04lX:", dval);
             asm
             {
+                // @formatter:off
+                // clang-format off
                 mov     ecx, [DIS]
                 mov     edx, [ecx+64h]
                 mov     eax, [edx+ecx+3Ch]
                 mov     [dval], eax
+                // @formatter:on
+                // clang-format on
             }
             sprintf(p, "%08lX", dval);
         }
@@ -951,20 +1021,28 @@ void __fastcall MDisasm::FormatArg(int argno, DWORD cmd, DWORD arg, PDISINFO pDi
         {
             asm
             {
+                // @formatter:off
+                // clang-format off
                 mov     ecx, [DIS]
                 mov     edx, [ecx+64h]
                 xor     eax, eax
                 mov     ax, [edx+ecx+3Eh]
                 mov     [dval], eax
+                // @formatter:on
+                // clang-format on
             }
             p += sprintf(p, "%04lX:", dval);
             asm
             {
+                // @formatter:off
+                // clang-format off
                 mov     ecx, [DIS]
                 mov     edx, [ecx+64h]
                 xor     eax, eax
                 mov     ax, [edx+ecx+3Ch]
                 mov     [dval], eax
+                // @formatter:on
+                // clang-format on
             }
             sprintf(p, "%04lX", dval);
         }
@@ -1001,20 +1079,28 @@ void __fastcall MDisasm::FormatArg(int argno, DWORD cmd, DWORD arg, PDISINFO pDi
         {
             asm
             {
+                // @formatter:off
+                // clang-format off
                 mov     ecx, [DIS]
                 mov     edx, [ecx+64h]
                 movsx   eax, byte ptr [edx+ecx+3Ch]
                 mov     [dval], eax
+                // @formatter:on
+                // clang-format on
             }
         }
         else
         {
             asm
             {
+                // @formatter:off
+                // clang-format off
                 mov     ecx, [DIS]
                 mov     edx, [ecx+64h]
                 movzx   eax, byte ptr [edx+ecx+3Ch]
                 mov     [dval], eax
+                // @formatter:on
+                // clang-format on
             }
         }
         pDisInfo->Immediate = dval;
@@ -1026,11 +1112,15 @@ void __fastcall MDisasm::FormatArg(int argno, DWORD cmd, DWORD arg, PDISINFO pDi
     case 8:
         asm
         {
+            // @formatter:off
+            // clang-format off
             mov     ecx, [DIS]
             mov     edx, [ecx+64h]
             xor     eax, eax
             mov     al, [edx+ecx+3Eh]
             mov     [dval], eax
+            // @formatter:on
+            // clang-format on
         }
         pDisInfo->Immediate = dval;
         //pDisInfo->ImmPresent = true;
@@ -1044,21 +1134,29 @@ void __fastcall MDisasm::FormatArg(int argno, DWORD cmd, DWORD arg, PDISINFO pDi
         {
             asm
             {
+                // @formatter:off
+                // clang-format off
                 mov     ecx, [DIS]
                 mov     edx, [ecx+64h]
                 mov     eax, [edx+ecx+3Ch]
                 mov     [dval], eax
+                // @formatter:on
+                // clang-format on
             }
         }
         else
         {
             asm
             {
+                // @formatter:off
+                // clang-format off
                 mov     ecx, [DIS]
                 mov     edx, [ecx+64h]
                 xor     eax, eax
                 mov     ax, [edx+ecx+3Ch]
                 mov     [dval], eax
+                // @formatter:on
+                // clang-format on
             }
         }
         pDisInfo->Immediate = dval;
@@ -1070,11 +1168,15 @@ void __fastcall MDisasm::FormatArg(int argno, DWORD cmd, DWORD arg, PDISINFO pDi
     case 0xA:
         asm
         {
+            // @formatter:off
+            // clang-format off
             mov     ecx, [DIS]
             mov     edx, [ecx+64h]
             xor     eax, eax
             mov     ax, [edx+ecx+3Ch]
             mov     [dval], eax
+            // @formatter:on
+            // clang-format on
         }
         pDisInfo->Immediate = dval;
         //pDisInfo->ImmPresent = true;
@@ -1123,21 +1225,29 @@ void __fastcall MDisasm::FormatArg(int argno, DWORD cmd, DWORD arg, PDISINFO pDi
         {
             asm
             {
+                // @formatter:off
+                // clang-format off
                 mov     ecx, [DIS]
                 mov     edx, [ecx+64h]
                 mov     eax, [edx+ecx+3Ch]
                 mov     [dval], eax
+                // @formatter:on
+                // clang-format on
             }
         }
         else
         {
             asm
             {
+                // @formatter:off
+                // clang-format off
                 mov     ecx, [DIS]
                 mov     edx, [ecx+64h]
                 xor     eax, eax
                 mov     ax, [edx+ecx+3Ch]
                 mov     [dval], eax
+                // @formatter:on
+                // clang-format on
             }
         }
         sprintf(Op + strlen(Op), "[%08lX]", dval);
@@ -1255,12 +1365,15 @@ void __fastcall MDisasm::FormatArg(int argno, DWORD cmd, DWORD arg, PDISINFO pDi
 bool __fastcall MDisasm::GetAddressSize()
 {
 bool        res;
-
     asm
     {
+        // @formatter:off
+        // clang-format off
         mov     ecx, [DIS]
         mov     al, [ecx+50h]
         mov     [res], al
+        // @formatter:on
+        // clang-format on
     }
     return res;
 }
@@ -1268,12 +1381,15 @@ bool        res;
 bool __fastcall MDisasm::GetOperandSize()
 {
 bool        res;
-
     asm
     {
+        // @formatter:off
+        // clang-format off
         mov     ecx, [DIS]
         mov     al, [ecx+51h]
         mov     [res], al
+        // @formatter:on
+        // clang-format on
     }
     return res;
 }
@@ -1281,12 +1397,15 @@ bool        res;
 BYTE __fastcall MDisasm::GetSegPrefix()
 {
 BYTE        res;
-
     asm
     {
+        // @formatter:off
+        // clang-format off
         mov     ecx, [DIS]
         mov     al, [ecx+52h]
         mov     [res], al
+        // @formatter:on
+        // clang-format on
     }
     return res;
 }
@@ -1297,9 +1416,13 @@ BYTE        res;
 
     asm
     {
+        // @formatter:off
+        // clang-format off
         mov     ecx, [DIS]
         mov     al, [ecx+53h]
         mov     [res], al
+        // @formatter:on
+        // clang-format on
     }
     return res;
 }
@@ -1307,13 +1430,16 @@ BYTE        res;
 BYTE __fastcall MDisasm::GetCop()
 {
 BYTE        res;
-
     asm
     {
+        // @formatter:off
+        // clang-format off
         mov     ecx, [DIS]
         mov     eax, [ecx+58h]
         mov     al, [eax+ecx+3Ch]
         mov     [res], al
+        // @formatter:on
+        // clang-format on
     }
     return res;
 }
@@ -1324,10 +1450,14 @@ BYTE        res;
 
     asm
     {
+        // @formatter:off
+        // clang-format off
         mov     ecx, [DIS]
         mov     eax, [ecx+58h]
         mov     al, [eax+ecx+3Dh]
         mov     [res], al
+        // @formatter:on
+        // clang-format on
     }
     return res;
 }
@@ -1338,10 +1468,14 @@ BYTE         res;
 
     asm
     {
+        // @formatter:off
+        // clang-format off
         mov     ecx, [DIS]
         mov     eax, [ecx+5Ch]
         mov     al, [eax+ecx+3Ch]
         mov     [res], al
+        // @formatter:on
+        // clang-format on
     }
     return res;
 }
@@ -1350,10 +1484,14 @@ void __fastcall MDisasm::SetPostByte(BYTE b)
 {
     asm
     {
+        // @formatter:off
+        // clang-format off
         mov     ecx, [DIS]
         mov     edx, [ecx+5Ch]
         mov     al, [b]
         mov     [ecx+edx+3Ch], al
+        // @formatter:on
+        // clang-format on
     }
 }
 //---------------------------------------------------------------------------
@@ -1363,11 +1501,15 @@ BYTE         res;
 
     asm
     {
+        // @formatter:off
+        // clang-format off
         mov     ecx, [DIS]
         mov     eax, [ecx+5Ch]
         mov     al, [eax+ecx+3Ch]
         and     al, 0C0h
         mov     [res], al
+        // @formatter:on
+        // clang-format on
     }
     return res;
 }
@@ -1378,12 +1520,16 @@ int         res;
 
     asm
     {
+        // @formatter:off
+        // clang-format off
         mov     ecx, [DIS]
         mov     eax, [ecx+5Ch]
         mov     al, [eax+ecx+3Ch]
         shr     eax, 3
         and     eax, 7
         mov     [res], eax
+        // @formatter:on
+        // clang-format on
     }
     return res;
 }
@@ -1394,11 +1540,15 @@ int         res;
 
     asm
     {
+        // @formatter:off
+        // clang-format off
         mov     ecx, [DIS]
         mov     eax, [ecx+5Ch]
         mov     al, [eax+ecx+3Ch]
         and     eax, 7
         mov     [res], eax
+        // @formatter:on
+        // clang-format on
     }
     return res;
 }
@@ -1410,20 +1560,28 @@ void __fastcall MDisasm::SetOffset(DWORD ofs)
     {
         asm
         {
+            // @formatter:off
+            // clang-format off
             mov     ecx, [DIS]
             mov     edx, [ecx+64h]
             mov     eax, [ofs]
             mov     [edx+ecx+3Ch], eax
+            // @formatter:on
+            // clang-format on
         }
     }
     else
     {
         asm
         {
+            // @formatter:off
+            // clang-format off
             mov     ecx, [DIS]
             mov     edx, [ecx+64h]
             mov     eax, [ofs]
             mov     [edx+ecx+3Ch], ax
+            // @formatter:on
+            // clang-format on
         }
     }
 }
@@ -1432,11 +1590,15 @@ void __fastcall MDisasm::GetInstrBytes(BYTE* dst)
 {
     asm
     {
+        // @formatter:off
+        // clang-format off
         mov     ecx, [DIS]
         lea     esi, [ecx+3Ch]
         mov     edi, [dst]
         mov     ecx, [ecx+38h]
         rep     movsb
+        // @formatter:on
+        // clang-format on
     }
 }
 //---------------------------------------------------------------------------
