@@ -1,3 +1,15 @@
+#include "Main.h"
+#include "Misc.h"
+#include "Disasm.h"
+
+extern BYTE *Code;
+extern DWORD CodeBase;
+extern MDisasm Disasm;
+extern DWORD TotalSize;
+extern DWORD *Flags;
+extern PInfoRec *Infos;
+extern DWORD EP;
+
 //---------------------------------------------------------------------------
 //Create XRefs
 //Scan procedure calls (include constructors and destructors)

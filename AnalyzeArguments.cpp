@@ -1,3 +1,14 @@
+#include "Main.h"
+#include "Misc.h"
+#include "Disasm.h"
+
+extern BYTE *Code;
+extern DWORD CodeBase;
+extern MDisasm Disasm;
+extern DWORD EP;
+extern DWORD TotalSize;
+extern DWORD *Flags;
+
 //---------------------------------------------------------------------------
 String __fastcall TFMain_11011981::AnalyzeArguments(DWORD fromAdr)
 {

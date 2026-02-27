@@ -2,24 +2,23 @@
 #ifndef MainH
 #define MainH
 //---------------------------------------------------------------------------
+#include <System.Actions.hpp>
+#include <System.Classes.hpp>
+#include <Vcl.ActnList.hpp>
+#include <Vcl.ComCtrls.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.Dialogs.hpp>
+#include <Vcl.ExtCtrls.hpp>
+#include <Vcl.Grids.hpp>
+#include <Vcl.Menus.hpp>
+#include <Vcl.StdCtrls.hpp>
 #include <stdio.h>
-#include <Classes.hpp>
-#include <Controls.hpp>
-#include <StdCtrls.hpp>
-#include <Forms.hpp>
-#include <Menus.hpp>
-#include <Dialogs.hpp>
-#include <ComCtrls.hpp>
-#include <Grids.hpp>
-#include <ExtCtrls.hpp>
-#include <Buttons.hpp>
 #include "Disasm.h"
 #include "KnowledgeBase.h"
 #include "Resources.h"
 #include "Infos.h"
 #include "UFileDropper.h"
-#include <ActnList.hpp>
-#include "TntStdCtrls.hpp"
+// #include "TntStdCtrls.hpp"
 //---------------------------------------------------------------------------
 #define USER_KNOWLEDGEBASE      0x80000000
 #define SOURCE_LIBRARY          0x40000000
@@ -355,7 +354,7 @@ __published:	// IDE-managed Components
 	TTabSheet *tsClassView;
     TTreeView *tvClassesFull;
     TTabSheet *tsStrings;
-    TTntListBox *lbStrings;
+    TListBox *lbStrings; // TTntListBox *lbStrings;
     TPanel *Panel1;
     TPopupMenu *pmUnits;
     TMenuItem *miSearchUnit;
@@ -732,7 +731,7 @@ private:	// User declarations
     //void __fastcall ReadNode(TStream* stream, TTreeNode* node, char* buf);
     void __fastcall OpenProject(String FileName);
     bool __fastcall ImportsValid(DWORD ImpRVA, DWORD ImpSize);
-    int __fastcall LoadImage(FILE* f, int version, bool loadExp, bool loadImp);
+    int __fastcall LoadImageFile(FILE* f, int version, bool loadExp, bool loadImp);
     void __fastcall FindExports();
     void __fastcall FindImports();
     int __fastcall GetDelphiVersion();

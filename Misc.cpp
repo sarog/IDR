@@ -2,10 +2,11 @@
 #include <vcl.h>
 #pragma hdrstop
 
+#include <Dbghelp.h>
+#include <Vcl.Clipbrd.hpp>
 #include "Misc.h"
-#include <Imagehlp.h>
-#include "assert.h"
 #include "InputDlg.h"
+
 //---------------------------------------------------------------------------
 extern  int         dummy;
 extern  String      IDRVersion;
@@ -38,6 +39,7 @@ extern  char*       Reg16Tab[8];
 extern  char*       Reg32Tab[8];
 extern  char*       SegRegTab[8];
 
+/*
 //Add by ZGL-----------------------------------------------------------------
 WideString __fastcall TUnicodeClipboard::GetAsUnicodeText()
 {
@@ -87,6 +89,7 @@ String __fastcall UnicodeDecode(WideString Str, int CodePage)
     Result.SetLength(Len - 1);
     return Result;
 };
+*/
 //---------------------------------------------------------------------------
 void __fastcall ScaleForm(TForm* AForm)
 {
@@ -268,7 +271,7 @@ String __fastcall TrimTypeName(const String& TypeName)
         return TypeName;
     else
     {
-        char c, *p = TypeName.c_str();
+        char c, *p = AnsiString(TypeName).c_str();
         //Check special symbols upto '.'
         while (1)
         {
@@ -713,7 +716,7 @@ int __fastcall GetRecordSize(String AName)
 
     //File
     String _recFileName = FMain_11011981->WrkDir + "\\types.idr";
-    FILE* _recFile = fopen(_recFileName.c_str(), "rt");
+    FILE* _recFile = fopen(AnsiString(_recFileName).c_str(), "rt");
     if (_recFile)
     {
         while (1)
@@ -730,8 +733,8 @@ int __fastcall GetRecordSize(String AName)
         fclose(_recFile);
     }
     //KB
-    _uses = KnowledgeBase.GetTypeUses(AName.c_str());
-    _idx = KnowledgeBase.GetTypeIdxByModuleIds(_uses, AName.c_str());
+    _uses = KnowledgeBase.GetTypeUses(AnsiString(AName).c_str());
+    _idx = KnowledgeBase.GetTypeIdxByModuleIds(_uses, AnsiString(AName).c_str());
     if (_uses) delete[] _uses;
 
     if (_idx != -1)
@@ -820,7 +823,7 @@ int __fastcall GetRecordField(String ARecType, int AOfs, String& name, String& t
 
     //File
     String _recFileName = FMain_11011981->WrkDir + "\\types.idr";
-    FILE* _recFile = fopen(_recFileName.c_str(), "rt");
+    FILE* _recFile = fopen(AnsiString(_recFileName).c_str(), "rt");
     if (_recFile)
     {
         while (1)
@@ -865,8 +868,8 @@ int __fastcall GetRecordField(String ARecType, int AOfs, String& name, String& t
     {
         tries--;
         //KB
-        _uses = KnowledgeBase.GetTypeUses(ARecType.c_str());
-        _idx = KnowledgeBase.GetTypeIdxByModuleIds(_uses, ARecType.c_str());
+        _uses = KnowledgeBase.GetTypeUses(AnsiString(ARecType).c_str());
+        _idx = KnowledgeBase.GetTypeIdxByModuleIds(_uses, AnsiString(ARecType).c_str());
         if (_uses) delete[] _uses;
 
         if (_idx != -1)
@@ -1454,8 +1457,8 @@ int __fastcall GetTypeSize(String AName)
     WORD*       uses;
     MTypeInfo   tInfo;
 
-    uses = KnowledgeBase.GetTypeUses(AName.c_str());
-    idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AName.c_str());
+    uses = KnowledgeBase.GetTypeUses(AnsiString(AName).c_str());
+    idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(AName).c_str());
     if (uses) delete[] uses;
 
     if (idx != -1)
@@ -1530,8 +1533,8 @@ String __fastcall GetTypeDeref(String ATypeName)
     if (ATypeName[1] == '^') return ATypeName.SubString(2, ATypeName.Length());
 
     //Scan knowledgeBase
-    uses = KnowledgeBase.GetTypeUses(ATypeName.c_str());
-    idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, ATypeName.c_str());
+    uses = KnowledgeBase.GetTypeUses(AnsiString(ATypeName).c_str());
+    idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(ATypeName).c_str());
     if (uses) delete[] uses;
 
     if (idx != -1)
@@ -1656,8 +1659,8 @@ BYTE __fastcall GetTypeKind(String AName, int* size)
         }
 
         //Scan KB
-        uses = KnowledgeBase.GetTypeUses(name.c_str());
-        idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, name.c_str());
+        uses = KnowledgeBase.GetTypeUses(AnsiString(name).c_str());
+        idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(name).c_str());
         if (uses) delete[] uses;
 
         if (idx != -1)
@@ -1752,7 +1755,7 @@ BYTE __fastcall GetTypeKind(String AName, int* size)
         //File
         /*
         String recFileName = FMain_11011981->WrkDir + "\\types.idr";
-        FILE* recFile = fopen(recFileName.c_str(), "rt");
+        FILE* recFile = fopen(AnsiString(recFileName).c_str(), "rt");
         if (recFile)
         {
             while (1)
@@ -1885,7 +1888,7 @@ String __fastcall GetEnumerationString(String TypeName, Variant Val)
     MTypeInfo   tInfo;
     String      clsName;
 
-    if (Val.Type() == varString) return String(Val);
+    if (Val.Type() == varString) return VarToStr(Val);
 
     _val = Val;
 
@@ -1949,8 +1952,8 @@ String __fastcall GetEnumerationString(String TypeName, Variant Val)
     //Try get from KB
     else
     {
-        uses = KnowledgeBase.GetTypeUses(TypeName.c_str());
-        idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, TypeName.c_str());
+        uses = KnowledgeBase.GetTypeUses(AnsiString(TypeName).c_str());
+        idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(TypeName).c_str());
         if (uses) delete[] uses;
 
         if (idx != -1)
@@ -1959,11 +1962,11 @@ String __fastcall GetEnumerationString(String TypeName, Variant Val)
             if (KnowledgeBase.GetTypeInfo(idx, INFO_FIELDS | INFO_PROPS | INFO_METHODS | INFO_DUMP, &tInfo))
             {
                 if (tInfo.Kind == drRangeDef)
-                    return String(Val);
+                    return VarToStr(Val);
                 //if (SameText(TypeName, tInfo.TypeName) && tInfo.Decl != "")
                 if (tInfo.Decl != "")
                 {
-                    p = tInfo.Decl.c_str();
+                    p = AnsiString(tInfo.Decl).c_str();
                     e = p;
                     for (n = 0; n <= _val; n++)
                     {
@@ -1989,8 +1992,8 @@ String __fastcall GetSetString(String TypeName, BYTE* ValAdr)
     String      name, result = "";
 
     //Get from KB
-    uses = KnowledgeBase.GetTypeUses(TypeName.c_str());
-    idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, TypeName.c_str());
+    uses = KnowledgeBase.GetTypeUses(AnsiString(TypeName).c_str());
+    idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(TypeName).c_str());
     if (uses) delete[] uses;
 
     if (idx != -1)
@@ -2002,8 +2005,8 @@ String __fastcall GetSetString(String TypeName, BYTE* ValAdr)
             {
                 size = tInfo.Size;
                 name = TrimTypeName(tInfo.Decl.SubString(8, TypeName.Length()));
-                uses = KnowledgeBase.GetTypeUses(name.c_str());
-                idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, name.c_str());
+                uses = KnowledgeBase.GetTypeUses(AnsiString(name).c_str());
+                idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(name).c_str());
                 if (uses) delete[] uses;
 
                 if (idx != -1)
@@ -2012,7 +2015,7 @@ String __fastcall GetSetString(String TypeName, BYTE* ValAdr)
                     if (KnowledgeBase.GetTypeInfo(idx, INFO_DUMP, &tInfo))
                     {
                         pVal = ValAdr;
-                        pDecl = tInfo.Decl.c_str();
+                        pDecl = AnsiString(tInfo.Decl).c_str();
                         p = strtok(pDecl, ",()");
                         for (n = 0; n < size; n++)
                         {
@@ -2253,7 +2256,7 @@ bool __fastcall GetArrayIndexes(String arrType, int ADim, int* LowIdx, int* High
     String      _item, _item1, _item2;
 
     *LowIdx = 1; *HighIdx = 1;//by default
-    strcpy(StringBuf, arrType.c_str());
+    strcpy(StringBuf, AnsiString(arrType).c_str());
     p = strchr(StringBuf, '[');
     if (!p) return false;
     p++; b = p; _dim = 0;
@@ -2301,7 +2304,7 @@ int __fastcall GetArraySize(String arrType)
     _elTypeSize = GetArrayElementTypeSize(arrType);
     if (_elTypeSize == 0) return 0;
 
-    strcpy(StringBuf, arrType.c_str());
+    strcpy(StringBuf, AnsiString(arrType).c_str());
     p = strchr(StringBuf, '[');
     if (!p) return 0;
     p++; b = p; _dim = 0;
@@ -2354,7 +2357,7 @@ String __fastcall GetArrayElement(String arrType, int offset)
 
     _elTypeSize = GetArrayElementTypeSize(arrType);
 
-    strcpy(StringBuf, arrType.c_str());
+    strcpy(StringBuf, AnsiString(arrType).c_str());
     p = strchr(StringBuf, '[');
     if (!p) return "";
     p++; b = p; _dim = 0;
@@ -2433,7 +2436,8 @@ void __fastcall Copy2Clipboard(TStrings* items, int leftMargin, bool asmCode)
             }
 
             *p = 0;
-            ((TUnicodeClipboard *)Clipboard())->AsUnicodeText = buf;
+            // ((TUnicodeClipboard *)Clipboard())->AsUnicodeText = buf;
+            Clipboard()->SetTextBuf(String(buf).c_str());
             Clipboard()->Close();
 
             delete[] buf;
@@ -2446,13 +2450,13 @@ void __fastcall Copy2Clipboard(TStrings* items, int leftMargin, bool asmCode)
 String __fastcall GetModuleVersion(const String& module)
 {
     DWORD dwDummy;
-    DWORD dwFVISize = GetFileVersionInfoSize(module.c_str(), &dwDummy);
+    DWORD dwFVISize = GetFileVersionInfoSize(AnsiString(module).c_str(), &dwDummy);
     if (!dwFVISize) return "";
 
     String strVersion = ""; //empty means not found, etc - some error
 
     LPBYTE lpVersionInfo = new BYTE[dwFVISize];
-    if (GetFileVersionInfo(module.c_str(), 0, dwFVISize, lpVersionInfo))
+    if (GetFileVersionInfo(AnsiString(module).c_str(), 0, dwFVISize, lpVersionInfo))
     {
         UINT uLen;
         VS_FIXEDFILEINFO *lpFfi;
@@ -2465,7 +2469,7 @@ String __fastcall GetModuleVersion(const String& module)
             DWORD dwSecondRight   = HIWORD(dwFileVersionLS);
             DWORD dwRightMost     = LOWORD(dwFileVersionLS);
 
-            strVersion.sprintf("%d.%d.%d.%d", dwLeftMost, dwSecondLeft, dwSecondRight, dwRightMost);
+            strVersion.sprintf(L"%d.%d.%d.%d", dwLeftMost, dwSecondLeft, dwSecondRight, dwRightMost);
         }
     }
     delete[] lpVersionInfo;

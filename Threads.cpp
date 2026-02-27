@@ -1291,7 +1291,7 @@ void __fastcall TAnalyzeThread::FindVMTs()
             //if (!IsValidName(len, n + 1)) continue;
             String TypeName = String((char*)(Code + n + 1), len);
             UpdateStatusBar(TypeName);
-            
+
             //Add to TypeList
             PTypeRec recT = new TypeRec;
             recT->kind = ikVMT;
@@ -1495,7 +1495,7 @@ void __fastcall TAnalyzeThread::FindVMTs()
                     if (DelphiVersion >= 2012)
                     {
                         //VirtCount
-                        bytes += 2;     
+                        bytes += 2;
                     }
                 }
                 //Use MethodTable
@@ -1558,8 +1558,8 @@ void __fastcall TAnalyzeThread::StrapVMTs()
         {
             String _name = recN->GetName();
             String ConstName = "_DV_" + _name;
-            WORD *uses = KnowledgeBase.GetConstUses(ConstName.c_str());
-            int ConstIdx = KnowledgeBase.GetConstIdx(uses, ConstName.c_str());
+            WORD *uses = KnowledgeBase.GetConstUses(AnsiString(ConstName).c_str());
+            int ConstIdx = KnowledgeBase.GetConstIdx(uses, AnsiString(ConstName).c_str());
             if (ConstIdx != -1)
             {
                 ConstIdx = KnowledgeBase.ConstOffsets[ConstIdx].NamId;
@@ -1595,10 +1595,10 @@ void __fastcall TAnalyzeThread::FindTypeFields()
             {
                 for (int u = 0; u < recU->names->Count && !Terminated; u++)
                 {
-                    WORD ModuleID = KnowledgeBase.GetModuleID(recU->names->Strings[u].c_str());
+                    WORD ModuleID = KnowledgeBase.GetModuleID(AnsiString(recU->names->Strings[u]).c_str());
                     WORD *uses = KnowledgeBase.GetModuleUses(ModuleID);
                     //Find Type to extract information about fields
-                    int TypeIdx = KnowledgeBase.GetTypeIdxByModuleIds(uses, recN->GetName().c_str());
+                    int TypeIdx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(recN->GetName()).c_str());
                     if (TypeIdx != -1)
                     {
                         TypeIdx = KnowledgeBase.TypeOffsets[TypeIdx].NamId;
@@ -1688,10 +1688,10 @@ void __fastcall TAnalyzeThread::FindPrototypes()
             //try find arguments
             //FullName
             importName = _name.SubString(dot + 1, len);
-            usesNum = KnowledgeBase.GetProcUses(importName.c_str(), uses);
+            usesNum = KnowledgeBase.GetProcUses(AnsiString(importName).c_str(), uses);
             for (m = 0; m < usesNum && !Terminated; m++)
             {
-                idx = KnowledgeBase.GetProcIdx(uses[m], importName.c_str());
+                idx = KnowledgeBase.GetProcIdx(uses[m], AnsiString(importName).c_str());
                 if (idx != -1)
                 {
                     idx = KnowledgeBase.ProcOffsets[idx].NamId;
@@ -1731,10 +1731,10 @@ void __fastcall TAnalyzeThread::FindPrototypes()
             {
                 //try short name
                 importName = _name.SubString(dot + 1, len - dot - 1);
-                usesNum = KnowledgeBase.GetProcUses(importName.c_str(), uses);
+                usesNum = KnowledgeBase.GetProcUses(AnsiString(importName).c_str(), uses);
                 for (m = 0; m < usesNum && !Terminated; m++)
                 {
-                    idx = KnowledgeBase.GetProcIdx(uses[m], importName.c_str());
+                    idx = KnowledgeBase.GetProcIdx(uses[m], AnsiString(importName).c_str());
                     if (idx != -1)
                     {
                         idx = KnowledgeBase.ProcOffsets[idx].NamId;
@@ -1775,10 +1775,10 @@ void __fastcall TAnalyzeThread::FindPrototypes()
                 //try without arguments
                 //FullName
                 importName = _name.SubString(dot + 1, len - dot);
-                usesNum = KnowledgeBase.GetProcUses(importName.c_str(), uses);
+                usesNum = KnowledgeBase.GetProcUses(AnsiString(importName).c_str(), uses);
                 for (m = 0; m < usesNum && !Terminated; m++)
                 {
-                    idx = KnowledgeBase.GetProcIdx(uses[m], importName.c_str());
+                    idx = KnowledgeBase.GetProcIdx(uses[m], AnsiString(importName).c_str());
                     if (idx != -1)
                     {
                         idx = KnowledgeBase.ProcOffsets[idx].NamId;
@@ -1804,10 +1804,10 @@ void __fastcall TAnalyzeThread::FindPrototypes()
                 //try without arguments
                 //ShortName
                 importName = _name.SubString(dot + 1, len - dot - 1);
-                usesNum = KnowledgeBase.GetProcUses(importName.c_str(), uses);
+                usesNum = KnowledgeBase.GetProcUses(AnsiString(importName).c_str(), uses);
                 for (m = 0; m < usesNum && !Terminated; m++)
                 {
-                    idx = KnowledgeBase.GetProcIdx(uses[m], importName.c_str());
+                    idx = KnowledgeBase.GetProcIdx(uses[m], AnsiString(importName).c_str());
                     if (idx != -1)
                     {
                         idx = KnowledgeBase.ProcOffsets[idx].NamId;
@@ -1873,7 +1873,7 @@ void __fastcall TAnalyzeThread::FindPrototypes()
                                     //eax always Self
                                     recN1->procInfo->AddArg(0x21, 0, 4, "Self", className);
                                     //transform declaration to arguments
-                                    recN1->procInfo->AddArgsFromDeclaration(tInfo->Decl.c_str(), 1, 0);
+                                    recN1->procInfo->AddArgsFromDeclaration(AnsiString(tInfo->Decl).c_str(), 1, 0);
                                     break;
                                 }
                                 clsname = GetParentName(clsname);
@@ -1921,7 +1921,7 @@ void __fastcall TAnalyzeThread::FindPrototypes()
                                         //eax always Self
                                         recN1->procInfo->AddArg(0x21, 0, 4, "Self", className);
                                         //transform declaration to arguments
-                                        recN1->procInfo->AddArgsFromDeclaration(tInfo->Decl.c_str(), 1, 0);
+                                        recN1->procInfo->AddArgsFromDeclaration(AnsiString(tInfo->Decl).c_str(), 1, 0);
                                         break;
                                     }
                                     clsname = GetParentName(clsname);
@@ -1993,12 +1993,12 @@ void __fastcall TAnalyzeThread::ScanCode()
 
             for (u = 0; u < recU->names->Count && !Terminated; u++)
             {
-                moduleID = KnowledgeBase.GetModuleID(recU->names->Strings[u].c_str());
+                moduleID = KnowledgeBase.GetModuleID(AnsiString(recU->names->Strings[u]).c_str());
                 if (moduleID == 0xFFFF) continue;
 
                 recU->kb = true;
                 //If unit is in knowledge base try to find proc Initialization
-                Idx = KnowledgeBase.GetProcIdx(moduleID, recU->names->Strings[u].c_str());
+                Idx = KnowledgeBase.GetProcIdx(moduleID, AnsiString(recU->names->Strings[u]).c_str());
                 if (Idx != -1)
                 {
                     Idx = KnowledgeBase.ProcOffsets[Idx].NamId;
@@ -2020,7 +2020,7 @@ void __fastcall TAnalyzeThread::ScanCode()
 
             for (u = 0; u < recU->names->Count && !Terminated; u++)
             {
-                moduleID = KnowledgeBase.GetModuleID(recU->names->Strings[u].c_str());
+                moduleID = KnowledgeBase.GetModuleID(AnsiString(recU->names->Strings[u]).c_str());
                 if (moduleID == 0xFFFF) continue;
 
                 recU->kb = true;
@@ -2200,13 +2200,13 @@ void __fastcall TAnalyzeThread::ScanCode()
 
         fromPos = Adr2Pos(recU->fromAdr);
         toPos = Adr2Pos(recU->toAdr);
-        //Delphi2 - it is possible that toPos = -1 
+        //Delphi2 - it is possible that toPos = -1
         if (toPos == -1) toPos = TotalSize;
 
         for (u = 0; u < recU->names->Count && !Terminated; u++)
         {
             unitName = recU->names->Strings[u];
-            moduleID = KnowledgeBase.GetModuleID(unitName.c_str());
+            moduleID = KnowledgeBase.GetModuleID(AnsiString(unitName).c_str());
             if (moduleID == 0xFFFF) continue;
 
             if (!KnowledgeBase.GetProcIdxs(moduleID, &FirstProcIdx, &LastProcIdx, &DumpSize)) continue;
@@ -2264,7 +2264,7 @@ void __fastcall TAnalyzeThread::ScanCode()
     	if (recN && recN->kind == ikVMT)
         {
             String ConstName = "_DV_" + recN->GetName();
-            Num = KnowledgeBase.GetConstIdxs(ConstName.c_str(), &Idx);
+            Num = KnowledgeBase.GetConstIdxs(AnsiString(ConstName).c_str(), &Idx);
             if (Num == 1)
             {
                 Adr = Pos2Adr(n);
@@ -2278,7 +2278,7 @@ void __fastcall TAnalyzeThread::ScanCode()
                     {
                         moduleID = cInfo->ModuleID;
                         if (!KnowledgeBase.GetProcIdxs(moduleID, &FirstProcIdx, &LastProcIdx)) continue;
-                        
+
                         fromPos = Adr2Pos(recU->fromAdr);
                         toPos = Adr2Pos(recU->toAdr);
                         for (m = fromPos; m < toPos && !Terminated; m++)
@@ -2346,7 +2346,7 @@ void __fastcall TAnalyzeThread::ScanCode1()
 
         for (u = 0; u < recU->names->Count && !Terminated; u++)
         {
-            moduleID = KnowledgeBase.GetModuleID(recU->names->Strings[u].c_str());
+            moduleID = KnowledgeBase.GetModuleID(AnsiString(recU->names->Strings[u]).c_str());
             if (moduleID == 0xFFFF) continue;
 
             if (!KnowledgeBase.GetProcIdxs(moduleID, &FirstProcIdx, &LastProcIdx)) continue;
@@ -2567,7 +2567,7 @@ void __fastcall TAnalyzeThread::ScanConsts()
     if (Terminated) return;
     if (HInstanceVarAdr == 0xFFFFFFFF) return;
 
-    HINSTANCE hInst = LoadLibraryEx(mainForm->SourceFile.c_str(), 0, LOAD_LIBRARY_AS_DATAFILE);//DONT_RESOLVE_DLL_REFERENCES);
+    HINSTANCE hInst = LoadLibraryEx(AnsiString(mainForm->SourceFile).c_str(), 0, LOAD_LIBRARY_AS_DATAFILE);//DONT_RESOLVE_DLL_REFERENCES);
     if (!hInst) return;
 
     //Array of counters for units frequences
@@ -2587,7 +2587,7 @@ void __fastcall TAnalyzeThread::ScanConsts()
             for (u = 0; u < recU->names->Count && !Terminated; u++)
             {
                 UpdateAddrInStatusBar(u);
-                ModID = KnowledgeBase.GetModuleID(recU->names->Strings[u].c_str());
+                ModID = KnowledgeBase.GetModuleID(AnsiString(recU->names->Strings[u]).c_str());
                 //Если из базы знаний, вытащим из нее информацию о ResStr
                 if (ModID != 0xFFFF)
                 {
@@ -2838,7 +2838,7 @@ void __fastcall TAnalyzeThread::ScanConsts()
             }
         }
     }
-    FreeLibrary(hInst);    
+    FreeLibrary(hInst);
     StopProgress();
     delete[] Counters;
 }
@@ -3301,7 +3301,7 @@ void __fastcall TAnalyzeThread::FillClassViewer()
     }
 
     mainForm->tvClassesFull->Items->EndUpdate();
-    
+
     ProjectModified = true;
     ClassTreeDone = true;
     delete tmpList;

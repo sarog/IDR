@@ -4,7 +4,7 @@
   <MACROS>
     <VERSION value="BCB.06.00"/>
     <PROJECT value="C:\PAPA\IDR\Idr.exe"/>
-    <OBJFILES value="obj\Idr.obj obj\Main.obj obj\TypeInfo.obj obj\StringInfo.obj 
+    <OBJFILES value="obj\Idr.obj obj\Main.obj obj\TypeInfo2.obj obj\StringInfo.obj
       obj\Explorer.obj obj\KnowledgeBase.obj obj\Disasm.obj obj\Threads.obj 
       obj\InputDlg.obj obj\FindDlg.obj obj\Infos.obj obj\EditFunctionDlg.obj 
       obj\UFileDropper.obj obj\AboutDlg.obj obj\Resources.obj 
@@ -16,7 +16,7 @@
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
     <DEFFILE value=""/>
-    <RESDEPEN value="$(RESFILES) Main.dfm TypeInfo.dfm StringInfo.dfm Explorer.dfm InputDlg.dfm 
+    <RESDEPEN value="$(RESFILES) Main.dfm TypeInfo2.dfm StringInfo.dfm Explorer.dfm InputDlg.dfm
       FindDlg.dfm EditFunctionDlg.dfm AboutDlg.dfm EditFieldsDlg.dfm 
       KBViewer.dfm UfrmFormTree.dfm Legend.dfm Hex2Double.dfm Plugins.dfm 
       ActiveProcesses.dfm IdcSplitSize.dfm ProgressBar.dfm"/>
@@ -70,7 +70,7 @@
       <FILE FILENAME="Idr.cpp" FORMNAME="" UNITNAME="Idr" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Idr.res" FORMNAME="" UNITNAME="Idr.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Main.cpp" FORMNAME="FMain_11011981" UNITNAME="Main" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="TypeInfo.cpp" FORMNAME="FTypeInfo_11011981" UNITNAME="TypeInfo" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="TypeInfo2.cpp" FORMNAME="FTypeInfo_11011981" UNITNAME="TypeInfo" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="StringInfo.cpp" FORMNAME="FStringInfo_11011981" UNITNAME="StringInfo" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Explorer.cpp" FORMNAME="FExplorer_11011981" UNITNAME="Explorer" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="KnowledgeBase.cpp" FORMNAME="" UNITNAME="KnowledgeBase" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>

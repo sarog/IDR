@@ -1,11 +1,15 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
 #pragma hdrstop
+#include <tchar.h>
 
-#include "SyncObjs.hpp"
+// #include "SyncObjs.hpp"
+
+#include <Vcl.Styles.hpp>
+#include <Vcl.Themes.hpp>
 
 USEFORM("Main.cpp", FMain_11011981);
-USEFORM("TypeInfo.cpp", FTypeInfo_11011981);
+USEFORM("TypeInfo2.cpp", FTypeInfo_11011981);
 USEFORM("StringInfo.cpp", FStringInfo_11011981);
 USEFORM("Explorer.cpp", FExplorer_11011981);
 USEFORM("InputDlg.cpp", FInputDlg_11011981);
@@ -22,13 +26,14 @@ USEFORM("ActiveProcesses.cpp", FActiveProcesses);
 USEFORM("IdcSplitSize.cpp", FIdcSplitSize);
 USEFORM("ProgressBar.cpp", FProgressBar);
 //---------------------------------------------------------------------------
-WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+int WINAPI _tWinMain (HINSTANCE, HINSTANCE, LPTSTR, int)
 {
     try
     {
          Randomize();
          Application->Initialize();
          Application->HelpFile = "";
+        Application->MainFormOnTaskBar = true;
 		 Application->CreateForm(__classid(TFMain_11011981), &FMain_11011981);
          Application->CreateForm(__classid(TFExplorer_11011981), &FExplorer_11011981);
          Application->CreateForm(__classid(TFTypeInfo_11011981), &FTypeInfo_11011981);

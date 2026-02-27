@@ -3,14 +3,13 @@
 #ifndef ActiveProcessesH
 #define ActiveProcessesH
 //---------------------------------------------------------------------------
-#include <tlhelp32.h>
-#include <Classes.hpp>
-#include <Controls.hpp>
-#include <StdCtrls.hpp>
-#include <Forms.hpp>
-#include <ComCtrls.hpp>
-#include <psapi.h>
-#include <tlhelp32.h>
+#include <System.Classes.hpp>
+#include <Vcl.ComCtrls.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.StdCtrls.hpp>
+#include <Vcl.Menus.hpp>
+#include <TlHelp32.h>
+#include <Psapi.h>
 //---------------------------------------------------------------------------
 class TFActiveProcesses : public TForm
 {

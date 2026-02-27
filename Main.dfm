@@ -284,7 +284,7 @@ object FMain_11011981: TFMain_11011981
     object tsStrings: TTabSheet
       Caption = 'Strings (F8)'
       ImageIndex = 2
-      object lbStrings: TTntListBox
+      object lbStrings: TListBox
         Left = 0
         Top = 25
         Width = 646

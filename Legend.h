@@ -2,10 +2,10 @@
 #ifndef LegendH
 #define LegendH
 //---------------------------------------------------------------------------
-#include <Classes.hpp>
-#include <Controls.hpp>
-#include <StdCtrls.hpp>
-#include <Forms.hpp>
+#include <System.Classes.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.StdCtrls.hpp>
+
 //---------------------------------------------------------------------------
 class TFLegend_11011981 : public TForm
 {

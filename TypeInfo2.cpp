@@ -2,7 +2,7 @@
 #include <vcl.h>
 #pragma hdrstop
 
-#include "TypeInfo.h"
+#include "TypeInfo2.h"
 #include "Main.h"
 #include "Misc.h"
 //---------------------------------------------------------------------------

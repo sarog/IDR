@@ -2,8 +2,6 @@
 #ifndef UFileDropperH
 #define UFileDropperH
 
-#include <classes.hpp>
-
 //
 //simple class that allow/disallow drag-drop support for window
 //

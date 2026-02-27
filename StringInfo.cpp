@@ -6,7 +6,6 @@
 #include "Misc.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
-#pragma link "TntStdCtrls"
 #pragma resource "*.dfm"
 TFStringInfo_11011981 *FStringInfo_11011981;
 //---------------------------------------------------------------------------

@@ -33,7 +33,7 @@ String TFileDropper::GetFile(int Index)
     
     String res;
     res.SetLength(FileNameLength);
-    ::DragQueryFile(DropHandle, Index, res.c_str(), FileNameLength + 1);
+    ::DragQueryFile(DropHandle, Index, AnsiString(res).c_str(), FileNameLength + 1);
 
     return res;
 }

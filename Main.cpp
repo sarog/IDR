@@ -3,17 +3,14 @@
 #include <vcl.h>
 #pragma hdrstop
 
-#include "SyncObjs.hpp"
-#include <dir.h>
-#include <io.h>
-#include <stdio.h>
-#include <winnt.h>
-#include <winnls.h>
+#include <System.IniFiles.hpp>
+#include <Vcl.Clipbrd.hpp>
+
 #include "Main.h"
 #include "Misc.h"
 #include "Threads.h"
 #include "ProgressBar.h"
-#include "TypeInfo.h"
+#include "TypeInfo2.h"
 #include "StringInfo.h"
 #include "StrUtils.hpp"
 #include "FindDlg.h"
@@ -31,13 +28,12 @@
 #include "Hex2Double.h"
 #include "Plugins.h"
 #include "ActiveProcesses.h"
-#include <ComCtrls.hpp>
-#include <Chart.hpp>
 #include <Outline.hpp>
 #include <Tabnotbk.hpp>
+#include <ComCtrls.hpp>
 #include <IniFiles.hpp>
 #include <Registry.hpp>
-#include <assert.h>
+
 /*
 //----Highlighting-----------------------------------------------------------
 #include "Highlight.h"
@@ -47,7 +43,6 @@ int         DelphiThemesCount;
 */
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
-#pragma link "TntStdCtrls"
 #pragma resource "*.dfm"
 #pragma resource "idr_manifest.res"
 //---------------------------------------------------------------------------
@@ -55,7 +50,7 @@ int         DelphiThemesCount;
 //unsigned long stat_GetClassAdr_calls = 0;
 //unsigned long stat_GetClassAdr_adds = 0;
 //---------------------------------------------------------------------------
-String  IDRVersion = "01.04.2017"; 
+String  IDRVersion = "2026-02-27";
 //---------------------------------------------------------------------------
 SysProcInfo    SysProcs[] = {
     {"@HandleFinally", 0},
@@ -87,6 +82,10 @@ extern  char*   SegRegTab[8];
 extern  char*   RepPrefixTab[4];
 
 extern  RegClassInfo RegClasses[];
+
+int __fastcall SortRTTIsByAdr(void *item1, void *item2);
+int __fastcall SortRTTIsByKnd(void *item1, void *item2);
+int __fastcall SortRTTIsByNam(void *item1, void *item2);
 
 String          cmdAdr = "";
 
@@ -244,7 +243,7 @@ void __fastcall TFMain_11011981::FormKeyDown(TObject *Sender, WORD &Key,
                 break;
             case SEARCH_NAMES:
                 miSearchNameClick(Sender);
-                break;            
+                break;
             //todo rest of locations
             }
         }
@@ -264,7 +263,7 @@ void __fastcall TFMain_11011981::FormKeyDown(TObject *Sender, WORD &Key,
             break;
         case SEARCH_FORMS:
             FindText(FormsSearchText);
-            break;            
+            break;
         case SEARCH_CLASSVIEWER:
             FindText(VMTsSearchText);
             break;
@@ -272,8 +271,8 @@ void __fastcall TFMain_11011981::FormKeyDown(TObject *Sender, WORD &Key,
         	FindText(StringsSearchText);
             break;
         case SEARCH_NAMES:
-        	FindText(NamesSearchText);        
-            break;            
+        	FindText(NamesSearchText);
+            break;
         }
         break;
     }
@@ -566,7 +565,7 @@ void __fastcall TFMain_11011981::FindImports()
                     }
                     else
                     {
-                        b = strchr(recI->name.c_str() + 1, '@');
+                        b = strchr(AnsiString(recI->name).c_str() + 1, '@');
                         if (b)
                         {
                             e = strchr(b + 1, '$');
@@ -1035,7 +1034,7 @@ pos = pos;
             recN->kind = ikProc;
             break;
         }
-        
+
         recN->kbIdx = ProcIdx;
         recN->SetName(ProcInfo->ProcName);
         //Get Args
@@ -1055,7 +1054,7 @@ pos = pos;
                     int locflags = *((int*)p); p += 4;
 
                     if ((locflags & 7) == 1) argInfo.Tag = 0x23;  //Add by ZGL
-                    
+
                     argInfo.Register = (locflags & 8);
                     //Ndx
                     int ndx = *((int*)p); p += 4;
@@ -1227,7 +1226,7 @@ pos = pos;
                 }
                 continue;
             }
-        
+
             if (Adr >= ProcStart && Adr < ProcEnd) continue;
 
             if (isHInstance)
@@ -1537,7 +1536,7 @@ int __fastcall TFMain_11011981::GetDelphiVersion()
     if (IsExtendedInitTab(&unitsTab))//>=2010
     {
         KBFileName = AppDir + "syskb2014.bin";
-        if (SysKB.Open(KBFileName.c_str()))
+        if (SysKB.Open(AnsiString(KBFileName).c_str()))
         {
             moduleID = SysKB.GetModuleID("System");
             if (moduleID != 0xFFFF)
@@ -1558,7 +1557,7 @@ int __fastcall TFMain_11011981::GetDelphiVersion()
             SysKB.Close();
         }
         KBFileName = AppDir + "syskb2013.bin";
-        if (SysKB.Open(KBFileName.c_str()))
+        if (SysKB.Open(AnsiString(KBFileName).c_str()))
         {
             moduleID = SysKB.GetModuleID("System");
             if (moduleID != 0xFFFF)
@@ -1580,7 +1579,7 @@ int __fastcall TFMain_11011981::GetDelphiVersion()
         }
 
         KBFileName = AppDir + "syskb2012.bin";
-        if (SysKB.Open(KBFileName.c_str()))
+        if (SysKB.Open(AnsiString(KBFileName).c_str()))
         {
             moduleID = SysKB.GetModuleID("System");
             if (moduleID != 0xFFFF)
@@ -1602,7 +1601,7 @@ int __fastcall TFMain_11011981::GetDelphiVersion()
         }
 
         KBFileName = AppDir + "syskb2011.bin";
-        if (SysKB.Open(KBFileName.c_str()))
+        if (SysKB.Open(AnsiString(KBFileName).c_str()))
         {
             moduleID = SysKB.GetModuleID("System");
             if (moduleID != 0xFFFF)
@@ -1687,7 +1686,7 @@ int __fastcall TFMain_11011981::GetDelphiVersion()
         version = DelphiVersions[v];
         if (TControlInstSize == 0x190 && version != 2006 && version != 2007) continue;
         KBFileName = AppDir + "syskb" + version + ".bin";
-        if (SysKB.Open(KBFileName.c_str()))
+        if (SysKB.Open(AnsiString(KBFileName).c_str()))
         {
             moduleID = SysKB.GetModuleID("System");
             if (moduleID != 0xFFFF)
@@ -1876,7 +1875,7 @@ int __fastcall TFMain_11011981::GetDelphiVersion()
         {"vcl120.bpl", "rtl120.bpl","12.0.3210.17555", 2009}, //Embarcadero
         {"", "", "", 0}
     };
-    
+
     String rtlBplName, vclBplName, rtlBpl, vclBpl;
 
     for (int n = 0; n < ImpModuleList->Count; n++)
@@ -1918,7 +1917,7 @@ int __fastcall TFMain_11011981::GetDelphiVersion()
             }
 
             //check the export of bpl - it must have 2 predefined functions
-            if (!((rtlFile == "" || IsBplByExport(rtlFile.c_str())) && IsBplByExport(vclFile.c_str())))
+            if (!((rtlFile == "" || IsBplByExport(AnsiString(rtlFile).c_str())) && IsBplByExport(AnsiString(vclFile).c_str())))
             {
                 ShowMessage("Input file imports Delphi system packages ("
                     + rtlFile + ", " + vclFile + ")."
@@ -2212,7 +2211,7 @@ DWORD __fastcall FollowInstructions(DWORD fromAdr, DWORD toAdr)
     int         curPos = fromPos;
     DWORD       curAdr = fromAdr;
     DISINFO     DisInfo;
-    
+
     while (1)
     {
         if (curAdr >= toAdr) break;
@@ -2566,7 +2565,7 @@ int __fastcall TFMain_11011981::GetUnits2(String dprName)
         curPos += instrLen;
         curAdr += instrLen;
     }
-    
+
     start = CodeBase;
     num = Units->Count;
 	for (int i = 0; i < num; i++)
@@ -2662,7 +2661,7 @@ bool __fastcall TFMain_11011981::IsExtendedInitTab(DWORD* unitsTab)
         }
     }
     if (*unitsTab) return true;
-    
+
     return false;
 }
 //---------------------------------------------------------------------------
@@ -3019,7 +3018,7 @@ int __fastcall TFMain_11011981::GetUnits(String dprName)
             //import?
             if (IsFlagSet(cfImport, pos))
             {
-                b = strchr(recN->GetName().c_str(), '@');
+                b = strchr(AnsiString(recN->GetName()).c_str(), '@');
                 if (b)
                 {
                     e = strchr(b + 1, '@');
@@ -3108,7 +3107,7 @@ int __fastcall TFMain_11011981::GetBCBUnits(String dprName)
 
                     TStringList* list = new TStringList;
                     list->Sorted = false;
-                    list->Duplicates = dupIgnore;
+                    list->Duplicates = System::Classes::dupIgnore;
                     if (iniNum > finNum)
                     {
                         pos = Adr2Pos(iniTable);
@@ -3729,7 +3728,7 @@ Automated Methods
       PAutoTable = ^TAutoTable;
       TAutoTable = packed record
         Count: LongInt;
-        Entries: array[1..Count] of TAutoEntry; 
+        Entries: array[1..Count] of TAutoEntry;
       end;
 */
 //Auto function prototype can be recovered from AutoTable!!!
@@ -3744,7 +3743,7 @@ void __fastcall TFMain_11011981::ScanAutoTable(DWORD Adr)
 
     String className = GetClsName(Adr);
     PInfoRec recN = GetInfoRec(Adr);
-    
+
     pos = Adr2Pos(autoAdr);
     int entryCount = *((int*)(Code + pos)); pos += 4;
 
@@ -3761,7 +3760,7 @@ void __fastcall TFMain_11011981::ScanAutoTable(DWORD Adr)
         int flags = *((int*)(Code + pos)); pos += 4;
         DWORD params = *((int*)(Code + pos)); pos += 4;
         DWORD address = *((DWORD*)(Code + pos)); pos += 4;
-        
+
         //afVirtual
         if ((flags & 8) == 0)
         {
@@ -3970,7 +3969,7 @@ void __fastcall TFMain_11011981::ScanMethodTable(DWORD adr, String className)
         len = Code[pos]; pos++;
         name = String((char*)&Code[pos], len); pos += len;
 
-        //as added   why this code was removed? 
+        //as added   why this code was removed?
         methodName = className + "." + name;
         DWORD pos1 = Adr2Pos(codeAdr);
         PInfoRec recN1 = GetInfoRec(codeAdr);
@@ -3978,7 +3977,7 @@ void __fastcall TFMain_11011981::ScanMethodTable(DWORD adr, String className)
         {
             recN1 = new InfoRec(pos1, ikRefine);
             recN1->SetName(methodName);
-        }        
+        }
         //~
 
         Infos[Adr2Pos(adr)]->vmtInfo->AddMethod(false, 'M', -1, codeAdr, methodName);
@@ -4640,7 +4639,7 @@ void __fastcall AddClassAdr(DWORD Adr, const String& AName)
 String __fastcall TFMain_11011981::GetCommonType(String Name1, String Name2)
 {
 	if (SameText(Name1, Name2)) return Name1;
-    
+
 	DWORD adr1 = GetClassAdr(Name1);
     DWORD adr2 = GetClassAdr(Name2);
     //Synonims
@@ -4663,7 +4662,7 @@ String __fastcall TFMain_11011981::GetCommonType(String Name1, String Name2)
         	(SameText(Name1, "TTextRec") && SameText(Name2, "Text"))) return "TTextRec";
         return "";
     }
-    
+
 	int h1 = GetClassHeight(adr1);
     int h2 = GetClassHeight(adr2);
 
@@ -4833,7 +4832,7 @@ String __fastcall GetFilenameFromLink(String LinkName)
     StringToWideChar(LinkName, temp, MAX_PATH);
     ppf->Load(temp, STGM_READ);
     delete[] temp;
-    
+
     //Get pointer to IShellLink
     ppf->QueryInterface(IID_IShellLink, (void**)(&pshl));
     //Find Object shortcut points to
@@ -4849,7 +4848,7 @@ String __fastcall GetFilenameFromLink(String LinkName)
 
     CoFreeUnusedLibraries();
     CoUninitialize();
-    
+
     return result;
 }
 //---------------------------------------------------------------------------
@@ -5051,7 +5050,7 @@ int __fastcall TFMain_11011981::AddAsmLine(DWORD Adr, String text, BYTE Flags)
     String _line = " " + Val2Str8(Adr) + "        " + text + " ";
     if (Flags & 1) _line[1] = '>';
     if (Flags & 8) _line[10] = '>';
-        
+
     int _len = _line.Length();
     _line[_len] = Flags;
 
@@ -5291,7 +5290,7 @@ void __fastcall TFMain_11011981::ShowCode(DWORD fromAdr, int SelectedIdx, int Xr
             curPos += instrLen; curAdr += instrLen;
             continue;
         }
-        
+
         if (DisInfo.Call)  //call sub_XXXXXXXX
         {
             Adr = DisInfo.Immediate;
@@ -5591,7 +5590,7 @@ void __fastcall TFMain_11011981::ShowCode(DWORD fromAdr, int SelectedIdx, int Xr
         for (int i = 1; i < lbCode->Items->Count; i++)
         {
             line = lbCode->Items->Strings[i];
-            sscanf(line.c_str() + 1, "%lX", &Adr);
+            sscanf(AnsiString(line).c_str() + 1, "%lX", &Adr);
             if (Adr >= SelectedIdx)
             {
                 if (Adr == SelectedIdx)
@@ -5801,7 +5800,7 @@ void __fastcall TFMain_11011981::AnalyzeVirtualTable(int Pass, DWORD Adr, const 
     DWORD   vmtAdr = Adr - cVmtSelfPtr;
     DWORD   stopAt = GetStopAt(vmtAdr);
     if (vmtAdr == stopAt) return;
-    
+
     int pos = Adr2Pos(vmtAdr) + cVmtParent + 4;
     for (int n = cVmtParent + 4; !*Terminated; n += 4, pos += 4)
     {
@@ -5887,7 +5886,7 @@ DWORD __fastcall TFMain_11011981::AnalyzeProcInitial(DWORD fromAdr)
     //if (!b1 && !b2) return 0;
 
     SetFlag(cfProcStart | cfPass0, fromPos);
-    
+
     //Don't analyze imports
     if (IsFlagSet(cfImport, fromPos)) return 0;
 
@@ -6108,7 +6107,7 @@ int __fastcall TFMain_11011981::CodeGetTargetAdr(String Line, DWORD* trgAdr)
     DISINFO     DisInfo;
 
     *trgAdr = 0;
-    s = Line.c_str() + 1;
+    s = AnsiString(Line).c_str() + 1;
 
     //If db - no address
     if (strstr(s, " db ")) return 0;
@@ -6144,7 +6143,7 @@ int __fastcall TFMain_11011981::CodeGetTargetAdr(String Line, DWORD* trgAdr)
                     c = s[n];
                     if (c == ' ' || c == ',' || c == '[' || c == '+')
                     {
-                        sscanf(s + n + 1, "%lX", &targetAdr);
+						sscanf(s + n + 1, "%lX", &targetAdr);
                         break;
                     }
                     n--;
@@ -6292,8 +6291,8 @@ void __fastcall TFMain_11011981::lbCodeDblClick(TObject *Sender)
             }
             if (recN->HasName())
             {
-                WORD *uses = KnowledgeBase.GetTypeUses(recN->GetName().c_str());
-                int idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, recN->GetName().c_str());
+                WORD *uses = KnowledgeBase.GetTypeUses(AnsiString(recN->GetName()).c_str());
+                int idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(recN->GetName()).c_str());
                 if (uses) delete[] uses;
 
                 if (idx != -1)
@@ -6385,7 +6384,7 @@ void __fastcall TFMain_11011981::lbCodeDblClick(TObject *Sender)
     //Try picode
     else
     {
-        sscanf(text.c_str() + 2, "%lX", &adr);
+        sscanf(AnsiString(text).c_str() + 2, "%lX", &adr);
         recN = GetInfoRec(adr);
         if (recN && recN->picode && IsValidCodeAdr(recN->picode->Ofs.Address))
         {
@@ -6428,7 +6427,7 @@ void __fastcall TFMain_11011981::GoToAddress()
     sAdr = InputDialogExec("Enter Address", "Address:", "");
     if (sAdr != "")
     {
-        sscanf(sAdr.c_str(), "%lX", &gotoAdr);
+        sscanf(AnsiString(sAdr).c_str(), "%lX", &gotoAdr);
         if (IsValidCodeAdr(gotoAdr))
         {
             pos = Adr2Pos(gotoAdr);
@@ -6479,7 +6478,7 @@ void __fastcall TFMain_11011981::miExploreAdrClick(TObject *Sender)
     sAdr = InputDialogExec("Enter Address", "Address:", text);
     if (sAdr != "")
     {
-        sscanf(sAdr.c_str(), "%lX", &viewAdr);
+        sscanf(AnsiString(sAdr).c_str(), "%lX", &viewAdr);
         if (IsValidImageAdr(viewAdr))
         {
             int pos = Adr2Pos(viewAdr);
@@ -6498,7 +6497,7 @@ void __fastcall TFMain_11011981::miExploreAdrClick(TObject *Sender)
             FExplorer_11011981->tsText->TabVisible = false;
             FExplorer_11011981->pc1->ActivePage = FExplorer_11011981->tsCode;
             FExplorer_11011981->WAlign = -4;
-            
+
             FExplorer_11011981->btnDefCode->Enabled = true;
             if (IsFlagSet(cfCode, pos)) FExplorer_11011981->btnDefCode->Enabled = false;
             FExplorer_11011981->btnUndefCode->Enabled = false;
@@ -6685,9 +6684,9 @@ void __fastcall TFMain_11011981::ShowClassViewer(DWORD VmtAdr)
     DISINFO     disInfo;
 
     if (SelName == "" || !IsValidImageAdr(VmtAdr)) return;
-    
+
     if (!tsClassView->Enabled) return;
-    
+
     if (ClassTreeDone)
     {
         node = GetNodeByName(SelName + " #" + Val2Str8(adr) + " Sz=");
@@ -6733,7 +6732,7 @@ void __fastcall TFMain_11011981::ShowClassViewer(DWORD VmtAdr)
                     for (m = 0; m < intfsNum; m++)
                     {
                         String item = tmpList->Strings[m];
-                        sscanf(item.c_str(), "%lX", &vAdr);
+                        sscanf(AnsiString(item).c_str(), "%lX", &vAdr);
                         if (IsValidCodeAdr(vAdr))
                         {
                             int pos = item.Pos(' ');
@@ -7172,10 +7171,10 @@ void __fastcall TFMain_11011981::miViewProtoClick(TObject *Sender)
     if (lbCode->ItemIndex <= 0) return;
 
     item = lbCode->Items->Strings[lbCode->ItemIndex];
-    sscanf(item.c_str() + 1, "%lX", &Adr);
+    sscanf(AnsiString(item).c_str() + 1, "%lX", &Adr);
     int instrlen = Disasm.Disassemble(Code + Adr2Pos(Adr), (__int64)Adr, &DisInfo, 0);
     if (!instrlen) return;
-    
+
     String proto = "";
     if (DisInfo.Call)
     {
@@ -7191,7 +7190,7 @@ void __fastcall TFMain_11011981::miViewProtoClick(TObject *Sender)
         	recN = GetInfoRec(Adr);
             if (recN && recN->picode && IsValidCodeAdr(recN->picode->Ofs.Address))
             {
-                if (KnowledgeBase.GetProcInfo(recN->picode->Name.c_str(), INFO_ARGS, &pInfo, &Idx))
+                if (KnowledgeBase.GetProcInfo(AnsiString(recN->picode->Name).c_str(), INFO_ARGS, &pInfo, &Idx))
                     proto = KnowledgeBase.GetProcPrototype(&pInfo);
             }
         }
@@ -7252,7 +7251,7 @@ void __fastcall TFMain_11011981::bCodeNextClick(TObject *Sender)
 
 	PPROCHISTORYREC prec = &CodeHistory[CodeHistoryPtr + 1];
     ShowCode(prec->adr, prec->itemIdx, prec->xrefIdx, prec->topIdx);
-    
+
     bCodePrev->Enabled = (CodeHistoryPtr >= 0);
     bCodeNext->Enabled = (CodeHistoryPtr < CodeHistoryMax);
 }
@@ -7304,7 +7303,7 @@ void __fastcall TFMain_11011981::tvClassesDblClick(TObject *Sender)
         //Given address
         if (pos && !line.Pos("Sz="))
         {
-            sscanf(line.c_str() + pos, "%lX", &adr);
+            sscanf(AnsiString(line).c_str() + pos, "%lX", &adr);
             if (IsValidCodeAdr(adr))
             {
                 rec.adr = CurProcAdr;
@@ -7342,8 +7341,8 @@ void __fastcall TFMain_11011981::tvClassesDblClick(TObject *Sender)
             }
             else
             {
-                WORD* uses = KnowledgeBase.GetTypeUses(typeName.c_str());
-                int Idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, typeName.c_str());
+                WORD* uses = KnowledgeBase.GetTypeUses(AnsiString(typeName).c_str());
+                int Idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(typeName).c_str());
                 if (Idx != -1)
                 {
                     Idx = KnowledgeBase.TypeOffsets[Idx].NamId;
@@ -7451,7 +7450,7 @@ void __fastcall TFMain_11011981::miEditClassClick(TObject *Sender)
         {
             int FieldOfs = -1;
             if (!node->Text.Pos("#"))
-                sscanf(node->Text.c_str(), "%lX", &FieldOfs);
+                sscanf(AnsiString(node->Text).c_str(), "%lX", &FieldOfs);
         	while (node)
             {
                 int pos = node->Text.Pos("#");
@@ -7459,7 +7458,7 @@ void __fastcall TFMain_11011981::miEditClassClick(TObject *Sender)
                 if (pos && node->Text.Pos("Sz="))
                 {
                 	DWORD vmtAdr;
-                    sscanf(node->Text.c_str() + pos, "%lX", &vmtAdr);
+                    sscanf(AnsiString(node->Text).c_str() + pos, "%lX", &vmtAdr);
                     if (IsValidImageAdr(vmtAdr))
                     {
                     	FEditFieldsDlg_11011981->VmtAdr = vmtAdr;
@@ -7515,7 +7514,7 @@ void __fastcall TFMain_11011981::ShowDfm(TDfm* dfm)
 {
     if (!dfm)
         return;
-        
+
     //if inherited find parent form
     if ((dfm->Flags & FF_INHERITED) && !dfm->ParentDfm)
         dfm->ParentDfm = ResInfo->GetParentDfm(dfm);
@@ -7695,7 +7694,7 @@ void __fastcall TFMain_11011981::FindText(String Text)
     TTreeView*  tv;
 
     if (Text == "") return;
-    
+
     msg = "Search string \"" + Text + "\" not found";
 
     switch (WhereSearch)
@@ -8044,7 +8043,7 @@ void __fastcall TFMain_11011981::IniFileRead()
     TMenuItem   *item;
     TIniFile    *iniFile;
     TFont       *_font;
-    TMonitor    *_monitor;
+    Vcl::Forms::TMonitor    *_monitor;
 
     iniFile = new TIniFile(ChangeFileExt(Application->ExeName, ".ini"));
 
@@ -8174,7 +8173,7 @@ bool __fastcall TFMain_11011981::IsExe(String FileName)
     IMAGE_DOS_HEADER    DosHeader;
     IMAGE_NT_HEADERS    NTHeaders;
 
-    FILE* f = fopen(FileName.c_str(), "rb");
+    FILE* f = fopen(AnsiString(FileName).c_str(), "rb");
     if (!f) return false;
 
     fseek(f, 0, SEEK_SET);
@@ -8204,13 +8203,13 @@ bool __fastcall TFMain_11011981::IsIdp(String FileName)
 {
     char    buf[13];
 
-    FILE* f = fopen(FileName.c_str(), "rb");
+	FILE* f = fopen(AnsiString(FileName).c_str(), "rb");
     if (!f) return false;
 
     fseek(f, 0, SEEK_SET);
     fread(buf, 1, 12, f); buf[12] = 0;
     fclose(f);
-    
+
     if (!strcmp(buf, "IDR proj v.3")) return true;
     return false;
 }
@@ -8299,7 +8298,7 @@ void __fastcall TFMain_11011981::LoadFile(String FileName, int version)
 {
     if (ProjectModified)
     {
-        int res = Application->MessageBox("Save active Project?", "Confirmation", MB_YESNOCANCEL);
+        int res = Application->MessageBox(L"Save active Project?", L"Confirmation", MB_YESNOCANCEL);
         if (res == IDCANCEL) return;
         if (res == IDYES)
         {
@@ -8342,7 +8341,7 @@ void __fastcall TFMain_11011981::DoOpenDelphiFile(int version, String FileName, 
 {
     if (ProjectModified)
     {
-        int res = Application->MessageBox("Save active Project?", "Confirmation", MB_YESNOCANCEL);
+        int res = Application->MessageBox(L"Save active Project?", L"Confirmation", MB_YESNOCANCEL);
         if (res == IDCANCEL) return;
         if (res == IDYES)
         {
@@ -8382,15 +8381,15 @@ void __fastcall TFMain_11011981::LoadDelphiFile1(String FileName, int version, b
     String		dprName, KBFileName, msg;
 
     SourceFile = FileName;
-    FILE *f = fopen(FileName.c_str(), "rb");
+	FILE *f = fopen(AnsiString(FileName).c_str(), "rb");
 
     Screen->Cursor = crHourGlass;
-    int res = LoadImage(f, version, loadExp, loadImp);
+    int res = LoadImageFile(f, version, loadExp, loadImp);
     fclose(f);
 
     if (res <= 0)
     {
-        if (!res) ShowMessage("LoadImage error");
+        if (!res) ShowMessage("LoadImageFile error");
         Screen->Cursor = crDefault;
         return;
     }
@@ -8435,7 +8434,7 @@ void __fastcall TFMain_11011981::LoadDelphiFile1(String FileName, int version, b
     Screen->Cursor = crDefault;
 
     UserKnowledgeBase = false;
-    if (Application->MessageBox("Use native Knowledge Base?", "Knowledge Base kind selection", MB_YESNO) == IDNO)
+    if (Application->MessageBox(L"Use native Knowledge Base?", L"Knowledge Base kind selection", MB_YESNO) == IDNO)
     {
         OpenDlg->InitialDir = WrkDir;
     	OpenDlg->FileName = "";
@@ -8457,7 +8456,7 @@ void __fastcall TFMain_11011981::LoadDelphiFile1(String FileName, int version, b
     }
 
     Screen->Cursor = crHourGlass;
-    res = KnowledgeBase.Open(KBFileName.c_str());
+    res = KnowledgeBase.Open(AnsiString(KBFileName).c_str());
 
     if (!res)
     {
@@ -8599,7 +8598,7 @@ bool __fastcall TFMain_11011981::ImportsValid(DWORD ImpRVA, DWORD ImpSize)
     return true;
 }
 //---------------------------------------------------------------------------
-int __fastcall TFMain_11011981::LoadImage(FILE* f, int version, bool loadExp, bool loadImp)
+int __fastcall TFMain_11011981::LoadImageFile(FILE* f, int version, bool loadExp, bool loadImp)
 {
     int         	        i, n, m, bytes, pos, SectionsNum, ExpNum, NameLength;
     DWORD       	        DataEnd, Items;
@@ -8667,7 +8666,7 @@ int __fastcall TFMain_11011981::LoadImage(FILE* f, int version, bool loadExp, bo
         PSegmentInfo segInfo = new SegmentInfo;
         segInfo->Start = SectionHeaders[i].VirtualAddress + ImageBase;
         segInfo->Flags = SectionHeaders[i].Characteristics;
-        
+
         if (i + 1 < SectionsNum)
             segInfo->Size = SectionHeaders[i + 1].VirtualAddress - SectionHeaders[i].VirtualAddress;
         else
@@ -8767,12 +8766,12 @@ int __fastcall TFMain_11011981::LoadImage(FILE* f, int version, bool loadExp, bo
         if (evalEP + CodeBase != NTHeaders.OptionalHeader.AddressOfEntryPoint + ImageBase)
         {
             sprintf(msg, "Possible invalid EP (NTHeader:%lX, Evaluated:%lX). Input valid EP?", NTHeaders.OptionalHeader.AddressOfEntryPoint + ImageBase, evalEP + CodeBase);
-            if (Application->MessageBox(msg, "Confirmation", MB_YESNO) == IDYES)
+            if (Application->MessageBox(String(msg).c_str(), L"Confirmation", MB_YESNO) == IDYES)
             {
                 sEP = InputDialogExec("New EP", "EP:", Val2Str0(NTHeaders.OptionalHeader.AddressOfEntryPoint + ImageBase));
                 if (sEP != "")
                 {
-                    sscanf(sEP.c_str(), "%lX", &EP);
+                    sscanf(AnsiString(sEP).c_str(), "%lX", &EP);
                     if (!IsValidImageAdr(EP))
                     {
                         delete[] SectionHeaders;
@@ -8901,7 +8900,7 @@ int __fastcall TFMain_11011981::LoadImage(FILE* f, int version, bool loadExp, bo
 
                 NameLength = strlen((char*)(Image + Adr2Pos(ImportDescriptor.Name + ImageBase)));
                 moduleName = String((char*)(Image + Adr2Pos(ImportDescriptor.Name + ImageBase)), NameLength);
-            
+
                 int pos = moduleName.Pos(".");
                 if (pos)
                     modName = moduleName.SubString(1, pos - 1);
@@ -8999,7 +8998,7 @@ void __fastcall TFMain_11011981::DoOpenProjectFile(String FileName)
 
     if (ProjectModified)
     {
-        int res = Application->MessageBox("Save active Project?", "Confirmation", MB_YESNOCANCEL);
+        int res = Application->MessageBox(L"Save active Project?", L"Confirmation", MB_YESNOCANCEL);
         if (res == IDCANCEL) return;
         if (res == IDYES)
         {
@@ -9066,7 +9065,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName)
     IDPFile = FileName;
 
     Screen->Cursor = crHourGlass;
-    FILE* projectFile = fopen(FileName.c_str(), "rb");
+    FILE* projectFile = fopen(AnsiString(FileName).c_str(), "rb");
     //Read Delphi version and maximum length of buffer
     fseek(projectFile, 12, SEEK_SET);
     fread(&_ver, sizeof(_ver), 1, projectFile);
@@ -9092,13 +9091,13 @@ void __fastcall TFMain_11011981::OpenProject(String FileName)
         }
     }
     if (!UserKnowledgeBase) KBFileName = AppDir + "kb" + DelphiVersion + ".bin";
-    
+
     MaxBufLen = 0;
     fseek(projectFile, -4L, SEEK_END);
     fread(&MaxBufLen, sizeof(MaxBufLen), 1, projectFile);
     fclose(projectFile);
 
-    if (!KnowledgeBase.Open(KBFileName.c_str()))
+    if (!KnowledgeBase.Open(AnsiString(KBFileName).c_str()))
     {
         Screen->Cursor = crDefault;
         ShowMessage("Cannot open KnowledgeBase (may be incorrect Version)");
@@ -9120,7 +9119,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName)
     Update();
 
     char* buf = new BYTE[MaxBufLen];
-    FILE* fIn = fopen(IDPFile.c_str(), "rb");
+    FILE* fIn = fopen(AnsiString(IDPFile).c_str(), "rb");
     if (fIn)
     {
         //TMemoryStream* inStream = new TMemoryStream();
@@ -9246,7 +9245,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName)
         CurUnitAdr = 0;
         topIdxU = 0; itemIdxU = -1;
         topIdxI = 0; itemIdxI = -1;
-    
+
         if (UnitsNum)
         {
             fread(&UnitSortField, sizeof(UnitSortField), 1, fIn);//inStream->Read(&UnitSortField, sizeof(UnitSortField));
@@ -9679,7 +9678,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName)
 
     if (FileExists(FileName))
     {
-        if (Application->MessageBox("File already exists. Overwrite?", "Warning", MB_YESNO) == IDNO) return;
+        if (Application->MessageBox(L"File already exists. Overwrite?", L"Warning", MB_YESNO) == IDNO) return;
     }
 
     Screen->Cursor = crHourGlass;
@@ -9687,7 +9686,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName)
 
     try
     {
-        outF = fopen(IDPFile.c_str(), "wb+");//outStream = new TMemoryStream();
+        outF = fopen(AnsiString(IDPFile).c_str(), "wb+");//outStream = new TMemoryStream();
         if (outF)
         {
 
@@ -10000,7 +9999,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName)
             //Class Viewer
             //Total nodes (for progress)
             num = 0; if (ClassTreeDone) num = tvClassesFull->Items->Count;
-            if (num && Application->MessageBox("Save full Tree of Classes?", "Warning", MB_YESNO) == IDYES)
+            if (num && Application->MessageBox(L"Save full Tree of Classes?", L"Warning", MB_YESNO) == IDYES)
             {
                 FProgressBar->Show();
                 fwrite(&num, sizeof(num), 1, outF);//outStream->Write(&num, sizeof(num));
@@ -10158,13 +10157,13 @@ void __fastcall TFMain_11011981::EditFunction(DWORD Adr)
                 {
                     line = FEditFunctionDlg_11011981->lbVars->Items->Strings[n];
                     //'-' - deleted line
-                    strcpy(buf, line.c_str());
+                    strcpy(buf, AnsiString(line).c_str());
                     p = strtok(buf, " ");
                     //offset
-                    sscanf(p, "%lX", &offset);
+					sscanf(p, "%lX", &offset);
                     //size
                     p = strtok(0, " ");
-                    sscanf(p, "%lX", &size);
+					sscanf(p, "%lX", &size);
                     //name
                     p = strtok(0, " :");
                     if (stricmp(p, "?"))
@@ -10248,7 +10247,7 @@ void __fastcall TFMain_11011981::EditFunction(DWORD Adr)
                     }
                 }
             }
-            
+
             //DWORD adr = CurProcAdr;
 
             //Edit current proc
@@ -10293,13 +10292,14 @@ void __fastcall TFMain_11011981::miMapGeneratorClick(TObject *Sender)
     mapName = SaveDlg->FileName;
     if (FileExists(mapName))
     {
-        if (Application->MessageBox("File already exists. Overwrite?", "Warning", MB_YESNO) == IDNO) return;
+        if (Application->MessageBox(L"File already exists. Overwrite?", L"Warning", MB_YESNO) == IDNO) return;
     }
 
     Screen->Cursor = crHourGlass;
-    FILE *fMap = fopen(mapName.c_str(), "wt+");
+    FILE *fMap = fopen(AnsiString(mapName).c_str(), "wt+");
     if (!fMap)
     {
+        // ShowMessage("Cannot open map file");
         MessageDlg("Cannot open map file", mtWarning, TMsgDlgButtons() << mbOK, 0);
         return;
     }
@@ -10361,7 +10361,7 @@ void __fastcall TFMain_11011981::miCommentsGeneratorClick(TObject *Sender)
     String txtName = "";
     if (SourceFile != "") txtName = ChangeFileExt(SourceFile, ".txt");
     if (IDPFile != "") txtName = ChangeFileExt(IDPFile, ".txt");
-    
+
     SaveDlg->InitialDir = WrkDir;
     SaveDlg->Filter = "TXT|*.txt";
     SaveDlg->FileName = txtName;
@@ -10372,12 +10372,12 @@ void __fastcall TFMain_11011981::miCommentsGeneratorClick(TObject *Sender)
 
     if (FileExists(txtName))
     {
-        if (Application->MessageBox("File already exists. Overwrite?", "Warning", MB_YESNO) == IDNO) return;
+        if (Application->MessageBox(L"File already exists. Overwrite?", L"Warning", MB_YESNO) == IDNO) return;
     }
 
 	Screen->Cursor = crHourGlass;
 
-    FILE* lstF = fopen(txtName.c_str(), "wt+");
+	FILE* lstF = fopen(AnsiString(txtName).c_str(), "wt+");
     /*
     for (int n = 0; n < CodeSize; n++)
     {
@@ -10455,7 +10455,7 @@ void __fastcall TFMain_11011981::miIDCGeneratorClick(TObject *Sender)
     SaveIDCDialog->InitialDir = WrkDir;
     SaveIDCDialog->Filter = "IDC|*.idc";
     SaveIDCDialog->FileName = idcName;
- 
+
     if (!SaveIDCDialog->Execute()) return;
 
     idcName = SaveIDCDialog->FileName;
@@ -10463,7 +10463,7 @@ void __fastcall TFMain_11011981::miIDCGeneratorClick(TObject *Sender)
 
     if (FileExists(idcName))
     {
-        if (Application->MessageBox("File already exists. Overwrite?", "Warning", MB_YESNO) == IDNO) return;
+        if (Application->MessageBox(L"File already exists. Overwrite?", L"Warning", MB_YESNO) == IDNO) return;
     }
 
     if (SplitIDC)
@@ -10473,7 +10473,7 @@ void __fastcall TFMain_11011981::miIDCGeneratorClick(TObject *Sender)
 
 	Screen->Cursor = crHourGlass;
 
-    FILE* idcF = fopen(idcName.c_str(), "wt+");
+	FILE* idcF = fopen(AnsiString(idcName).c_str(), "wt+");
     TIDCGen *idcGen = new TIDCGen(idcF, SplitSize);
 
     idcGen->OutputHeaderFull();
@@ -10490,7 +10490,7 @@ void __fastcall TFMain_11011981::miIDCGeneratorClick(TObject *Sender)
             fprintf(idcF, "}");
             fclose(idcF);
             idcName = idcTemplate + "_" + idcGen->CurrentPartNo + ".idc";
-            idcF = fopen(idcName.c_str(), "wt+");
+            idcF = fopen(AnsiString(idcName).c_str(), "wt+");
             idcGen->NewIDCPart(idcF);
             idcGen->OutputHeaderShort();
         }
@@ -10502,7 +10502,7 @@ void __fastcall TFMain_11011981::miIDCGeneratorClick(TObject *Sender)
         {
             PUnitRec recU = GetUnit(Pos2Adr(pos));
             if (!recU) continue;
-            
+
             if (recU->names->Count == 1)
                 idcGen->unitName = recU->names->Strings[0];
             else
@@ -10638,7 +10638,7 @@ void __fastcall TFMain_11011981::pmUnitsPopup(TObject *Sender)
 
     String item = lbUnits->Items->Strings[lbUnits->ItemIndex];
     DWORD adr;
-    sscanf(item.c_str() + 1, "%lX", &adr);
+    sscanf(AnsiString(item).c_str() + 1, "%lX", &adr);
     PUnitRec recU = GetUnit(adr);
     miRenameUnit->Enabled = (!recU->kb && recU->names->Count <= 1);
 }
@@ -10779,7 +10779,7 @@ void __fastcall TFMain_11011981::lbCodeDrawItem(TWinControl *Control,
                 for (n = 0; n < _disInfo.OpNum; n++)
                 {
                     if (n) DrawOneItem(",", canvas, Rect, TColor(0), flags);
-                
+
                     ib = (_disInfo.BaseReg != -1 || _disInfo.IndxReg != -1);
                     _offset = _disInfo.Offset;
                     //Op1
@@ -10926,12 +10926,12 @@ void __fastcall TFMain_11011981::miListerClick(TObject *Sender)
 
     if (FileExists(lstName))
     {
-        if (Application->MessageBox("File already exists. Overwrite?", "Warning", MB_YESNO) == IDNO) return;
+        if (Application->MessageBox(L"File already exists. Overwrite?", L"Warning", MB_YESNO) == IDNO) return;
     }
 
 	Screen->Cursor = crHourGlass;
 
-    FILE* lstF = fopen(lstName.c_str(), "wt+");
+    FILE* lstF = fopen(AnsiString(lstName).c_str(), "wt+");
     for (int n = 0; n < UnitsNum; n++)
     {
         PUnitRec recU = (PUnitRec)Units->Items[n];
@@ -11069,11 +11069,11 @@ void __fastcall TFMain_11011981::OutputLine(FILE* OutF, BYTE flags, DWORD Adr, S
     //Ouput comments
     if (flags & 0x10)
     {
-        char *p = strchr(Content.c_str(), ';');
+		char *p = strchr(AnsiString(Content).c_str(), ';');
         if (p) fprintf(OutF, "C %08lX %s\n", Adr, p + 1);
         return;
     }
-    
+
     //Jump direction
 	if (flags & 4)
     	fprintf(OutF, "<");
@@ -11240,7 +11240,7 @@ void __fastcall TFMain_11011981::OutputCode(FILE* outF, DWORD fromAdr, String pr
             curPos += instrLen; curAdr += instrLen;
             continue;
         }
-        
+
         if (DisInfo.Call)  //call sub_XXXXXXXX
         {
             Adr = DisInfo.Immediate;
@@ -11563,17 +11563,17 @@ void __fastcall TFMain_11011981::miAboutClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::miHelpClick(TObject *Sender)
 {
-	ShellExecute(Handle, "open", Application->HelpFile.c_str(), 0, 0, 1);
+	ShellExecute(Handle, AnsiString("open").c_str(), AnsiString(Application->HelpFile).c_str(), 0, 0, 1);
 }
 //---------------------------------------------------------------------------
-#include "TabUnits.cpp"
-#include "TabRTTIs.cpp"
-#include "TabStrings.cpp"
-#include "TabNames.cpp"
-#include "CXrefs.cpp"
-#include "Analyze1.cpp"
-#include "Analyze2.cpp"
-#include "AnalyzeArguments.cpp"
+// #include "TabUnits.cpp"
+// #include "TabRTTIs.cpp"
+// #include "TabStrings.cpp"
+// #include "TabNames.cpp"
+// #include "CXrefs.cpp"
+// #include "Analyze1.cpp"
+// #include "Analyze2.cpp"
+// #include "AnalyzeArguments.cpp"
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::FormCloseQuery(TObject *Sender, bool &CanClose)
 {
@@ -11586,7 +11586,7 @@ void __fastcall TFMain_11011981::FormCloseQuery(TObject *Sender, bool &CanClose)
         String sbtext1 = FProgressBar->sb->Panels->Items[1]->Text;
         FProgressBar->Visible = false;
 
-        _res = Application->MessageBox("Analysis is not yet completed. Do You really want to exit IDR?", "Confirmation", MB_YESNO);
+        _res = Application->MessageBox(L"Analysis is not yet completed. Do You really want to exit IDR?", L"Confirmation", MB_YESNO);
     	if (_res == IDNO)
         {
             FProgressBar->Visible = true;
@@ -11603,7 +11603,7 @@ void __fastcall TFMain_11011981::FormCloseQuery(TObject *Sender, bool &CanClose)
 
     if (ProjectLoaded && ProjectModified)
     {
-        _res = Application->MessageBox("Save active Project?", "Confirmation", MB_YESNOCANCEL);
+        _res = Application->MessageBox(L"Save active Project?", L"Confirmation", MB_YESNOCANCEL);
         if (_res == IDCANCEL)
         {
           	CanClose = false;
@@ -11779,8 +11779,8 @@ PFIELDINFO __fastcall TFMain_11011981::GetField(String TypeName, int Offset, boo
     }
 
     //try KB
-    uses = KnowledgeBase.GetTypeUses(TypeName.c_str());
-    idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, TypeName.c_str());
+    uses = KnowledgeBase.GetTypeUses(AnsiString(TypeName).c_str());
+    idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(TypeName).c_str());
     if (uses) delete[] uses;
 
     if (idx != -1)
@@ -11983,7 +11983,7 @@ void __fastcall TFMain_11011981::InitAliases(bool find)
         String item = ResInfo->Aliases->Strings[n];
         if (item.Pos("="))
         {
-            char *p = AnsiLastChar(item);
+			char *p = AnsiString(item).c_str();
             if (p && *p != '=') lbAliases->Items->Add(item);
         }
     }
@@ -12059,10 +12059,10 @@ void __fastcall TFMain_11011981::miCopyListClick(TObject *Sender)
     {
         if (FileExists(SaveDlg->FileName))
         {
-            if (Application->MessageBox("File already exists. Overwrite?", "Warning", MB_YESNO) == IDNO) return;
+            if (Application->MessageBox(L"File already exists. Overwrite?", L"Warning", MB_YESNO) == IDNO) return;
         }
         
-        outFile = fopen(SaveDlg->FileName.c_str(), "wt+");
+        outFile = fopen(AnsiString(SaveDlg->FileName).c_str(), "wt+");
         if (!outFile)
         {
             ShowMessage("Cannot save units list");
@@ -12085,10 +12085,10 @@ void __fastcall TFMain_11011981::miCopyListClick(TObject *Sender)
                     recN = GetInfoRec(Pos2Adr(m));
                     dot = recN->GetName().Pos(".");
                     importName = recN->GetName().SubString(dot + 1, recN->GetNameLength());
-                    usesNum = KnowledgeBase.GetProcUses(importName.c_str(), uses);
+                    usesNum = KnowledgeBase.GetProcUses(AnsiString(importName).c_str(), uses);
                     for (k = 0; k < usesNum; k++)
                     {
-                        idx = KnowledgeBase.GetProcIdx(uses[k], importName.c_str());
+                        idx = KnowledgeBase.GetProcIdx(uses[k], AnsiString(importName).c_str());
                         if (idx != -1)
                         {
                             idx = KnowledgeBase.ProcOffsets[idx].NamId;
@@ -12254,7 +12254,7 @@ void __fastcall TFMain_11011981::FillClassViewerOne(int n, TStringList* tmpList,
             for (m = 0; m < intfsNum && !*terminated; m++)
             {
                 nodeText = tmpList->Strings[m];
-                sscanf(nodeText.c_str(), "%lX", &vAdr);
+                sscanf(AnsiString(nodeText).c_str(), "%lX", &vAdr);
                 if (IsValidCodeAdr(vAdr))
                 {
                     TTreeNode *intfsNode = AddClassTreeNode(rootNode, "<I> " + nodeText.SubString(nodeText.Pos(' ') + 1, nodeText.Length()));
@@ -12712,7 +12712,7 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender)
             }
         }
         //Output information
-        f = fopen((unitName + ".pas").c_str(), "wt+");
+		f = fopen(AnsiString(unitName + ".pas").c_str(), "wt+");
         OutputDecompilerHeader(f);
         fprintf(f, "unit %s;\n\n", unitName);
         fprintf(f, "interface\n");
@@ -12824,7 +12824,7 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender)
     //dpr
     recU = (PUnitRec)Units->Items[UnitsNum - 1];
     unitName = recU->names->Strings[0];
-    f = fopen((unitName + ".dpr").c_str(), "wt+");
+	f = fopen(AnsiString(unitName + ".dpr").c_str(), "wt+");
 
     OutputDecompilerHeader(f);
 
@@ -12990,7 +12990,8 @@ void __fastcall TFMain_11011981::CopyAddress(String line, int ofs, int bytes)
         *p = line[n + ofs]; p++;
     }
     *p = 0;
-    ((TUnicodeClipboard *)Clipboard())->AsUnicodeText = buf;
+    // ((TUnicodeClipboard *)Clipboard())->AsUnicodeText = buf;
+    Clipboard()->SetTextBuf(String(buf).c_str());
     Clipboard()->Close();
 }
 //---------------------------------------------------------------------------
@@ -13023,7 +13024,7 @@ void __fastcall TFMain_11011981::pmCodePopup(TObject *Sender)
     {
         if (lbCode->ItemIndex <= 0) return;
         DWORD   adr;
-        sscanf(lbCode->Items->Strings[lbCode->ItemIndex].c_str() + 2, "%lX", &adr);
+        sscanf(AnsiString(lbCode->Items->Strings[lbCode->ItemIndex]).c_str() + 2, "%lX", &adr);
         if (adr != CurProcAdr && IsFlagSet(cfLoc, Adr2Pos(adr)))
         {
             PInfoRec recN = GetInfoRec(adr);
@@ -13262,7 +13263,7 @@ void __fastcall TFMain_11011981::miSwitchSkipFlagClick(TObject *Sender)
         {
             if (lbCode->Selected[n])
             {
-                sscanf(lbCode->Items->Strings[n].c_str() + 2, "%lX", &_adr);
+                sscanf(AnsiString(lbCode->Items->Strings[n]).c_str() + 2, "%lX", &_adr);
                 Flags[Adr2Pos(_adr)] ^= (cfDSkip | cfSkip);
             }
         }
@@ -13281,7 +13282,7 @@ void __fastcall TFMain_11011981::miSwitchFrameFlagClick(TObject *Sender)
         {
             if (lbCode->Selected[n])
             {
-                sscanf(lbCode->Items->Strings[n].c_str() + 2, "%lX", &_adr);
+                sscanf(AnsiString(lbCode->Items->Strings[n]).c_str() + 2, "%lX", &_adr);
                 Flags[Adr2Pos(_adr)] ^= cfFrame;
             }
         }
@@ -13300,7 +13301,7 @@ void __fastcall TFMain_11011981::cfTry1Click(TObject *Sender)
         {
             if (lbCode->Selected[n])
             {
-                sscanf(lbCode->Items->Strings[n].c_str() + 2, "%lX", &_adr);
+                sscanf(AnsiString(lbCode->Items->Strings[n]).c_str() + 2, "%lX", &_adr);
                 Flags[Adr2Pos(_adr)] ^= cfTry;
             }
         }
@@ -13425,13 +13426,13 @@ void __fastcall TFMain_11011981::miHiewGeneratorClick(TObject *Sender)
     nametName = SaveDlg->FileName;
     if (FileExists(nametName))
     {
-        if (Application->MessageBox("File already exists. Overwrite?", "Warning", MB_YESNO+MB_ICONWARNING) == IDNO) return;
+        if (Application->MessageBox(L"File already exists. Overwrite?", L"Warning", MB_YESNO+MB_ICONWARNING) == IDNO) return;
     }
     Screen->Cursor = crHourGlass;
-    FILE *fNamet = fopen(nametName.c_str(), "wt+");
+    FILE *fNamet = fopen(AnsiString(nametName).c_str(), "wt+");
     if (!fNamet)
     {
-        MessageDlg("Cannot open namet file", mtWarning, TMsgDlgButtons() << mbOK, 0);
+        MessageDlg(L"Cannot open namet file", mtWarning, TMsgDlgButtons() << mbOK, 0);
         return;
     }
     SourceFileNamet = SourceFile;
@@ -13532,12 +13533,12 @@ void __fastcall TFMain_11011981::mCreateCHeaderFileClick(TObject *Sender)
 
     if (FileExists(hName))
     {
-        if (Application->MessageBox("File already exists. Overwrite?", "Warning", MB_YESNO) == IDNO) return;
+        if (Application->MessageBox(L"File already exists. Overwrite?", L"Warning", MB_YESNO) == IDNO) return;
     }
 
 	Screen->Cursor = crHourGlass;
 
-    FILE* hF = fopen(hName.c_str(), "wt+");
+    FILE* hF = fopen(AnsiString(hName).c_str(), "wt+");
     CreateCppHeaderFile(hF);
     fclose(hF);
     Screen->Cursor = crDefault;
@@ -13898,7 +13899,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE* hF)
                 if (RTTIName.Pos(":") > 0)
                     RTTIName = "Array_" + Val2Str8(adr);
                 str = FTypeInfo_11011981->GetCppTypeInfo(adr, &size, 0);
-                fprintf(hF, str.c_str(), RTTIName.c_str());
+                fprintf(hF, AnsiString(str).c_str(), RTTIName.c_str());
                 break;
             case ikRecord:
                 //These names already present

@@ -3,6 +3,7 @@
 #pragma hdrstop
 
 #include "Exit.h"
+#include "Misc.h"
 //--------------------------------------------------------------------- 
 #pragma resource "*.dfm"
 TFExit_11011981 *FExit_11011981;

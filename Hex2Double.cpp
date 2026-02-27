@@ -32,7 +32,7 @@ void __fastcall TFHex2DoubleDlg_11011981::Str2Binary(String AStr)
     int     val, pos, n;
     char    *src;
 
-    src = AStr.c_str();
+    src = AnsiString(AStr).c_str();
     memset(BinData, 0, 16); n = 0;
 
     while (1)
@@ -41,7 +41,7 @@ void __fastcall TFHex2DoubleDlg_11011981::Str2Binary(String AStr)
         if (!c) break;
         if (c != ' ')
         {
-            sscanf(src, "%X", &val);
+            sscanf(AnsiString(src).c_str(), "%X", &val);
             BinData[n] = val; n++;
             while (1)
             {

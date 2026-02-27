@@ -1,3 +1,22 @@
+#include "Main.h"
+#include "Misc.h"
+#include "Disasm.h"
+#include "TypeInfo2.h"
+
+extern BYTE *Code;
+extern DWORD CodeBase;
+extern DWORD TotalSize;
+extern DWORD *Flags;
+extern DWORD EP;
+extern MDisasm Disasm;
+extern PInfoRec *Infos;
+extern TStringList *BSSInfos;
+extern int DelphiVersion;
+extern int dummy;
+extern int cVmtSelfPtr;
+extern int LastResStrNo;
+
+
 void __fastcall AddFieldXref(PFIELDINFO fInfo, DWORD ProcAdr, int ProcOfs, char type);
 //---------------------------------------------------------------------------
 //structure for saving context of all registers (branch instruction)
@@ -2227,11 +2246,11 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWORD parentAdr, int callPos, DW
                                         if (IsValidCodeAdr(itemAdr))
                                         {
                                             WideString wStr = WideString((wchar_t*)(Code + itemPos));
-                                            int size = WideCharToMultiByte(CP_ACP, 0, wStr, len, 0, 0, 0, 0);
+                                            int size = WideCharToMultiByte(CP_ACP, 0, wStr.c_bstr(), len, 0, 0, 0, 0);
                                             if (size)
                                             {
                                                 tmpBuf = new char[size + 1];
-                                                WideCharToMultiByte(CP_ACP, 0, wStr, len, (LPSTR)tmpBuf, size, 0, 0);
+                                                WideCharToMultiByte(CP_ACP, 0, wStr.c_bstr(), len, (LPSTR)tmpBuf, size, 0, 0);
                                                 recN1->SetName(TransformString(tmpBuf, size));
                                                 delete[] tmpBuf;
                                                 if (recN->SameName("GetProcAddress")) retName = recN1->GetName();
@@ -2295,7 +2314,7 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWORD parentAdr, int callPos, DW
             int ident = registers[16].value;  //eax = string ID
             if (ident != -1)
             {
-                HINSTANCE hInst = LoadLibraryEx(SourceFile.c_str(), 0, LOAD_LIBRARY_AS_DATAFILE);
+                HINSTANCE hInst = LoadLibraryEx(AnsiString(SourceFile).c_str(), 0, LOAD_LIBRARY_AS_DATAFILE);
                 if (hInst)
                 {
                     int bytes = LoadString(hInst, (UINT)ident, buf, 1024);
@@ -2869,11 +2888,11 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWORD parentAdr, int callPos, DW
                                     if (IsValidCodeAdr(itemAdr))
                                     {
                                         WideString wStr = WideString((wchar_t*)(Code + itemPos));
-                                        int size = WideCharToMultiByte(CP_ACP, 0, wStr, len, 0, 0, 0, 0);
+                                        int size = WideCharToMultiByte(CP_ACP, 0, wStr.c_bstr(), len, 0, 0, 0, 0);
                                         if (size)
                                         {
                                             tmpBuf = new BYTE[size + 1];
-                                            WideCharToMultiByte(CP_ACP, 0, wStr, len, (LPSTR)tmpBuf, size, 0, 0);
+                                            WideCharToMultiByte(CP_ACP, 0, wStr.c_bstr(), len, (LPSTR)tmpBuf, size, 0, 0);
                                             recN1->SetName(TransformString(tmpBuf, size));    //???size - 1
                                             delete[] tmpBuf;
                                         }
@@ -2918,7 +2937,7 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWORD parentAdr, int callPos, DW
                                 //Set Flags
                                 SetFlags(cfData, itemPos, 8);
                                 //Get Context
-                                HINSTANCE hInst = LoadLibraryEx(SourceFile.c_str(), 0, LOAD_LIBRARY_AS_DATAFILE);
+                                HINSTANCE hInst = LoadLibraryEx(AnsiString(SourceFile).c_str(), 0, LOAD_LIBRARY_AS_DATAFILE);
                                 if (hInst)
                                 {
                                     DWORD resid = *((DWORD*)(Code + itemPos + 4));

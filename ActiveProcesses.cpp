@@ -3,9 +3,9 @@
 #include <vcl.h>
 #pragma hdrstop
 
-#include <stdio.h>
 #include "Main.h"
 #include "ActiveProcesses.h"
+
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -134,16 +134,18 @@ void TFActiveProcesses::ShowProcessesNT()
     {
         if (ProcessIds[n])
         {
-            _hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, 0, ProcessIds[n]);
+            _hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, ProcessIds[n]);
             if (_hProcess)
             {
-                if (lpEnumProcessModules(_hProcess, ModuleHandles, sizeof(ModuleHandles), &ModulesNum))
+                // if (lpEnumProcessModules(_hProcess, ModuleHandles, sizeof(ModuleHandles), &ModulesNum))
+                if (EnumProcessModules(_hProcess, ModuleHandles, sizeof(ModuleHandles), &ModulesNum))
                 {
                     ModulesNum /= sizeof(ModuleHandles[0]);
                     _len = lpGetModuleFileNameEx(_hProcess, ModuleHandles[0], _buf, sizeof(_buf));
                     _moduleName = String(_buf, _len);
-                    lpGetModuleInformation(_hProcess, ModuleHandles[0], &_moduleInfo, sizeof(_moduleInfo));
-                    if (_moduleName != "")
+                    // lpGetModuleInformation(_hProcess, ModuleHandles[0], &_moduleInfo, sizeof(_moduleInfo));
+                    // if (_moduleName != "")
+                    if (GetModuleInformation(_hProcess, ModuleHandles[0], &_moduleInfo, sizeof(_moduleInfo)))
                     {
                         _pos = _moduleName.LastDelimiter("\\");
                         if (_pos) _moduleName = _moduleName.SubString(_pos + 1, _moduleName.Length());
@@ -216,7 +218,7 @@ void __fastcall TFActiveProcesses::DumpProcess(DWORD PID, TMemoryStream* MemStre
     MODULEENTRY32           _pme;
     IMAGE_SECTION_HEADER    _sections[64];
 
-    _hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, 0, PID); //0x1F0FFF
+    _hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, PID); //0x1F0FFF
     if (_hProcess)
     {
         //If Win9x
@@ -244,8 +246,10 @@ void __fastcall TFActiveProcesses::DumpProcess(DWORD PID, TMemoryStream* MemStre
         }
         else
         {
-            lpEnumProcessModules(_hProcess, ModuleHandles, sizeof(ModuleHandles), &ModulesNum);
-            lpGetModuleInformation(_hProcess, ModuleHandles[0], &_moduleInfo, sizeof(_moduleInfo));
+            // lpEnumProcessModules(_hProcess, ModuleHandles, sizeof(ModuleHandles), &ModulesNum);
+            // lpGetModuleInformation(_hProcess, ModuleHandles[0], &_moduleInfo, sizeof(_moduleInfo));
+            EnumProcessModules(_hProcess, ModuleHandles, sizeof(ModuleHandles), &ModulesNum);
+            GetModuleInformation(_hProcess, ModuleHandles[0], &_moduleInfo, sizeof(_moduleInfo));
         }
         if (!_moduleInfo.lpBaseOfDll)
         {
@@ -288,12 +292,12 @@ void __fastcall TFActiveProcesses::DumpProcess(DWORD PID, TMemoryStream* MemStre
         */
         //Correct PE Header
         //Set SectionNum = 2
-        MemStream->Seek(6 + _peHdrOffset, soFromBeginning);
+        MemStream->Seek(static_cast<__int64>(6 + _peHdrOffset), System::Classes::soFromBeginning);
         _secNum = 2;
         MemStream->WriteBuffer(&_secNum, sizeof(_secNum));
         //Set EP
         //Set sections
-        MemStream->Seek(0xF8 + _peHdrOffset, soFromBeginning);
+        MemStream->Seek(static_cast<__int64>(0xF8 + _peHdrOffset), System::Classes::soFromBeginning);
         //"CODE"
         memset(_b, 0, 8); _b[0] = 'C'; _b[1] = 'O'; _b[2] = 'D'; _b[3] = 'E';
         MemStream->WriteBuffer(_b, 8);

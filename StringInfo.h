@@ -2,16 +2,14 @@
 #ifndef StringInfoH
 #define StringInfoH
 //---------------------------------------------------------------------------
-#include <Classes.hpp>
-#include <Controls.hpp>
-#include <StdCtrls.hpp>
-#include <Forms.hpp>
-#include "TntStdCtrls.hpp"
+#include <System.Classes.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.StdCtrls.hpp>
 //---------------------------------------------------------------------------
 class TFStringInfo_11011981 : public TForm
 {
 __published:	// IDE-managed Components
-	TTntMemo *memStringInfo;
+	TMemo *memStringInfo;
     void __fastcall FormKeyDown(TObject *Sender, WORD &Key,
           TShiftState Shift);
     void __fastcall FormCreate(TObject *Sender);

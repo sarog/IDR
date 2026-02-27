@@ -1,5 +1,27 @@
+#include "Explorer.h"
+#include "FindDlg.h"
+#include "Main.h"
+#include "Misc.h"
+#include "StringInfo.h"
+#include "TypeInfo2.h"
 
-extern WideString __fastcall UnicodeEncode(String Str, int CodePage);
+extern BYTE *Code;
+extern DWORD CodeBase;
+extern MDisasm Disasm;
+extern DWORD TotalSize;
+extern DWORD *Flags;
+extern PInfoRec *Infos;
+extern DWORD CurUnitAdr;
+extern int UnitSortField;
+extern int UnitsNum;
+extern  bool            ProjectModified;
+extern  char        StringBuf[MAXSTRBUFFER];
+extern  DWORD       EP;
+extern  DWORD       CurProcAdr;
+extern  TList       *Units;
+
+// extern WideString __fastcall UnicodeEncode(String Str, int CodePage);
+
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::miSortUnitsByAdrClick(TObject *Sender)
 {
@@ -78,7 +100,7 @@ void __fastcall TFMain_11011981::ShowUnits(bool showUnk)
     if (oldItemIdx != -1)
     {
         String item = lbUnits->Items->Strings[oldItemIdx];
-        sscanf(item.c_str() + 1, "%lX", &selAdr);
+        sscanf(AnsiString(item).c_str() + 1, "%lX", &selAdr);
     }
     int oldTopIdx = lbUnits->TopIndex;
 
@@ -191,7 +213,7 @@ void __fastcall TFMain_11011981::lbUnitsDblClick(TObject *Sender)
     DWORD   adr;
 
     String item = lbUnits->Items->Strings[lbUnits->ItemIndex];
-    sscanf(item.c_str() + 1, "%lX", &adr);
+    sscanf(AnsiString(item).c_str() + 1, "%lX", &adr);
     PUnitRec recU = GetUnit(adr);
 
     if (!CurUnitAdr || adr != CurUnitAdr)
@@ -239,7 +261,7 @@ void __fastcall TFMain_11011981::lbUnitsDrawItem(
         //lb->ItemHeight = canvas->TextHeight(text);
         canvas->FillRect(Rect);
 
-        s = text.c_str();
+        s = AnsiString(text).c_str();
         //*XXXXXXXX #XXX XX NAME
         pos = strrchr(s, ' ');
         len = pos - s;
@@ -318,7 +340,7 @@ void __fastcall TFMain_11011981::miRenameUnitClick(TObject *Sender)
 
     String item = lbUnits->Items->Strings[lbUnits->ItemIndex];
     DWORD adr;
-    sscanf(item.c_str() + 1, "%lX", &adr);
+    sscanf(AnsiString(item).c_str() + 1, "%lX", &adr);
     PUnitRec recU = GetUnit(adr);
     
     String text = "";
@@ -666,9 +688,9 @@ void __fastcall TFMain_11011981::lbUnitItemsDblClick(TObject *Sender)
     String item = lbUnitItems->Items->Strings[lbUnitItems->ItemIndex];
     //Xrefs?
     if (item[11] == '<' || item[11] == '?')
-        sscanf(item.c_str() + 1, "%lX%s%s", &adr, tkName, typeName);
+        sscanf(AnsiString(item).c_str() + 1, "%lX%s%s", &adr, tkName, typeName);
     else
-        sscanf(item.c_str() + 1, "%lX%d%s%s", &adr, &refCnt, tkName, typeName);
+        sscanf(AnsiString(item).c_str() + 1, "%lX%d%s%s", &adr, &refCnt, tkName, typeName);
     String name = String(tkName);
     pos = Adr2Pos(adr);
 
@@ -756,8 +778,8 @@ void __fastcall TFMain_11011981::lbUnitItemsDblClick(TObject *Sender)
         FStringInfo_11011981->memStringInfo->Clear();
         FStringInfo_11011981->Caption = "String";
         recN = GetInfoRec(adr);
-        WideString ws = UnicodeEncode(recN->GetName(), CodePage);
-        FStringInfo_11011981->memStringInfo->Lines->Add(ws);
+        // WideString ws = UnicodeEncode(recN->GetName(), CodePage);
+        FStringInfo_11011981->memStringInfo->Lines->Add(recN->GetName());
         //FStringInfo_11011981->memStringInfo->Lines->Add((WideString)recN->GetName());
         FStringInfo_11011981->ShowModal();
         return;
@@ -960,9 +982,9 @@ void __fastcall TFMain_11011981::miEditFunctionIClick(TObject *Sender)
     String item = lbUnitItems->Items->Strings[lbUnitItems->ItemIndex];
     //Xrefs?
     if (item[11] == '<' || item[11] == '?')
-        sscanf(item.c_str() + 1, "%lX%s", &adr, tkName);
+        sscanf(AnsiString(item).c_str() + 1, "%lX%s", &adr, tkName);
     else
-        sscanf(item.c_str() + 1, "%lX%d%s", &adr, &refCnt, tkName);
+        sscanf(AnsiString(item).c_str() + 1, "%lX%d%s", &adr, &refCnt, tkName);
 
     String name = String(tkName);
 

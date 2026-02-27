@@ -1,18 +1,13 @@
 //---------------------------------------------------------------------------
 #ifndef UfrmFormTreeH
 #define UfrmFormTreeH
-#include <Classes.hpp>
-#include <ComCtrls.hpp>
-#include <Controls.hpp>
-#include <Dialogs.hpp>
-#include <Menus.hpp>
-//---------------------------------------------------------------------------
-//#include <Classes.hpp>
-//#include <Controls.hpp>
-//#include <StdCtrls.hpp>
-//#include <Forms.hpp>
-//#include <ComCtrls.hpp>
+#include <System.Classes.hpp>
+#include <Vcl.ComCtrls.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.Dialogs.hpp>
+#include <Vcl.Menus.hpp>
 #include <map>
+//---------------------------------------------------------------------------
 
 typedef std::map<const void*, TTreeNode*> TTreeNodeMap;
 //---------------------------------------------------------------------------

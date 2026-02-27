@@ -1,3 +1,8 @@
+#include "Main.h"
+#include "Misc.h"
+
+extern  DWORD       CurProcAdr;
+
 void __fastcall TFMain_11011981::ShowCodeXrefs(DWORD Adr, int selIdx)
 {
     lbCXrefs->Clear();
@@ -46,7 +51,7 @@ void __fastcall TFMain_11011981::lbXrefsDblClick(TObject *Sender)
     if (lb->ItemIndex < 0) return;
 
     String item = lb->Items->Strings[lb->ItemIndex];
-    sscanf(item.c_str() + 1, "%lX%2c", &adr, type);
+    sscanf(AnsiString(item).c_str() + 1, "%lX%2c", &adr, type);
 
     if (type[1] == 'D')
     {

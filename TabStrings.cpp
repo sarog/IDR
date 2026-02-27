@@ -1,4 +1,18 @@
-extern WideString __fastcall UnicodeEncode(String Str, int CodePage);
+#include "FindDlg.h"
+#include "Main.h"
+#include "Misc.h"
+#include "StringInfo.h"
+
+extern BYTE *Code;
+extern DWORD CodeBase;
+extern DWORD CodeSize;
+extern MDisasm Disasm;
+extern DWORD TotalSize;
+extern DWORD *Flags;
+extern PInfoRec *Infos;
+extern DWORD CurUnitAdr;
+
+// extern WideString __fastcall UnicodeEncode(String Str, int CodePage);
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::ShowStrings(int idx)
 {
@@ -67,9 +81,9 @@ void __fastcall TFMain_11011981::ShowStrings(int idx)
                     	line1 = line.SubString(1, MAXLEN) + "...";
                         //truncate = true;
                     }
-                    WideString ws = UnicodeEncode(line1, CodePage);
+                    // WideString ws = UnicodeEncode(line1, CodePage);
                     //if (truncate) line1[1] ^= 1;
-                    lbStrings->Items->Add(ws);
+                    lbStrings->Items->Add(line1);
                     wid = canvas->TextWidth(line1); if (wid > maxwid) maxwid = wid;
                 }
             }
@@ -91,7 +105,7 @@ void __fastcall TFMain_11011981::lbStringsClick(TObject *Sender)
     	DWORD adr;
         String line = lbStrings->Items->Strings[lbStrings->ItemIndex];
         //sscanf(line.c_str() + 1, "%lX", &adr);
-        sscanf(line.c_str(), "%lX", &adr);
+        sscanf(AnsiString(line).c_str(), "%lX", &adr);
         ShowStringXrefs(adr, -1);
     }
 }
@@ -101,7 +115,7 @@ void __fastcall TFMain_11011981::lbStringsDblClick(TObject *Sender)
 	DWORD adr;
     String line = lbStrings->Items->Strings[lbStrings->ItemIndex];
     //sscanf(line.c_str() + 1, "%lX", &adr);
-    sscanf(line.c_str(), "%lX", &adr);
+    sscanf(AnsiString(line).c_str(), "%lX", &adr);
     if (IsValidImageAdr(adr))
     {
         PInfoRec recN = GetInfoRec(adr);
@@ -117,8 +131,8 @@ void __fastcall TFMain_11011981::lbStringsDblClick(TObject *Sender)
         {
             FStringInfo_11011981->Caption = "String context";
         	FStringInfo_11011981->memStringInfo->Clear();
-            WideString ws = UnicodeEncode(recN->GetName(), CodePage);
-            FStringInfo_11011981->memStringInfo->Lines->Add(UnicodeEncode(recN->GetName(), CodePage));
+            // WideString ws = UnicodeEncode(recN->GetName(), CodePage);
+            FStringInfo_11011981->memStringInfo->Lines->Add(recN->GetName());
         	FStringInfo_11011981->ShowModal();
         }
     }
@@ -186,7 +200,7 @@ void __fastcall TFMain_11011981::miSearchStringClick(TObject *Sender)
     	DWORD adr;
         String line = lbStrings->Items->Strings[lbStrings->ItemIndex];
         //sscanf(line.c_str() + 1, "%lX", &adr);
-        sscanf(line.c_str(), "%lX", &adr);
+        sscanf(AnsiString(line).c_str(), "%lX", &adr);
         ShowStringXrefs(adr, -1);
     }
 }

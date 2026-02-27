@@ -3,11 +3,12 @@
 #include <StrUtils.hpp>
 #pragma hdrstop
 
-#include <assert>
+// #include <assert>
+#include <System.StrUtils.hpp>
 #include "Decompiler.h"
 #include "Main.h"
 #include "Misc.h"
-#include "TypeInfo.h"
+#include "TypeInfo2.h"
 #include "InputDlg.h"
 //---------------------------------------------------------------------------
 extern  int         DelphiVersion; 
@@ -2929,7 +2930,7 @@ bool __fastcall TDecompiler::SimulateCall(DWORD curAdr, DWORD callAdr, int instr
                     Env->ErrAdr = curAdr;
                     throw Exception("Bye!");
                 }
-                sscanf(_value.c_str(), "%lX", &_retBytes);
+                sscanf(AnsiString(_value).c_str(), "%lX", &_retBytes);
                 _ESP_ += _retBytes;
                 return false;
             }
@@ -2944,7 +2945,7 @@ bool __fastcall TDecompiler::SimulateCall(DWORD curAdr, DWORD callAdr, int instr
                 Env->ErrAdr = curAdr;
                 throw Exception("Bye!");
             }
-            sscanf(_value.c_str(), "%lX", &_retBytes);
+            sscanf(AnsiString(_value).c_str(), "%lX", &_retBytes);
             _ESP_ += _retBytes;
             return false;
         }
@@ -2968,7 +2969,7 @@ bool __fastcall TDecompiler::SimulateCall(DWORD curAdr, DWORD callAdr, int instr
                     Env->EmbeddedList->Add(_embAdr);
                     int _savedIdx = FMain_11011981->lbCode->ItemIndex;
                     FMain_11011981->lbCode->ItemIndex = -1;
-                    if (Application->MessageBox(String("Decompile embedded procedure at address " + _embAdr + "?").c_str(), "Confirmation", MB_YESNO) == IDYES)
+                    if (Application->MessageBox(String("Decompile embedded procedure at address " + _embAdr + "?").c_str(), L"Confirmation", MB_YESNO) == IDYES)
                     {
                         Env->AddToBody("//BEGIN_EMBEDDED_" + _embAdr);
                         Env->AddToBody(_recN->MakePrototype(callAdr, true, false, false, true, false));
@@ -3009,7 +3010,7 @@ bool __fastcall TDecompiler::SimulateCall(DWORD curAdr, DWORD callAdr, int instr
         else
         {
             _name = recM->name;
-            _res = (int)KnowledgeBase.GetProcInfo(recM->name.c_str(), INFO_DUMP | INFO_ARGS, &_pInfo, &_idx);
+            _res = (int)KnowledgeBase.GetProcInfo(AnsiString(recM->name).c_str(), INFO_DUMP | INFO_ARGS, &_pInfo, &_idx);
             if (_res && _res != -1)
             {
                 _callKind = _pInfo.CallKind;
@@ -3650,7 +3651,7 @@ bool __fastcall TDecompiler::SimulateCall(DWORD curAdr, DWORD callAdr, int instr
                 Env->ErrAdr = curAdr;
                 throw Exception("Bye!");
             }
-            sscanf(_value.c_str(), "%lX", &_retBytes);
+            sscanf(AnsiString(_value).c_str(), "%lX", &_retBytes);
             _ESP_ += _retBytes;
             return false;
         }
@@ -3678,7 +3679,7 @@ bool __fastcall TDecompiler::SimulateCall(DWORD curAdr, DWORD callAdr, int instr
                     Env->ErrAdr = curAdr;
                     throw Exception("Bye!");
                 }
-                sscanf(_value.c_str(), "%lX", &_retBytes);
+                sscanf(AnsiString(_value).c_str(), "%lX", &_retBytes);
                 _ESP_ += _retBytes;
                 return false;
             }
@@ -3734,7 +3735,7 @@ bool __fastcall TDecompiler::SimulateCall(DWORD curAdr, DWORD callAdr, int instr
                     Env->ErrAdr = curAdr;
                     throw Exception("Bye!");
                 }
-                sscanf(_value.c_str(), "%lX", &_retBytes);
+                sscanf(AnsiString(_value).c_str(), "%lX", &_retBytes);
                 _ESP_ += _retBytes;
                 return false;
             }
@@ -3750,7 +3751,7 @@ bool __fastcall TDecompiler::SimulateCall(DWORD curAdr, DWORD callAdr, int instr
                 Env->ErrAdr = curAdr;
                 throw Exception("Bye!");
             }
-            sscanf(_value.c_str(), "%lX", &_retBytes);
+            sscanf(AnsiString(_value).c_str(), "%lX", &_retBytes);
             _ESP_ += _retBytes;
             return false;
         }
@@ -3767,7 +3768,7 @@ bool __fastcall TDecompiler::SimulateCall(DWORD curAdr, DWORD callAdr, int instr
             Env->ErrAdr = curAdr;
             throw Exception("Bye!");
         }
-        sscanf(_value.c_str(), "%d", &_argsNum);
+        sscanf(AnsiString(_value).c_str(), "%d", &_argsNum);
         _ESP_ += _argsNum * 4;
         return false;
     }
@@ -3781,7 +3782,7 @@ bool __fastcall TDecompiler::SimulateCall(DWORD curAdr, DWORD callAdr, int instr
             Env->ErrAdr = curAdr;
             throw Exception("Bye!");
         }
-        sscanf(_value.c_str(), "%d", &_argsNum);
+        sscanf(AnsiString(_value).c_str(), "%d", &_argsNum);
 
         while (_argsNum)
         {
@@ -4963,11 +4964,11 @@ void __fastcall TDecompiler::SimulateInstr2RegImm(DWORD curAdr, BYTE Op)
                     case ikWCString:
                         _len = wcslen((wchar_t*)(Code + _ap));
                         _wStr = WideString((wchar_t*)(Code + _ap));
-                        _size = WideCharToMultiByte(CP_ACP, 0, _wStr, _len, 0, 0, 0, 0);
+                        _size = WideCharToMultiByte(CP_ACP, 0, _wStr.c_bstr(), _len, 0, 0, 0, 0);
                         if (_size)
                         {
                             _tmpBuf = new char[_size + 1];
-                            WideCharToMultiByte(CP_ACP, 0, _wStr, _len, (LPSTR)_tmpBuf, _size, 0, 0);
+                            WideCharToMultiByte(CP_ACP, 0, _wStr.c_bstr(), _len, (LPSTR)_tmpBuf, _size, 0, 0);
                             _recN->SetName(TransformString(_tmpBuf, _size));
                             delete[] _tmpBuf;
                         }
@@ -9381,7 +9382,7 @@ void __fastcall TDecompiler::GetFloatItemFromStack(int Esp, PITEM Dst, int Float
     if (FloatType == FT_CURRENCY)
     {
         memmove((void*)&_currVal.Val, _binData, 8);
-        Dst->Value = _currVal.operator AnsiString();
+        Dst->Value = _currVal.operator String();
         Dst->Type = "Currency";
         return;
     }
@@ -10050,7 +10051,7 @@ void __fastcall TDecompiler::GetMemItem(int CurAdr, PITEM Dst, BYTE Op)
                     Env->ErrAdr = CurAdr;
                     throw Exception("Bye!");
                 }
-                sscanf(_text.c_str(), "%lX", &_offset);
+                sscanf(AnsiString(_text).c_str(), "%lX", &_offset);
                 _fofs = GetArrayFieldOffset(_typeName, _offset, DisInfo.Scale, _name, _type);
             }
             if (!SameText(_itemBase.Value, "Self")) _value = _itemBase.Value + ".";
@@ -10303,11 +10304,11 @@ String __fastcall TDecompiler::GetStringArgument(PITEM item)
 
                 _len = wcslen((wchar_t*)(Code + _ap));
                 WideString wStr = WideString((wchar_t*)(Code + _ap));
-                _size = WideCharToMultiByte(CP_ACP, 0, wStr, -1, 0, 0, 0, 0);
+                _size = WideCharToMultiByte(CP_ACP, 0, wStr.c_bstr(), -1, 0, 0, 0, 0);
                 if (_size)
                 {
                     char* tmpBuf = new char[_size + 1];
-                    WideCharToMultiByte(CP_ACP, 0, wStr, -1, (LPSTR)tmpBuf, _size, 0, 0);
+                    WideCharToMultiByte(CP_ACP, 0, wStr.c_bstr(), -1, (LPSTR)tmpBuf, _size, 0, 0);
                     String str = TransformString(tmpBuf, _size);
                     delete[] tmpBuf;
                     return str;

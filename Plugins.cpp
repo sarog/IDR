@@ -35,7 +35,7 @@ void __fastcall TFPlugins::FormShow(TObject *Sender)
         {
             do
             {
-                HINSTANCE hModule = LoadLibrary(sr.Name.c_str());
+                HINSTANCE hModule = LoadLibrary(AnsiString(sr.Name).c_str());
                 if (hModule)
                 {
                     String info = "";
@@ -77,7 +77,7 @@ void __fastcall TFPlugins::cklbPluginsListDblClick(TObject *Sender)
     if (pos > 0) filename = line.SubString(1, pos - 1).Trim();
     if (filename != "")
     {
-        HINSTANCE hModule = LoadLibrary((PluginsPath + "\\" + filename).c_str());
+        HINSTANCE hModule = LoadLibrary(AnsiString(PluginsPath + "\\" + filename).c_str());
         if (hModule)
         {
             fnAboutPlugIn = (void (__stdcall*)(void))GetProcAddress(hModule, "AboutPlugIn");

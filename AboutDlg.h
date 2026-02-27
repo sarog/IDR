@@ -2,18 +2,14 @@
 #ifndef AboutDlgH
 #define AboutDlgH
 //----------------------------------------------------------------------------
-#include <vcl\System.hpp>
-#include <vcl\Windows.hpp>
-#include <vcl\SysUtils.hpp>
-#include <vcl\Classes.hpp>
-#include <vcl\Graphics.hpp>
-#include <vcl\StdCtrls.hpp>
-#include <vcl\Forms.hpp>
-#include <vcl\Controls.hpp>
-#include <vcl\Buttons.hpp>
-#include <vcl\ExtCtrls.hpp>
-#include <ComCtrls.hpp>
-#include <jpeg.hpp>
+#include <System.Classes.hpp>
+#include <Vcl.Buttons.hpp>
+#include <Vcl.ComCtrls.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.ExtCtrls.hpp>
+#include <Vcl.Graphics.hpp>
+#include <Vcl.Imaging.jpeg.hpp>
+#include <Vcl.StdCtrls.hpp>
 //----------------------------------------------------------------------------
 class TFAboutDlg_11011981 : public TForm
 {

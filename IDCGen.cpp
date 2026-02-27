@@ -151,7 +151,7 @@ void __fastcall TIDCGen::MakeFunction(DWORD adr)
 //---------------------------------------------------------------------------
 void __fastcall TIDCGen::MakeComment(int pos, String text)
 {
-    CurrentBytes += fprintf(idcF, "MakeComm(0x%lX, \"%s\");\n", Pos2Adr(pos), TransformString(text.c_str(), text.Length()).c_str());
+    CurrentBytes += fprintf(idcF, "MakeComm(0x%lX, \"%s\");\n", Pos2Adr(pos), TransformString(AnsiString(text).c_str(), text.Length()).c_str());
 }
 //---------------------------------------------------------------------------
 int __fastcall TIDCGen::OutputAttrData(int pos)
@@ -1318,7 +1318,7 @@ PREPNAMEINFO __fastcall TIDCGen::GetNameInfo(int idx)
 __fastcall TSaveIDCDialog::TSaveIDCDialog(TComponent* AOwner, char* TemplateName) : TSaveDialog(AOwner)
 {
 	Options >> ofEnableSizing;
-    Template = TemplateName;
+    Template = String(TemplateName).c_str();
     CheckDlgButton(Handle, 101, SplitIDC ? BST_CHECKED : BST_UNCHECKED);
 }
 //---------------------------------------------------------------------------

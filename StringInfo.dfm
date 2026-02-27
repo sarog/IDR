@@ -16,7 +16,7 @@ object FStringInfo_11011981: TFStringInfo_11011981
   OnKeyDown = FormKeyDown
   PixelsPerInch = 96
   TextHeight = 13
-  object memStringInfo: TTntMemo
+  object memStringInfo: TMemo
     Left = 0
     Top = 0
     Width = 837

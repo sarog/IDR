@@ -246,8 +246,8 @@ void __fastcall TFKBViewer_11011981::btnOkClick(TObject *Sender)
                             recN = GetInfoRec(adr);
                             recN->procInfo->DeleteArgs();
 
-                            WORD *uses = KnowledgeBase.GetModuleUses(KnowledgeBase.GetModuleID(cbUnits->Text.c_str()));
-                            Idx = KnowledgeBase.GetProcIdx(uses, kbName.c_str(), Code + ap);
+                            WORD *uses = KnowledgeBase.GetModuleUses(KnowledgeBase.GetModuleID(AnsiString(cbUnits->Text).c_str()));
+                            Idx = KnowledgeBase.GetProcIdx(uses, AnsiString(kbName).c_str(), Code + ap);
                             if (Idx != -1)
                             {
                                 Idx = KnowledgeBase.ProcOffsets[Idx].NamId;
@@ -259,7 +259,7 @@ void __fastcall TFKBViewer_11011981::btnOkClick(TObject *Sender)
                             }
                             else
                             {
-                                Idx = KnowledgeBase.GetProcIdx(uses, kbName.c_str(), 0);
+                                Idx = KnowledgeBase.GetProcIdx(uses, AnsiString(kbName).c_str(), 0);
                                 if (Idx != -1)
                                 {
                                     Idx = KnowledgeBase.ProcOffsets[Idx].NamId;
@@ -306,7 +306,7 @@ void __fastcall TFKBViewer_11011981::cbUnitsChange(TObject *Sender)
     MProcInfo   *_pInfo = &_aInfo;
 
     Position = -1;
-    _moduleID = KnowledgeBase.GetModuleID(cbUnits->Text.c_str());
+    _moduleID = KnowledgeBase.GetModuleID(AnsiString(cbUnits->Text).c_str());
     if (_moduleID != 0xFFFF)
     {
         if (KnowledgeBase.GetProcIdxs(_moduleID, &_firstProcIdx, &_lastProcIdx))

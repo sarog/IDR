@@ -1,3 +1,11 @@
+#include "FindDlg.h"
+#include "Main.h"
+#include "Misc.h"
+#include "TypeInfo2.h"
+
+extern TList *OwnTypeList;
+extern int RTTISortField;
+
 //---------------------------------------------------------------------------
 int __fastcall SortRTTIsByAdr(void *item1, void *item2)
 {
@@ -69,7 +77,7 @@ void __fastcall TFMain_11011981::lbRTTIsDblClick(TObject *Sender)
     DWORD   adr;
     char    tkName[32], typeName[1024];
 
-    sscanf(lbRTTIs->Items->Strings[lbRTTIs->ItemIndex].c_str(), "%lX%s%s", &adr, tkName, typeName);
+    sscanf(AnsiString(lbRTTIs->Items->Strings[lbRTTIs->ItemIndex]).c_str(), "%lX%s%s", &adr, tkName, typeName);
     String name = String(tkName);
 
     if (SameText(name, "<VMT>") && tsClassView->TabVisible)

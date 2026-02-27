@@ -3,14 +3,12 @@
 #ifndef ExplorerH
 #define ExplorerH
 //---------------------------------------------------------------------------
-#include <Classes.hpp>
-#include <Controls.hpp>
-#include <StdCtrls.hpp>
-#include <Forms.hpp>
-#include <ComCtrls.hpp>
-#include <ExtCtrls.hpp>
-#include <Menus.hpp>
-#include "TntStdCtrls.hpp"
+#include <System.Classes.hpp>
+#include <Vcl.ComCtrls.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.ExtCtrls.hpp>
+#include <Vcl.Menus.hpp>
+#include <Vcl.StdCtrls.hpp>
 //---------------------------------------------------------------------------
 #define     DEFINE_AS_CODE      1
 #define     DEFINE_AS_STRING    2

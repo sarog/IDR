@@ -5,10 +5,10 @@
 #include "Explorer.h"
 #include "Main.h"
 #include "Misc.h"
-#include <Clipbrd.hpp>
+#include <Vcl.Clipbrd.hpp>
+
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
-#pragma link "TntStdCtrls"
 #pragma resource "*.dfm"
 
 extern  MDisasm Disasm;
@@ -190,11 +190,11 @@ void __fastcall TFExplorer_11011981::ShowString(DWORD fromAdr, int maxBytes)
         if (len < 0) len = 0;
         if (len > maxBytes) len = maxBytes;
         wStr = WideString((wchar_t*)(Image + pos));
-        size = WideCharToMultiByte(CP_ACP, 0, wStr, len, 0, 0, 0, 0);
+        size = WideCharToMultiByte(CP_ACP, 0, wStr.c_bstr(), len, 0, 0, 0, 0);
         if (size)
         {
             tmpBuf = new char[size + 1];
-            WideCharToMultiByte(CP_ACP, 0, wStr, len, (LPSTR)tmpBuf, size, 0, 0);
+            WideCharToMultiByte(CP_ACP, 0, wStr.c_bstr(), len, (LPSTR)tmpBuf, size, 0, 0);
             str = TransformString(tmpBuf, size);
             delete[] tmpBuf;
         }
@@ -216,11 +216,11 @@ void __fastcall TFExplorer_11011981::ShowString(DWORD fromAdr, int maxBytes)
         if (len < 0) len = 0;
         if (len > maxBytes) len = maxBytes;
         wStr = WideString((wchar_t*)(Image + pos + WAlign + 4));
-        size = WideCharToMultiByte(CP_ACP, 0, wStr, len, 0, 0, 0, 0);
+        size = WideCharToMultiByte(CP_ACP, 0, wStr.c_bstr(), len, 0, 0, 0, 0);
         if (size)
         {
             tmpBuf = new char[size + 1];
-            WideCharToMultiByte(CP_ACP, 0, wStr, len, (LPSTR)tmpBuf, size, 0, 0);
+            WideCharToMultiByte(CP_ACP, 0, wStr.c_bstr(), len, (LPSTR)tmpBuf, size, 0, 0);
             str = TransformString(tmpBuf, size);
             delete[] tmpBuf;
         }

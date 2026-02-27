@@ -3,11 +3,10 @@
 #ifndef PluginsH
 #define PluginsH
 //---------------------------------------------------------------------------
-#include <Classes.hpp>
-#include <Controls.hpp>
-#include <StdCtrls.hpp>
-#include <Forms.hpp>
-#include <CheckLst.hpp>
+#include <System.Classes.hpp>
+#include <Vcl.CheckLst.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.StdCtrls.hpp>
 //---------------------------------------------------------------------------
 class TFPlugins : public TForm
 {

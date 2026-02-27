@@ -2,9 +2,6 @@
 #ifndef ResourcesH
 #define ResourcesH
 //---------------------------------------------------------------------------
-#include <ComCtrls.hpp>
-#include <AppEvnts.hpp>
-
 #include "UfrmFormTree.h"
 //---------------------------------------------------------------------------
 typedef struct
@@ -110,8 +107,10 @@ public:
     TStringList	*FoundEvents;
 } ;
 
-typedef void __fastcall (__closure *TFindMethodSourceEvent)
-    (TObject* Sender, String& ClassName, String& MethodName);
+typedef void __fastcall(__closure *TFindMethodSourceEvent)(TObject *Sender, const String &ClassName,
+                                                           const String &MethodName);
+// typedef void __fastcall (__closure *TFindMethodSourceEvent)
+//     (TObject* Sender, String& ClassName, String& MethodName);
 
 class IdrDfmForm : public TForm
 {
@@ -132,6 +131,7 @@ public:
     void __fastcall SetDesigning(bool value, bool SetChildren);
     void __fastcall SetMyHandlers();
     __property TFindMethodSourceEvent OnFindMethod = {read = FOnFindMethod, write = FOnFindMethod, default = 0};
+
 protected:
     virtual void __fastcall CreateHandle();
     void __fastcall SetupControlHint(String FormName, TControl* Control, String InitHint);
@@ -190,7 +190,7 @@ private:
 class IdrDfmDefaultControl : public TPanel
 {
 public:
-    __fastcall IdrDfmDefaultControl(TObject* Owner);
+    __fastcall IdrDfmDefaultControl(TComponent* Owner);
 
     bool IsVisible();
     void SetClassName(const String& name, const String& mappedName);

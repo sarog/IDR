@@ -3,11 +3,10 @@
 #ifndef KBViewerH
 #define KBViewerH
 //---------------------------------------------------------------------------
-#include <Classes.hpp>
-#include <Controls.hpp>
-#include <StdCtrls.hpp>
-#include <Forms.hpp>
-#include <ExtCtrls.hpp>
+#include <System.Classes.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.ExtCtrls.hpp>
+#include <Vcl.StdCtrls.hpp>
 //---------------------------------------------------------------------------
 class TFKBViewer_11011981 : public TForm
 {

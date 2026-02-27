@@ -170,7 +170,8 @@ void __fastcall TFEditFunctionDlg_11011981::bApplyTypeClick(TObject *Sender)
     }
 
     DWORD   newEndAdr;
-    if (lEndAdr->Text == "" || !TryStrToInt(String("$") + lEndAdr->Text, newEndAdr))
+    int tempInt;
+    if (lEndAdr->Text == "" || !TryStrToInt(String("$") + lEndAdr->Text, tempInt))
     {
         ShowMessage("End address is not valid");
         return;
@@ -227,9 +228,9 @@ void __fastcall TFEditFunctionDlg_11011981::bApplyTypeClick(TObject *Sender)
     }
 
     decl = decl.Trim();
-    char* p = decl.AnsiLastChar();
+    char* p = AnsiString(decl).AnsiLastChar();
     if (*p == ';') *p = ' ';
-    p = decl.c_str();
+    p = AnsiString(decl).c_str();
     String name = "";
     for (int len = 0;; len++)
     {
@@ -378,7 +379,7 @@ void __fastcall TFEditFunctionDlg_11011981::bApplyVarClick(TObject *Sender)
     if (ftype != "" && GetTypeKind(ftype, &size) == ikRecord)
     {
         String recFileName = FMain_11011981->WrkDir + "\\types.idr";
-        FILE* recFile = fopen(recFileName.c_str(), "rt");
+        FILE* recFile = fopen(AnsiString(recFileName).c_str(), "rt");
         if (recFile)
         {
             while (1)
@@ -412,7 +413,7 @@ void __fastcall TFEditFunctionDlg_11011981::bApplyVarClick(TObject *Sender)
         while (1)
         {
             //KB
-            WORD* uses = KnowledgeBase.GetTypeUses(ftype.c_str());
+            WORD* uses = KnowledgeBase.GetTypeUses(AnsiString(ftype).c_str());
             int idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, ftype.c_str());
             if (uses) delete[] uses;
 

@@ -2,7 +2,6 @@
 #include <vcl.h>
 #pragma hdrstop
 
-#include <assert>
 #include "KnowledgeBase.h"
 
 #include "Main.h"
@@ -2066,7 +2065,7 @@ bool __fastcall MKnowledgeBase::GetKBProcInfo(String typeName, MProcInfo* procIn
 {
     int     res, idx;
 
-    res = (int)GetProcInfo(typeName.c_str(), INFO_DUMP | INFO_ARGS, procInfo, procIdx);
+    res = (int)GetProcInfo(AnsiString(typeName).c_str(), INFO_DUMP | INFO_ARGS, procInfo, procIdx);
     if (res && res != -1)
     {
         return true;
@@ -2079,8 +2078,8 @@ bool __fastcall MKnowledgeBase::GetKBTypeInfo(String typeName, MTypeInfo* typeIn
     int         idx;
     WORD        *uses;
 
-    uses = GetTypeUses(typeName.c_str());
-    idx = GetTypeIdxByModuleIds(uses, typeName.c_str());
+    uses = GetTypeUses(AnsiString(typeName).c_str());
+    idx = GetTypeIdxByModuleIds(uses, AnsiString(typeName).c_str());
     if (uses) delete[] uses;
     if (idx != -1)
     {
@@ -2101,8 +2100,8 @@ bool __fastcall MKnowledgeBase::GetKBPropertyInfo(String className, String propN
     MTypeInfo   tInfo;
     String      name, type;
 
-    uses = GetTypeUses(className.c_str());
-    idx = GetTypeIdxByModuleIds(uses, className.c_str());
+    uses = GetTypeUses(AnsiString(className).c_str());
+    idx = GetTypeIdxByModuleIds(uses, AnsiString(className).c_str());
     if (uses) delete[] uses;
 
     if (idx != -1)
@@ -2144,8 +2143,8 @@ String __fastcall MKnowledgeBase::IsPropFunction(String className, String procNa
     MTypeInfo   tInfo;
     String      pname, type, fname;
 
-    uses = GetTypeUses(className.c_str());
-    idx = GetTypeIdxByModuleIds(uses, className.c_str());
+    uses = GetTypeUses(AnsiString(className).c_str());
+    idx = GetTypeIdxByModuleIds(uses, AnsiString(className).c_str());
     if (uses) delete[] uses;
     if (idx != -1)
     {

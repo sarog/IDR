@@ -288,14 +288,14 @@ String __fastcall InfoProcInfo::AddArgsFromDeclaration(char* Decl, int from, int
                 //Tag
                 argInfo.Tag = 0x21;
                 while (*p == ' ') p++;
-                sscanf(p, "%s", _Name);
+                sscanf(AnsiString(p).c_str(), "%s", _Name);
                 if (!stricmp(_Name, "var"))
                 {
                     argInfo.Tag = 0x22;
                     p += strlen(_Name);
                     while (*p == ' ') p++;
                     //Name
-                    sscanf(p, "%s", _Name);
+                    sscanf(AnsiString(p).c_str(), "%s", _Name);
                 }
 
                 //Insert by ZGL
@@ -305,7 +305,7 @@ String __fastcall InfoProcInfo::AddArgsFromDeclaration(char* Decl, int from, int
                     p += strlen(_Name);
                     while (*p == ' ') p++;
                     //Name
-                    sscanf(p, "%s", _Name);
+                    sscanf(AnsiString(p).c_str(), "%s", _Name);
                 }
                 ////////////////
 
@@ -314,7 +314,7 @@ String __fastcall InfoProcInfo::AddArgsFromDeclaration(char* Decl, int from, int
                     p += strlen(_Name);
                     while (*p == ' ') p++;
                     //Name
-                    sscanf(p, "%s", _Name);
+                    sscanf(AnsiString(p).c_str(), "%s", _Name);
                 }
                 p += strlen(_Name);
                 while (*p == ' ') p++;
@@ -326,7 +326,7 @@ String __fastcall InfoProcInfo::AddArgsFromDeclaration(char* Decl, int from, int
                 cp = strchr(_Type, ':');
                 if (cp)
                 {
-                    sscanf(cp + 1, "%d", &argInfo.Size);
+                    sscanf(AnsiString(cp).c_str() + 1, "%d", &argInfo.Size);
                     *cp = 0;
                 }
                 if (callKind == 0)//fastcall
@@ -524,7 +524,7 @@ void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef)
         if (TypeDef != "" && GetTypeKind(TypeDef, &size) == ikRecord)
         {
             String recFileName = FMain_11011981->WrkDir + "\\types.idr";
-            FILE* recFile = fopen(recFileName.c_str(), "rt");
+            FILE* recFile = fopen(AnsiString(recFileName).c_str(), "rt");
             if (recFile)
             {
                 while (1)
@@ -554,8 +554,8 @@ void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef)
             while (1)
             {
                 //KB
-                WORD* uses = KnowledgeBase.GetTypeUses(TypeDef.c_str());
-                int idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, TypeDef.c_str());
+                WORD* uses = KnowledgeBase.GetTypeUses(AnsiString(TypeDef).c_str());
+                int idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(TypeDef).c_str());
                 if (uses) delete[] uses;
 
                 if (idx == -1) break;

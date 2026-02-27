@@ -83,7 +83,7 @@ void __fastcall TFEditFieldsDlg_11011981::lbFXrefsDblClick(TObject *Sender)
     DWORD           adr;
 
     String item = lbFXrefs->Items->Strings[lbFXrefs->ItemIndex];
-    sscanf(item.c_str() + 1, "%lX%2c", &adr, type);
+    sscanf(AnsiString(item).c_str() + 1, "%lX%2c", &adr, type);
 
     for (int m = Adr2Pos(adr); m >= 0; m--)
     {
@@ -184,18 +184,18 @@ void __fastcall TFEditFieldsDlg_11011981::bApplyClick(TObject *Sender)
         break;
     case FD_OP_ADD:
     case FD_OP_DELETE:
-        sscanf(edtOffset->Text.Trim().c_str(), "%lX", &offset);
+        sscanf(AnsiString(edtOffset->Text.Trim()).c_str(), "%lX", &offset);
         if (Op == FD_OP_ADD)
         {
             fInfo = FMain_11011981->GetField(recN->GetName(), offset, &vmt, &adr, "");
-            if (!fInfo || Application->MessageBox("Field already exists", "Replace?", MB_YESNO) == IDYES)
+            if (!fInfo || Application->MessageBox(L"Field already exists", L"Replace?", MB_YESNO) == IDYES)
                 recN->vmtInfo->AddField(0, 0, FIELD_PUBLIC, offset, -1, Trim(edtName->Text), Trim(edtType->Text));
             if (fInfo && fInfo->Scope == SCOPE_TMP)
                 delete fInfo;
         }
         if (Op == FD_OP_DELETE)
         {
-            if (Application->MessageBox("Delete field?", "Confirmation", MB_YESNO) == IDYES)
+            if (Application->MessageBox(L"Delete field?", L"Confirmation", MB_YESNO) == IDYES)
                 recN->vmtInfo->RemoveField(offset);
         }
         break;

@@ -6,27 +6,26 @@
 #include "Main.h"
 #include "Misc.h"
 #include "ProgressBar.h"
-
-#include <Math.hpp>
-#include <CheckLst.hpp>
-#include <Chart.hpp>
-#include <Tabnotbk.hpp>
-#include <MPlayer.hpp>
-#include <Tabs.hpp>
-#include <FileCtrl.hpp>
-#include <Perfgrap.h>
-#include <Cspin.h>
-#include <Colorgrd.hpp>
-#include <CDiroutl.h>
-#include <CCalendr.h>
-#include <CGauges.h>
-#include <Pies.h>
-
-#include <StrUtils.hpp>
-#include <StdActns.hpp>
-#include <ExtActns.hpp>
-#include <series.hpp>
-#include <valedit.hpp>
+#include <System.StrUtils.hpp>
+#include <VCLTee.Chart.hpp>
+#include <Vcl.StdActns.hpp>
+#include <Vcl.ExtActns.hpp>
+#include <Vcl.CheckLst.hpp>
+#include <VCLTee.Series.hpp>
+#include <Vcl.MPlayer.hpp>
+#include <Vcl.Tabs.hpp>
+#include <Vcl.Outline.hpp>
+#include <Vcl.ComCtrls.hpp>
+#include <Vcl.TabNotBk.hpp>
+#include <Vcl.FileCtrl.hpp>
+#include <Vcl.ColorGrd.hpp>
+#include <Vcl.ValEdit.hpp>
+#include "perfgrap.h"
+#include "cspin.h"
+#include "cgauges.h"
+#include "cdiroutl.h"
+#include "ccalendr.h"
+#include "pies.h"
 
 int (__stdcall *fnGetDstSize)(BYTE*, int);
 boolean (__stdcall *fnDecrypt)(BYTE*, int, BYTE*, int);
@@ -40,7 +39,7 @@ bool	ClassesRegistered = false;
 
 RegClassInfo RegClasses[] =
 {
-    //Standard
+    /*//Standard
     {__classid(Forms::TFrame), "TFrame"},
     {__classid(Menus::TMainMenu), "TMainMenu"},
     {__classid(Menus::TPopupMenu), "TPopupMenu"},
@@ -170,7 +169,7 @@ RegClassInfo RegClasses[] =
     {__classid(TValueListEditor), "TValueListEditor"},
     //
     {__classid(IdrDfmDefaultControl), "Default"},
-    {0, 0}
+    {0, 0}*/
 };
 //---------------------------------------------------------------------------
 __fastcall TDfm::TDfm()
@@ -354,7 +353,7 @@ bool __stdcall EnumResNameProcedure(int hModule, char* Type, char* Name, long Pa
 
     if (Type == RT_RCDATA || Type == RT_BITMAP)
     {
-        resStream = new TResourceStream(hModule, Name, Type);
+		resStream = new TResourceStream(hModule, String(Name), String(Type).c_str());
         if (Type == RT_RCDATA)
         {
             ms = new TMemoryStream;
@@ -454,11 +453,11 @@ bool __stdcall EnumResNameProcedure(int hModule, char* Type, char* Name, long Pa
 bool __fastcall TResourceInfo::EnumResources(String FileName)
 {
 	citadel = false;
-    hFormPlugin = LoadLibrary((FMain_11011981->AppDir + "Plugins\\" + FormPluginName).c_str());
-    HINSTANCE hInst = LoadLibraryEx(FileName.c_str(), 0, LOAD_LIBRARY_AS_DATAFILE);
+    hFormPlugin = LoadLibrary(AnsiString(FMain_11011981->AppDir + "Plugins\\" + FormPluginName).c_str());
+    HINSTANCE hInst = LoadLibraryEx(AnsiString(FileName).c_str(), 0, LOAD_LIBRARY_AS_DATAFILE);
     if (hInst)
     {
-        EnumResourceNames(hInst, RT_RCDATA, (int (__stdcall*)())EnumResNameProcedure, (long)this);
+        EnumResourceNames(hInst, RT_RCDATA, (ENUMRESNAMEPROC)EnumResNameProcedure, (long)this);
         FreeLibrary(hInst);
         return true;
     }
@@ -933,7 +932,7 @@ void __fastcall IdrDfmForm::CreateHandle()
 {
     if (FormStyle == fsMDIChild)
     {
-        FormStyle = fsNormal;
+        FormStyle = Vcl::Forms::fsNormal;
         return;
     }
 
@@ -1687,7 +1686,7 @@ bool __fastcall IdrDfmLoader::HasGlyph(String ClassName)
 //---------------------------------------------------------------------------
 //IdrDfmDefaultControl
 //---------------------------------------------------------------------------
-__fastcall IdrDfmDefaultControl::IdrDfmDefaultControl(TObject* Owner) : TPanel(Owner)
+__fastcall IdrDfmDefaultControl::IdrDfmDefaultControl(TComponent* Owner) : TPanel(Owner)
 {
     Color = clNone;
     imgIcon = 0;

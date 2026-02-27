@@ -3,12 +3,9 @@
 #ifndef ProgressBarH
 #define ProgressBarH
 //---------------------------------------------------------------------------
-#include <Classes.hpp>
-#include <Controls.hpp>
-#include <StdCtrls.hpp>
-#include <Forms.hpp>
-#include <ComCtrls.hpp>
-#include <ExtCtrls.hpp>
+#include <System.Classes.hpp>
+#include <Vcl.ComCtrls.hpp>
+#include <Vcl.Controls.hpp>
 #include "Main.h"
 //---------------------------------------------------------------------------
 class TFProgressBar : public TForm

@@ -113,7 +113,7 @@ __fastcall TIdrDfmFormTree_11011981::TIdrDfmFormTree_11011981(TComponent* Owner)
     if (externalParent)
     {
         Application->MessageBox(("Form has some component classes defined in external modules:\r\n"
-            + externalNames + ".\r\n\r\nVisualization of these components is not yet implemented").c_str(), "Warning", MB_OK | MB_ICONWARNING);
+            + externalNames + ".\r\n\r\nVisualization of these components is not yet implemented").c_str(), L"Warning", MB_OK | MB_ICONWARNING);
     }
 }
 //---------------------------------------------------------------------------

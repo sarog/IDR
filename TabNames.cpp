@@ -1,3 +1,18 @@
+#include "Main.h"
+#include "Misc.h"
+
+extern BYTE *Code;
+extern DWORD CodeBase;
+extern DWORD CodeSize;
+extern MDisasm Disasm;
+extern DWORD TotalSize;
+extern DWORD *Flags;
+extern PInfoRec *Infos;
+extern DWORD CurUnitAdr;
+extern  TStringList *BSSInfos;
+extern  int         cVmtSelfPtr;
+extern  int         LastResStrNo;
+
 void __fastcall TFMain_11011981::ShowNames(int idx)
 {
     int			n, wid, maxwid = 0;
@@ -76,7 +91,7 @@ void __fastcall TFMain_11011981::lbNamesClick(TObject *Sender)
     {
     	DWORD adr;
         String line = lbNames->Items->Strings[lbNames->ItemIndex];
-        sscanf(line.c_str() + 1, "%lX", &adr);
+        sscanf(AnsiString(line).c_str() + 1, "%lX", &adr);
         ShowNameXrefs(adr, -1);
     }
 }

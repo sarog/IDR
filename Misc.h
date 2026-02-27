@@ -2,7 +2,6 @@
 #ifndef MiscH
 #define MiscH
 //---------------------------------------------------------------------------
-#include <Clipbrd.hpp>
 #include "Decompiler.h"
 //---------------------------------------------------------------------------
 //Float Type
@@ -21,14 +20,14 @@ typedef struct
     String  Type;
 } FIELD_INFO, *PFIELD_INFO;
 //Add by ZGL-----------------------------------------------------------------
-class TUnicodeClipboard : public TClipboard
+/*class TUnicodeClipboard : public TClipboard
 {
 private:
     WideString __fastcall GetAsUnicodeText();
     void __fastcall SetAsUnicodeText(const WideString Value);
 public:
     __property WideString AsUnicodeText = {read=GetAsUnicodeText, write=SetAsUnicodeText};
-};
+};*/
 //---------------------------------------------------------------------------
 //global API
 void __fastcall ScaleForm(TForm* AForm);
