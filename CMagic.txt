@@ -1,5 +1,5 @@
 { Procedures and functions that need compiler magic }
-Ïðèìåðû èñïîëüçîâàíèÿ â àññåìáëåðíîì êîäå:
+ÐŸÑ€Ð¸Ð¼ÐµÑ€Ñ‹ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ð½Ð¸Ñ Ð² Ð°ÑÑÐµÐ¼Ð±Ð»ÐµÑ€Ð½Ð¾Ð¼ ÐºÐ¾Ð´Ðµ:
 
 procedure _COS;
 -> FST(0) Extended argument
