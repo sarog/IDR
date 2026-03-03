@@ -2,12 +2,12 @@
 #ifndef TypeInfoH
 #define TypeInfoH
 //---------------------------------------------------------------------------
-#include <Classes.hpp>
-#include <Controls.hpp>
-#include <StdCtrls.hpp>
-#include <Forms.hpp>
+#include <System.Classes.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.ExtCtrls.hpp>
+#include <Vcl.Forms.hpp>
+#include <Vcl.StdCtrls.hpp>
 #include "KnowledgeBase.h"
-#include <ExtCtrls.hpp>
 //---------------------------------------------------------------------------
 String __fastcall Guid2String(BYTE * Guid);
 

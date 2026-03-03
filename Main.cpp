@@ -5,6 +5,11 @@
 
 #include <System.IniFiles.hpp>
 #include <Vcl.Clipbrd.hpp>
+#include <Vcl.Outline.hpp>
+#include <Vcl.TabNotBk.hpp>
+#include <Vcl.ComCtrls.hpp>
+#include "System.StrUtils.hpp"
+#include <System.Win.Registry.hpp>
 
 #include "Main.h"
 #include "Misc.h"
@@ -12,7 +17,6 @@
 #include "ProgressBar.h"
 #include "TypeInfo2.h"
 #include "StringInfo.h"
-#include "StrUtils.hpp"
 #include "FindDlg.h"
 #include "InputDlg.h"
 #include "Disasm.h"
@@ -28,11 +32,6 @@
 #include "Hex2Double.h"
 #include "Plugins.h"
 #include "ActiveProcesses.h"
-#include <Outline.hpp>
-#include <Tabnotbk.hpp>
-#include <ComCtrls.hpp>
-#include <IniFiles.hpp>
-#include <Registry.hpp>
 
 /*
 //----Highlighting-----------------------------------------------------------

@@ -18,7 +18,6 @@
 #include "Resources.h"
 #include "Infos.h"
 #include "UFileDropper.h"
-// #include "TntStdCtrls.hpp"
 //---------------------------------------------------------------------------
 #define USER_KNOWLEDGEBASE      0x80000000
 #define SOURCE_LIBRARY          0x40000000
