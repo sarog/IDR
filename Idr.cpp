@@ -28,7 +28,8 @@ int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int) {
     try {
         Randomize();
         Application->Initialize();
-        Application->HelpFile = "";
+        Application->Title = "IDR";
+		Application->HelpFile = "";
         Application->MainFormOnTaskBar = true;
         Application->CreateForm(__classid(TFMain_11011981), &FMain_11011981);
         Application->CreateForm(__classid(TFExplorer_11011981), &FExplorer_11011981);
