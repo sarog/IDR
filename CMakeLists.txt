@@ -1,9 +1,6 @@
-# https://docwiki.embarcadero.com/RADStudio/Tokyo/en/Using_CMake_with_C%2B%2B_Builder
 # https://docwiki.embarcadero.com/RADStudio/Athens/en/Using_CMake_with_C%2B%2B_Builder
 # https://docwiki.embarcadero.com/RADStudio/Athens/en/CMake_Macros_and_Variables
 
-# cmake -DCMAKE_CXX_COMPILER=bcc32 -DCMAKE_VERBOSE_MAKEFILE=1 -G Ninja  ..
-# cmake -DCMAKE_CXX_COMPILER=bcc32 -DCMAKE_VERBOSE_MAKEFILE=1 -G "Borland Makefiles"  ..
 # Target Win32: cmake -DCMAKE_C_COMPILER=bcc32x.exe -DCMAKE_CXX_COMPILER=bcc32x.exe -G Ninja <directory> [1]
 # Target Win64: cmake -DCMAKE_C_COMPILER=bcc64.exe -DCMAKE_CXX_COMPILER=bcc64.exe -G Ninja <directory> [
 
@@ -23,6 +20,7 @@ set(CMAKE_DEPFILE_FLAGS_CXX "-md -mo\"<DEPFILE>\"")
 # https://docwiki.embarcadero.com/RADStudio/Tokyo/en/BCC32.EXE,_the_C%2B%2B_32-bit_Command-Line_Compiler
 # https://docwiki.embarcadero.com/RADStudio/Sydney/en/Message_Options
 # -w-csu -w-aus -w-mcc -w-
+# -DUNICODE -D_UNICODE
 add_compile_options(-y -Q -k -r- -c -w-par -vi- -C8 -Od -D_DEBUG -DUSEPACKAGES -H -n.\\Win32\\Debug\\Obj -H=.\\IdrPCH1.h)
 # add_compile_options(-y -Q -k -r- -c -w-par -w-mcc -w-csu -vi- -D_DEBUG -DUSEPACKAGES)
 
@@ -42,17 +40,16 @@ file(GLOB SOURCES_DFM
 )
 
 __embarcadero_language(CXX)
-set_embt_target(VCL DynamicRuntime)
-
-## Library path: $(BDSLIB)\$(PLATFORM)$(CC_SUFFIX)\debug;$(BDSLIB)\$(PLATFORM)\debug;Sources\Libs\;Sources\Forms\;Sources\
+set_embt_target(VCL DynamicRuntime) # Unicode
 
 ## Resource compiler:
 # $(BDSINCLUDE)\windows\vcl;Sources\Libs\;Sources\Forms\;Sources\;$(BDSINCLUDE)\windows\vcl;Sources\Libs\;Sources\Forms\;Sources\
 # set(SYSTEM SOURCES ${SYSTEM SOURCES} idr.vrc)
 
 # Syntax: ILINK32 objfiles, exefile, mapfile, libfiles, deffile, resfiles
-# Gl  = Static Package
-# Gpr = Runtime-only package
+# -lGl  = Static Package
+# -lGpr = Runtime-only package
+# -lGF LARGEADDRESSAWARE
 # https://docwiki.embarcadero.com/RADStudio/Tokyo/en/Using_ILINK32_and_ILINK64_on_the_Command_Line
 add_link_options(-tV -tW -lr -lGl -lGpr -laa -lTpe) #-lL.\\Win32\\Debug\\Obj
 
