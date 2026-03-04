@@ -11,3 +11,15 @@ tab_width = 4
 
 [{*.cpp,*.h}]
 insert_final_newline = true
+
+[*.yaml]
+indent_size = 2
+tab_width = 2
+
+[CMakePresets.json]
+indent_size = 2
+tab_width = 2
+
+[*.cmake]
+indent_size = 2
+tab_width = 2
