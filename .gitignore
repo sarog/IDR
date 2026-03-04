@@ -71,4 +71,6 @@ __astcache/
 
 .idea/
 .cmake
-cmake-build-bcc*
+build/
+Win32/
+Win64/
