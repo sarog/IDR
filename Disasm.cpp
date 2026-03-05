@@ -11,6 +11,13 @@
 #include <SyncObjs.hpp>
 #include "Disasm.h"
 //---------------------------------------------------------------------------
+
+#ifdef __clang__
+  #define LABEL(x) x
+#else
+  #define LABEL(x) @##x
+#endif
+
 extern  BYTE *Code;
 extern  int __fastcall Adr2Pos(DWORD Adr);
 extern  TCriticalSection* CrtSection;
@@ -472,13 +479,13 @@ DWORD       res = 0;
             adc     esi, ebp
             pop     ebp
             test    al, al
-            jnz     @GA1
+            jnz     GA1
             and     edi, 0FFFFh
             and     esi, 0
-        @GA1:
+        GA1:
             mov     eax, [ecx+8]
             test    eax, eax
-            jnz     @GA2
+            jnz     GA2
             and     ebx, 0FFFF0000h
             and     edi, 0FFFFh
             or      ebx, edi
@@ -486,7 +493,7 @@ DWORD       res = 0;
             xor     ecx, ecx
             mov     edi, ebx
             or      esi, ecx
-        @GA2:
+        GA2:
             mov     eax, edi
             mov     edx, esi
             mov     dword ptr [res], eax
@@ -504,14 +511,14 @@ DWORD       res = 0;
             // clang-format off
             mov     al, [ecx+51h]
             test    al, al
-            jz      @GA3
+            jz      GA3
             mov     edx, [ecx+64h]
             mov     eax, [edx+ecx+3Ch]
-            jmp     @GA4
-        @GA3:
+            jmp     GA4
+        GA3:
             mov     eax, [ecx+64h]
             movsx   eax, word ptr [eax+ecx+3Ch]
-        @GA4:
+        GA4:
             mov     edi, [ecx+38h]
             mov     ebx, [ecx+28h]
             cdq
@@ -525,13 +532,13 @@ DWORD       res = 0;
             adc     esi, ebp
             pop     ebp
             test    al, al
-            jnz     @GA5
+            jnz     GA5
             and     edi, 0FFFFh
             and     esi, 0
-        @GA5:
+        GA5:
             mov     eax, [ecx+8]
             test    eax, eax
-            jnz     @GA6
+            jnz     GA6
             and     ebx, 0FFFF0000h
             and     edi, 0FFFFh
             or      ebx, edi
@@ -539,7 +546,7 @@ DWORD       res = 0;
             xor     ecx, ecx
             mov     edi, ebx
             or      esi, ecx
-        @GA6:
+        GA6:
             mov     eax, edi
             mov     edx, esi
             mov     dword ptr [res], eax
@@ -916,14 +923,14 @@ void __fastcall MDisasm::OutputMemAdr16(int argno, char* dst, DWORD arg, bool f1
             mov     al, [edx+ecx+3Dh]
             test    al, 80h
             mov     byte ptr [offset16], al
-            jnz     @OM16_1
+            jnz     OM16_1
             mov     eax, [offset16]
             mov     [sign], '+'
-            jmp     @OM16_2
-        @OM16_1:
+            jmp     OM16_2
+        OM16_1:
             mov     [sign], '-'
             neg     eax
-        @OM16_2:
+        OM16_2:
             and     eax, 0FFh
             mov     [offset16], eax
             // @formatter:on
