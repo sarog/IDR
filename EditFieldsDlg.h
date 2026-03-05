@@ -2,16 +2,16 @@
 #ifndef EditFieldsDlgH
 #define EditFieldsDlgH
 //----------------------------------------------------------------------------
-#include <SysUtils.hpp>
-#include <Windows.hpp>
-#include <Messages.hpp>
-#include <Classes.hpp>
-#include <Graphics.hpp>
-#include <Controls.hpp>
-#include <StdCtrls.hpp>
-#include <ExtCtrls.hpp>
-#include <Forms.hpp>
-#include <ComCtrls.hpp>
+#include <System.SysUtils.hpp>
+#include <Winapi.Windows.hpp>
+#include <Winapi.Messages.hpp>
+#include <System.Classes.hpp>
+#include <Vcl.Graphics.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.StdCtrls.hpp>
+#include <Vcl.ExtCtrls.hpp>
+#include <Vcl.Forms.hpp>
+#include <Vcl.ComCtrls.hpp>
 //----------------------------------------------------------------------------
 #define     FD_OP_EDIT      0
 #define     FD_OP_ADD       1

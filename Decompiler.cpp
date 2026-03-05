@@ -1,6 +1,5 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
-#include <StrUtils.hpp>
 #pragma hdrstop
 
 // #include <assert>

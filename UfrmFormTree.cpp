@@ -3,10 +3,10 @@
 #pragma hdrstop
 
 #include "UfrmFormTree.h"
+#include <System.StrUtils.hpp>
+#include <memory>
 #include "Main.h"
 #include "Misc.h"
-#include <memory>
-#include <StrUtils.hpp>
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
