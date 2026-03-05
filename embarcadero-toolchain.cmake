@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.21)
 
-set(BCC32 TRUE)
-set(_EMBT_CPP_PREPROCESSOR "cpp32")
+set(BCC32C TRUE)
+set(_EMBT_CPP_PREPROCESSOR "cpp32c")
+set(CLANG_BASED TRUE)
+
 set(EMBT_TARGET Windows)
 
 set(ROOTDIR "$ENV{USERPROFILE}\\Programs\\BCC1210")

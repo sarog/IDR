@@ -8,23 +8,28 @@ cmake_minimum_required(VERSION 3.21)
 
 set(APP "IDR")
 
-set(CMAKE_BUILD_TYPE "DEBUG")
-set(CMAKE_CXX_COMPILER bcc32)
+# set(CMAKE_BUILD_TYPE "DEBUG")
+# set(CMAKE_CXX_COMPILER bcc32)
 # set(CMAKE_MAKE_PROGRAM Ninja)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_DEPFILE_FLAGS_CXX "-md -mo\"<DEPFILE>\"")
-
+#set(CMAKE_DEPFILE_FLAGS_CXX "-md -mo\"<DEPFILE>\"")
 
 # https://docwiki.embarcadero.com/RADStudio/Tokyo/en/BCC32.EXE,_the_C%2B%2B_32-bit_Command-Line_Compiler
 # https://docwiki.embarcadero.com/RADStudio/Sydney/en/Message_Options
 # -w-csu -w-aus -w-mcc -w-
 # -DUNICODE -D_UNICODE
-add_compile_options(-y -Q -k -r- -c -w-par -vi- -C8 -Od -D_DEBUG -DUSEPACKAGES -H -n.\\Win32\\Debug\\Obj -H=.\\IdrPCH1.h)
+if (BCC32C)
+    add_compile_options(-D_DEBUG -DUSEPACKAGES)
+elseif (BCC32)
+    add_compile_options(-y -Q -k -r- -c -w-par -vi- -C8 -Od -D_DEBUG -DUSEPACKAGES -H -n.\\Win32\\Debug\\Obj -H=.\\IdrPCH1.h)
+endif ()
+
+# test w/presets: add_compile_options(-D_DEBUG -DUSEPACKAGES -H -n.\\Win32\\Debug\\Obj -H=.\\IdrPCH1.h)
 # add_compile_options(-y -Q -k -r- -c -w-par -w-mcc -w-csu -vi- -D_DEBUG -DUSEPACKAGES)
 
-project(${APP} CXX)
+project(${APP} VERSION 1.0.0.0 LANGUAGES CXX)
 
 # -tR -eidr.exe -tM -lS:1048576 -lSc:4098 -lH:1048576 -lHc:8192 -v -tC -lGl -lGpr -tM -Od -v @MAKE0000.@@@
 file(GLOB SOURCES
@@ -56,6 +61,7 @@ add_link_options(-tV -tW -lr -lGl -lGpr -laa -lTpe) #-lL.\\Win32\\Debug\\Obj
 add_executable(${APP} WIN32 ${SOURCES}) # Idr.rc
 
 # bin\cgrc.exe -c65001 .\Win32\Release\Obj\Idr.vrc -fo.\Win32\Release\Obj\Idr.res
+
 target_precompile_headers(${APP} PUBLIC IdrPCH1.h)
 #target_include_directories(${APP} PRIVATE Sources/Libs Sources/Forms Sources)
 target_link_directories(${APP} PRIVATE
