@@ -91,7 +91,7 @@ int __fastcall TIDCGen::MakeShortString(int pos) {
 
 //---------------------------------------------------------------------------
 int __fastcall TIDCGen::MakeCString(int pos) {
-    int len = strlen(Code + pos);
+    int len = strlen(reinterpret_cast<char *>(Code + pos));
     CurrentBytes += fprintf(idcF, "SetLongPrm(INF_STRTYPE, ASCSTR_TERMCHR);\n");
     CurrentBytes += fprintf(idcF, "MakeStr(0x%lX, 0x%lX);\n", Pos2Adr(pos), Pos2Adr(pos) + len + 1);
     return pos + len + 1;

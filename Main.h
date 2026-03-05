@@ -856,9 +856,9 @@ public: // User declarations
     int __fastcall AddAsmLine(DWORD Adr, String text, BYTE Flags);
     void __fastcall ShowCode(DWORD fromAdr, int SelectedIdx, int XrefIdx, int topIdx);
     void __fastcall AnalyzeProc(int pass, DWORD procAdr);
-    void __fastcall AnalyzeMethodTable(int pass, DWORD adr, const bool *Terminated);
-    void __fastcall AnalyzeDynamicTable(int pass, DWORD adr, const bool *Terminated);
-    void __fastcall AnalyzeVirtualTable(int pass, DWORD adr, const bool *Terminated);
+    void __fastcall AnalyzeMethodTable(int pass, DWORD adr, const volatile bool *Terminated);
+    void __fastcall AnalyzeDynamicTable(int pass, DWORD adr, const volatile bool *Terminated);
+    void __fastcall AnalyzeVirtualTable(int pass, DWORD adr, const volatile bool *Terminated);
     DWORD __fastcall AnalyzeProcInitial(DWORD fromAdr);
     void __fastcall AnalyzeProc1(DWORD fromAdr, char xrefType, DWORD xrefAdr, int xrefOfs, bool maybeEmb);
     void __fastcall AnalyzeProc2(DWORD fromAdr, bool addArg, bool AnalyzeRetType);
@@ -876,7 +876,7 @@ public: // User declarations
     int __fastcall LoadDynamicTable(DWORD adr, TStringList *dstList);
     int __fastcall LoadVirtualTable(DWORD adr, TList *dstList);
     int __fastcall LoadVirtualTable(DWORD adr, TStringList *dstList);
-    void __fastcall FillClassViewerOne(int n, TStringList *tmpList, const bool *terminated);
+    void __fastcall FillClassViewerOne(int n, TStringList *tmpList, const volatile bool *terminated);
     TTreeNode * __fastcall AddClassTreeNode(TTreeNode *node, String name);
     //Function
     void __fastcall EditFunction(DWORD Adr);

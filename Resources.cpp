@@ -432,7 +432,7 @@ bool __fastcall TResourceInfo::EnumResources(String FileName) {
     hFormPlugin = LoadLibrary(AnsiString(FMain_11011981->AppDir + "Plugins\\" + FormPluginName).c_str());
     HINSTANCE hInst = LoadLibraryEx(AnsiString(FileName).c_str(), 0, LOAD_LIBRARY_AS_DATAFILE);
     if (hInst) {
-        EnumResourceNames(hInst, RT_RCDATA, (ENUMRESNAMEPROC) EnumResNameProcedure, (long) this);
+        EnumResourceNames(hInst, RT_RCDATA, (ENUMRESNAMEPROC) EnumResNameProcedure, reinterpret_cast<long>(this));
         FreeLibrary(hInst);
         return true;
     }

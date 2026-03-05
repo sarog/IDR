@@ -26,31 +26,31 @@ DWORD* (__stdcall* PdisNew)(int);
 DWORD (_stdcall* CchFormatInstr)(char*, DWORD);
 DWORD (_stdcall* Dist)();
 DWORD   *DIS;
-char*   Reg8Tab[8] =
+const char*   Reg8Tab[8] =
 {
     //0     1     2     3     4     5     6     7
     "al", "cl", "dl", "bl", "ah", "ch", "dh", "bh"
 };
-char*   Reg16Tab[8] =
+const char*   Reg16Tab[8] =
 {
     //8     9    10    11    12    13    14    15
     "ax", "cx", "dx", "bx", "sp", "bp", "si", "di"
 };
-char*   Reg32Tab[8] =
+const char*   Reg32Tab[8] =
 {
     //16     17     18     19     20     21     22     23
     "eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"
 };
-char*   SegRegTab[8] =
+const char*   SegRegTab[8] =
 {
     //24   25    26    27    28    29    30    31
     "es", "cs", "ss", "ds", "fs", "gs", "??", "??"
 };
-char*   RegCombTab[8] =
+const char*   RegCombTab[8] =
 {
     "bx+si", "bx+di", "bp+si", "bp+di", "si", "di", "bp", "bx"
 };
-char*   RepPrefixTab[4] =
+const char*   RepPrefixTab[4] =
 {
     "lock", "repne", "repe", "rep"
 };
@@ -137,7 +137,7 @@ int __fastcall MDisasm::GetOpType(char* Op)
     return otREG;
 }
 //---------------------------------------------------------------------------
-int __fastcall MDisasm::GetRegister(char* reg)
+int __fastcall MDisasm::GetRegister(const char * reg)
 {
     for (int n = 0; n < 8; n++)
     {
@@ -248,7 +248,8 @@ int __fastcall MDisasm::Disassemble(BYTE* from, __int64 address, PDISINFO pDisIn
 //---------------------------------------------------------------------------
 void __fastcall MDisasm::FormatInstr(PDISINFO pDisInfo, char* disLine)
 {
-    BYTE    _repPrefix, p, *OpName, *ArgInfo;
+    BYTE    _repPrefix, p, *ArgInfo;
+    const char *OpName;
     int     i, Bytes = 0;
     DWORD   Cmd, Arg;
 
@@ -862,7 +863,8 @@ void __fastcall MDisasm::OutputMemAdr16(int argno, char* dst, DWORD arg, bool f1
 {
     BYTE    PostByte, SegPrefix, b;
     bool    ofs, mm;
-    char    *regcomb, sign;
+    const char  *regcomb;
+    char sign;
     int     idxofs, idxval;
     DWORD   offset16, dval;
 

@@ -171,16 +171,16 @@ void __fastcall TFExplorer_11011981::ShowString(DWORD fromAdr, int maxBytes) {
 
     switch (rgStringViewStyle->ItemIndex) {
         case 0: //PAnsiChar
-            len = strlen((char *) (Image + pos));
+            len = strlen(reinterpret_cast<const char*>(Image + pos));
             if (len < 0) len = 0;
             if (len > maxBytes) len = maxBytes;
-            str = TransformString(Image + pos, len);
+            str = TransformString(reinterpret_cast<char *>(Image + pos), len);
             break;
         case 1: //PWideChar
             len = wcslen((wchar_t *) (Image + pos));
             if (len < 0) len = 0;
             if (len > maxBytes) len = maxBytes;
-            wStr = WideString((wchar_t *) (Image + pos));
+            wStr = WideString(reinterpret_cast<wchar_t*>(Image + pos));
             size = WideCharToMultiByte(CP_ACP, 0, wStr.c_bstr(), len, 0, 0, 0, 0);
             if (size) {
                 tmpBuf = new char[size + 1];
@@ -193,19 +193,19 @@ void __fastcall TFExplorer_11011981::ShowString(DWORD fromAdr, int maxBytes) {
             len = *(Image + pos);
             if (len < 0) len = 0;
             if (len > maxBytes) len = maxBytes;
-            str = TransformString(Image + pos + 1, len);
+            str = TransformString(reinterpret_cast<char *>(Image + pos + 1), len);
             break;
         case 3: //AnsiString
             len = *((int *) (Image + pos));
             if (len < 0) len = 0;
             if (len > maxBytes) len = maxBytes;
-            str = TransformString(Image + pos + 4, len);
+            str = TransformString(reinterpret_cast<char *>(Image + pos + 4), len);
             break;
         case 4: //WideString
             len = *((int *) (Image + pos + WAlign));
             if (len < 0) len = 0;
             if (len > maxBytes) len = maxBytes;
-            wStr = WideString((wchar_t *) (Image + pos + WAlign + 4));
+            wStr = WideString(reinterpret_cast<wchar_t *>(Image + pos + WAlign + 4));
             size = WideCharToMultiByte(CP_ACP, 0, wStr.c_bstr(), len, 0, 0, 0, 0);
             if (size) {
                 tmpBuf = new char[size + 1];

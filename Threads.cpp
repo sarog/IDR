@@ -2782,9 +2782,9 @@ void __fastcall TAnalyzeThread::FindStrings() {
                 UpdateAddrInStatusBar(Pos2Adr(i));
                 recN = new InfoRec(i + 12, ikUString);
                 if (elemSize == 1)
-                    recN->SetName(TransformString(Code + i + 12, len));
+                    recN->SetName(TransformString(reinterpret_cast<char *>(Code + i + 12), len));
                 else
-                    recN->SetName(TransformUString(codePage, (wchar_t *) (Code + i + 12), len));
+                    recN->SetName(TransformUString(codePage, reinterpret_cast<const wchar_t *>(Code + i + 12), len));
             }
             //Align to 4 bytes
             len = (12 + (len + 1) * elemSize + 3) & (-4);
@@ -2811,7 +2811,7 @@ void __fastcall TAnalyzeThread::FindStrings() {
         if (!Infos[i + 8]) {
             UpdateAddrInStatusBar(Pos2Adr(i));
             recN = new InfoRec(i + 8, ikLString);
-            recN->SetName(TransformString(Code + i + 8, len));
+            recN->SetName(TransformString(reinterpret_cast<char *>(Code + i + 8), len));
         }
         //Align to 4 bytes
         len = (8 + len + 1 + 3) & (-4);

@@ -248,7 +248,7 @@ void __fastcall MKnowledgeBase::Close() {
 }
 
 //---------------------------------------------------------------------------
-WORD __fastcall MKnowledgeBase::GetModuleID(char *ModuleName) {
+WORD __fastcall MKnowledgeBase::GetModuleID(const char *ModuleName) {
     if (!Inited) return 0xFFFF;
 
     if (!ModuleName || !*ModuleName || !ModuleCount) return 0xFFFF;
@@ -259,14 +259,14 @@ WORD __fastcall MKnowledgeBase::GetModuleID(char *ModuleName) {
         int M = (F + L) / 2;
         ID = ModuleOffsets[M].NamId;
         p = GetKBCachePtr(ModuleOffsets[ID].Offset, ModuleOffsets[ID].Size);
-        if (stricmp(ModuleName, p + 4) <= 0)
+        if (stricmp(ModuleName, reinterpret_cast<const char *>(p + 4)) <= 0)
             L = M;
         else
             F = M + 1;
     }
     ID = ModuleOffsets[L].NamId;
     p = GetKBCachePtr(ModuleOffsets[ID].Offset, ModuleOffsets[ID].Size);
-    if (!stricmp(ModuleName, p + 4)) return *((WORD *) p);
+    if (!stricmp(ModuleName, reinterpret_cast<const char *>(p + 4))) return *((WORD *) p);
     return 0xFFFF;
 }
 
@@ -292,13 +292,13 @@ String __fastcall MKnowledgeBase::GetModuleName(WORD ModuleID) {
     ID = ModuleOffsets[L].ModId;
     p = GetKBCachePtr(ModuleOffsets[ID].Offset, ModuleOffsets[ID].Size);
     ModID = *((WORD *) p);
-    if (ModuleID == ModID) return String((char *) (p + 4));
+    if (ModuleID == ModID) return String(reinterpret_cast<const char *>(p + 4));
     return "";
 }
 
 //---------------------------------------------------------------------------
 //Return modules ids list containing given proc
-void __fastcall MKnowledgeBase::GetModuleIdsByProcName(char *AProcName) {
+void __fastcall MKnowledgeBase::GetModuleIdsByProcName(const char *AProcName) {
     Mods[0] = 0xFFFF;
 
     if (!Inited) return;
@@ -310,7 +310,7 @@ void __fastcall MKnowledgeBase::GetModuleIdsByProcName(char *AProcName) {
         int M = (L + R) / 2;
         int ID = ProcOffsets[M].NamId;
         const BYTE *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-        int res = stricmp(AProcName, p + 4);
+        int res = stricmp(AProcName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
         else if (res > 0)
@@ -321,14 +321,14 @@ void __fastcall MKnowledgeBase::GetModuleIdsByProcName(char *AProcName) {
             for (LN = M - 1; LN >= 0; LN--) {
                 ID = ProcOffsets[LN].NamId;
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                res = stricmp(AProcName, p + 4);
+                res = stricmp(AProcName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
             }
             //Find right boundary
             for (RN = M + 1; RN < ProcCount; RN++) {
                 ID = ProcOffsets[RN].NamId;
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                res = stricmp(AProcName, p + 4);
+                res = stricmp(AProcName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
             }
 
@@ -364,7 +364,7 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
             M = (L + R) / 2;
             ID = ConstOffsets[M].NamId;
             const BYTE *p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
-            int res = stricmp(ItemName, p + 4);
+            int res = stricmp(ItemName, reinterpret_cast<const char *>(p + 4));
             if (res < 0)
                 R = M - 1;
             else if (res > 0)
@@ -374,14 +374,14 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
                 for (LN = M - 1; LN >= 0; LN--) {
                     ID = ConstOffsets[LN].NamId;
                     p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
-                    res = stricmp(ItemName, p + 4);
+                    res = stricmp(ItemName, reinterpret_cast<const char *>(p + 4));
                     if (res) break;
                 }
                 //Find right boundary
                 for (RN = M + 1; RN < ConstCount; RN++) {
                     ID = ConstOffsets[RN].NamId;
                     p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
-                    res = stricmp(ItemName, p + 4);
+                    res = stricmp(ItemName, reinterpret_cast<const char *>(p + 4));
                     if (res) break;
                 }
                 found = false;
@@ -414,7 +414,7 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
             ID = TypeOffsets[M].NamId;
             const BYTE *p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
             if (Version >= 2) p += 4;                                                    //Add by ZGL
-            int res = stricmp(ItemName, p + 4);
+            int res = stricmp(ItemName, reinterpret_cast<const char *>(p + 4));
             if (res < 0)
                 R = M - 1;
             else if (res > 0)
@@ -425,7 +425,7 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
                     ID = TypeOffsets[LN].NamId;
                     p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
                     if (Version >= 2) p += 4;                                        //Add by ZGL
-                    res = stricmp(ItemName, p + 4);
+                    res = stricmp(ItemName, reinterpret_cast<const char *>(p + 4));
                     if (res) break;
                 }
                 //Find right boundary
@@ -433,7 +433,7 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
                     ID = TypeOffsets[RN].NamId;
                     p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
                     if (Version >= 2) p += 4;                                        //Add by ZGL
-                    res = stricmp(ItemName, p + 4);
+                    res = stricmp(ItemName, reinterpret_cast<const char *>(p + 4));
                     if (res) break;
                 }
                 found = false;
@@ -466,7 +466,7 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
             M = (L + R) / 2;
             ID = VarOffsets[M].NamId;
             const BYTE *p = GetKBCachePtr(VarOffsets[ID].Offset, VarOffsets[ID].Size);
-            int res = stricmp(ItemName, p + 4);
+            int res = stricmp(ItemName, reinterpret_cast<const char *>(p + 4));
             if (res < 0)
                 R = M - 1;
             else if (res > 0)
@@ -476,14 +476,14 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
                 for (LN = M - 1; LN >= 0; LN--) {
                     ID = VarOffsets[LN].NamId;
                     p = GetKBCachePtr(VarOffsets[ID].Offset, VarOffsets[ID].Size);
-                    res = stricmp(ItemName, p + 4);
+                    res = stricmp(ItemName, reinterpret_cast<const char *>(p + 4));
                     if (res) break;
                 }
                 //Find right boundary
                 for (RN = M + 1; RN < VarCount; RN++) {
                     ID = VarOffsets[RN].NamId;
                     p = GetKBCachePtr(VarOffsets[ID].Offset, VarOffsets[ID].Size);
-                    res = stricmp(ItemName, p + 4);
+                    res = stricmp(ItemName, reinterpret_cast<const char *>(p + 4));
                     if (res) break;
                 }
                 found = false;
@@ -515,7 +515,7 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
             M = (L + R) / 2;
             ID = ResStrOffsets[M].NamId;
             const BYTE *p = GetKBCachePtr(ResStrOffsets[ID].Offset, ResStrOffsets[ID].Size);
-            int res = stricmp(ItemName, p + 4);
+            int res = stricmp(ItemName, reinterpret_cast<const char *>(p + 4));
             if (res < 0)
                 R = M - 1;
             else if (res > 0)
@@ -525,14 +525,14 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
                 for (LN = M - 1; LN >= 0; LN--) {
                     ID = ResStrOffsets[LN].NamId;
                     p = GetKBCachePtr(ResStrOffsets[ID].Offset, ResStrOffsets[ID].Size);
-                    res = stricmp(ItemName, p + 4);
+                    res = stricmp(ItemName, reinterpret_cast<const char *>(p + 4));
                     if (res) break;
                 }
                 //Find right boundary
                 for (RN = M + 1; RN < ResStrCount; RN++) {
                     ID = ResStrOffsets[RN].NamId;
                     p = GetKBCachePtr(ResStrOffsets[ID].Offset, ResStrOffsets[ID].Size);
-                    res = stricmp(ItemName, p + 4);
+                    res = stricmp(ItemName, reinterpret_cast<const char *>(p + 4));
                     if (res) break;
                 }
                 found = false;
@@ -564,7 +564,7 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
             M = (L + R) / 2;
             ID = ProcOffsets[M].NamId;
             const BYTE *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-            int res = stricmp(ItemName, p + 4);
+            int res = stricmp(ItemName, reinterpret_cast<const char *>(p + 4));
             if (res < 0)
                 R = M - 1;
             else if (res > 0)
@@ -574,14 +574,14 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
                 for (LN = M - 1; LN >= 0; LN--) {
                     ID = ProcOffsets[LN].NamId;
                     p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                    res = stricmp(ItemName, p + 4);
+                    res = stricmp(ItemName, reinterpret_cast<const char *>(p + 4));
                     if (res) break;
                 }
                 //Find right boundary
                 for (RN = M + 1; RN < ProcCount; RN++) {
                     ID = ProcOffsets[RN].NamId;
                     p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                    res = stricmp(ItemName, p + 4);
+                    res = stricmp(ItemName, reinterpret_cast<const char *>(p + 4));
                     if (res) break;
                 }
                 found = false;
@@ -610,7 +610,7 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
 
 //---------------------------------------------------------------------------
 //Return constant index by name in given ModuleID
-int __fastcall MKnowledgeBase::GetConstIdx(WORD *ModuleIDs, char *ConstName) {
+int __fastcall MKnowledgeBase::GetConstIdx(WORD *ModuleIDs, const char *ConstName) {
     if (!Inited) return -1;
 
     if (!ModuleIDs || !ConstName || !*ConstName || !ConstCount) return -1;
@@ -621,7 +621,7 @@ int __fastcall MKnowledgeBase::GetConstIdx(WORD *ModuleIDs, char *ConstName) {
         int M = (L + R) / 2;
         int ID = ConstOffsets[M].NamId;
         const BYTE *p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
-        int res = stricmp(ConstName, p + 4);
+        int res = stricmp(ConstName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
         else if (res > 0)
@@ -632,14 +632,14 @@ int __fastcall MKnowledgeBase::GetConstIdx(WORD *ModuleIDs, char *ConstName) {
             for (LN = M - 1; LN >= 0; LN--) {
                 ID = ConstOffsets[LN].NamId;
                 p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
-                res = stricmp(ConstName, p + 4);
+                res = stricmp(ConstName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
             }
             //Find right boundary
             for (RN = M + 1; RN < ConstCount; RN++) {
                 ID = ConstOffsets[RN].NamId;
                 p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
-                res = stricmp(ConstName, p + 4);
+                res = stricmp(ConstName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
             }
             for (int N = LN + 1; N < RN; N++) {
@@ -661,7 +661,7 @@ int __fastcall MKnowledgeBase::GetConstIdx(WORD *ModuleIDs, char *ConstName) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall MKnowledgeBase::GetConstIdxs(char *ConstName, int *ConstIdx) {
+int __fastcall MKnowledgeBase::GetConstIdxs(const char *ConstName, int *ConstIdx) {
     *ConstIdx = -1;
 
     if (!Inited) return 0;
@@ -673,7 +673,7 @@ int __fastcall MKnowledgeBase::GetConstIdxs(char *ConstName, int *ConstIdx) {
         int M = (L + R) / 2;
         int ID = ConstOffsets[M].NamId;
         const BYTE *p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
-        int res = stricmp(ConstName, p + 4);
+        int res = stricmp(ConstName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
         else if (res > 0)
@@ -686,14 +686,14 @@ int __fastcall MKnowledgeBase::GetConstIdxs(char *ConstName, int *ConstIdx) {
             for (LN = M - 1; LN >= 0; LN--) {
                 ID = ConstOffsets[LN].NamId;
                 p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
-                if (stricmp(ConstName, p + 4)) break;
+                if (stricmp(ConstName, reinterpret_cast<const char *>(p + 4))) break;
                 Num++;
             }
             //Find right boundary
             for (RN = M + 1; RN < ConstCount; RN++) {
                 ID = ConstOffsets[RN].NamId;
                 p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
-                if (stricmp(ConstName, p + 4)) break;
+                if (stricmp(ConstName, reinterpret_cast<const char *>(p + 4))) break;
                 Num++;
             }
             return Num;
@@ -715,7 +715,7 @@ int __fastcall MKnowledgeBase::GetTypeIdxByModuleIds(WORD *ModuleIDs, char *Type
         int ID = TypeOffsets[M].NamId;
         const BYTE *p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
         if (Version >= 2) p += 4;                                                    //Add by ZGL
-        int res = stricmp(TypeName, p + 4);
+        int res = stricmp(TypeName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
         else if (res > 0)
@@ -727,7 +727,7 @@ int __fastcall MKnowledgeBase::GetTypeIdxByModuleIds(WORD *ModuleIDs, char *Type
                 ID = TypeOffsets[LN].NamId;
                 p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
                 if (Version >= 2) p += 4;                                        //Add by ZGL
-                res = stricmp(TypeName, p + 4);
+                res = stricmp(TypeName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
             }
             //Find right boundary
@@ -735,7 +735,7 @@ int __fastcall MKnowledgeBase::GetTypeIdxByModuleIds(WORD *ModuleIDs, char *Type
                 ID = TypeOffsets[RN].NamId;
                 p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
                 if (Version >= 2) p += 4;                                        //Add by ZGL
-                res = stricmp(TypeName, p + 4);
+                res = stricmp(TypeName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
             }
             for (int N = LN + 1; N < RN; N++) {
@@ -758,7 +758,7 @@ int __fastcall MKnowledgeBase::GetTypeIdxByModuleIds(WORD *ModuleIDs, char *Type
 }
 
 //---------------------------------------------------------------------------
-int __fastcall MKnowledgeBase::GetTypeIdxsByName(char *TypeName, int *TypeIdx) {
+int __fastcall MKnowledgeBase::GetTypeIdxsByName(const char *TypeName, int *TypeIdx) {
     *TypeIdx = -1;
 
     if (!Inited) return 0;
@@ -771,7 +771,7 @@ int __fastcall MKnowledgeBase::GetTypeIdxsByName(char *TypeName, int *TypeIdx) {
         int ID = TypeOffsets[M].NamId;
         const BYTE *p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
         if (Version >= 2) p += 4;                                                    //Add by ZGL
-        int res = stricmp(TypeName, p + 4);
+        int res = stricmp(TypeName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
         else if (res > 0)
@@ -785,7 +785,7 @@ int __fastcall MKnowledgeBase::GetTypeIdxsByName(char *TypeName, int *TypeIdx) {
                 ID = TypeOffsets[LN].NamId;
                 p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
                 if (Version >= 2) p += 4;                                        //Add by ZGL
-                if (stricmp(TypeName, p + 4)) break;
+                if (stricmp(TypeName, reinterpret_cast<const char *>(p + 4))) break;
                 Num++;
             }
             //Find right boundary
@@ -793,7 +793,7 @@ int __fastcall MKnowledgeBase::GetTypeIdxsByName(char *TypeName, int *TypeIdx) {
                 ID = TypeOffsets[RN].NamId;
                 p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
                 if (Version >= 2) p += 4;                                        //Add by ZGL
-                if (stricmp(TypeName, p + 4)) break;
+                if (stricmp(TypeName, reinterpret_cast<const char *>(p + 4))) break;
                 Num++;
             }
             return Num;
@@ -805,7 +805,7 @@ int __fastcall MKnowledgeBase::GetTypeIdxsByName(char *TypeName, int *TypeIdx) {
 //---------------------------------------------------------------------------
 int __fastcall MKnowledgeBase::GetTypeIdxByUID(char *UID) {}
 //---------------------------------------------------------------------------
-int __fastcall MKnowledgeBase::GetVarIdx(WORD *ModuleIDs, char *VarName) {
+int __fastcall MKnowledgeBase::GetVarIdx(WORD *ModuleIDs, const char *VarName) {
     if (!Inited) return -1;
 
     if (!ModuleIDs || !VarName || !*VarName || !VarCount) return -1;
@@ -816,7 +816,7 @@ int __fastcall MKnowledgeBase::GetVarIdx(WORD *ModuleIDs, char *VarName) {
         int M = (L + R) / 2;
         int ID = VarOffsets[M].NamId;
         const BYTE *p = GetKBCachePtr(VarOffsets[ID].Offset, VarOffsets[ID].Size);
-        int res = stricmp(VarName, p + 4);
+        int res = stricmp(VarName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
         else if (res > 0)
@@ -827,14 +827,14 @@ int __fastcall MKnowledgeBase::GetVarIdx(WORD *ModuleIDs, char *VarName) {
             for (LN = M - 1; LN >= 0; LN--) {
                 ID = VarOffsets[LN].NamId;
                 p = GetKBCachePtr(VarOffsets[ID].Offset, VarOffsets[ID].Size);
-                res = stricmp(VarName, p + 4);
+                res = stricmp(VarName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
             }
             //Find right boundary
             for (RN = M + 1; RN < VarCount; RN++) {
                 ID = VarOffsets[RN].NamId;
                 p = GetKBCachePtr(VarOffsets[ID].Offset, VarOffsets[ID].Size);
-                res = stricmp(VarName, p + 4);
+                res = stricmp(VarName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
             }
             for (int N = LN + 1; N < RN; N++) {
@@ -855,7 +855,7 @@ int __fastcall MKnowledgeBase::GetVarIdx(WORD *ModuleIDs, char *VarName) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall MKnowledgeBase::GetResStrIdx(int from, char *ResStrContext) {
+int __fastcall MKnowledgeBase::GetResStrIdx(int from, const char *ResStrContext) {
     if (!Inited) return -1;
 
     if (!ResStrContext || !*ResStrContext || !ResStrCount) return -1;
@@ -873,7 +873,7 @@ int __fastcall MKnowledgeBase::GetResStrIdx(int from, char *ResStrContext) {
         len = *((WORD *) p);
         p += len + 5;
         //Context
-        if (!stricmp(ResStrContext, p)) {
+        if (!stricmp(ResStrContext, reinterpret_cast<const char *>(p))) {
             return n;
         }
     }
@@ -881,7 +881,7 @@ int __fastcall MKnowledgeBase::GetResStrIdx(int from, char *ResStrContext) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall MKnowledgeBase::GetResStrIdx(WORD ModuleID, char *ResStrContext) {
+int __fastcall MKnowledgeBase::GetResStrIdx(WORD ModuleID, const char *ResStrContext) {
     if (!Inited) return -1;
 
     if (!ResStrContext || !*ResStrContext || !ResStrCount) return -1;
@@ -902,7 +902,7 @@ int __fastcall MKnowledgeBase::GetResStrIdx(WORD ModuleID, char *ResStrContext) 
         len = *((WORD *) p);
         p += len + 5;
         //Context
-        if (ModuleID == ModID && !stricmp(ResStrContext, p)) {
+        if (ModuleID == ModID && !stricmp(ResStrContext, reinterpret_cast<const char *>(p))) {
             return n;
         }
     }
@@ -910,7 +910,7 @@ int __fastcall MKnowledgeBase::GetResStrIdx(WORD ModuleID, char *ResStrContext) 
 }
 
 //---------------------------------------------------------------------------
-int __fastcall MKnowledgeBase::GetResStrIdx(WORD *ModuleIDs, char *ResStrName) {
+int __fastcall MKnowledgeBase::GetResStrIdx(WORD *ModuleIDs, const char *ResStrName) {
     if (!Inited) return -1;
 
     if (!ModuleIDs || !ResStrName || !*ResStrName || !ResStrCount) return -1;
@@ -922,7 +922,7 @@ int __fastcall MKnowledgeBase::GetResStrIdx(WORD *ModuleIDs, char *ResStrName) {
         M = (L + R) / 2;
         ID = ResStrOffsets[M].NamId;
         const BYTE *p = GetKBCachePtr(ResStrOffsets[ID].Offset, ResStrOffsets[ID].Size);
-        res = stricmp(ResStrName, p + 4);
+        res = stricmp(ResStrName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
         else if (res > 0)
@@ -932,14 +932,14 @@ int __fastcall MKnowledgeBase::GetResStrIdx(WORD *ModuleIDs, char *ResStrName) {
             for (LN = M - 1; LN >= 0; LN--) {
                 ID = ResStrOffsets[LN].NamId;
                 p = GetKBCachePtr(ResStrOffsets[ID].Offset, ResStrOffsets[ID].Size);
-                res = stricmp(ResStrName, p + 4);
+                res = stricmp(ResStrName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
             }
             //Find right boundary
             for (RN = M + 1; RN < ResStrCount; RN++) {
                 ID = ResStrOffsets[RN].NamId;
                 p = GetKBCachePtr(ResStrOffsets[ID].Offset, ResStrOffsets[ID].Size);
-                res = stricmp(ResStrName, p + 4);
+                res = stricmp(ResStrName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
             }
             for (N = LN + 1; N < RN; N++) {
@@ -961,7 +961,7 @@ int __fastcall MKnowledgeBase::GetResStrIdx(WORD *ModuleIDs, char *ResStrName) {
 
 //---------------------------------------------------------------------------
 //Return proc index by name in given ModuleID
-int __fastcall MKnowledgeBase::GetProcIdx(WORD ModuleID, char *ProcName) {
+int __fastcall MKnowledgeBase::GetProcIdx(WORD ModuleID, const char *ProcName) {
     if (!Inited) return -1;
 
     if (ModuleID == 0xFFFF || !ProcName || !*ProcName || !ProcCount) return -1;
@@ -972,7 +972,7 @@ int __fastcall MKnowledgeBase::GetProcIdx(WORD ModuleID, char *ProcName) {
         int M = (L + R) / 2;
         int ID = ProcOffsets[M].NamId;
         const BYTE *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-        int res = stricmp(ProcName, p + 4);
+        int res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
         else if (res > 0)
@@ -983,14 +983,14 @@ int __fastcall MKnowledgeBase::GetProcIdx(WORD ModuleID, char *ProcName) {
             for (LN = M - 1; LN >= 0; LN--) {
                 ID = ProcOffsets[LN].NamId;
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                res = stricmp(ProcName, p + 4);
+                res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
             }
             //Find right boundary
             for (RN = M + 1; RN < ProcCount; RN++) {
                 ID = ProcOffsets[RN].NamId;
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                res = stricmp(ProcName, p + 4);
+                res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
             }
             for (int N = LN + 1; N < RN; N++) {
@@ -1009,7 +1009,7 @@ int __fastcall MKnowledgeBase::GetProcIdx(WORD ModuleID, char *ProcName) {
 //---------------------------------------------------------------------------
 //Return proc index by name in given ModuleID
 //Code used for selection required proc (if there are exist several procs with the same name)
-int __fastcall MKnowledgeBase::GetProcIdx(WORD ModuleID, char *ProcName, BYTE *code) {
+int __fastcall MKnowledgeBase::GetProcIdx(WORD ModuleID, const char *ProcName, BYTE *code) {
     if (!Inited) return -1;
 
     if (ModuleID == 0xFFFF || !ProcName || !*ProcName || !ProcCount) return -1;
@@ -1022,7 +1022,7 @@ int __fastcall MKnowledgeBase::GetProcIdx(WORD ModuleID, char *ProcName, BYTE *c
         int M = (L + R) / 2;
         int ID = ProcOffsets[M].NamId;
         const BYTE *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-        int res = stricmp(ProcName, p + 4);
+        int res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
         else if (res > 0)
@@ -1033,14 +1033,14 @@ int __fastcall MKnowledgeBase::GetProcIdx(WORD ModuleID, char *ProcName, BYTE *c
             for (LN = M - 1; LN >= 0; LN--) {
                 ID = ProcOffsets[LN].NamId;
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                res = stricmp(ProcName, p + 4);
+                res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
             }
             //Find right boundary
             for (RN = M + 1; RN < ProcCount; RN++) {
                 ID = ProcOffsets[RN].NamId;
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                res = stricmp(ProcName, p + 4);
+                res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
             }
             for (int N = LN + 1; N < RN; N++) {
@@ -1058,7 +1058,7 @@ int __fastcall MKnowledgeBase::GetProcIdx(WORD ModuleID, char *ProcName, BYTE *c
 
 //---------------------------------------------------------------------------
 //Return proc index by name in given array of ModuleID
-int __fastcall MKnowledgeBase::GetProcIdx(WORD *ModuleIDs, char *ProcName, BYTE *code) {
+int __fastcall MKnowledgeBase::GetProcIdx(WORD *ModuleIDs, const char *ProcName, BYTE *code) {
     if (!Inited) return -1;
 
     if (!ModuleIDs || !ProcName || !*ProcName || !ProcCount) return -1;
@@ -1071,7 +1071,7 @@ int __fastcall MKnowledgeBase::GetProcIdx(WORD *ModuleIDs, char *ProcName, BYTE 
         int M = (L + R) / 2;
         int ID = ProcOffsets[M].NamId;
         const BYTE *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-        int res = stricmp(ProcName, p + 4);
+        int res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
         else if (res > 0)
@@ -1082,14 +1082,14 @@ int __fastcall MKnowledgeBase::GetProcIdx(WORD *ModuleIDs, char *ProcName, BYTE 
             for (LN = M - 1; LN >= 0; LN--) {
                 ID = ProcOffsets[LN].NamId;
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                res = stricmp(ProcName, p + 4);
+                res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
             }
             //Find right boundary
             for (RN = M + 1; RN < ProcCount; RN++) {
                 ID = ProcOffsets[RN].NamId;
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                res = stricmp(ProcName, p + 4);
+                res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
             }
             for (int N = LN + 1; N < RN; N++) {
@@ -1277,7 +1277,7 @@ MConstInfo * __fastcall MKnowledgeBase::GetConstInfo(int AConstIdx, DWORD AFlags
 }
 
 //---------------------------------------------------------------------------
-MProcInfo * __fastcall MKnowledgeBase::GetProcInfo(char *ProcName, DWORD AFlags, MProcInfo *pInfo, int *procIdx) {
+MProcInfo * __fastcall MKnowledgeBase::GetProcInfo(const char *ProcName, DWORD AFlags, MProcInfo *pInfo, int *procIdx) {
     if (!Inited) return 0;
 
     if (!ProcName || !*ProcName || !ProcCount) return 0;
@@ -1288,7 +1288,7 @@ MProcInfo * __fastcall MKnowledgeBase::GetProcInfo(char *ProcName, DWORD AFlags,
         int M = (L + R) / 2;
         int ID = ProcOffsets[M].NamId;
         const BYTE *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-        int res = stricmp(ProcName, p + 4);
+        int res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
         else if (res > 0)
@@ -1299,14 +1299,14 @@ MProcInfo * __fastcall MKnowledgeBase::GetProcInfo(char *ProcName, DWORD AFlags,
             for (LN = M - 1; LN >= 0; LN--) {
                 ID = ProcOffsets[LN].NamId;
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                res = stricmp(ProcName, p + 4);
+                res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
             }
             //Find right boundary
             for (RN = M + 1; RN < ProcCount; RN++) {
                 ID = ProcOffsets[RN].NamId;
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                res = stricmp(ProcName, p + 4);
+                res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
             }
             if (RN - LN - 1 == 1) {
@@ -1707,7 +1707,7 @@ WORD * __fastcall MKnowledgeBase::GetModuleUses(WORD ModuleID) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall MKnowledgeBase::GetProcUses(char *ProcName, WORD *uses) {
+int __fastcall MKnowledgeBase::GetProcUses(const char *ProcName, WORD *uses) {
     if (!Inited) return 0;
 
     int num = 0;
@@ -1718,7 +1718,7 @@ int __fastcall MKnowledgeBase::GetProcUses(char *ProcName, WORD *uses) {
         int ID = ProcOffsets[M].NamId;
         const BYTE *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
 
-        int res = stricmp(ProcName, p + 4);
+        int res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
         else if (res > 0)
@@ -1733,7 +1733,7 @@ int __fastcall MKnowledgeBase::GetProcUses(char *ProcName, WORD *uses) {
             for (int N = M - 1; N >= 0; N--) {
                 ID = ProcOffsets[N].NamId;
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                res = stricmp(ProcName, p + 4);
+                res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
                 ModID = *((WORD *) p);
                 if (ModID != 0xFFFF && uses[num - 1] != ModID) {
@@ -1746,7 +1746,7 @@ int __fastcall MKnowledgeBase::GetProcUses(char *ProcName, WORD *uses) {
             for (int N = M + 1; N < ProcCount; N++) {
                 ID = ProcOffsets[N].NamId;
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                res = stricmp(ProcName, p + 4);
+                res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
                 ModID = *((WORD *) p);
                 if (ModID != 0xFFFF && uses[num - 1] != ModID) {
@@ -1762,7 +1762,7 @@ int __fastcall MKnowledgeBase::GetProcUses(char *ProcName, WORD *uses) {
 }
 
 //---------------------------------------------------------------------------
-WORD * __fastcall MKnowledgeBase::GetTypeUses(char *TypeName) {
+WORD * __fastcall MKnowledgeBase::GetTypeUses(const char *TypeName) {
     if (!Inited) return 0;
 
     int num = 0;
@@ -1775,7 +1775,7 @@ WORD * __fastcall MKnowledgeBase::GetTypeUses(char *TypeName) {
         const BYTE *p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
         if (Version >= 2) p += 4;                                                    //Add by ZGL
 
-        int res = stricmp(TypeName, p + 4);
+        int res = stricmp(TypeName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
         else if (res > 0)
@@ -1792,7 +1792,7 @@ WORD * __fastcall MKnowledgeBase::GetTypeUses(char *TypeName) {
                 ID = TypeOffsets[N].NamId;
                 p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
                 if (Version >= 2) p += 4;                                        //Add by ZGL
-                res = stricmp(TypeName, p + 4);
+                res = stricmp(TypeName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
                 ModID = *((WORD *) p);
                 if (ModID != 0xFFFF && uses[num - 1] != ModID) {
@@ -1806,7 +1806,7 @@ WORD * __fastcall MKnowledgeBase::GetTypeUses(char *TypeName) {
                 ID = TypeOffsets[N].NamId;
                 p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
                 if (Version >= 2) p += 4;                                        //Add by ZGL
-                res = stricmp(TypeName, p + 4);
+                res = stricmp(TypeName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
                 ModID = *((WORD *) p);
                 if (ModID != 0xFFFF && uses[num - 1] != ModID) {
@@ -1824,7 +1824,7 @@ WORD * __fastcall MKnowledgeBase::GetTypeUses(char *TypeName) {
 }
 
 //---------------------------------------------------------------------------
-WORD * __fastcall MKnowledgeBase::GetConstUses(char *ConstName) {
+WORD * __fastcall MKnowledgeBase::GetConstUses(const char *ConstName) {
     if (!Inited) return 0;
 
     int ID, num;
@@ -1836,14 +1836,14 @@ WORD * __fastcall MKnowledgeBase::GetConstUses(char *ConstName) {
         int M = (F + L) / 2;
         ID = ConstOffsets[M].NamId;
         p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
-        if (stricmp(ConstName, p + 4) <= 0)
+        if (stricmp(ConstName, reinterpret_cast<const char *>(p + 4)) <= 0)
             L = M;
         else
             F = M + 1;
     }
     ID = ConstOffsets[L].NamId;
     p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
-    if (!stricmp(ConstName, p + 4)) {
+    if (!stricmp(ConstName, reinterpret_cast<const char *>(p + 4))) {
         uses = new WORD[ModuleCount + 1];
         num = 0;
         ModID = *((WORD *) p);
@@ -1855,7 +1855,7 @@ WORD * __fastcall MKnowledgeBase::GetConstUses(char *ConstName) {
         for (int N = L - 1; N >= 0; N--) {
             ID = ConstOffsets[N].NamId;
             p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
-            if (stricmp(ConstName, p + 4)) break;
+            if (stricmp(ConstName, reinterpret_cast<const char *>(p + 4))) break;
             ModID = *((WORD *) p);
             if (ModID != 0xFFFF && uses[num - 1] != ModID) {
                 uses[num] = ModID;
@@ -1867,7 +1867,7 @@ WORD * __fastcall MKnowledgeBase::GetConstUses(char *ConstName) {
         for (int N = L + 1; N < ConstCount; N++) {
             ID = ConstOffsets[N].NamId;
             p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
-            if (stricmp(ConstName, p + 4)) break;
+            if (stricmp(ConstName, reinterpret_cast<const char *>(p + 4))) break;
             ModID = *((WORD *) p);
             if (ModID != 0xFFFF && uses[num - 1] != ModID) {
                 uses[num] = ModID;

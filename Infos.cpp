@@ -524,7 +524,7 @@ void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef) {
                 MTypeInfo tInfo;
                 if (KnowledgeBase.GetTypeInfo(idx, INFO_FIELDS, &tInfo)) {
                     if (tInfo.FieldsNum) {
-                        char *p = tInfo.Fields;
+                        char *p = reinterpret_cast<char *>(tInfo.Fields);
                         for (int k = 0; k < tInfo.FieldsNum; k++) {
                             //Scope
                             p++;

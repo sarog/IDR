@@ -1781,7 +1781,7 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWORD parentAdr, int callPos, DW
                                     } else {
                                         _ap = Adr2Pos(strAdr);
                                         if (_ap >= 0) {
-                                            len = strlen((char *) (Code + _ap));
+                                            len = strlen(reinterpret_cast<char *>(Code + _ap));
                                             SetFlags(cfData, _ap, len + 1);
                                         } else if (_ap == -1) {
                                             recN1 = AddToBSSInfos(strAdr, MakeGvarName(strAdr), typeDef);
@@ -1792,10 +1792,10 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWORD parentAdr, int callPos, DW
                                 //val
                                 else if (argInfo->Tag == 0x21) {
                                     recN1->kind = ikCString;
-                                    len = strlen(Code + itemPos);
+                                    len = strlen(reinterpret_cast<const char*>(Code + itemPos));
                                     if (!recN1->HasName()) {
                                         if (IsValidCodeAdr(itemAdr)) {
-                                            recN1->SetName(TransformString(Code + itemPos, len));
+                                            recN1->SetName(TransformString(reinterpret_cast<char *>(Code + itemPos), len));
                                         } else {
                                             recN1->SetName(MakeGvarName(itemAdr));
                                             if (typeDef != "") recN1->type = typeDef;
@@ -2194,7 +2194,7 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWORD parentAdr, int callPos, DW
                                 len = *(Code + itemPos);
                                 if (!recN1->HasName()) {
                                     if (IsValidCodeAdr(itemAdr)) {
-                                        recN1->SetName(TransformString(Code + itemPos + 1, len));
+                                        recN1->SetName(TransformString(reinterpret_cast<char *>(Code + itemPos + 1), len));
                                     } else {
                                         recN1->SetName(MakeGvarName(itemAdr));
                                         if (typeDef != "") recN1->type = typeDef;
@@ -2210,7 +2210,7 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWORD parentAdr, int callPos, DW
                                 strAdr = *((DWORD *) (Code + itemPos));
                                 if (IsValidCodeAdr(strAdr)) {
                                     _ap = Adr2Pos(strAdr);
-                                    len = strlen(Code + _ap);
+                                    len = strlen(reinterpret_cast<const char*>(Code + _ap));
                                     SetFlags(cfData, _ap, len + 1);
                                 } else {
                                     SetFlags(cfData, itemPos, 4);
@@ -2221,10 +2221,10 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWORD parentAdr, int callPos, DW
                             //val
                             else if (argInfo->Tag == 0x21) {
                                 recN1->kind = ikCString;
-                                len = strlen(Code + itemPos);
+                                len = strlen(reinterpret_cast<const char*>(Code + itemPos));
                                 if (!recN1->HasName()) {
                                     if (IsValidCodeAdr(itemAdr)) {
-                                        recN1->SetName(TransformString(Code + itemPos, len));
+                                        recN1->SetName(TransformString(reinterpret_cast<char *>(Code + itemPos), len));
                                     } else {
                                         recN1->SetName(MakeGvarName(itemAdr));
                                         if (typeDef != "") recN1->type = typeDef;
@@ -2281,10 +2281,10 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWORD parentAdr, int callPos, DW
                                     if (!recN1->HasName()) {
                                         if (IsValidCodeAdr(itemAdr)) {
                                             if (DelphiVersion < 2009)
-                                                recN1->SetName(TransformString(Code + itemPos, len));
+                                                recN1->SetName(TransformString(reinterpret_cast<char *>(Code + itemPos), len));
                                             else
                                                 recN1->SetName(
-                                                    TransformUString(codePage, (wchar_t *) (Code + itemPos), len));
+                                                    TransformUString(codePage, reinterpret_cast<const wchar_t*>(Code + itemPos), len));
                                         } else {
                                             recN1->SetName(MakeGvarName(itemAdr));
                                             if (typeDef != "") recN1->type = typeDef;
@@ -2335,7 +2335,7 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWORD parentAdr, int callPos, DW
                                         WideString wStr = WideString((wchar_t *) (Code + itemPos));
                                         int size = WideCharToMultiByte(CP_ACP, 0, wStr.c_bstr(), len, 0, 0, 0, 0);
                                         if (size) {
-                                            tmpBuf = new BYTE[size + 1];
+                                            tmpBuf = reinterpret_cast<char *>(new BYTE[size + 1]);
                                             WideCharToMultiByte(CP_ACP, 0, wStr.c_bstr(), len, (LPSTR) tmpBuf, size, 0,
                                                                 0);
                                             recN1->SetName(TransformString(tmpBuf, size)); //???size - 1

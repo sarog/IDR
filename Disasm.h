@@ -97,7 +97,7 @@ public:
     int __fastcall Init();
     int __fastcall Disassemble(DWORD fromAdr, PDISINFO pDisInfo, char *disLine);
     int __fastcall Disassemble(BYTE *from, __int64 address, PDISINFO pDisInfo, char *disLine);
-    int __fastcall GetRegister(char *reg);
+    int __fastcall GetRegister(const char *reg);
     HINSTANCE hModule;
     BYTE __fastcall GetOp(char *mnem);
     BYTE __fastcall GetCop();

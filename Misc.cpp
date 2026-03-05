@@ -823,7 +823,7 @@ int __fastcall GetRecordField(String ARecType, int AOfs, String &name, String &t
             if (KnowledgeBase.GetTypeInfo(_idx, INFO_FIELDS, &_tInfo)) {
                 if (_tInfo.FieldsNum) {
                     memset(_cases, 0, 256 * sizeof(CaseInfo));
-                    p = _tInfo.Fields;
+                    p = reinterpret_cast<char *>(_tInfo.Fields);
                     for (m = 0, n = 0; n < _tInfo.FieldsNum; n++) {
                         p++;    //scope
                         p += 4; //offset
@@ -844,7 +844,7 @@ int __fastcall GetRecordField(String ARecType, int AOfs, String &name, String &t
 
                     for (m = 0; m < 256; m++) {
                         if (_cases[m].count) {
-                            p = _tInfo.Fields;
+                            p = reinterpret_cast<char *>(_tInfo.Fields);
                             for (n = 0, k = 0; n < _tInfo.FieldsNum; n++) {
                                 ps = p;
                                 p++; //scope
@@ -1229,7 +1229,7 @@ bool __fastcall IsInheritsByProcName(const String &Name1, const String &Name2) {
 //---------------------------------------------------------------------------
 String __fastcall TransformString(char *str, int len) {
     bool s = true; //true - print string, false - print #XX
-    BYTE c, *p = str;
+    BYTE c, *p = reinterpret_cast<BYTE *>(str);
     String res = "";
 
     for (int k = 0; k < len; k++) {

@@ -619,7 +619,7 @@ void __fastcall TFMain_11011981::StrapVMT(int pos, int ConstId, MConstInfo *Cons
         p += 4;
         WORD Len = *((WORD *) p);
         p += 2;
-        fixupInfo.Name = p;
+        fixupInfo.Name = reinterpret_cast<char *>(p);
         p += Len + 1;
         //Name begins with _D - skip it
         if (fixupInfo.Name[0] == '_' && fixupInfo.Name[1] == 'D') continue;
@@ -828,7 +828,7 @@ bool __fastcall TFMain_11011981::StrapCheck(int pos, MProcInfo *ProcInfo) {
         p += 4;
         WORD Len = *((WORD *) p);
         p += 2;
-        fixupInfo.Name = p;
+        fixupInfo.Name = reinterpret_cast<char *>(p);
         p += Len + 1;
 
         String fName = String(fixupInfo.Name);
@@ -1061,7 +1061,7 @@ void __fastcall TFMain_11011981::StrapProc(int pos, int ProcIdx, MProcInfo *Proc
             p += 4;
             Len = *((WORD *) p);
             p += 2;
-            fixupInfo.Name = p;
+            fixupInfo.Name = reinterpret_cast<char *>(p);
             p += Len + 1;
             fName = String(fixupInfo.Name, Len);
             //Fixupname begins with _Dn_ - skip it
@@ -2880,7 +2880,7 @@ int __fastcall TFMain_11011981::IsValidCode(DWORD fromAdr) {
 
     if (fromAdr > EP) return -1;
     //DISPLAY
-    if (!stricmp(Code + fromPos, "DISPLAY")) return -1;
+    if (!stricmp(reinterpret_cast<const char *>(Code + fromPos), "DISPLAY")) return -1;
 
     //recN = GetInfoRec(fromAdr);
     int outRows = MAX_DISASSEMBLE;
@@ -8369,7 +8369,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
 
     Update();
 
-    char *buf = new BYTE[MaxBufLen];
+    char *buf = reinterpret_cast<char *>(new BYTE[MaxBufLen]);
     FILE *fIn = fopen(AnsiString(IDPFile).c_str(), "rb");
     if (fIn) {
         //TMemoryStream* inStream = new TMemoryStream();

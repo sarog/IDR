@@ -97,7 +97,7 @@ void __fastcall TFKBViewer_11011981::ShowCode(DWORD adr, int idx) {
         DWORD curAdr = adr;
 
         if (pInfo->FixupNum) {
-            char *p = pInfo->Dump + 2 * pInfo->DumpSz;
+            char *p = reinterpret_cast<char *>(pInfo->Dump + 2 * pInfo->DumpSz);
 
             for (n = 0; n < pInfo->FixupNum; n++) {
                 char fixupType = *p;
@@ -106,7 +106,7 @@ void __fastcall TFKBViewer_11011981::ShowCode(DWORD adr, int idx) {
                 p += 4;
                 WORD len = *((WORD *) p);
                 p += 2;
-                String fixupName = String(p, len);
+                String fixupName = String(AnsiString(reinterpret_cast<const char *>(p), len));
                 p += len + 1;
 
                 while (pos <= fixupOfs && pos < pInfo->DumpSz) {
