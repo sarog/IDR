@@ -1,7 +1,23 @@
 aliases:
+  - &Embarcadero-bcc
+    match-compiler-exe: "(.*/)?bcc(32|64)([xc])?(\\.exe)?"
+    code-insight-target-name: x86_64
+
   - &Embarcadero-7-30-exe
-    match-compiler-exe: "(.*/)?bcc32([xc])?(\\.exe)?"
-    code-insight-target-name: aarch64
+    match-compiler-exe: "(.*/)?bcc(32|64)([xc])?(\\.exe)?"
+    code-insight-target-name: x86_64
+
+  - &Embarcadero-7-70-exe
+    match-compiler-exe: "(.*/)?bcc(32|64)([xc])?(\\.exe)?"
+    code-insight-target-name: x86_64
+
+  - &Common-Embarcadero-7-70-defines
+    __BORLANDC__: &version "0x0770"
+    __CODEGEARC__: *version
+    __CODEGEARC_VERSION__: "0x7308CAF"
+    __TURBOC__: *version
+    __VERSION__: "4.2.1 Compatible Embarcadero Technologies Inc. bcc64x 3.3.1 (36355.e71d049.f8c4cf9)"
+    __clang_version__: "3.3.1 (36355.e71d049.f8c4cf9)"
 
   - &Common-Embarcadero-7-30-defines
     __BORLANDC__: &version "0x0730"
@@ -181,9 +197,29 @@ aliases:
     defines-text: "
 #define defined_as_text some_text
 "
+  ## Athens 12.1
+  - &CPP-Embarcadero-7-70
+    include-dirs:
+      - ${compiler-exe-dir}/../include/
+      - ${compiler-exe-dir}/../include/dinkumware
+      - ${compiler-exe-dir}/../include/dinkumware64
+      - ${compiler-exe-dir}/../include/windows/crtl
+      - ${compiler-exe-dir}/../include/windows/sdk
+      - ${compiler-exe-dir}/../include/windows/rtl
+      - ${compiler-exe-dir}/../include/windows/vcl
+      - ${compiler-exe-dir}/../include/windows/fmx
+    defines:
+      <<: *Common-Embarcadero-7-70-defines
+      __BCPLUSPLUS__: *version
+      __cplusplus: "201402L" ## todo: check
+      __TCPLUSPLUS__: *version
+    defines-text: "
+#define defined_as_text some_text
+"
 
 compilers:
 
+  ## Tokyo 10.2.3
   - description: C Embarcadero 7.30 by extension
     <<: *Embarcadero-7-30-exe
     match-sources: ".*\\.c"
@@ -207,3 +243,22 @@ compilers:
     match-args: "-x c++"
     match-language: CPP
     <<: *CPP-Embarcadero-7-30
+
+  ## Athens 12.1
+  - description: CPP Embarcadero 7.70 by extension
+    <<: *Embarcadero-7-70-exe
+    match-sources: ".*\\.cpp"
+    match-language: CPP
+    <<: *CPP-Embarcadero-7-70
+
+  - description: CPP Embarcadero 7.70 by join cli key
+    <<: *Embarcadero-7-70-exe
+    match-args: "-xc++"
+    match-language: CPP
+    <<: *CPP-Embarcadero-7-70
+
+  - description: CPP Embarcadero 7.70 by split cli key
+    <<: *Embarcadero-7-70-exe
+    match-args: "-x c++"
+    match-language: CPP
+    <<: *CPP-Embarcadero-7-70
