@@ -575,7 +575,7 @@ DWORD       res = 0;
 void __fastcall MDisasm::OutputSegPrefix(char* dst, PDISINFO pDisInfo)
 {
     BYTE    _segPrefix;
-    char    *sptr = NULL;
+    const char *sptr = nullptr;
 
     _segPrefix = GetSegPrefix();
     switch (_segPrefix)
@@ -659,7 +659,7 @@ char* __fastcall MDisasm::GetSizeString(int size)
 //---------------------------------------------------------------------------
 void __fastcall MDisasm::OutputSizePtr(int size, bool mm, PDISINFO pDisInfo, char* disLine)
 {
-    char*   sptr = NULL;
+    const char *sptr = nullptr;
 
     if (!size) size = EvaluateOperandSize();
     switch (size)
