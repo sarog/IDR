@@ -92,7 +92,7 @@ String __fastcall UnicodeDecode(WideString Str, int CodePage)
 */
 //---------------------------------------------------------------------------
 void __fastcall ScaleForm(TForm *AForm) {
-    HDC _hdc = GetDC(0);
+    HDC _hdc = GetDC(nullptr);
     if (_hdc) {
         //Modified by ZGL
         int LogicalScreenHeight = GetDeviceCaps(_hdc, VERTRES);
@@ -1765,7 +1765,7 @@ String __fastcall GetEnumerationString(String TypeName, Variant Val) {
     BYTE len;
     int n, pos, _val, idx;
     DWORD adr, typeAdr, minValue, maxValue, minValueB, maxValueB;
-    char *p, *b, *e;
+    char *p, *b = nullptr, *e;
     WORD *uses;
     MTypeInfo tInfo;
     String clsName;
@@ -2163,7 +2163,7 @@ bool __fastcall GetArrayIndexes(String arrType, int ADim, int *LowIdx, int *High
 //---------------------------------------------------------------------------
 int __fastcall GetArraySize(String arrType) {
     char c, *p, *b;
-    int _dim, _val, _pos, _result = 1, _lIdx, _hIdx, _elTypeSize;
+    int _dim, _val, _pos, _result = 1, _lIdx, _hIdx = 0, _elTypeSize;
     String _item, _item1, _item2;
 
     _elTypeSize = GetArrayElementTypeSize(arrType);
@@ -3301,7 +3301,7 @@ void __fastcall DrawOneItem(String AItem, TCanvas *ACanvas, TRect &ARect, TColor
 int __fastcall IsTryBegin(DWORD fromAdr, DWORD *endAdr) {
     BYTE _op;
     int _instrLen, n;
-    DWORD _curAdr, _endAdr;
+    DWORD _curAdr, _endAdr = 0;
     DISINFO _disInfo;
 
     _curAdr = fromAdr;
@@ -3340,7 +3340,7 @@ int __fastcall IsTryBegin(DWORD fromAdr, DWORD *endAdr) {
 int __fastcall IsTryBegin0(DWORD fromAdr, DWORD *endAdr) {
     BYTE _op;
     int _instrLen, n;
-    DWORD _curAdr, _endAdr;
+    DWORD _curAdr, _endAdr = 0;
     DISINFO _disInfo;
 
     _curAdr = fromAdr;
@@ -3452,8 +3452,8 @@ int __fastcall IsTryEndJump(DWORD fromAdr, DWORD *endAdr) {
 int __fastcall ProcessInt64Equality(DWORD fromAdr, DWORD *maxAdr) {
     BYTE _op, _b;
     int _instrLen, n, _curPos;
-    DWORD _curAdr, _adr1, _maxAdr;
-    DWORD _skipAdr1, _skipAdr2;
+    DWORD _curAdr, _adr1 = 0, _maxAdr;
+    DWORD _skipAdr1 = 0, _skipAdr2 = 0;
     DISINFO _disInfo;
 
     _curAdr = fromAdr;
@@ -3505,8 +3505,8 @@ int __fastcall ProcessInt64Equality(DWORD fromAdr, DWORD *maxAdr) {
 int __fastcall ProcessInt64NotEquality(DWORD fromAdr, DWORD *maxAdr) {
     BYTE _op, _b;
     int _instrLen, n, _curPos;
-    DWORD _curAdr, _adr1, _adr2, _maxAdr;
-    DWORD _skipAdr1, _skipAdr2;
+    DWORD _curAdr, _adr1 = 0, _adr2, _maxAdr;
+    DWORD _skipAdr1 = 0, _skipAdr2 = 0;
     DISINFO _disInfo;
 
     _curAdr = fromAdr;
@@ -3561,8 +3561,8 @@ int __fastcall ProcessInt64NotEquality(DWORD fromAdr, DWORD *maxAdr) {
 int __fastcall ProcessInt64Comparison(DWORD fromAdr, DWORD *maxAdr) {
     BYTE _op;
     int _instrLen, n;
-    DWORD _curAdr, _adr, _adr1, _maxAdr;
-    DWORD _skipAdr1, _skipAdr2, _skipAdr3, _skipAdr4;
+    DWORD _curAdr, _adr, _adr1 = 0, _maxAdr;
+    DWORD _skipAdr1 = 0, _skipAdr2 = 0, _skipAdr3 = 0, _skipAdr4 = 0;
     DISINFO _disInfo;
 
     _curAdr = fromAdr;
@@ -3627,8 +3627,8 @@ int __fastcall ProcessInt64Comparison(DWORD fromAdr, DWORD *maxAdr) {
 int __fastcall ProcessInt64ComparisonViaStack1(DWORD fromAdr, DWORD *maxAdr) {
     BYTE _op;
     int _instrLen, n, m, _skip, _pos;
-    DWORD _curAdr, _adr1, _adr2, _adr3, _maxAdr, _pushAdr;
-    DWORD _skipAdr1, _skipAdr2;
+    DWORD _curAdr, _adr1 = 0, _adr2, _adr3, _maxAdr, _pushAdr;
+    DWORD _skipAdr1 = 0, _skipAdr2 = 0;
     DISINFO _disInfo;
 
     _curAdr = fromAdr;
@@ -3710,8 +3710,8 @@ int __fastcall ProcessInt64ComparisonViaStack1(DWORD fromAdr, DWORD *maxAdr) {
 int __fastcall ProcessInt64ComparisonViaStack2(DWORD fromAdr, DWORD *maxAdr) {
     BYTE _op;
     int _instrLen, n, m, _skip, _pos;
-    DWORD _curAdr, _adr, _adr1, _adr2, _maxAdr, _pushAdr;
-    DWORD _skipAdr1, _skipAdr2, _skipAdr3, _skipAdr4, _skipAdr5, _skipAdr6;
+    DWORD _curAdr, _adr, _adr1 = 0, _adr2, _maxAdr, _pushAdr = 0;
+    DWORD _skipAdr1 = 0, _skipAdr2 = 0, _skipAdr3 = 0, _skipAdr4 = 0, _skipAdr5 = 0, _skipAdr6 = 0;
     DISINFO _disInfo;
 
     _curAdr = fromAdr;
@@ -3812,9 +3812,9 @@ int __fastcall IsInt64Equality(DWORD fromAdr, int *skip1, int *skip2, bool *immV
     bool _imm;
     BYTE _op, _b;
     int _instrLen, n, _curPos, _skip;
-    DWORD _curAdr, _adr1, _br1Adr;
+    DWORD _curAdr, _adr1 = 0, _br1Adr;
     DISINFO _disInfo;
-    __int64 _val1, _val2;
+    __int64 _val1 = 0, _val2 = 0;
     //PInfoRec    _recN;
 
     _curAdr = fromAdr;
@@ -3875,9 +3875,9 @@ int __fastcall IsInt64NotEquality(DWORD fromAdr, int *skip1, int *skip2, bool *i
     bool _imm;
     BYTE _op, _b;
     int _instrLen, n, _curPos, _skip;
-    DWORD _curAdr, _adr1, _adr2, _br1Adr;
+    DWORD _curAdr, _adr1 = 0, _adr2, _br1Adr;
     DISINFO _disInfo;
-    __int64 _val1, _val2;
+    __int64 _val1 = 0, _val2 = 0;
     //PInfoRec    _recN;
 
     _curAdr = fromAdr;
@@ -3939,8 +3939,8 @@ int __fastcall IsInt64Comparison(DWORD fromAdr, int *skip1, int *skip2, bool *im
     bool _imm;
     BYTE _op;
     int _instrLen, n, m, _skip;
-    __int64 _val1, _val2;
-    DWORD _curAdr, _adr1, _br1Adr, _br2Adr, _br3Adr;
+    __int64 _val1 = 0, _val2 = 0;
+    DWORD _curAdr, _adr1 = 0, _br1Adr, _br2Adr, _br3Adr;
     DISINFO _disInfo;
     //PInfoRec    _recN;
 
@@ -4006,7 +4006,7 @@ int __fastcall IsInt64Comparison(DWORD fromAdr, int *skip1, int *skip2, bool *im
 int __fastcall IsInt64ComparisonViaStack1(DWORD fromAdr, int *skip1, DWORD *simEnd) {
     BYTE _op;
     int _instrLen, n, m, _pos;
-    DWORD _curAdr = fromAdr, _adr1, _pushAdr;
+    DWORD _curAdr = fromAdr, _adr1 = 0, _pushAdr = 0;
     DISINFO _disInfo;
 
     _curAdr = fromAdr;
@@ -4085,7 +4085,7 @@ int __fastcall IsInt64ComparisonViaStack1(DWORD fromAdr, int *skip1, DWORD *simE
 int __fastcall IsInt64ComparisonViaStack2(DWORD fromAdr, int *skip1, int *skip2, DWORD *simEnd) {
     BYTE _op;
     int _instrLen, n, m, _pos;
-    DWORD _curAdr = fromAdr, _adr1, _pushAdr;
+    DWORD _curAdr = fromAdr, _adr1 = 0, _pushAdr = 0;
     DISINFO _disInfo;
 
     _curAdr = fromAdr;
@@ -4124,8 +4124,7 @@ int __fastcall IsInt64ComparisonViaStack2(DWORD fromAdr, int *skip1, int *skip2,
             _adr1 = _disInfo.Immediate;   //@1
         } else if (m != -1 && n == m + 2) //cmp XXX,[esp]
         {
-            if (!(_op == OP_CMP && _disInfo.OpType[1] == otMEM && _disInfo.BaseReg == 20 && _disInfo.Offset == 0)) break
-                    ;
+            if (!(_op == OP_CMP && _disInfo.OpType[1] == otMEM && _disInfo.BaseReg == 20 && _disInfo.Offset == 0)) break;
             *skip1 = _curAdr - fromAdr;
         } else if (m != -1 && n == m + 3) //pop reg
         {
@@ -4163,7 +4162,7 @@ int __fastcall IsInt64ComparisonViaStack2(DWORD fromAdr, int *skip1, int *skip2,
 //shr reg2,N
 int __fastcall IsInt64Shr(DWORD fromAdr) {
     BYTE _op;
-    int _instrLen, n, _idx, _val;
+    int _instrLen, n, _idx = 0, _val = 0;
     DWORD _curAdr = fromAdr;
     DISINFO _disInfo;
 
@@ -4192,7 +4191,7 @@ int __fastcall IsInt64Shr(DWORD fromAdr) {
 //shl reg2,N
 int __fastcall IsInt64Shl(DWORD fromAdr) {
     BYTE _op;
-    int _instrLen, n, _idx, _val;
+    int _instrLen, n, _idx = 0, _val = 0;
     DWORD _curAdr = fromAdr;
     DISINFO _disInfo;
 
@@ -4253,7 +4252,7 @@ int __fastcall GetAdrOfsFromShadowName(String name) {
 //---------------------------------------------------------------------------
 //Replace symbols like '<', '>', ',', '.' to 'L', 'R', 'C', 'D'
 String __fastcall SanitizeName(String name) {
-    int pos;
+    int pos = 0;
 
     while (pos = name.Pos("<")) name[pos] = 'L';
     while (pos = name.Pos(">")) name[pos] = 'R';
