@@ -192,8 +192,7 @@ void __fastcall TFActiveProcesses::EnumSections(HANDLE HProcess, BYTE *PProcessB
 }
 
 //---------------------------------------------------------------------------
-void __fastcall
-TFActiveProcesses::DumpProcess(DWORD PID, TMemoryStream *MemStream, DWORD *BoC, DWORD *PoC, DWORD *ImB) {
+void __fastcall TFActiveProcesses::DumpProcess(DWORD PID, TMemoryStream *MemStream, DWORD *BoC, DWORD *PoC, DWORD *ImB) {
     WORD _secNum;
     DWORD _peHdrOffset, _sz, _sizeOfCode;
     DWORD _resPhys, _dd;
@@ -235,8 +234,7 @@ TFActiveProcesses::DumpProcess(DWORD PID, TMemoryStream *MemStream, DWORD *BoC, 
         if (!_moduleInfo.lpBaseOfDll) {
             throw Exception("Invalid process, PID: " + PID);
         }
-        ReadProcessMemory(_hProcess, (BYTE *) _moduleInfo.lpBaseOfDll + 0x3C, &_peHdrOffset, sizeof(_peHdrOffset),
-                          &_sz);
+        ReadProcessMemory(_hProcess, (BYTE *) _moduleInfo.lpBaseOfDll + 0x3C, &_peHdrOffset, sizeof(_peHdrOffset), &_sz);
         ReadProcessMemory(_hProcess, (BYTE *) _moduleInfo.lpBaseOfDll + _peHdrOffset, &_ntHdr, sizeof(_ntHdr), &_sz);
         EnumSections(_hProcess, (BYTE *) _moduleInfo.lpBaseOfDll, _sections, &_sz);
         MemStream->Clear();

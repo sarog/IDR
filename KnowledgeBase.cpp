@@ -1395,7 +1395,7 @@ MProcInfo * __fastcall MKnowledgeBase::GetProcInfo(const char *ProcName, DWORD A
                 pInfo->DumpSz = *((DWORD*)p); p += 4;
                 pInfo->FixupNum = *((DWORD*)p); p += 4;
                 pInfo->Dump = 0;
-                
+
                 if (AFlags & INFO_DUMP)
                 {
                     if (pInfo->DumpSz) pInfo->Dump = (BYTE*)p;

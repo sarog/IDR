@@ -406,8 +406,8 @@ BYTE        OperandSize;
 //---------------------------------------------------------------------------
 void __fastcall MDisasm::OutputHex(char *dst, DWORD val)
 {
-    BYTE    b;
-    char    buf[12];
+    BYTE b;
+    char buf[12];
 
     if (val <= 9)
     {
@@ -420,7 +420,7 @@ void __fastcall MDisasm::OutputHex(char *dst, DWORD val)
     strcat(dst, buf);
 }
 //---------------------------------------------------------------------------
-DWORD   __fastcall MDisasm::GetAddress()
+DWORD __fastcall MDisasm::GetAddress()
 {
 int         n;
 DWORD       res = 0;

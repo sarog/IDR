@@ -496,7 +496,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWORD fromAdr, char xrefType, DWOR
             curAdr = Adr;
             continue;
         }
-        if (b1 == 0x68) //try block	(push loc_TryBeg)
+        if (b1 == 0x68) //try block (push loc_TryBeg)
         {
             DWORD NPos = curPos + instrLen;
             //Check that next instruction is push fs:[reg] or retn

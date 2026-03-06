@@ -28,14 +28,7 @@
 #include "pies.h"
 
 int (__stdcall *fnGetDstSize)(BYTE *, int);
-boolean(__stdcall * fnDecrypt)(BYTE*
-,
-int
-,
-BYTE *
-,
-int
-);
+boolean (__stdcall * fnDecrypt)(BYTE *, int, BYTE *, int);
 
 extern TResourceInfo *ResInfo;
 extern DWORD CodeBase;

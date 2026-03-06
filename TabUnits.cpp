@@ -85,9 +85,9 @@ bool __fastcall TFMain_11011981::ContainsUnexplored(PUnitRec recU) {
 }
 
 //---------------------------------------------------------------------------
-#define TRIV_UNIT   1	//Trivial unit
-#define USER_UNIT   2   //User unit
-#define	UNEXP_UNIT	4   //Unit has undefined bytes
+#define TRIV_UNIT  1 //Trivial unit
+#define USER_UNIT  2 //User unit
+#define UNEXP_UNIT 4 //Unit has undefined bytes
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::ShowUnits(bool showUnk) {
     int oldItemIdx = lbUnits->ItemIndex;
@@ -918,9 +918,9 @@ void __fastcall TFMain_11011981::miEditFunctionIClick(TObject *Sender) {
         SameText(name, "<Constructor>") ||
         SameText(name, "<Destructor>") ||
         SameText(name, "<Func>") ||
-        //SameText(name, "<EmbFunc>")  	||
+        //SameText(name, "<EmbFunc>")   ||
         SameText(name, "<Proc>") //||
-        //SameText(name, "<EmbProc>") 	||
+        //SameText(name, "<EmbProc>")   ||
         //SameText(name, "<ImpFunc>")  	||
         //SameText(name, "<ImpProc>")
     ) {

@@ -2133,7 +2133,7 @@ int __fastcall TFMain_11011981::EstimateProcSize(DWORD fromAdr) {
             continue;
         }
 
-        if (b1 == 0x68) //try block	(push loc_TryBeg)
+        if (b1 == 0x68) //try block (push loc_TryBeg)
         {
             DWORD NPos = curPos + instrLen;
             //check that next instruction is push fs:[reg] or retn
@@ -3034,7 +3034,7 @@ int __fastcall TFMain_11011981::IsValidCode(DWORD fromAdr) {
             continue;
         }
 
-        if (b1 == 0x68) //try block	(push loc_TryBeg)
+        if (b1 == 0x68) //try block (push loc_TryBeg)
         {
             DWORD NPos = curPos + instrLen;
             //check that next instruction is push fs:[reg] or retn
@@ -12317,8 +12317,7 @@ void __fastcall TFMain_11011981::pmSourceCodePopup(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::miCopytoClipboardNamesClick(
-    TObject *Sender) {
+void __fastcall TFMain_11011981::miCopytoClipboardNamesClick(TObject *Sender) {
     Copy2Clipboard(lbNames->Items, 0, false);
 }
 
