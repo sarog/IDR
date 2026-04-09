@@ -346,12 +346,8 @@ bool __stdcall EnumResNameProcedure(int hModule, char *Type, char *Name, long Pa
             ms->LoadFromStream(resStream);
             res = true;
             if (ResInfo->hFormPlugin) {
-                fnGetDstSize = (int(__stdcall *)
-                (BYTE *, int)
-                )
-                GetProcAddress(ResInfo->hFormPlugin, "GetDstSize");
-                fnDecrypt = (boolean(__stdcall *)(BYTE *, int, BYTE *, int))
-                GetProcAddress(ResInfo->hFormPlugin, "Decrypt");
+                fnGetDstSize = (int(__stdcall *)(BYTE *, int)) GetProcAddress(ResInfo->hFormPlugin, "GetDstSize");
+                fnDecrypt = (boolean(__stdcall *)(BYTE *, int, BYTE *, int)) GetProcAddress(ResInfo->hFormPlugin, "Decrypt");
                 res = (fnGetDstSize && fnDecrypt);
                 if (res) {
                     srcSize = ms->Size;
@@ -376,8 +372,8 @@ bool __stdcall EnumResNameProcedure(int hModule, char *Type, char *Name, long Pa
             if (res) {
                 ms->Seek(0, soFromBeginning);
                 ms->Read(signature, 4);
-                if (signature[0] == 'T' && signature[1] == 'P' && signature[2] == 'F' && (
-                        signature[3] >= '0' && signature[3] <= '7')) {
+                if (signature[0] == 'T' && signature[1] == 'P' && signature[2] == 'F' &&
+                    (signature[3] >= '0' && signature[3] <= '7')) {
                     if (signature[3] == '0') {
                         //????????? ? ?????? ????????
                         dfm = new TDfm;
@@ -420,6 +416,7 @@ bool __stdcall EnumResNameProcedure(int hModule, char *Type, char *Name, long Pa
         }
         delete resStream;
     }
+
     return true;
 }
 
