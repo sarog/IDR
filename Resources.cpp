@@ -2,11 +2,8 @@
 #include <vcl.h>
 #pragma hdrstop
 
-#include "Resources.h"
-#include "Main.h"
-#include "Misc.h"
-#include "ProgressBar.h"
 #include <System.StrUtils.hpp>
+#include <System.Classes.hpp>
 #include <VCLTee.Chart.hpp>
 #include <Vcl.StdActns.hpp>
 #include <Vcl.ExtActns.hpp>
@@ -20,6 +17,11 @@
 #include <Vcl.FileCtrl.hpp>
 #include <Vcl.ColorGrd.hpp>
 #include <Vcl.ValEdit.hpp>
+
+#include "Resources.h"
+#include "Main.h"
+#include "Misc.h"
+#include "ProgressBar.h"
 #include "perfgrap.h"
 #include "cspin.h"
 #include "cgauges.h"

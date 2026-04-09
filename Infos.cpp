@@ -2,7 +2,7 @@
 #include <vcl.h>
 #pragma hdrstop
 
-#include <SyncObjs.hpp>
+// #include <SyncObjs.hpp>
 #include "Infos.h"
 #include "Main.h"
 #include "Misc.h"
