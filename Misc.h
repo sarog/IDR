@@ -139,7 +139,7 @@ String __fastcall TypeKind2Name(BYTE kind);
 //String __fastcall UnmangleName(String Name);
 //Decompiler
 int __fastcall IsAbs(DWORD fromAdr);
-int _fastcall IsIntOver(DWORD fromAdr);
+int __fastcall IsIntOver(DWORD fromAdr);
 int __fastcall IsInlineLengthCmp(DWORD fromAdr);
 int __fastcall IsInlineLengthTest(DWORD fromAdr);
 int __fastcall IsInlineDiv(DWORD fromAdr, int *div);

@@ -2806,7 +2806,7 @@ int __fastcall IsAbs(DWORD fromAdr) {
 //call @IntOver
 //@1:
 //return bytes to skip, if @IntOver, else return 0
-int _fastcall IsIntOver(DWORD fromAdr) {
+int __fastcall IsIntOver(DWORD fromAdr) {
     int _instrLen, _curPos = Adr2Pos(fromAdr);
     DWORD _curAdr = fromAdr;
     PInfoRec _recN;
