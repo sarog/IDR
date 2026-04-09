@@ -224,7 +224,7 @@ void __fastcall TFActiveProcesses::DumpProcess(DWORD PID, TMemoryStream *MemStre
             GetModuleInformation(_hProcess, ModuleHandles[0], &_moduleInfo, sizeof(_moduleInfo));
         }
         if (!_moduleInfo.lpBaseOfDll) {
-            throw Exception("Invalid process, PID: " + PID);
+            throw Exception("Invalid process, PID: " + String(PID));
         }
         ReadProcessMemory(_hProcess, (BYTE *) _moduleInfo.lpBaseOfDll + 0x3C, &_peHdrOffset, sizeof(_peHdrOffset), &_sz);
         ReadProcessMemory(_hProcess, (BYTE *) _moduleInfo.lpBaseOfDll + _peHdrOffset, &_ntHdr, sizeof(_ntHdr), &_sz);
