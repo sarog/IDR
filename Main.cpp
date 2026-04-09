@@ -74,11 +74,11 @@ SysProcInfo SysInitProcs[] = {
 //---------------------------------------------------------------------------
 char StringBuf[MAXSTRBUFFER]; //Buffer to make string
 
-extern char *Reg32Tab[8];
-extern char *Reg16Tab[8];
-extern char *Reg8Tab[8];
-extern char *SegRegTab[8];
-extern char *RepPrefixTab[4];
+extern const char *Reg32Tab[8];
+extern const char *Reg16Tab[8];
+extern const char *Reg8Tab[8];
+extern const char *SegRegTab[8];
+extern const char *RepPrefixTab[4];
 
 extern RegClassInfo RegClasses[];
 
@@ -1663,9 +1663,9 @@ int __fastcall TFMain_11011981::GetDelphiVersion() {
     //as
     //try to find the Delphi version based on imported delphi bpls.... (if any)
     typedef struct {
-        char *versionVcl;    //digital part of version present in vclXXX file name
-        char *versionRtl;    //digital part of version present in rtlXXX file name
-        char *versionString; //full string of vcl/rtl bpl from file properties
+        const char *versionVcl;    //digital part of version present in vclXXX file name
+        const char *versionRtl;    //digital part of version present in rtlXXX file name
+        const char *versionString; //full string of vcl/rtl bpl from file properties
         int versionForIdr;   //value that returns to caller
     } DelphiBplVersionRec;
 
@@ -3698,8 +3698,8 @@ void __fastcall TFMain_11011981::ScanMethodTable(DWORD adr, String className) {
 //---------------------------------------------------------------------------
 typedef struct {
     int id;
-    char *typname;
-    char *msgname;
+    const char *typname;
+    const char *msgname;
 } MsgInfo, *PMsgMInfo;
 
 MsgInfo WindowsMsgTab[] =

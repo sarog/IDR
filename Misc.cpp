@@ -417,7 +417,7 @@ int __fastcall GetNearestUpInstruction(int fromPos, int toPos, int no) {
 
 //---------------------------------------------------------------------------
 //Return position of nearest up instruction from position fromPos
-int __fastcall GetNearestUpInstruction1(int fromPos, int toPos, char *Instruction) {
+int __fastcall GetNearestUpInstruction1(int fromPos, int toPos, const char *Instruction) {
     int len = strlen(Instruction);
     int pos;
     DISINFO DisInfo;
@@ -435,7 +435,7 @@ int __fastcall GetNearestUpInstruction1(int fromPos, int toPos, char *Instructio
 
 //---------------------------------------------------------------------------
 //Return position of nearest up instruction from position fromPos
-int __fastcall GetNearestUpInstruction2(int fromPos, int toPos, char *Instruction1, char *Instruction2) {
+int __fastcall GetNearestUpInstruction2(int fromPos, int toPos, const char *Instruction1, const char *Instruction2) {
     int len1 = strlen(Instruction1), len2 = strlen(Instruction2);
     int pos;
     DISINFO DisInfo;
@@ -467,7 +467,7 @@ int __fastcall GetNearestDownInstruction(int fromPos) {
 
 //---------------------------------------------------------------------------
 //Return position of nearest down "Instruction" from position fromPos
-int __fastcall GetNearestDownInstruction(int fromPos, char *Instruction) {
+int __fastcall GetNearestDownInstruction(int fromPos, const char *Instruction) {
     int instrLen, len = strlen(Instruction);
     int curPos = fromPos;
     DISINFO DisInfo;
