@@ -2,7 +2,7 @@
 #include <vcl.h>
 #pragma hdrstop
 
-#include <Dbghelp.h>
+#include <dbghelp.h>
 #include <Vcl.Clipbrd.hpp>
 #include "Misc.h"
 #include "InputDlg.h"
