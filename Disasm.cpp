@@ -148,12 +148,13 @@ int __fastcall MDisasm::GetRegister(const char * reg)
 //---------------------------------------------------------------------------
 int __fastcall MDisasm::Disassemble(DWORD fromAdr, PDISINFO pDisInfo, char* disLine)
 {
-    int     _res;
+    int _res = 0;
 
     CrtSection->Enter();
 
-    if (Adr2Pos(fromAdr))
-        _res = Disassemble(Code + Adr2Pos(fromAdr), (__int64)fromAdr, pDisInfo, disLine);
+    int pos = Adr2Pos(fromAdr);
+    if (pos >= 0)
+        _res = Disassemble(Code + pos, (__int64)fromAdr, pDisInfo, disLine);
     else
         _res = 0;
 
