@@ -212,9 +212,7 @@ int __fastcall MDisasm::Disassemble(BYTE* from, __int64 address, PDISINFO pDisIn
             FormatInstr(pDisInfo, disLine);
             if (pDisInfo->IndxReg != -1 && !pDisInfo->Scale) pDisInfo->Scale = 1;
 
-            DWORD   dd = *((DWORD*)pDisInfo->Mnem);
-
-            if (pDisInfo->Mnem[0] == 'f' || dd == 'tiaw')
+            if (pDisInfo->Mnem[0] == 'f' || strncmp(pDisInfo->Mnem, "wait", 4) == 0)
             {
                 pDisInfo->Float = true;
             }
@@ -223,11 +221,11 @@ int __fastcall MDisasm::Disassemble(BYTE* from, __int64 address, PDISINFO pDisIn
                 pDisInfo->Branch = true;
                 if (pDisInfo->Mnem[1] != 'm') pDisInfo->Conditional = true;
             }
-            else if (dd == 'llac')
+            else if (strncmp(pDisInfo->Mnem, "call", 4) == 0)
             {
                 pDisInfo->Call = true;
             }
-            else if (dd == 'ter')
+            else if (strncmp(pDisInfo->Mnem, "ret", 3) == 0)
             {
                 pDisInfo->Ret = true;
             }
