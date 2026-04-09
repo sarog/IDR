@@ -5227,7 +5227,7 @@ void __fastcall TFMain_11011981::ShowCode(DWORD fromAdr, int SelectedIdx, int Xr
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::AnalyzeMethodTable(int Pass, DWORD Adr, const bool *Terminated) {
+void __fastcall TFMain_11011981::AnalyzeMethodTable(int Pass, DWORD Adr, const volatile bool *Terminated) {
     BYTE sLen, paramFlags, paramCount, cc;
     WORD skipNext, dw, parOfs;
     int procPos;
@@ -5369,7 +5369,7 @@ void __fastcall TFMain_11011981::AnalyzeMethodTable(int Pass, DWORD Adr, const b
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::AnalyzeDynamicTable(int Pass, DWORD Adr, const bool *Terminated) {
+void __fastcall TFMain_11011981::AnalyzeDynamicTable(int Pass, DWORD Adr, const volatile bool *Terminated) {
     DWORD vmtAdr = Adr - cVmtSelfPtr;
     DWORD DynamicAdr = *((DWORD *) (Code + Adr2Pos(vmtAdr) + cVmtDynamicTable));
     if (!DynamicAdr) return;
@@ -5402,7 +5402,7 @@ void __fastcall TFMain_11011981::AnalyzeDynamicTable(int Pass, DWORD Adr, const 
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::AnalyzeVirtualTable(int Pass, DWORD Adr, const bool *Terminated) {
+void __fastcall TFMain_11011981::AnalyzeVirtualTable(int Pass, DWORD Adr, const volatile bool *Terminated) {
     DWORD parentAdr = GetParentAdr(Adr);
     DWORD vmtAdr = Adr - cVmtSelfPtr;
     DWORD stopAt = GetStopAt(vmtAdr);
@@ -11243,8 +11243,8 @@ void __fastcall TFMain_11011981::wm_updAnalysisStatus(TMessage &msg) {
 void __fastcall TFMain_11011981::wm_dfmClosed(TMessage &msg) {}
 //---------------------------------------------------------------------------
 //Fill ClassViewerTree for 1 class
-void __fastcall TFMain_11011981::FillClassViewerOne(int n, TStringList *tmpList, const bool *terminated) {
-    bool vmtProc;
+void __fastcall TFMain_11011981::FillClassViewerOne(int n, TStringList *tmpList, const volatile bool *Terminated) {
+    bool vmtProc = false;
     WORD _dx, _bx, _si;
     int m, size, sizeParent, pos, cnt, vmtOfs, _pos;
     DWORD vmtAdr, vmtAdrParent, vAdr, iAdr;
@@ -11278,7 +11278,7 @@ void __fastcall TFMain_11011981::FillClassViewerOne(int n, TStringList *tmpList,
         //Interfaces
         const int intfsNum = LoadIntfTable(vmtAdr, tmpList);
         if (intfsNum) {
-            for (m = 0; m < intfsNum && !*terminated; m++) {
+            for (m = 0; m < intfsNum && !*Terminated; m++) {
                 nodeText = tmpList->Strings[m];
                 sscanf(AnsiString(nodeText).c_str(), "%lX", &vAdr);
                 if (IsValidCodeAdr(vAdr)) {
@@ -11366,13 +11366,13 @@ void __fastcall TFMain_11011981::FillClassViewerOne(int n, TStringList *tmpList,
                 }
             }
         }
-        if (*terminated) return;
+        if (*Terminated) return;
         //Automated
         const int autoNum = LoadAutoTable(vmtAdr, tmpList);
         if (autoNum) {
             nodeText = "<A>";
             TTreeNode *autoNode = AddClassTreeNode(rootNode, nodeText);
-            for (m = 0; m < autoNum && !*terminated; m++) {
+            for (m = 0; m < autoNum && !*Terminated; m++) {
                 nodeText = tmpList->Strings[m];
                 AddClassTreeNode(autoNode, nodeText);
             }
@@ -11407,35 +11407,35 @@ void __fastcall TFMain_11011981::FillClassViewerOne(int n, TStringList *tmpList,
             }
         }
         */
-        if (*terminated) return;
+        if (*Terminated) return;
         //Events
         const int methodsNum = LoadMethodTable(vmtAdr, tmpList);
         if (methodsNum) {
             nodeText = "<E>";
             TTreeNode *methodsNode = AddClassTreeNode(rootNode, nodeText);
-            for (m = 0; m < methodsNum && !*terminated; m++) {
+            for (m = 0; m < methodsNum && !*Terminated; m++) {
                 nodeText = tmpList->Strings[m];
                 AddClassTreeNode(methodsNode, nodeText);
             }
         }
-        if (*terminated) return;
+        if (*Terminated) return;
         //Dynamics
         const int dynamicsNum = LoadDynamicTable(vmtAdr, tmpList);
         if (dynamicsNum) {
             nodeText = "<D>";
             TTreeNode *dynamicsNode = AddClassTreeNode(rootNode, nodeText);
-            for (m = 0; m < dynamicsNum && !*terminated; m++) {
+            for (m = 0; m < dynamicsNum && !*Terminated; m++) {
                 nodeText = tmpList->Strings[m];
                 AddClassTreeNode(dynamicsNode, nodeText);
             }
         }
-        if (*terminated) return;
+        if (*Terminated) return;
         //Virtual
         const int virtualsNum = LoadVirtualTable(vmtAdr, tmpList);
         if (virtualsNum) {
             nodeText = "<V>";
             TTreeNode *virtualsNode = AddClassTreeNode(rootNode, nodeText);
-            for (m = 0; m < virtualsNum && !*terminated; m++) {
+            for (m = 0; m < virtualsNum && !*Terminated; m++) {
                 nodeText = tmpList->Strings[m];
                 AddClassTreeNode(virtualsNode, nodeText);
             }

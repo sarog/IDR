@@ -876,7 +876,7 @@ public: // User declarations
     int __fastcall LoadDynamicTable(DWORD adr, TStringList *dstList);
     int __fastcall LoadVirtualTable(DWORD adr, TList *dstList);
     int __fastcall LoadVirtualTable(DWORD adr, TStringList *dstList);
-    void __fastcall FillClassViewerOne(int n, TStringList *tmpList, const volatile bool *terminated);
+    void __fastcall FillClassViewerOne(int n, TStringList *tmpList, const volatile bool *Terminated);
     TTreeNode * __fastcall AddClassTreeNode(TTreeNode *node, String name);
     //Function
     void __fastcall EditFunction(DWORD Adr);
