@@ -7389,7 +7389,7 @@ void __fastcall TFMain_11011981::IniFileRead() {
     _font->Name = iniFile->ReadString("Settings", "FontName", "Fixedsys");
     _font->Charset = iniFile->ReadInteger("Settings", "FontCharset", 1);
     _font->Size = iniFile->ReadInteger("Settings", "FontSize", 9);
-    _font->Color = iniFile->ReadInteger("Settings", "FontColor", 0);
+    _font->Color = TColor(iniFile->ReadInteger("Settings", "FontColor", 0));
     if (iniFile->ReadBool("Settings", "FontBold", False))
         _font->Style = _font->Style << fsBold;
     if (iniFile->ReadBool("Settings", "FontItalic", False))
@@ -9876,7 +9876,7 @@ void __fastcall TFMain_11011981::lbCodeDrawItem(TWinControl *Control,
         //First row (name of procedure with prototype) output without highlighting
         if (!Index) {
             Rect.Right = Rect.Left;
-            DrawOneItem(text, canvas, Rect, 0, flags);
+            DrawOneItem(text, canvas, Rect, TColor(0), flags);
             return;
         }
         //F
