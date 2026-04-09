@@ -20,8 +20,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # https://docwiki.embarcadero.com/RADStudio/Sydney/en/Message_Options
 # -w-csu -w-aus -w-mcc -w-
 # -DUNICODE -D_UNICODE
+add_compile_options(-D_DEBUG -DUSEPACKAGES)
+
 if (BCC32C)
-    add_compile_options(-D_DEBUG -DUSEPACKAGES)
+    add_compile_options(-y -Q -k -r- -w -wall -D_DEBUG -DUSEPACKAGES)
 elseif (BCC32)
     add_compile_options(-y -Q -k -r- -c -w-par -vi- -C8 -Od -D_DEBUG -DUSEPACKAGES -H -n.\\Win32\\Debug\\Obj -H=.\\IdrPCH1.h)
 endif ()
