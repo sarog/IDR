@@ -1,6 +1,7 @@
 //---------------------------------------------------------------------------
 
 #include <vcl.h>
+#include <VersionHelpers.h>
 #pragma hdrstop
 
 #include "Main.h"
@@ -26,7 +27,7 @@ __fastcall TFActiveProcesses::TFActiveProcesses(TComponent *Owner)
     lpModule32Next = 0;
 
     //Load PSAPI
-    if (IsWindows2000OrHigher()) {
+    if (IsWindowsXPOrGreater()) {
         //Supported starting from Windows XP/Server 2003
         InstPSAPI = LoadLibrary("PSAPI.DLL");
         if (InstPSAPI) {
@@ -91,17 +92,8 @@ void TFActiveProcesses::ShowProcesses95() {
 }
 
 //---------------------------------------------------------------------------
-bool TFActiveProcesses::IsWindows2000OrHigher() {
-    OSVERSIONINFO osvi = {0};
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    GetVersionEx(&osvi);
-    //https://msdn.microsoft.com/en-us/library/windows/desktop/ms724834%28v=vs.85%29.aspx
-    return (osvi.dwMajorVersion >= 5); //win XP+
-}
-
-//---------------------------------------------------------------------------
 void TFActiveProcesses::ShowProcesses() {
-    if (!IsWindows2000OrHigher())
+    if (!IsWindowsXPOrGreater())
         FActiveProcesses->ShowProcesses95();
     else
         FActiveProcesses->ShowProcessesNT();
@@ -208,7 +200,7 @@ void __fastcall TFActiveProcesses::DumpProcess(DWORD PID, TMemoryStream *MemStre
     _hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, PID); //0x1F0FFF
     if (_hProcess) {
         //If Win9x
-        if (!IsWindows2000OrHigher()) {
+        if (!IsWindowsXPOrGreater()) {
             _hSnapshot = lpCreateToolhelp32Snapshot(TH32CS_SNAPALL, GetCurrentProcessId());
             if (_hSnapshot != INVALID_HANDLE_VALUE) {
                 _ppe.dwSize = sizeof(PROCESSENTRY32);

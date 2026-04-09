@@ -52,7 +52,6 @@ private: // User declarations
     TGetModuleFileNameEx lpGetModuleFileNameEx;
     TGetModuleInformation lpGetModuleInformation;
 
-    bool IsWindows2000OrHigher();
     void ShowProcesses95();
     void ShowProcessesNT();
 
