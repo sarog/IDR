@@ -510,6 +510,7 @@ DWORD       res = 0;
         {
             // @formatter:off
             // clang-format off
+            mov     ecx, [DIS]
             mov     al, [ecx+51h]
             test    al, al
             jz      GA3
@@ -561,6 +562,7 @@ DWORD       res = 0;
         {
             // @formatter:off
             // clang-format off
+            mov     ecx, [DIS]
             mov     edx, [ecx+64h]
             mov     eax, [edx+ecx+3Ch]
             mov     dword ptr [res], eax
