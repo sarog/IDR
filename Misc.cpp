@@ -1227,6 +1227,13 @@ bool __fastcall IsInheritsByProcName(const String &Name1, const String &Name2) {
 }
 
 //---------------------------------------------------------------------------
+
+/**
+ * Transform char string to UnicodeString
+ * @param str String constant
+ * @param len Length of string
+ * @return String as Unicode
+ */
 String __fastcall TransformString(char *str, int len) {
     bool s = true; //true - print string, false - print #XX
     BYTE c, *p = reinterpret_cast<BYTE *>(str);
@@ -1263,7 +1270,14 @@ String __fastcall TransformString(char *str, int len) {
 }
 
 //---------------------------------------------------------------------------
-String __fastcall TransformUString(WORD codePage, wchar_t *data, int len) {
+/**
+ * Convert wide string to Unicode
+ * @param codePage Codepage
+ * @param data String as wide
+ * @param len Length of string
+ * @return String as Unicode
+ */
+String __fastcall TransformUString(WORD codePage, const wchar_t *data, int len) {
     if (!IsValidCodePage(codePage)) codePage = CP_ACP;
     int nChars = WideCharToMultiByte(codePage, 0, data, -1, 0, 0, 0, 0);
     if (!nChars) return "";

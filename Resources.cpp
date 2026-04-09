@@ -27,6 +27,8 @@
 #include "ccalendr.h"
 #include "pies.h"
 
+// PfnGetDstSize = Function (MemPtr:Pointer; Len:Integer):Integer; stdcall;
+// PfnDecrypt = Function (SrcPtr:Pointer; SrcLen:Integer; DstPtr:Pointer; DstLen:Integer):Boolean; stdcall;
 int (__stdcall *fnGetDstSize)(BYTE *, int);
 boolean (__stdcall * fnDecrypt)(BYTE *, int, BYTE *, int);
 

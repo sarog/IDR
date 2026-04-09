@@ -5289,7 +5289,7 @@ void __fastcall TFMain_11011981::AnalyzeMethodTable(int Pass, DWORD Adr, const v
             if (procAdr == Adr) continue;
 
             recN = GetInfoRec(procAdr);
-            //IMHO it means that methods are pure virtual calls and must be readed in child classes
+            // IMHO it means that methods are pure virtual calls and must be read in child classes
             if (recN && recN->kind == ikVMT) {
                 pos = spos;
                 continue;

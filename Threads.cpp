@@ -166,7 +166,7 @@ void __fastcall TAnalyzeThread::Execute() {
     }
 
     //as update main wnd about operation over
-    //only Post() here!) - async, otehrwise deadlock!
+    //only Post() here!) - async, otherwise deadlock!
     ::PostMessage(mainForm->Handle, WM_UPDANALYSISSTATUS, (int) taFinished, 0);
 }
 
