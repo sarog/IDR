@@ -2,15 +2,15 @@
 #ifndef DisasmH
 #define DisasmH
 //---------------------------------------------------------------------------
-#define     ASMMAXCOPLEN 12
-//Instruction type
-#define 	itUnknown   0   //Unknown instruction
-#define 	itTransfer  1   //Data transfer instruction
-#define 	itArifm     2   //Ariphmetical instruction
-#define 	itLogic     3   //Logical instruction
-#define 	itControl   4   //Control flow instruction
-#define 	itString    5   //String instruction
-#define 	itFloat     6   //Coprocessor instruction
+#define ASMMAXCOPLEN 12
+// Instruction type
+#define itUnknown   0 // Unknown instruction
+#define itTransfer  1 // Data transfer instruction
+#define itArifm     2 // Ariphmetical instruction
+#define itLogic     3 // Logical instruction
+#define itControl   4 // Control flow instruction
+#define itString    5 // String instruction
+#define itFloat     6 // Coprocessor instruction
 
 typedef struct {
     char Mnem[32];
@@ -45,11 +45,11 @@ typedef struct {
     //BYTE	Op3Type;
 } DISINFO, *PDISINFO;
 
-#define		otUND   0
-#define 	otIMM   1
-#define 	otREG	2
-#define 	otMEM   3
-#define     otFST   4
+#define     otUND 0
+#define     otIMM 1
+#define     otREG 2
+#define     otMEM 3
+#define     otFST 4
 
 #define     OP_RESET    0x80
 #define     OP_A2       0x40    //2 or 3 operands

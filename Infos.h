@@ -56,7 +56,7 @@ typedef InfoVmtInfo *PInfoVmtInfo;
 #define     PF_DYNAMIC      0x10000000
 #define     PF_EVENT        0x08000000
 #define     PF_OUTEAX       0x04000000
-#define		PF_KBPROTO		0x02000000	//if prototype for kb was got
+#define     PF_KBPROTO      0x02000000  //if prototype for kb was got
 #define		PF_BPBASED      0x01000000
 #define     PF_ARGSIZEG     0x00800000  //If delta between retN and total arguments size > 0
 #define     PF_ARGSIZEL     0x00400000  //If delta between retN and total arguments size < 0

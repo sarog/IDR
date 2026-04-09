@@ -45,9 +45,9 @@
 
 #define     BJL_USED            -1
 #define     BJL_EMPTY           0
-#define	    BJL_BRANCH  		1
-#define     BJL_JUMP			2
-#define     BJL_LOC				3
+#define     BJL_BRANCH          1
+#define     BJL_JUMP            2
+#define     BJL_LOC	            3
 #define     BJL_SKIP_BRANCH     4   //branches for IntOver, BoundErr,...
 
 typedef struct {

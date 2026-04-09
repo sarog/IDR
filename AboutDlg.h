@@ -38,8 +38,8 @@ class TFAboutDlg_11011981 : public TForm {
     TLabel *Label8;
     TLabel *lblHint;
     void __fastcall FormCreate(TObject *Sender);
-	void __fastcall lEmailClick(TObject *Sender);
-	void __fastcall lWWWClick(TObject *Sender);
+    void __fastcall lEmailClick(TObject *Sender);
+    void __fastcall lWWWClick(TObject *Sender);
     void __fastcall bDonateClick(TObject *Sender);
 private:
 public:
