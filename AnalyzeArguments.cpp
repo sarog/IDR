@@ -14,7 +14,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWORD fromAdr) {
     BYTE op;
     bool kb;
     bool bpBased;
-    bool emb, lastemb;
+    bool emb, lastemb = 0;
     bool argA, argD, argC;
     bool inA, inD, inC;
     bool spRestored = false;
@@ -390,7 +390,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWORD fromAdr) {
         //        dd offset ExceptionInfo
         //        dd offset ExceptionProc
         //----------------------------------
-        if (b1 == 0x68) //try block	(push loc_TryBeg)
+        if (b1 == 0x68) //try block (push loc_TryBeg)
         {
             DWORD NPos = curPos + instrLen;
             //check that next instruction is push fs:[reg] or retn

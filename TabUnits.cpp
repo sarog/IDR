@@ -346,7 +346,7 @@ void __fastcall TFMain_11011981::ShowUnitItems(PUnitRec recU, int topIdx, int it
     lbUnitItems->Items->BeginUpdate();
 
     for (DWORD adr = recU->fromAdr; adr < recU->toAdr; adr++) {
-        int unknum, pos = Adr2Pos(adr);
+        int unknum = 0, pos = Adr2Pos(adr);
         if (!IsFlagSet(~cfLoc, pos)) {
             BYTE b0 = *(Code + pos);
             if (!unk) {

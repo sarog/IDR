@@ -288,7 +288,7 @@ void __fastcall TFKBViewer_11011981::edtCurrIdxChange(TObject *Sender) {
 //---------------------------------------------------------------------------
 void __fastcall TFKBViewer_11011981::cbUnitsChange(TObject *Sender) {
     WORD _moduleID;
-    int k, _firstProcIdx, _lastProcIdx, _idx;
+    int k, _firstProcIdx = 0, _lastProcIdx = 0, _idx;
     MProcInfo _aInfo;
     MProcInfo *_pInfo = &_aInfo;
 

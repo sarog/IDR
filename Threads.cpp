@@ -928,7 +928,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
 void __fastcall TAnalyzeThread::FindVMTs2() {
     BYTE len;
     WORD Num16;
-    int i, pos, bytes, _ap, _ap0;
+    int i, pos = 0, bytes, _ap, _ap0;
     DWORD Num32;
     String TypeName;
 

@@ -194,8 +194,8 @@ void __fastcall TFActiveProcesses::EnumSections(HANDLE HProcess, BYTE *PProcessB
 //---------------------------------------------------------------------------
 void __fastcall TFActiveProcesses::DumpProcess(DWORD PID, TMemoryStream *MemStream, DWORD *BoC, DWORD *PoC, DWORD *ImB) {
     WORD _secNum;
-    DWORD _peHdrOffset, _sz, _sizeOfCode;
-    DWORD _resPhys, _dd;
+    DWORD _peHdrOffset, _sz, _sizeOfCode = 0;
+    DWORD _resPhys = 0, _dd;
     BYTE *_buf;
     BYTE _b[8];
     HANDLE _hProcess, _hSnapshot;

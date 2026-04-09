@@ -163,9 +163,9 @@ int __fastcall MDisasm::Disassemble(DWORD fromAdr, PDISINFO pDisInfo, char* disL
 //---------------------------------------------------------------------------
 int __fastcall MDisasm::Disassemble(BYTE* from, __int64 address, PDISINFO pDisInfo, char* disLine)
 {
-	int	    InstrLen, _res;
-	char    *p, *q;
-    char    Instr[1024];
+    int  InstrLen, _res;
+    char *p, *q;
+    char Instr[1024];
 
     CrtSection->Enter();
 
@@ -243,7 +243,7 @@ int __fastcall MDisasm::Disassemble(BYTE* from, __int64 address, PDISINFO pDisIn
     }
 
     CrtSection->Leave();
-	return _res;
+    return _res;
 }
 //---------------------------------------------------------------------------
 void __fastcall MDisasm::FormatInstr(PDISINFO pDisInfo, char* disLine)
@@ -422,8 +422,8 @@ void __fastcall MDisasm::OutputHex(char *dst, DWORD val)
 //---------------------------------------------------------------------------
 DWORD __fastcall MDisasm::GetAddress()
 {
-int         n;
-DWORD       res = 0;
+    int   n;
+    DWORD res = 0;
 
     asm
     {
@@ -707,8 +707,8 @@ void __fastcall MDisasm::OutputMemAdr32(int argno, char* dst, DWORD arg, bool f1
 {
     BYTE    PostByte, SegPrefix, mod, *pos, sib, b;
     bool    ofs, ofs1, ib, mm;
-    int     ss, index, base, idxofs, idxval;
-    DWORD   offset32;
+    int     ss = 0, index, base, idxofs, idxval;
+    DWORD   offset32 = 0;
 
     asm
     {
@@ -868,7 +868,7 @@ void __fastcall MDisasm::OutputMemAdr16(int argno, char* dst, DWORD arg, bool f1
     const char  *regcomb;
     char sign;
     int     idxofs, idxval;
-    DWORD   offset16, dval;
+    DWORD   offset16 = 0, dval;
 
     asm
     {

@@ -1384,7 +1384,7 @@ String __fastcall InfoRec::MakePrototype(int adr, bool showKind, bool showTail, 
 //---------------------------------------------------------------------------
 String __fastcall InfoRec::MakeDelphiPrototype(int Adr, PMethodRec recM) {
     bool abstract = false;
-    BYTE callKind;
+    BYTE callKind = 0;
     int n, num, argsNum, firstArg, len = 0;
     PARGINFO argInfo;
 

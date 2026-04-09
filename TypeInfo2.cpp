@@ -1325,7 +1325,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
     BYTE methodKind, paramCount, numOps, ordType, callConv, paramFlags, propFlags, flags, dimCount, len;
     WORD dw, propCount, methCnt;
     DWORD k, minValue, maxValue, minValueB, maxValueB;
-    int i, j, m, n, vmtofs, pos, posn, spos, _ap, curOfs, typeKind, typeSize, fieldsNum, intfNum, size, prevOfs;
+    int i, j, m, n, vmtofs, pos = 0, posn, spos, _ap = 0, curOfs, typeKind, typeSize, fieldsNum, intfNum, size, prevOfs;
     DWORD elType; //for tkDynArray
     DWORD typeAdr, classVMT, parentAdr, elNum, elOff, resultTypeAdr;
     DWORD propType, getProc, setProc, storedProc, methAdr, procSig;

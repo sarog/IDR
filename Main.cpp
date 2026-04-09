@@ -1050,7 +1050,7 @@ void __fastcall TFMain_11011981::StrapProc(int pos, int ProcIdx, MProcInfo *Proc
         MResStrInfo *rsInfo = &arsInfo;
         MProcInfo aInfo;
         MProcInfo *pInfo = &aInfo;
-        DWORD Adr, Adr1, Ofs, Val;
+        DWORD Adr = 0, Adr1, Ofs, Val;
         WORD Len;
         String fName;
 
@@ -2010,7 +2010,7 @@ DWORD __fastcall FollowInstructions(DWORD fromAdr, DWORD toAdr) {
 //---------------------------------------------------------------------------
 int __fastcall TFMain_11011981::EstimateProcSize(DWORD fromAdr) {
     BYTE op;
-    int row, num, instrLen, instrLen1, instrLen2, Pos;
+    int row, num, instrLen, instrLen1, instrLen2, Pos = 0;
     int fromPos = Adr2Pos(fromAdr);
     int curPos = fromPos;
     DWORD curAdr = fromAdr;
@@ -2421,7 +2421,7 @@ bool __fastcall TFMain_11011981::IsExtendedInitTab(DWORD *unitsTab) {
 DWORD __fastcall TFMain_11011981::EvaluateInitTable(BYTE *Data, DWORD Size, DWORD Base) {
     int i, num, pos, unitsPos = 0, n;
     int curPos, instrLen;
-    DWORD initTable, result, iniAdr, finAdr, maxAdr = 0;
+    DWORD initTable = 0, result = 0, iniAdr, finAdr, maxAdr = 0;
     DWORD endAdr, curAdr, dd, modTable;
     DISINFO disInfo;
 
@@ -2542,7 +2542,7 @@ int __fastcall TFMain_11011981::GetUnits(String dprName) {
     char *b, *e;
     int n, i, no, unitsPos = 0, start, spos, pos, iniProcSize, finProcSize, unitsNum = 0;
     int typesNum, units1Num, typesTable, units1Table; //For D2010
-    DWORD initTable, iniAdr, finAdr, unitsTabEnd, toAdr;
+    DWORD initTable = 0, iniAdr, finAdr, unitsTabEnd, toAdr;
     PUnitRec recU;
     PInfoRec recN;
 
@@ -4123,7 +4123,7 @@ bool __fastcall IsOwnVirtualMethod(DWORD vmtAdr, DWORD procAdr) {
 //---------------------------------------------------------------------------
 //Create recN->methods list
 void __fastcall TFMain_11011981::ScanVirtualTable(DWORD adr) {
-    int m, pos, idx;
+    int m, pos, idx = 0;
     DWORD vmtAdr, stopAt;
     String clsName;
     PInfoRec recN, recN1;
@@ -4702,7 +4702,7 @@ void __fastcall TFMain_11011981::ShowCode(DWORD fromAdr, int SelectedIdx, int Xr
     BYTE op, flags;
     int row = 0, wid, maxwid = 0, _pos, _idx, _ap;
     TCanvas *canvas = lbCode->Canvas;
-    int num, instrLen, instrLen1, instrLen2, _procSize;
+    int num, instrLen = 0, instrLen1, instrLen2, _procSize;
     DWORD Adr, Adr1, Pos, lastMovAdr = 0;
     int fromPos;
     int curPos;
@@ -4862,7 +4862,7 @@ void __fastcall TFMain_11011981::ShowCode(DWORD fromAdr, int SelectedIdx, int Xr
 
         //Check inside instruction Fixup or ThreadVar
         bool NameInside = false;
-        DWORD NameInsideAdr;
+        DWORD NameInsideAdr = 0;
         for (int k = 1; k < instrLen; k++) {
             if (Infos[curPos + k]) {
                 NameInside = true;
@@ -5695,7 +5695,7 @@ DWORD __fastcall TFMain_11011981::AnalyzeProcInitial(DWORD fromAdr) {
 int __fastcall TFMain_11011981::CodeGetTargetAdr(String Line, DWORD *trgAdr) {
     char *s, *p, c;
     int n, wid, instrlen;
-    DWORD adr, targetAdr;
+    DWORD adr, targetAdr = 0;
     TPoint cursorPos;
     TCanvas *canvas = lbCode->Canvas;
     DISINFO DisInfo;
@@ -6081,7 +6081,7 @@ void __fastcall TFMain_11011981::miExploreAdrClick(TObject *Sender) {
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::NamePosition() {
     int pos, _idx, size;
-    DWORD adr, nameAdr;
+    DWORD adr, nameAdr = 0;
     PInfoRec recN;
     String line, text = "", sNameType, newName, newType;
 
@@ -6734,7 +6734,7 @@ PPROCHISTORYREC __fastcall TFMain_11011981::CodeHistoryPop() {
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::tvClassesDblClick(TObject *Sender) {
     int k, m, n;
-    TTreeView *tv;
+    TTreeView *tv = nullptr;
     PROCHISTORYREC rec;
 
     if (ActiveControl == tvClassesFull || ActiveControl == tvClassesShort)
@@ -10311,7 +10311,7 @@ void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWORD fromAdr, String pr
 
         //Check inside instruction Fixup or ThreadVar
         bool NameInside = false;
-        DWORD NameInsideAdr;
+        DWORD NameInsideAdr = 0;
         for (int k = 1; k < instrLen; k++) {
             if (Infos[curPos + k]) {
                 NameInside = true;
@@ -12307,7 +12307,7 @@ void __fastcall TFMain_11011981::miSetlvartypeClick(TObject *Sender) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::pmSourceCodePopup(TObject *Sender) {
-    PLOCALINFO pLocalInfo;
+    PLOCALINFO pLocalInfo = nullptr;
 
     PInfoRec recN = GetInfoRec(CurProcAdr);
     if (recN && recN->procInfo->locals && SelectedSourceItem != "")

@@ -1373,7 +1373,7 @@ String __fastcall TDecompileEnv::PrintBJL() {
 DWORD __fastcall TDecompiler::Decompile(DWORD fromAdr, DWORD flags, PLoopInfo loopInfo) {
     bool _cmp, _immInt64Val, _fullSim;
     BYTE _op;
-    DWORD _dd, _curAdr, _branchAdr, _sAdr, _jmpAdr, _endAdr, _adr;
+    DWORD _dd, _curAdr, _branchAdr, _sAdr = 0, _jmpAdr, _endAdr, _adr;
     DWORD _begAdr;
     int n, _kind, _skip1, _skip2, _size, _elSize, _procSize;
     int _fromPos, _curPos, _endPos, _instrLen, _instrLen1, _num, _regIdx, _pos, _sPos;
@@ -2774,9 +2774,9 @@ void __fastcall TDecompiler::SimulateInherited(DWORD procAdr) {
 //---------------------------------------------------------------------------
 bool __fastcall TDecompiler::SimulateCall(DWORD curAdr, DWORD callAdr, int instrLen, PMethodRec recM, DWORD AClassAdr) {
     bool _sep, _fromKB, _vmt;
-    BYTE _kind, _callKind, _retKind, _methodKind, *p, *pp;
+    BYTE _kind, _callKind, _retKind = 0, _methodKind = 0, *p, *pp;
     int _res = 0;
-    int _argsNum, _retBytes, _retBytesCalc, _len, _val, _esp;
+    int _argsNum, _retBytes, _retBytesCalc, _len, _val, _esp = 0;
     int _idx = -1, _rn, _ndx, ss, _pos, _size, _recsize;
     WORD *_uses;
     DWORD _classAdr, _adr, _dynAdr;
@@ -3619,8 +3619,8 @@ PLoopInfo __fastcall TDecompiler::GetLoopInfo(int fromAdr) {
     bool down = false;
     bool bWhile = false;
     BYTE _op;
-    int instrLen, pos, pos1, fromPos, num, intTo, idx, idxVal;
-    DWORD maxAdr, brkAdr, lastAdr, stopAdr, _dd, _dd1;
+    int instrLen, pos, pos1, fromPos, num, intTo, idx, idxVal = 0;
+    DWORD maxAdr = 0, brkAdr = 0, lastAdr = 0, stopAdr, _dd, _dd1;
     PInfoRec recN;
     PLoopInfo res;
     DISINFO _disInfo;
@@ -5900,7 +5900,7 @@ void __fastcall TDecompiler::SimulateInstr3(DWORD curAdr, BYTE Op) {
 DWORD __fastcall TDecompiler::DecompileTry(DWORD fromAdr, DWORD flags, PLoopInfo loopInfo) {
     BYTE op;
     int pos, tpos, pos1, instrLen, skipNum;
-    DWORD startTryAdr, endTryAdr, startFinallyAdr, endFinallyAdr, endExceptAdr, adr, endAdr, hAdr;
+    DWORD startTryAdr, endTryAdr = 0, startFinallyAdr, endFinallyAdr, endExceptAdr, adr, endAdr, hAdr;
     PInfoRec recN;
     ITEM item;
     TDecompiler *de;
@@ -6116,7 +6116,7 @@ void __fastcall TDecompiler::MarkCaseEnum(DWORD fromAdr) {
 DWORD __fastcall TDecompiler::DecompileCaseEnum(DWORD fromAdr, int N, PLoopInfo loopInfo) {
     bool skip;
     BYTE b;
-    DWORD adr = fromAdr, jAdr, jAdr1, _adr, _endAdr = 0;
+    DWORD adr = fromAdr, jAdr = 0, jAdr1, _adr, _endAdr = 0;
     int n, m, pos = Adr2Pos(fromAdr), cTblPos, cTblPos1, jTblPos, jTblPos1;
     ITEM item, item1;
     String line = "";
@@ -9367,7 +9367,7 @@ void __fastcall TDecompiler::GetMemItem(int CurAdr, PITEM Dst, BYTE Op) {
 String __fastcall TDecompiler::GetStringArgument(PITEM item) {
     int _idx, _ap, _len, _size;
     DWORD _adr;
-    PInfoRec _recN;
+    PInfoRec _recN = nullptr;
     String _key;
 
     if (item->Name != "") return item->Name;

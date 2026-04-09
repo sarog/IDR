@@ -265,7 +265,7 @@ void __fastcall TFExplorer_11011981::rgStringViewStyleClick(TObject *Sender) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFExplorer_11011981::miCopy2ClipboardClick(TObject *Sender) {
-    TStrings *items;
+    TStrings *items = nullptr;
 
     if (pc1->ActivePage == tsCode)
         items = lbCode->Items;

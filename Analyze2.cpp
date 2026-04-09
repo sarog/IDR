@@ -186,7 +186,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWORD fromAdr, bool addArg, bool A
     int fromPos, curPos, Pos;
     DWORD curAdr;
     DWORD lastMovAdr = 0;
-    DWORD procAdr, Val, Adr, Adr1;
+    DWORD procAdr, Val = 0, Adr, Adr1;
     DWORD reg, varAdr, classAdr, vmtAdr, lastAdr = 0;
     PInfoRec recN, recN1;
     PLOCALINFO locInfo;
@@ -456,7 +456,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWORD fromAdr, bool addArg, bool A
             curAdr = Adr;
             continue;
         }
-        if (b1 == 0x68) //try block	(push loc_TryBeg)
+        if (b1 == 0x68) //try block (push loc_TryBeg)
         {
             DWORD NPos = curPos + instrLen;
             //check that next instruction is push fs:[reg] or retn
@@ -1722,7 +1722,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWORD fromAdr, bool addArg, bool A
 
 //---------------------------------------------------------------------------
 String __fastcall TFMain_11011981::AnalyzeTypes(DWORD parentAdr, int callPos, DWORD callAdr, PRINFO registers) {
-    WORD codePage, elemSize = 1;
+    WORD codePage = 0, elemSize = 1;
     int n, wBytes, pos, pushn, itemPos, refcnt, len, regIdx;
     int _idx, _ap, _kind, _size, _pos;
     DWORD itemAdr, strAdr;
