@@ -1,4 +1,4 @@
-#include "Explorer.h"
+﻿#include "Explorer.h"
 #include "FindDlg.h"
 #include "Main.h"
 #include "Misc.h"

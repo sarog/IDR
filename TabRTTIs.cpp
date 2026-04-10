@@ -1,4 +1,4 @@
-#include "FindDlg.h"
+﻿#include "FindDlg.h"
 #include "Main.h"
 #include "Misc.h"
 #include "TypeInfo2.h"

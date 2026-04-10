@@ -1,4 +1,4 @@
-#include "Main.h"
+﻿#include "Main.h"
 #include "Misc.h"
 #include "Disasm.h"
 
