@@ -49,7 +49,7 @@ int         DelphiThemesCount;
 //unsigned long stat_GetClassAdr_calls = 0;
 //unsigned long stat_GetClassAdr_adds = 0;
 //---------------------------------------------------------------------------
-String IDRVersion = "2026-02-27";
+String IDRVersion = "2026-04-10";
 // -sg: todo: bump version?
 const char *magic = "IDR proj v.3"; // IDR Project magic constant
 //---------------------------------------------------------------------------
