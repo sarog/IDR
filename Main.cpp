@@ -7647,7 +7647,7 @@ void __fastcall TFMain_11011981::LoadFile(String FileName, int version) {
         Init();
         OpenProject(FileName);
     } else {
-        ShowMessage("File " + FileName + " is not executable or IDR project file");
+        ShowMessage("File " + FileName + " is not executable or an IDR project file");
     }
 }
 
@@ -7721,8 +7721,7 @@ void __fastcall TFMain_11011981::LoadDelphiFile1(String FileName, int version, b
         DelphiVersion = GetDelphiVersion();
         if (DelphiVersion == 1) {
             Screen->Cursor = crDefault;
-            ShowMessage(
-                "File " + FileName + " is probably Delphi 4, 5, 6, 7, 2005, 2006 or 2007 file, try manual selection");
+            ShowMessage("File " + FileName + " is probably a Delphi 4, 5, 6, 7, 2005, 2006 or 2007 file, try manual selection");
             FInputDlg_11011981->Caption = "Enter number of version (4, 5, 6, 7, 2005, 2006 or 2007)";
             FInputDlg_11011981->edtName->Text = "";
             if (FInputDlg_11011981->ShowModal() == mrCancel) {
@@ -7736,7 +7735,7 @@ void __fastcall TFMain_11011981::LoadDelphiFile1(String FileName, int version, b
         }
         if (DelphiVersion == -1) {
             Screen->Cursor = crDefault;
-            ShowMessage("File " + FileName + " is probably not Delphi file");
+            ShowMessage("File " + FileName + " is probably not a Delphi file");
             CleanProject();
             return;
         }
@@ -7745,7 +7744,7 @@ void __fastcall TFMain_11011981::LoadDelphiFile1(String FileName, int version, b
     Screen->Cursor = crDefault;
 
     UserKnowledgeBase = false;
-    if (Application->MessageBox(L"Use native Knowledge Base?", L"Knowledge Base kind selection", MB_YESNO) == IDNO) {
+    if (Application->MessageBox(L"Use the native Knowledge Base? Press No to load a custom file.", L"Select Knowledge Base", MB_YESNO) == IDNO) {
         OpenDlg->InitialDir = WrkDir;
         OpenDlg->FileName = "";
         OpenDlg->Filter = "BIN|*.bin|All files|*.*";
@@ -7757,7 +7756,7 @@ void __fastcall TFMain_11011981::LoadDelphiFile1(String FileName, int version, b
         KBFileName = AppDir + "kb" + DelphiVersion + ".bin";
 
     if (KBFileName == "") {
-        ShowMessage("Knowledge Base file not selected");
+        ShowMessage("Knowledge Base file is not selected");
         CleanProject();
         return;
     }
@@ -7767,7 +7766,7 @@ void __fastcall TFMain_11011981::LoadDelphiFile1(String FileName, int version, b
 
     if (!res) {
         Screen->Cursor = crDefault;
-        ShowMessage("Cannot open Knowledge Base file " + String(KBFileName) + " (may be incorrect Version)");
+        ShowMessage("Cannot open Knowledge Base file " + String(KBFileName) + " (may be incorrect version)");
         CleanProject();
         return;
     }
@@ -8336,7 +8335,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
     UserKnowledgeBase = false;
     SourceIsLibrary = (_ver & SOURCE_LIBRARY);
     if (_ver & USER_KNOWLEDGEBASE) {
-        ShowMessage("Choose original Knowledge Base");
+        ShowMessage("Please choose the original (custom) Knowledge Base file that was previously used with this project.");
         OpenDlg->InitialDir = WrkDir;
         OpenDlg->FileName = "";
         OpenDlg->Filter = "BIN|*.bin|All files|*.*";
@@ -8357,7 +8356,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
 
     if (!KnowledgeBase.Open(AnsiString(KBFileName).c_str())) {
         Screen->Cursor = crDefault;
-        ShowMessage("Cannot open KnowledgeBase (may be incorrect Version)");
+        ShowMessage("Cannot open the Knowledge Base (may be incorrect version)");
         return;
     }
 
