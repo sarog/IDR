@@ -257,24 +257,27 @@ void __fastcall FillArgInfo(int k, BYTE callkind, PARGINFO argInfo, BYTE **p, in
 String __fastcall TrimTypeName(const String &TypeName) {
     if (TypeName.IsEmpty())
         return TypeName;
+
     int pos = TypeName.Pos(".");
-    //No '.' in TypeName or TypeName begins with '.'
+    // No '.' in TypeName or TypeName begins with '.'
     if (pos == 0 || pos == 1)
         return TypeName;
-        //или это имя типа range
-    else if (TypeName[pos + 1] == '.')
+
+    // или это имя типа range | or is it a range type name
+    if (pos >= TypeName.Length() || TypeName[pos + 1] == '.')
         return TypeName;
-    else {
-        char c, *p = AnsiString(TypeName).c_str();
-        //Check special symbols upto '.'
-        while (1) {
-            c = *p++;
-            if (c == '.') break;
-            if (c < '0' || c == '<')
-                return TypeName;
-        }
-        return ExtractProcName(TypeName);
+
+    char c, *p = AnsiString(TypeName).c_str();
+    // Check special symbols upto '.'
+    while (true) {
+        c = *p++;
+        if (c == '.')
+            break;
+        if (c < '0' || c == '<')
+            return TypeName;
     }
+
+    return ExtractProcName(TypeName);
 }
 
 //---------------------------------------------------------------------------
