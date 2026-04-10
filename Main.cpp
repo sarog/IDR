@@ -9176,12 +9176,13 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                 fwrite(&evnum, sizeof(evnum), 1, outF); //outStream->Write(&evnum, sizeof(evnum));
                 for (m = 0; m < evnum; m++) {
                     PEventInfo eInfo = (PEventInfo) dfm->Events->Items[m];
-                    //EventName
+                    // EventName
                     len = eInfo->EventName.Length();
                     if (len > MaxBufLen) MaxBufLen = len;
                     fwrite(&len, sizeof(len), 1, outF);             //outStream->Write(&len, sizeof(len));
                     fwrite(eInfo->EventName.c_str(), len, 1, outF); //outStream->Write(eInfo->EventName.c_str(), len);
                     //ProcName
+                    // ProcName
                     len = eInfo->ProcName.Length();
                     if (len > MaxBufLen) MaxBufLen = len;
                     fwrite(&len, sizeof(len), 1, outF);            //outStream->Write(&len, sizeof(len));
