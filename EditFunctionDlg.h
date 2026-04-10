@@ -11,6 +11,7 @@
 #include <Grids.hpp>
 #include <ComCtrls.hpp>
 #include "Main.h"
+#include <Vcl.Mask.hpp>
 
 //----------------------------------------------------------------------------
 class TFEditFunctionDlg_11011981 : public TForm {

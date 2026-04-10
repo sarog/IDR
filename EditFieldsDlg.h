@@ -12,6 +12,7 @@
 #include <Vcl.ExtCtrls.hpp>
 #include <Vcl.Forms.hpp>
 #include <Vcl.ComCtrls.hpp>
+#include <Vcl.Mask.hpp>
 //----------------------------------------------------------------------------
 #define     FD_OP_EDIT      0
 #define     FD_OP_ADD       1

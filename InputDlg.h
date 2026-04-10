@@ -6,6 +6,7 @@
 #include <Vcl.Controls.hpp>
 #include <Vcl.ExtCtrls.hpp>
 #include <Vcl.StdCtrls.hpp>
+#include <Vcl.Mask.hpp>
 
 //----------------------------------------------------------------------------
 class TFInputDlg_11011981 : public TForm {

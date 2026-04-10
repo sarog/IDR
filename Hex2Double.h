@@ -7,6 +7,7 @@
 #include <Vcl.ExtCtrls.hpp>
 #include <Vcl.StdCtrls.hpp>
 #include "Misc.h"
+#include <Vcl.Mask.hpp>
 
 //----------------------------------------------------------------------------
 class TFHex2DoubleDlg_11011981 : public TForm {
