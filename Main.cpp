@@ -8405,7 +8405,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
             fread(&len, sizeof(len), 1, fIn); //inStream->Read(&len, sizeof(len));
             fread(buf, len, 1, fIn);          //inStream->Read(buf, len);
             segInfo->Name = String(buf, len);
-            SegmentList->Add((void *) segInfo);
+            SegmentList->Add(static_cast<void *>(segInfo));
         }
 
         Image = new BYTE[TotalSize];
@@ -8433,7 +8433,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
         if (Items) fread(pFlags, sizeof(DWORD) * Items, 1, fIn); //inStream->Read(pFlags, sizeof(DWORD)*Items);
 
         Infos = new PInfoRec[TotalSize];
-        memset((void *) Infos, 0, sizeof(PInfoRec) * TotalSize);
+        memset(static_cast<void *>(Infos), 0, sizeof(PInfoRec) * TotalSize);
 
         fread(&infosCnt, sizeof(infosCnt), 1, fIn); //inStream->Read(&infosCnt, sizeof(infosCnt));
         BYTE kind;
@@ -8492,7 +8492,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
                 fread(buf, len, 1, fIn);          //inStream->Read(buf, len);
                 SetUnitName(recU, String(buf, len));
             }
-            Units->Add((void *) recU);
+            Units->Add(static_cast<void *>(recU));
         }
         UnitSortField = 0;
         CurUnitAdr = 0;
@@ -8557,7 +8557,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
             fread(&len, sizeof(len), 1, fIn);               //inStream->Read(&len, sizeof(len));
             fread(buf, len, 1, fIn);                        //inStream->Read(buf, len);
             recT->name = String(buf, len);
-            OwnTypeList->Add((void *) recT);
+            OwnTypeList->Add(static_cast<void *>(recT));
         }
         RTTISortField = 0;
         if (num) fread(&RTTISortField, sizeof(RTTISortField), 1, fIn);
@@ -8629,7 +8629,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
                 fread(&len, sizeof(len), 1, fIn); //inStream->Read(&len, sizeof(len));
                 fread(buf, len, 1, fIn);          //inStream->Read(buf, len);
                 eInfo->ProcName = String(buf, len);
-                dfm->Events->Add((void *) eInfo);
+                dfm->Events->Add(static_cast<void *>(eInfo));
             }
             //Components
             fread(&cnum, sizeof(cnum), 1, fIn); //inStream->Read(&cnum, sizeof(cnum));
@@ -8664,12 +8664,12 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
                         fread(&len, sizeof(len), 1, fIn); //inStream->Read(&len, sizeof(len));
                         fread(buf, len, 1, fIn);          //inStream->Read(buf, len);
                         eInfo->ProcName = String(buf, len);
-                        cInfo->Events->Add((void *) eInfo);
+                        cInfo->Events->Add(static_cast<void *>(eInfo));
                     }
-                    dfm->Components->Add((void *) cInfo);
+                    dfm->Components->Add(static_cast<void *>(cInfo));
                 }
             }
-            ResInfo->FormList->Add((void *) dfm);
+            ResInfo->FormList->Add(static_cast<void *>(dfm));
         }
         //UpdateForms
         ResInfo->ShowResources(lbForms);

@@ -973,7 +973,7 @@ void __fastcall InfoRec::Load(FILE *ins, char *buf) //void __fastcall InfoRec::L
             recX->type = recX1.type;
             recX->adr = recX1.adr;
             recX->offset = recX1.offset;
-            xrefs->Add((void *) recX);
+            xrefs->Add(static_cast<void *>(recX));
             pxrefAdr = xrefAdr;
         }
     }
@@ -1024,9 +1024,9 @@ void __fastcall InfoRec::Load(FILE *ins, char *buf) //void __fastcall InfoRec::L
                 fread(&recX->adr, sizeof(recX->adr), 1, ins); //ins->Read(&recX->adr, sizeof(recX->adr));
                 //offset
                 fread(&recX->offset, sizeof(recX->offset), 1, ins); //ins->Read(&recX->offset, sizeof(recX->offset));
-                fInfo->xrefs->Add((void *) recX);
+                fInfo->xrefs->Add(static_cast<void *>(recX));
             }
-            vmtInfo->fields->Add((void *) fInfo);
+            vmtInfo->fields->Add(static_cast<void *>(fInfo));
         }
         //methods
         fread(&num, sizeof(num), 1, ins); //ins->Read(&num, sizeof(num));
@@ -1041,7 +1041,7 @@ void __fastcall InfoRec::Load(FILE *ins, char *buf) //void __fastcall InfoRec::L
             fread(&len, sizeof(len), 1, ins);                     //ins->Read(&len, sizeof(len));
             fread(buf, len, 1, ins);                              //ins->Read(buf, len);
             recM->name = String(buf, len);
-            vmtInfo->methods->Add((void *) recM);
+            vmtInfo->methods->Add(static_cast<void *>(recM));
         }
     } else if (kind >= ikRefine && kind <= ikFunc) {
         //flags
@@ -1081,7 +1081,7 @@ void __fastcall InfoRec::Load(FILE *ins, char *buf) //void __fastcall InfoRec::L
             fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
             fread(buf, len, 1, ins);          //ins->Read(buf, len);
             argInfo->TypeDef = TrimTypeName(String(buf, len));
-            procInfo->args->Add((void *) argInfo);
+            procInfo->args->Add(static_cast<void *>(argInfo));
         }
         //locals
         fread(&num, sizeof(num), 1, ins); //ins->Read(&num, sizeof(num));
@@ -1100,7 +1100,7 @@ void __fastcall InfoRec::Load(FILE *ins, char *buf) //void __fastcall InfoRec::L
             fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
             fread(buf, len, 1, ins);          //ins->Read(buf, len);
             locInfo->TypeDef = TrimTypeName(String(buf, len));
-            procInfo->locals->Add((void *) locInfo);
+            procInfo->locals->Add(static_cast<void *>(locInfo));
         }
     }
 }
