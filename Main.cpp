@@ -12472,8 +12472,8 @@ void __fastcall TFMain_11011981::mCreateCHeaderFileClick(TObject *Sender) {
 
 //---------------------------------------------------------------------------
 typedef struct {
-    char *CppType;
-    char *DelphiType;
+    const char *CppType;
+    const char *DelphiType;
 } CPPvsDELPHIdecl;
 
 CPPvsDELPHIdecl ForwardDeclarations[] = {
