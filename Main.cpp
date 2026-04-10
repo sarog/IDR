@@ -9564,7 +9564,7 @@ void __fastcall TFMain_11011981::miMapGeneratorClick(TObject *Sender) {
     _posMap = SourceFileMap.LastDelimiter("\\");
     if (_posMap) SourceFileMap = SourceFileMap.SubString(_posMap + 1, SourceFileMap.Length());
 
-    fprintf(fMap, "\n Name: %s EP: %08X : Size: %08X\n", SourceFileMap, EP - CodeBase, CodeSize);
+    fprintf(fMap, "\n Name: %s EP: %08X : Size: %08X\n", AnsiString(SourceFileMap).c_str(), EP - CodeBase, CodeSize);
     fprintf(fMap, "\n Start Length Name Class\n");
     fprintf(fMap, " 0001:00000000 %09XH CODE CODE\n", CodeSize);
     fprintf(fMap, "\n\n Address Publics by Value _ RVA+Base\n\n");
@@ -10118,7 +10118,7 @@ void __fastcall TFMain_11011981::miListerClick(TObject *Sender) {
         if (recU->kb || recU->trivial) continue;
         fprintf(lstF, "//===========================================================================\n");
         fprintf(lstF, "//Unit%03d", recU->iniOrder);
-        if (recU->names->Count) fprintf(lstF, " (%s)", recU->names->Strings[0]);
+        if (recU->names->Count) fprintf(lstF, " (%s)", AnsiString(recU->names->Strings[0]).c_str());
         fprintf(lstF, "\n");
 
         for (DWORD adr = recU->fromAdr; adr < recU->toAdr; adr++) {
@@ -10151,24 +10151,24 @@ void __fastcall TFMain_11011981::miListerClick(TObject *Sender) {
             if (kind > ikUnknown && kind <= ikProcedure && recN->HasName()) {
                 if (kind == ikEnumeration || kind == ikSet) {
                     line = FTypeInfo_11011981->GetRTTI(adr);
-                    fprintf(lstF, "%s = %s;\n", recN->GetName(), line);
+                    fprintf(lstF, "%s = %s;\n", AnsiString(recN->GetName()).c_str(), AnsiString(line).c_str());
                 } else
-                    fprintf(lstF, "%08lX <%s> %s\n", adr, TypeKind2Name(kind), recN->GetName());
+                    fprintf(lstF, "%08lX <%s> %s\n", adr, AnsiString(TypeKind2Name(kind)).c_str(), AnsiString(recN->GetName()).c_str());
                 continue;
             }
 
             if (kind == ikResString) {
-                fprintf(lstF, "%08lX <ResString> %s=%s\n", adr, recN->GetName(), recN->rsInfo->value);
+                fprintf(lstF, "%08lX <ResString> %s=%s\n", adr, AnsiString(recN->GetName()).c_str(), AnsiString(recN->rsInfo->value).c_str());
                 continue;
             }
 
             if (kind == ikVMT) {
-                fprintf(lstF, "%08lX <VMT> %s\n", adr, recN->GetName());
+                fprintf(lstF, "%08lX <VMT> %s\n", adr, AnsiString(recN->GetName()).c_str());
                 continue;
             }
 
             if (kind == ikGUID) {
-                fprintf(lstF, "%08lX <TGUID> %s\n", adr, Guid2String(Code + pos));
+                fprintf(lstF, "%08lX <TGUID> %s\n", adr, AnsiString(Guid2String(Code + pos)).c_str());
                 continue;
             }
 
@@ -10269,7 +10269,7 @@ void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWORD fromAdr, String pr
 
     if (!onlyComments && prototype != "") {
         fprintf(outF, "//---------------------------------------------------------------------------\n");
-        fprintf(outF, "//%s\n", prototype);
+        fprintf(outF, "//%s\n", AnsiString(prototype).c_str());
     }
     _procSize = GetProcSize(fromAdr);
     curPos = fromPos;
@@ -11581,7 +11581,7 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
                     dfm = ResInfo->GetFormByClassName(className);
                     if (dfm) {
                         _isForm = true;
-                        len = sprintf(StringBuf, "%s in '%s.pas' {%s}", unitName, unitName, dfm->Name);
+                        len = sprintf(StringBuf, "%s in '%s.pas' {%s}", AnsiString(unitName).c_str(), AnsiString(unitName).c_str(), AnsiString(dfm->Name).c_str());
                         unitsList->Add(String(StringBuf, len));
                     }
 
@@ -11633,9 +11633,9 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
                         recN = GetInfoRec(recM->address);
                         procName = recN->MakePrototype(recM->address, true, false, false, false, false);
                         if (!procName.Pos(":?"))
-                            len = sprintf(StringBuf, "    %s//%08lX", procName, recM->address);
+                            len = sprintf(StringBuf, "    %s//%08lX", AnsiString(procName).c_str(), recM->address);
                         else
-                            len = sprintf(StringBuf, "    //%s//%08lX", procName, recM->address);
+                            len = sprintf(StringBuf, "    //%s//%08lX", AnsiString(procName).c_str(), recM->address);
                         publishedList->Add(String(StringBuf, len));
                     }
 
@@ -11717,7 +11717,7 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
         //Output information
         f = fopen(AnsiString(unitName + ".pas").c_str(), "wt+");
         OutputDecompilerHeader(f);
-        fprintf(f, "unit %s;\n\n", unitName);
+        fprintf(f, "unit %s;\n\n", AnsiString(unitName).c_str());
         fprintf(f, "interface\n");
         //Uses
         if (intUsesLines->Count) {
@@ -11769,14 +11769,14 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
                 fprintf(f, "//%08lX\n", adr);
                 procName = recN->MakePrototype(adr, true, false, false, true, false);
                 if (!procName.Pos(":?")) {
-                    fprintf(f, "%s\n", procName);
+                    fprintf(f, "%s\n", AnsiString(procName).c_str());
                     fprintf(f, "begin\n");
                     fprintf(f, "{*\n");
                     OutputCode(f, adr, "", false);
                     fprintf(f, "*}\n");
                     fprintf(f, "end;\n\n");
                 } else {
-                    fprintf(f, "{*%s\n", procName);
+                    fprintf(f, "{*%s\n", AnsiString(procName).c_str());
                     fprintf(f, "begin\n");
                     OutputCode(f, adr, "", false);
                     fprintf(f, "end;*}\n\n");
@@ -11820,9 +11820,9 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
     OutputDecompilerHeader(f);
 
     if (SourceIsLibrary)
-        fprintf(f, "library %s;\n\n", unitName);
+        fprintf(f, "library %s;\n\n", AnsiString(unitName).c_str());
     else
-        fprintf(f, "program %s;\n\n", unitName);
+        fprintf(f, "program %s;\n\n", AnsiString(unitName).c_str());
 
     fprintf(f, "uses\n");
     fprintf(f, "  SysUtils, Classes;\n\n");
@@ -11838,7 +11838,7 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
                 fprintf(f, "//%08lX\n", adr);
                 recN = GetInfoRec(adr);
                 if (recN) {
-                    fprintf(f, "%s\n", recN->MakePrototype(adr, true, false, false, true, false));
+                    fprintf(f, "%s\n", AnsiString(recN->MakePrototype(adr, true, false, false, true, false)).c_str());
                     fprintf(f, "begin\n");
                     fprintf(f, "{*\n");
                     OutputCode(f, adr, "", false);
@@ -11858,7 +11858,7 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
                 if (IsValidImageAdr(adr)) {
                     recN = GetInfoRec(adr);
                     if (recN) {
-                        fprintf(f, "%s", recN->GetName());
+                        fprintf(f, "%s", AnsiString(recN->GetName()).c_str());
                         if (n < ExpFuncList->Count - 1) fprintf(f, ",\n");
                     }
                 }
@@ -12823,7 +12823,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                         RTTIName = "Record_" + Val2Str8(adr); //SHADOW + 4
                     str = FTypeInfo_11011981->GetCppTypeInfo(adr, &size, 0);
                     if (size > 10000) fprintf(hF, "//Big size!\n");
-                    fprintf(hF, "struct %s//size=0x%s\n", RTTIName.c_str(), Val2Str0(size));
+                    fprintf(hF, "struct %s//size=0x%s\n", AnsiString(RTTIName).c_str(), AnsiString(Val2Str0(size)).c_str());
                     fprintf(hF, "{\n");
                     fprintf(hF, "%s", str.c_str());
                     fprintf(hF, "};\n\n");
