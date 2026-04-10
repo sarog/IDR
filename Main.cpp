@@ -8905,19 +8905,17 @@ void __fastcall TFMain_11011981::miSaveProjectClick(TObject *Sender) {
  * @param f Filename
  * @param node Node
  */
-void __fastcall TFMain_11011981::WriteNode(FILE *f, TTreeNode *node)
-//void __fastcall TFMain_11011981::WriteNode(TStream* stream, TTreeNode* node)
-{
-    //Count
+void __fastcall TFMain_11011981::WriteNode(FILE *f, TTreeNode *node) {
+    // Count
     int itemsCount = node->Count;
-    fwrite(&itemsCount, sizeof(itemsCount), 1, f); //stream->Write(&itemsCount, sizeof(itemsCount));
+    fwrite(&itemsCount, sizeof(itemsCount), 1, f);
     FProgressBar->pb->StepIt();
 
-    //Text
+    // Text
     int len = node->Text.Length();
     if (len > MaxBufLen) MaxBufLen = len;
-    fwrite(&len, sizeof(len), 1, f);       //stream->Write(&len, sizeof(len));
-    fwrite(AnsiString(node->Text).c_str(), len, 1, f); //stream->Write(node->Text.c_str(), len);
+    fwrite(&len, sizeof(len), 1, f);
+    fwrite(AnsiString(node->Text).c_str(), len, 1, f);
 
     for (int n = 0; n < itemsCount; n++) {
         WriteNode(f, AnsiString(node->Item[n]).c_str());
