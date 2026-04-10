@@ -201,14 +201,12 @@ __fastcall TFMain_11011981::~TFMain_11011981() {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::FormClose(TObject *Sender,
-                                           TCloseAction &Action) {
+void __fastcall TFMain_11011981::FormClose(TObject *Sender, TCloseAction &Action) {
     ModalResult = mrCancel;
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::FormKeyDown(TObject *Sender, WORD &Key,
-                                             TShiftState Shift) {
+void __fastcall TFMain_11011981::FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift) {
     switch (Key) {
         case 'G':
             GoToAddress();
@@ -7798,11 +7796,9 @@ void __fastcall TFMain_11011981::LoadDelphiFile1(String FileName, int version, b
     }
 
     if (DelphiVersion <= 2010)
-        Caption = "Interactive Delphi Reconstructor by crypto: " + SourceFile + " (Delphi-" + String(DelphiVersion) +
-                  ")";
+        Caption = "Interactive Delphi Reconstructor by crypto: " + SourceFile + " (Delphi-" + String(DelphiVersion) + ")";
     else
-        Caption = "Interactive Delphi Reconstructor by crypto: " + SourceFile + " (Delphi-XE" + String(
-                      DelphiVersion - 2010) + ")";
+        Caption = "Interactive Delphi Reconstructor by crypto: " + SourceFile + " (Delphi-XE" + String(DelphiVersion - 2010) + ")";
 
     //Show code to allow user make something useful
     tsCodeView->Enabled = true;
@@ -8964,7 +8960,6 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
             fwrite(&CodeBase, sizeof(CodeBase), 1, outF);   //outStream->Write(&CodeBase, sizeof(CodeBase));
             fwrite(&CodeSize, sizeof(CodeSize), 1, outF);   //outStream->Write(&CodeSize, sizeof(CodeSize));
             fwrite(&CodeStart, sizeof(CodeStart), 1, outF); //outStream->Write(&CodeStart, sizeof(CodeStart));
-
             fwrite(&DataBase, sizeof(DataBase), 1, outF);   //outStream->Write(&DataBase, sizeof(DataBase));
             fwrite(&DataSize, sizeof(DataSize), 1, outF);   //outStream->Write(&DataSize, sizeof(DataSize));
             fwrite(&DataStart, sizeof(DataStart), 1, outF); //outStream->Write(&DataStart, sizeof(DataStart));
@@ -9015,8 +9010,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
             }
             fwrite(&infosCnt, sizeof(infosCnt), 1, outF); //outStream->Write(&infosCnt, sizeof(infosCnt));
 
-            FProgressBar->StartProgress("Writing Infos Objects (number = " + String(infosCnt) + ")...", "",
-                                        TotalSize / 4096);
+            FProgressBar->StartProgress("Writing Infos Objects (number = " + String(infosCnt) + ")...", "", TotalSize / 4096);
             MaxBufLen = 0;
             BYTE kind;
             try {
