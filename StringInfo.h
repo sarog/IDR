@@ -8,10 +8,9 @@
 
 //---------------------------------------------------------------------------
 class TFStringInfo_11011981 : public TForm {
-    __published: // IDE-managed Components
+__published: // IDE-managed Components
     TMemo * memStringInfo;
-    void __fastcall FormKeyDown(TObject *Sender, WORD &Key,
-                                TShiftState Shift);
+    void __fastcall FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift);
     void __fastcall FormCreate(TObject *Sender);
 
 private: // User declarations

@@ -9300,6 +9300,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
             fwrite(&MaxBufLen, sizeof(MaxBufLen), 1, outF); //outStream->Write(&MaxBufLen, sizeof(MaxBufLen));
             fclose(outF);
         }
+
         //outStream->SaveToFile(IDPFile);
         //delete outStream;
 

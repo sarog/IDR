@@ -179,8 +179,7 @@ void __fastcall TFMain_11011981::ShowUnits(bool showUnk) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::lbUnitsMouseMove(TObject *Sender,
-                                                  TShiftState Shift, int X, int Y) {
+void __fastcall TFMain_11011981::lbUnitsMouseMove(TObject *Sender, TShiftState Shift, int X, int Y) {
     if (lbUnits->CanFocus()) ActiveControl = lbUnits;
 }
 
@@ -209,14 +208,12 @@ void __fastcall TFMain_11011981::lbUnitsDblClick(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::lbUnitsKeyDown(TObject *Sender, WORD &Key,
-                                                TShiftState Shift) {
+void __fastcall TFMain_11011981::lbUnitsKeyDown(TObject *Sender, WORD &Key, TShiftState Shift) {
     if (Key == VK_RETURN) lbUnitsDblClick(Sender);
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::lbUnitsDrawItem(
-    TWinControl *Control, int Index, TRect &Rect, TOwnerDrawState State) {
+void __fastcall TFMain_11011981::lbUnitsDrawItem(TWinControl *Control, int Index, TRect &Rect, TOwnerDrawState State) {
     char *s, *pos;
     int flags, len;
     TColor _color;
