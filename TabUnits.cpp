@@ -122,11 +122,11 @@ void __fastcall TFMain_11011981::ShowUnits(bool showUnk) {
     char ci, cf, orderS[256];
 
     for (int i = 0; i < UnitsNum; i++) {
-        PUnitRec recU = (UnitRec *) Units->Items[i];
+        PUnitRec recU = reinterpret_cast<UnitRec *>(Units->Items[i]);
         if (recU->fromAdr == selAdr) newItemIdx = i;
         ci = (!recU->trivialIni) ? 'I' : ' ';
         cf = (!recU->trivialFin) ? 'F' : ' ';
-        stringLen = sprintf(StringBuf, " %08lX #%03d %c%c ", (int) recU->fromAdr, recU->iniOrder, ci, cf);
+        stringLen = sprintf(StringBuf, " %08lX #%03d %c%c ", reinterpret_cast<int>(recU->fromAdr), recU->iniOrder, ci, cf);
         if (recU->names->Count) {
             for (int u = 0; u < recU->names->Count; u++) {
                 if (stringLen + recU->names->Strings[u].Length() >= 256) {

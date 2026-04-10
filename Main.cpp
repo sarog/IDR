@@ -8958,7 +8958,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
             num = SegmentList->Count;
             fwrite(&num, sizeof(num), 1, outF); //outStream->Write(&num, sizeof(num));
             for (n = 0; n < num; n++) {
-                PSegmentInfo segInfo = (PSegmentInfo) SegmentList->Items[n];
+                PSegmentInfo segInfo = reinterpret_cast<PSegmentInfo>(SegmentList->Items[n]);
                 fwrite(&segInfo->Start, sizeof(segInfo->Start), 1, outF);
                 //outStream->Write(&segInfo->Start, sizeof(segInfo->Start));
                 fwrite(&segInfo->Size, sizeof(segInfo->Size), 1, outF);
@@ -9038,7 +9038,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                 if (len > MaxBufLen) MaxBufLen = len;
                 fwrite(&len, sizeof(len), 1, outF); //outStream->Write(&len, sizeof(len));
                 fwrite(_adr.c_str(), len, 1, outF); //outStream->Write(_adr.c_str(), len);
-                PInfoRec recN = (PInfoRec) BSSInfos->Objects[n];
+                PInfoRec recN = reinterpret_cast<PInfoRec>(BSSInfos->Objects[n]);
                 kind = recN->kind;
                 fwrite(&kind, sizeof(kind), 1, outF); //outStream->Write(&kind, sizeof(kind));
                 recN->Save(outF);                     //recN->Save(outStream);
@@ -9051,7 +9051,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
             for (n = 0; n < num; n++) {
                 FProgressBar->pb->StepIt();
                 Application->ProcessMessages();
-                PUnitRec recU = (PUnitRec) Units->Items[n];
+                PUnitRec recU = reinterpret_cast<PUnitRec>(Units->Items[n]);
                 fwrite(&recU->trivial, sizeof(recU->trivial), 1, outF);
                 //outStream->Write(&recU->trivial, sizeof(recU->trivial));
                 fwrite(&recU->trivialIni, sizeof(recU->trivialIni), 1, outF);
@@ -9107,7 +9107,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
             for (n = 0; n < num; n++) {
                 FProgressBar->pb->StepIt();
                 Application->ProcessMessages();
-                PTypeRec recT = (PTypeRec) OwnTypeList->Items[n];
+                PTypeRec recT = reinterpret_cast<PTypeRec>(OwnTypeList->Items[n]);
                 fwrite(&recT->kind, sizeof(recT->kind), 1, outF); //outStream->Write(&recT->kind, sizeof(recT->kind));
                 fwrite(&recT->adr, sizeof(recT->adr), 1, outF);   //outStream->Write(&recT->adr, sizeof(recT->adr));
                 len = recT->name.Length();

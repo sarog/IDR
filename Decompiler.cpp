@@ -1157,7 +1157,7 @@ bool __fastcall TDecompileEnv::BJLCheckPattern1(const char *t, int from) {
 
     for (int k = 0; k < strlen(t); k++) {
         if (from + k >= bjllist->Count) return false;
-        _bjl = (TBJL *) bjllist->Items[from + k];
+        _bjl = reinterpret_cast<TBJL *>(bjllist->Items[from + k]);
         if (t[k] == 'B' && !_bjl->branch) return false;
         if (t[k] == 'L' && !_bjl->loc) return false;
     }
@@ -1172,7 +1172,7 @@ bool __fastcall TDecompileEnv::BJLCheckPattern2(const char *t, int from) {
     for (int k = 0; k < strlen(t); k++) {
         if (from + k >= bjllist->Count) return false;
         if (t[k] == '1') {
-            _bjl = (TBJL *) bjllist->Items[from + k];
+            _bjl = reinterpret_cast<TBJL *>(bjllist->Items[from + k]);
             if (_address == -1) {
                 _address = _bjl->address;
                 continue;
