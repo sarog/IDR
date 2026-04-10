@@ -1938,7 +1938,7 @@ void __fastcall OutputDecompilerHeader(FILE *f) {
     StringBuf[n] = 0;
     fprintf(f, "//%s\n", StringBuf);
 
-    fprintf(f, "//IDR home page: http://kpnc.org/idr32/en\n", StringBuf);
+    fprintf(f, "//IDR home page: http://kpnc.org/idr32/en\n");
 
     sprintf(StringBuf, "Decompiled by IDR v.%s", IDRVersion.c_str());
     fprintf(f, "//%s\n", StringBuf);
