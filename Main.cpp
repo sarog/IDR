@@ -9140,7 +9140,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
             for (n = 0; n < num; n++) {
                 FProgressBar->pb->StepIt();
                 Application->ProcessMessages();
-                TDfm *dfm = (TDfm *) ResInfo->FormList->Items[n];
+                TDfm *dfm = reinterpret_cast<TDfm *>(ResInfo->FormList->Items[n]);
                 // Flags
                 fwrite(&dfm->Flags, sizeof(dfm->Flags), 1, outF); //outStream->Write(&dfm->Flags, sizeof(dfm->Flags));
                 // ResName
@@ -9176,7 +9176,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                 evnum = (dfm->Events) ? dfm->Events->Count : 0;
                 fwrite(&evnum, sizeof(evnum), 1, outF); //outStream->Write(&evnum, sizeof(evnum));
                 for (m = 0; m < evnum; m++) {
-                    PEventInfo eInfo = (PEventInfo) dfm->Events->Items[m];
+                    PEventInfo eInfo = reinterpret_cast<PEventInfo>(dfm->Events->Items[m]);
                     // EventName
                     len = eInfo->EventName.Length();
                     if (len > MaxBufLen) MaxBufLen = len;
@@ -9192,8 +9192,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                 cnum = (dfm->Components) ? dfm->Components->Count : 0;
                 fwrite(&cnum, sizeof(cnum), 1, outF); //outStream->Write(&cnum, sizeof(cnum));
                 for (m = 0; m < cnum; m++) {
-                    PComponentInfo cInfo = (PComponentInfo) dfm->Components->Items[m];
-                    //Inherited
+                    PComponentInfo cInfo = reinterpret_cast<PComponentInfo>(dfm->Components->Items[m]);
                     // Inherited
                     fwrite(&cInfo->Inherit, sizeof(cInfo->Inherit), 1, outF);
                     //outStream->Write(&cInfo->Inherit, sizeof(cInfo->Inherit));
@@ -9214,8 +9213,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                     evnum = (cInfo->Events) ? cInfo->Events->Count : 0;
                     fwrite(&evnum, sizeof(evnum), 1, outF); //outStream->Write(&evnum, sizeof(evnum));
                     for (k = 0; k < evnum; k++) {
-                        PEventInfo eInfo = (PEventInfo) cInfo->Events->Items[k];
-                        //EventName
+                        PEventInfo eInfo = reinterpret_cast<PEventInfo>(cInfo->Events->Items[k]);
                         // EventName
                         len = eInfo->EventName.Length();
                         if (len > MaxBufLen) MaxBufLen = len;
@@ -10116,7 +10114,7 @@ void __fastcall TFMain_11011981::miListerClick(TObject *Sender) {
 
     FILE *lstF = fopen(AnsiString(lstName).c_str(), "wt+");
     for (int n = 0; n < UnitsNum; n++) {
-        PUnitRec recU = (PUnitRec) Units->Items[n];
+        PUnitRec recU = reinterpret_cast<PUnitRec>(Units->Items[n]);
         if (recU->kb || recU->trivial) continue;
         fprintf(lstF, "//===========================================================================\n");
         fprintf(lstF, "//Unit%03d", recU->iniOrder);
@@ -11631,7 +11629,7 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
 
                     num = LoadMethodTable(adr, tmpList);
                     for (m = 0; m < num; m++) {
-                        recM = (PMethodRec) tmpList->Items[m];
+                        recM = reinterpret_cast<PMethodRec>(tmpList->Items[m]);
                         recN = GetInfoRec(recM->address);
                         procName = recN->MakePrototype(recM->address, true, false, false, false, false);
                         if (!procName.Pos(":?"))
