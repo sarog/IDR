@@ -8916,7 +8916,7 @@ void __fastcall TFMain_11011981::WriteNode(FILE *f, TTreeNode *node)
     int len = node->Text.Length();
     if (len > MaxBufLen) MaxBufLen = len;
     fwrite(&len, sizeof(len), 1, f);       //stream->Write(&len, sizeof(len));
-    fwrite(node->Text.c_str(), len, 1, f); //stream->Write(node->Text.c_str(), len);
+    fwrite(AnsiString(node->Text).c_str(), len, 1, f); //stream->Write(node->Text.c_str(), len);
 
     for (int n = 0; n < itemsCount; n++) {
         WriteNode(f, node->Item[n]); //WriteNode(stream, node->Item[n]);
@@ -8978,7 +8978,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                 len = segInfo->Name.Length();
                 if (len > MaxBufLen) MaxBufLen = len;
                 fwrite(&len, sizeof(len), 1, outF);          //outStream->Write(&len, sizeof(len));
-                fwrite(segInfo->Name.c_str(), len, 1, outF); //outStream->Write(segInfo->Name.c_str(), len);
+                fwrite(AnsiString(segInfo->Name).c_str(), len, 1, outF); //outStream->Write(segInfo->Name.c_str(), len);
             }
 
             DWORD Items = TotalSize;
@@ -9047,7 +9047,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                 len = _adr.Length();
                 if (len > MaxBufLen) MaxBufLen = len;
                 fwrite(&len, sizeof(len), 1, outF); //outStream->Write(&len, sizeof(len));
-                fwrite(_adr.c_str(), len, 1, outF); //outStream->Write(_adr.c_str(), len);
+                fwrite(AnsiString(_adr).c_str(), len, 1, outF); //outStream->Write(_adr.c_str(), len);
                 PInfoRec recN = reinterpret_cast<PInfoRec>(BSSInfos->Objects[n]);
                 kind = recN->kind;
                 fwrite(&kind, sizeof(kind), 1, outF); //outStream->Write(&kind, sizeof(kind));
@@ -9089,7 +9089,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                     len = recU->names->Strings[u].Length();
                     if (len > MaxBufLen) MaxBufLen = len;
                     fwrite(&len, sizeof(len), 1, outF); //outStream->Write(&len, sizeof(len));
-                    fwrite(recU->names->Strings[u].c_str(), len, 1, outF);
+                    fwrite(AnsiString(recU->names->Strings[u]).c_str(), len, 1, outF);
                     //outStream->Write(recU->names->Strings[u].c_str(), len);
                 }
             }
@@ -9123,7 +9123,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                 len = recT->name.Length();
                 if (len > MaxBufLen) MaxBufLen = len;
                 fwrite(&len, sizeof(len), 1, outF);       //outStream->Write(&len, sizeof(len));
-                fwrite(recT->name.c_str(), len, 1, outF); //outStream->Write(recT->name.c_str(), len);
+                fwrite(AnsiString(recT->name).c_str(), len, 1, outF); //outStream->Write(recT->name.c_str(), len);
             }
             if (num) fwrite(&RTTISortField, sizeof(RTTISortField), 1, outF);
             //outStream->Write(&RTTISortField, sizeof(RTTISortField));
@@ -9142,20 +9142,17 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                 len = dfm->ResName.Length();
                 if (len > MaxBufLen) MaxBufLen = len;
                 fwrite(&len, sizeof(len), 1, outF);         //outStream->Write(&len, sizeof(len));
-                fwrite(dfm->ResName.c_str(), len, 1, outF); //outStream->Write(dfm->ResName.c_str(), len);
-                //Name
+                fwrite(AnsiString(dfm->ResName).c_str(), len, 1, outF); //outStream->Write(dfm->ResName.c_str(), len);
                 // Name
                 len = dfm->Name.Length();
                 if (len > MaxBufLen) MaxBufLen = len;
                 fwrite(&len, sizeof(len), 1, outF);      //outStream->Write(&len, sizeof(len));
-                fwrite(dfm->Name.c_str(), len, 1, outF); //outStream->Write(dfm->Name.c_str(), len);
-                //ClassName
+                fwrite(AnsiString(dfm->Name).c_str(), len, 1, outF); //outStream->Write(dfm->Name.c_str(), len);
                 // ClassName
                 len = dfm->ClassName.Length();
                 if (len > MaxBufLen) MaxBufLen = len;
                 fwrite(&len, sizeof(len), 1, outF);           //outStream->Write(&len, sizeof(len));
-                fwrite(dfm->ClassName.c_str(), len, 1, outF); //outStream->Write(dfm->ClassName.c_str(), len);
-                //MemStream
+                fwrite(AnsiString(dfm->ClassName).c_str(), len, 1, outF); //outStream->Write(dfm->ClassName.c_str(), len);
                 // MemStream
                 size = dfm->MemStream->Size;
                 if (4096 > MaxBufLen) MaxBufLen = 4096;
@@ -9179,13 +9176,12 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                     len = eInfo->EventName.Length();
                     if (len > MaxBufLen) MaxBufLen = len;
                     fwrite(&len, sizeof(len), 1, outF);             //outStream->Write(&len, sizeof(len));
-                    fwrite(eInfo->EventName.c_str(), len, 1, outF); //outStream->Write(eInfo->EventName.c_str(), len);
-                    //ProcName
+                    fwrite(AnsiString(eInfo->EventName).c_str(), len, 1, outF); //outStream->Write(eInfo->EventName.c_str(), len);
                     // ProcName
                     len = eInfo->ProcName.Length();
                     if (len > MaxBufLen) MaxBufLen = len;
                     fwrite(&len, sizeof(len), 1, outF);            //outStream->Write(&len, sizeof(len));
-                    fwrite(eInfo->ProcName.c_str(), len, 1, outF); //outStream->Write(eInfo->ProcName.c_str(), len);
+                    fwrite(AnsiString(eInfo->ProcName).c_str(), len, 1, outF); //outStream->Write(eInfo->ProcName.c_str(), len);
                 }
                 // Components
                 cnum = (dfm->Components) ? dfm->Components->Count : 0;
@@ -9203,14 +9199,12 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                     len = cInfo->Name.Length();
                     if (len > MaxBufLen) MaxBufLen = len;
                     fwrite(&len, sizeof(len), 1, outF);        //outStream->Write(&len, sizeof(len));
-                    fwrite(cInfo->Name.c_str(), len, 1, outF); //outStream->Write(cInfo->Name.c_str(), len);
-                    //ClassName
+                    fwrite(AnsiString(cInfo->Name).c_str(), len, 1, outF); //outStream->Write(cInfo->Name.c_str(), len);
                     // ClassName
                     len = cInfo->ClassName.Length();
                     if (len > MaxBufLen) MaxBufLen = len;
                     fwrite(&len, sizeof(len), 1, outF);             //outStream->Write(&len, sizeof(len));
-                    fwrite(cInfo->ClassName.c_str(), len, 1, outF); //outStream->Write(cInfo->ClassName.c_str(), len);
-                    //Events
+                    fwrite(AnsiString(cInfo->ClassName).c_str(), len, 1, outF); //outStream->Write(cInfo->ClassName.c_str(), len);
                     // Events
                     evnum = (cInfo->Events) ? cInfo->Events->Count : 0;
                     fwrite(&evnum, sizeof(evnum), 1, outF); //outStream->Write(&evnum, sizeof(evnum));
@@ -9221,13 +9215,13 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                         len = eInfo->EventName.Length();
                         if (len > MaxBufLen) MaxBufLen = len;
                         fwrite(&len, sizeof(len), 1, outF); //outStream->Write(&len, sizeof(len));
-                        fwrite(eInfo->EventName.c_str(), len, 1, outF);
+                        fwrite(AnsiString(eInfo->EventName).c_str(), len, 1, outF);
                         //outStream->Write(eInfo->EventName.c_str(), len);
                         // ProcName
                         len = eInfo->ProcName.Length();
                         if (len > MaxBufLen) MaxBufLen = len;
                         fwrite(&len, sizeof(len), 1, outF);            //outStream->Write(&len, sizeof(len));
-                        fwrite(eInfo->ProcName.c_str(), len, 1, outF); //outStream->Write(eInfo->ProcName.c_str(), len);
+                        fwrite(AnsiString(eInfo->ProcName).c_str(), len, 1, outF); //outStream->Write(eInfo->ProcName.c_str(), len);
                     }
                 }
             }
@@ -9241,7 +9235,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                 len = ResInfo->Aliases->Strings[n].Length();
                 if (len > MaxBufLen) MaxBufLen = len;
                 fwrite(&len, sizeof(len), 1, outF); //outStream->Write(&len, sizeof(len));
-                fwrite(ResInfo->Aliases->Strings[n].c_str(), len, 1, outF);
+                fwrite(AnsiString(ResInfo->Aliases->Strings[n]).c_str(), len, 1, outF);
                 //outStream->Write(ResInfo->Aliases->Strings[n].c_str(), len);
             }
 
