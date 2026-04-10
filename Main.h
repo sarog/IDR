@@ -272,7 +272,7 @@ typedef struct {
 
 //---------------------------------------------------------------------------
 typedef struct {
-    char *name;
+    const char *name;
     DWORD impAdr;
 } SysProcInfo;
 
