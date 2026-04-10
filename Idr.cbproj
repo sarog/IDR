@@ -8,8 +8,9 @@
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
-        <TargetedPlatforms>1</TargetedPlatforms>
+        <TargetedPlatforms>1048579</TargetedPlatforms>
         <ProjectName Condition="'$(ProjectName)'==''">Idr</ProjectName>
+        <CC_Suffix Condition="'$(CC_Suffix)'==''">c</CC_Suffix>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -81,13 +82,12 @@
         <IntermediateOutputDir>.\$(Platform)\$(Config)\Obj</IntermediateOutputDir>
         <FinalOutputDir>.\$(Platform)\$(Config)\Bin</FinalOutputDir>
         <BCC_wpar>false</BCC_wpar>
-        <BCC_OptimizeForSpeed>true</BCC_OptimizeForSpeed>
         <BCC_ExtendedErrorInfo>true</BCC_ExtendedErrorInfo>
         <ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\release\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
         <ProjectType>CppVCLApplication</ProjectType>
         <PackageImports>DataSnapIndy10ServerTransport;bindcompfmx;DBXSqliteDriver;vcldbx;fmx;rtl;dbrtl;DbxClientDriver;IndySystem;bindcomp;inetdb;vclib;inetdbbde;DBXInterBaseDriver;DataSnapClient;DataSnapCommon;DBXOdbcDriver;DataSnapServer;DataSnapProviderClient;xmlrtl;DBXSybaseASEDriver;ibxpress;DbxCommonDriver;vclimg;IndyProtocols;dbxcds;DBXMySQLDriver;DatasnapConnectorsFreePascal;MetropolisUILiveTile;soaprtl;vclactnband;bindengine;vcldb;bindcompdbx;vcldsnap;bindcompvcl;vclie;vcltouch;DBXDb2Driver;bcbsmp;DBXOracleDriver;CustomIPTransport;vclribbon;VclSmp;dsnap;IndyIPServer;DBXInformixDriver;fmxase;vcl;IndyCore;DataSnapConnectors;IndyIPCommon;CloudService;DBXMSSQLDriver;dsnapcon;DBXFirebirdDriver;inet;fmxobj;vclx;inetdbxpress;svn;DBXSybaseASADriver;fmxdae;bdertl;dbexpress;bcbie;adortl;IndyIPClient;$(PackageImports)</PackageImports>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <AllPackageLibs>vcl.lib;rtl.lib;bcbsmp.lib;vclx.lib;vclimg.lib</AllPackageLibs>
+        <AllPackageLibs>vcl.lib;rtl.lib;bcbsmp.lib;vclx.lib;vclimg.lib;Tee.lib</AllPackageLibs>
         <_TCHARMapping>char</_TCHARMapping>
         <Multithreaded>true</Multithreaded>
         <Icon_MainIcon>$(BDS)\bin\cbuilder_PROJECTICON.ico</Icon_MainIcon>
@@ -97,6 +97,7 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <DynamicRTL>true</DynamicRTL>
+        <Custom_Styles>Windows10|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows10.vsf;&quot;Windows10 Dark|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows10Dark.vsf&quot;</Custom_Styles>
         <BCC_DisableOptimizations>true</BCC_DisableOptimizations>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
@@ -149,8 +150,11 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <LinkPackageImports>vcl.bpi;rtl.bpi;bcbsmp.bpi;vclx.bpi;vclimg.bpi</LinkPackageImports>
         <Icon_MainIcon>idr.ico</Icon_MainIcon>
-        <ILINK_LibraryPath>$(PROJECTDIR);$(BDSLIB)\$(PLATFORM)$(CC_SUFFIX)\debug;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <ILINK_LibraryPath>$(BDSLIB)\$(PLATFORM)$(CC_SUFFIX)\debug;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <AppDPIAwarenessMode>PerMonitor</AppDPIAwarenessMode>
+        <LinkPackageStatics>Tee.lib</LinkPackageStatics>
+        <BCC_UseClassicCompiler>false</BCC_UseClassicCompiler>
+        <ILINK_LargeAddressAware>true</ILINK_LargeAddressAware>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
@@ -169,7 +173,6 @@
         <BCC_OptimizeForSpeed>false</BCC_OptimizeForSpeed>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <LinkPackageImports>rtl.bpi;vcl.bpi;vclimg.bpi;vclx.bpi</LinkPackageImports>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <AppDPIAwarenessMode>PerMonitor</AppDPIAwarenessMode>
@@ -350,23 +353,23 @@
             <DependentOn>UfrmFormTree.h</DependentOn>
             <BuildOrder>35</BuildOrder>
         </CppCompile>
-        <FormResources Include="StringInfo.dfm"/>
-        <FormResources Include="TypeInfo2.dfm"/>
+        <FormResources Include="Plugins.dfm"/>
         <FormResources Include="ProgressBar.dfm"/>
+        <FormResources Include="Main.dfm"/>
+        <FormResources Include="InputDlg.dfm"/>
+        <FormResources Include="KBViewer.dfm"/>
+        <FormResources Include="Legend.dfm"/>
+        <FormResources Include="TypeInfo2.dfm"/>
+        <FormResources Include="UfrmFormTree.dfm"/>
+        <FormResources Include="StringInfo.dfm"/>
         <FormResources Include="EditFieldsDlg.dfm"/>
+        <FormResources Include="AboutDlg.dfm"/>
+        <FormResources Include="ActiveProcesses.dfm"/>
+        <FormResources Include="IdcSplitSize.dfm"/>
         <FormResources Include="EditFunctionDlg.dfm"/>
         <FormResources Include="Explorer.dfm"/>
-        <FormResources Include="ActiveProcesses.dfm"/>
-        <FormResources Include="AboutDlg.dfm"/>
         <FormResources Include="FindDlg.dfm"/>
-        <FormResources Include="Legend.dfm"/>
-        <FormResources Include="Main.dfm"/>
-        <FormResources Include="Plugins.dfm"/>
-        <FormResources Include="KBViewer.dfm"/>
         <FormResources Include="Hex2Double.dfm"/>
-        <FormResources Include="IdcSplitSize.dfm"/>
-        <FormResources Include="InputDlg.dfm"/>
-        <FormResources Include="UfrmFormTree.dfm"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
