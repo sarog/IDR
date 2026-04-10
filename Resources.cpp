@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #include <vcl.h>
 #pragma hdrstop
 
@@ -380,7 +380,7 @@ bool __stdcall EnumResNameProcedure(int hModule, char *Type, char *Name, long Pa
                         dfm->ResName = Name;
                         dfm->MemStream = ms;
 
-                        //Analyze text representation
+                        // Analyze text representation
                         formText = new TStringList;
                         ResInfo->GetFormAsText(dfm, formText);
 

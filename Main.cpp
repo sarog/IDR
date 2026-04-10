@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #define NO_WIN32_LEAN_AND_MEAN
 #include <vcl.h>
 #pragma hdrstop
@@ -5289,7 +5289,7 @@ void __fastcall TFMain_11011981::AnalyzeMethodTable(int Pass, DWORD Adr, const v
             if (procAdr == Adr) continue;
 
             recN = GetInfoRec(procAdr);
-            // IMHO it means that methods are pure virtual calls and must be read in child classes
+            // IMHO it means that methods are pure virtual calls and must be readded in child classes
             if (recN && recN->kind == ikVMT) {
                 pos = spos;
                 continue;
