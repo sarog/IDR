@@ -137,7 +137,7 @@ void __fastcall TFMain_11011981::ShowUnits(bool showUnk) {
                     StringBuf[stringLen] = ';';
                     stringLen++;
                 }
-                stringLen += sprintf(StringBuf + stringLen, "%s", recU->names->Strings[u].c_str());
+                stringLen += sprintf(StringBuf + stringLen, "%s", AnsiString(recU->names->Strings[u]).c_str());
             }
         } else
             stringLen += sprintf(StringBuf + stringLen, "_Unit%d", recU->iniOrder);
