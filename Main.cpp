@@ -110,14 +110,14 @@ bool SplitIDC = false;
 bool BCB = false;
 int SplitSize = 0;
 UINT CodePage;
-//Common variables
+// Common variables
 String IDPFile;
-int MaxBufLen; //Максимальная длина буфера (для загрузки)
+int MaxBufLen; // Максимальная длина буфера (для загрузки) | Maximum buffer length (for downloading)
 int DelphiVersion;
 DWORD EP;
 DWORD ImageBase;
 DWORD ImageSize;
-DWORD TotalSize; //Size of sections CODE + DATA
+DWORD TotalSize; // Size of sections CODE + DATA
 DWORD CodeBase;
 DWORD CodeSize;
 DWORD CodeStart;
@@ -125,17 +125,17 @@ DWORD DataBase = 0;
 DWORD DataSize = 0;
 DWORD DataStart = 0;
 BYTE *Image = 0;
-DWORD *Flags = 0;          //flags for used data
-PInfoRec *Infos = 0;       //Array of pointers to store items data
-TStringList *BSSInfos = 0; //Data from BSS
+DWORD *Flags = 0;          // Flags for used data
+PInfoRec *Infos = 0;       // Array of pointers to store items data
+TStringList *BSSInfos = 0; // Data from BSS
 BYTE *Code = 0;
 BYTE *Data = 0;
 
-TList *ExpFuncList;         //Exported functions list (temporary)
-TList *ImpFuncList;         //Imported functions list (temporary)
-TStringList *ImpModuleList; //Imported modules   list (temporary)
-TList *SegmentList;         //Information about Image Segments
-TList *VmtList;             //VMT list
+TList *ExpFuncList;         // Exported functions list (temporary)
+TList *ImpFuncList;         // Imported functions list (temporary)
+TStringList *ImpModuleList; // Imported modules list (temporary)
+TList *SegmentList;         // Information about Image Segments
+TList *VmtList;             // VMT list
 
 //Units
 int UnitsNum = 0;
@@ -8904,6 +8904,11 @@ void __fastcall TFMain_11011981::miSaveProjectClick(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
+/**
+ * Used to write the full tree of classes when saving an IDR Project file.
+ * @param f Filename
+ * @param node Node
+ */
 void __fastcall TFMain_11011981::WriteNode(FILE *f, TTreeNode *node)
 //void __fastcall TFMain_11011981::WriteNode(TStream* stream, TTreeNode* node)
 {
@@ -8931,7 +8936,7 @@ void __fastcall TFMain_11011981::WriteNode(FILE *f, TTreeNode *node)
  */
 void __fastcall TFMain_11011981::SaveProject(String FileName) {
     int n, m, k, len, num, cnum, evnum, size, pos, res, infosCnt, topIdx, itemIdx;
-    FILE *outF; //TMemoryStream*    outStream = 0;
+    FILE *outF; // TMemoryStream* outStream = 0;
     BYTE buf[4096];
 
     if (FileExists(FileName)) {
@@ -9290,7 +9295,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                 num = 0;
                 fwrite(&num, sizeof(num), 1, outF); //outStream->Write(&num, sizeof(num));
             }
-            //At end write MaxBufLen
+            // At end write MaxBufLen
             fwrite(&MaxBufLen, sizeof(MaxBufLen), 1, outF); //outStream->Write(&MaxBufLen, sizeof(MaxBufLen));
             fclose(outF);
         }
@@ -9309,6 +9314,10 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
 }
 
 //---------------------------------------------------------------------------
+/**
+ * Add recently opened executable file to Recent Files menu.
+ * @param FileName Path to filename
+ */
 void __fastcall TFMain_11011981::AddExe2MRF(String FileName) {
     int n, m;
     for (n = 0; n < 8; n++) {
@@ -9328,6 +9337,10 @@ void __fastcall TFMain_11011981::AddExe2MRF(String FileName) {
 }
 
 //---------------------------------------------------------------------------
+/**
+ * Add IDR Project file to Recent Files menu.
+ * @param FileName Path to filename
+ */
 void __fastcall TFMain_11011981::AddIdp2MRF(String FileName) {
     int n, m;
     for (n = 9; n < 17; n++) {
