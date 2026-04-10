@@ -1551,13 +1551,11 @@ void __fastcall IdrDfmDefaultControl::ReadState(TReader *Reader) {
         Width = 24;
         Height = 24;
         TPanel::ReadState(Reader);
+    } __finally
+    // catch(Exception& e)
+    {
+        EnableAlign();
     }
-    __finally
-            //catch(Exception& e)
-            {
-                EnableAlign();
-
-            }
 
     /* wow, intersting case seen, D7:
 
@@ -1677,4 +1675,3 @@ __fastcall IdrImageControl::IdrImageControl(TComponent *Owner) : TImage(Owner) {
 //---------------------------------------------------------------------------
 void __fastcall IdrImageControl::Paint() {}
 //---------------------------------------------------------------------------
-
