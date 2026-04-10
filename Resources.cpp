@@ -328,7 +328,7 @@ int __fastcall AnalyzeSection(TDfm *Dfm, TStringList *FormText, int From, PCompo
 }
 
 //---------------------------------------------------------------------------
-bool __stdcall EnumResNameProcedure(int hModule, char *Type, char *Name, long Param) {
+bool __stdcall EnumResNameProcedure(HMODULE hModule, char *Type, char *Name, long Param) {
     bool res;
     TFilerFlags flags;
     int position, srcSize, dstSize;
@@ -339,8 +339,11 @@ bool __stdcall EnumResNameProcedure(int hModule, char *Type, char *Name, long Pa
     String className, vmtName;
     BYTE signature[4];
 
+    // -sg: RT_BITMAP is never used
     if (Type == RT_RCDATA || Type == RT_BITMAP) {
         resStream = new TResourceStream(hModule, String(Name), String(Type).c_str());
+        // resStream = new TResourceStream(hModule, String(Name), String(Type).c_str());
+        resStream = new TResourceStream(reinterpret_cast<unsigned int>(hModule), String(Name), reinterpret_cast<System::Char *>(RT_RCDATA));
         if (Type == RT_RCDATA) {
             ms = new TMemoryStream;
             ms->LoadFromStream(resStream);
