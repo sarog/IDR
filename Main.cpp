@@ -50,6 +50,8 @@ int         DelphiThemesCount;
 //unsigned long stat_GetClassAdr_adds = 0;
 //---------------------------------------------------------------------------
 String IDRVersion = "2026-02-27";
+// -sg: todo: bump version?
+const char *magic = "IDR proj v.3"; // IDR Project magic constant
 //---------------------------------------------------------------------------
 SysProcInfo SysProcs[] = {
     {"@HandleFinally", 0},
@@ -7536,7 +7538,7 @@ bool __fastcall TFMain_11011981::IsIdp(String FileName) {
     buf[12] = 0;
     fclose(f);
 
-    if (!strcmp(buf, "IDR proj v.3")) return true;
+    if (!strcmp(buf, magic)) return true;
     return false;
 }
 
@@ -8936,7 +8938,6 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
         if (outF) {
             FProgressBar->Show();
 
-            char *magic = "IDR proj v.3";
             fwrite(magic, 12, 1, outF); //outStream->Write(magic, 12);
             int _ver = DelphiVersion;
             if (UserKnowledgeBase) _ver |= USER_KNOWLEDGEBASE;
