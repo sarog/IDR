@@ -1152,7 +1152,7 @@ bool __fastcall TDecompileEnv::BJLGetIdx(int *idx, int from, int num) {
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall TDecompileEnv::BJLCheckPattern1(char *t, int from) {
+bool __fastcall TDecompileEnv::BJLCheckPattern1(const char *t, int from) {
     TBJL *_bjl;
 
     for (int k = 0; k < strlen(t); k++) {
@@ -1165,7 +1165,7 @@ bool __fastcall TDecompileEnv::BJLCheckPattern1(char *t, int from) {
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall TDecompileEnv::BJLCheckPattern2(char *t, int from) {
+bool __fastcall TDecompileEnv::BJLCheckPattern2(const char *t, int from) {
     int _address = -1;
     TBJL *_bjl;
 

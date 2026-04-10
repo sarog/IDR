@@ -228,8 +228,8 @@ public:
     void __fastcall UpdateBJLList();
     void __fastcall BJLAnalyze();
     bool __fastcall BJLGetIdx(int *idx, int from, int num);
-    bool __fastcall BJLCheckPattern1(char *t, int from);
-    bool __fastcall BJLCheckPattern2(char *t, int from);
+    bool __fastcall BJLCheckPattern1(const char *t, int from);
+    bool __fastcall BJLCheckPattern2(const char *t, int from);
     int __fastcall BJLFindLabel(int address, int *no);
     void __fastcall BJLSeqSetStateU(int *idx, int num);
     void __fastcall BJLListSetUsed(int from, int num);
