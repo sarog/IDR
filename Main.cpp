@@ -8920,7 +8920,7 @@ void __fastcall TFMain_11011981::WriteNode(FILE *f, TTreeNode *node)
     fwrite(AnsiString(node->Text).c_str(), len, 1, f); //stream->Write(node->Text.c_str(), len);
 
     for (int n = 0; n < itemsCount; n++) {
-        WriteNode(f, node->Item[n]); //WriteNode(stream, node->Item[n]);
+        WriteNode(f, AnsiString(node->Item[n]).c_str());
     }
     Application->ProcessMessages();
 }
