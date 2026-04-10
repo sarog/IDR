@@ -4,18 +4,18 @@
 //---------------------------------------------------------------------------
 #include <stdio.h>
 //---------------------------------------------------------------------------
-//Информация о смещениях имен и данных
+// Информация о смещениях имен и данных | Information about name and data offsets
 typedef struct {
     DWORD Offset;
     DWORD Size;
-    int ModId; //Modules
-    int NamId; //Names
+    int ModId; // Modules
+    int NamId; // Names
 } OFFSETSINFO, *POFFSETSINFO;
 
 //Fixup info
 typedef struct {
-    BYTE Type; //'A' - ADR, 'J' - JMP, 'D' - DAT
-    DWORD Ofs; //Смещение относительно начала дампа
+    BYTE Type; // 'A' - ADR, 'J' - JMP, 'D' - DAT
+    DWORD Ofs; // Смещение относительно начала дампа | Offset relative to the start of the dump
     char *Name;
 } FIXUPINFO, *PFIXUPINFO;
 
@@ -112,56 +112,56 @@ WORD 	LocalsNum; //Local vars number
 LOCALINFO Locals[LocalNum]; //Local vars
 */
 
-#define SCOPE_TMP   32  //Temp struct FIELDINFO, to be deleted
+#define SCOPE_TMP   32  // Temp struct FIELDINFO, to be deleted
 
 typedef struct FIELDINFO {
     FIELDINFO() : xrefs(0) {}
     ~FIELDINFO();
-    BYTE Scope;   //9-private, 10-protected, 11-public, 12-published
-    int Offset;   //Offset in class instance
-    int Case;     //Case for record (in other cases 0xFFFFFFFF)
-    String Name;  //Field Name
-    String Type;  //Field Type
-    TList *xrefs; //Xrefs from code
+    BYTE Scope;   // 9-private, 10-protected, 11-public, 12-published
+    int Offset;   // Offset in class instance
+    int Case;     // Case for record (in other cases 0xFFFFFFFF)
+    String Name;  // Field Name
+    String Type;  // Field Type
+    TList *xrefs; // Xrefs from code
 } FIELDINFO, *PFIELDINFO;
 
 typedef struct {
-    BYTE Scope;        //9-private, 10-protected, 11-public, 12-published
-    int Index;         //readonly, writeonly в зависимости от установки бит 1 и 2
-    int DispID;        //???
-    String Name;       //Имя свойства
-    String TypeDef;    //Тип свойства
-    String ReadName;   //Процедура для чтения свойства или соответствующее поле
-    String WriteName;  //Процедура для записи свойства или соответствующее поле
-    String StoredName; //Процедура для проверки свойства или соответствующее значение
+    BYTE Scope;        // 9-private, 10-protected, 11-public, 12-published
+    int Index;         // readonly, writeonly в зависимости от установки бит 1 и 2 | depending on the setting of bits 1 and 2
+    int DispID;        // ???
+    String Name;       // Имя свойства | Property name
+    String TypeDef;    // Тип свойства | Property type
+    String ReadName;   // Процедура для чтения свойства или соответствующее поле
+    String WriteName;  // Процедура для записи свойства или соответствующее поле
+    String StoredName; // Процедура для проверки свойства или соответствующее значение
 } PROPINFO, *PPROPINFO;
 
 typedef struct {
-    BYTE Scope;       //9-private, 10-protected, 11-public, 12-published
-    BYTE MethodKind;  //'M'-method, 'P'-procedure, 'F'-function, 'C'-constructor, 'D'-destructor
-    String Prototype; //Prototype full name
+    BYTE Scope;       // 9-private, 10-protected, 11-public, 12-published
+    BYTE MethodKind;  // 'M'-method, 'P'-procedure, 'F'-function, 'C'-constructor, 'D'-destructor
+    String Prototype; // Prototype full name
 } METHODINFO, *PMETHODINFO;
 
 typedef struct {
-    BYTE Tag;       //0x21-"val", 0x22-"var"
-    bool Register;  //If true - argument is in register, else - in stack
-    int Ndx;        //Register number and offset (XX-number, XXXXXX-offset) (0-EAX, 1-ECX, 2-EDX)
-    int Size;       //Argument Size
-    String Name;    //Argument Name
-    String TypeDef; //Argument Type
+    BYTE Tag;       // 0x21-"val", 0x22-"var"
+    bool Register;  // If true - argument is in register, else - in stack
+    int Ndx;        // Register number and offset (XX-number, XXXXXX-offset) (0-EAX, 1-ECX, 2-EDX)
+    int Size;       // Argument Size
+    String Name;    // Argument Name
+    String TypeDef; // Argument Type
 } ARGINFO, *PARGINFO;
 
 typedef struct {
-    int Ofs;        //Offset of local var (from ebp or EP)
-    int Size;       //Size of local var
-    String Name;    //Local var Name
-    String TypeDef; //Local var Type
+    int Ofs;        // Offset of local var (from ebp or EP)
+    int Size;       // Size of local var
+    String Name;    // Local var Name
+    String TypeDef; // Local var Type
 } LOCALINFO, *PLOCALINFO;
 
 typedef struct {
-    char type;  //'C'-call; 'J'-jmp; 'D'-data
-    DWORD adr;  //address of procedure
-    int offset; //offset in procedure
+    char type;  // 'C'-call; 'J'-jmp; 'D'-data
+    DWORD adr;  // address of procedure
+    int offset; // offset in procedure
 } XrefRec, *PXrefRec;
 
 //Флажки для заполнения членов классов
@@ -181,15 +181,16 @@ public:
 public:
     WORD ModuleID;
     String ConstName;
-    BYTE Type;      //'C'-ConstDecl, 'P'-PDecl (VMT), 'V'-VarCDecl
-    String TypeDef; //Тип
-    String Value;   //Значение
-    DWORD DumpSz;   //Размер бинарного дампа
-    DWORD FixupNum; //Количество фиксапов дампа
-    BYTE *Dump;     //Бинарный дамп
+    BYTE Type;      // 'C'-ConstDecl, 'P'-PDecl (VMT), 'V'-VarCDecl
+    String TypeDef; // Тип | Type
+    String Value;   // Значение
+    DWORD DumpSz;   // Размер бинарного дампа | Binary dump size
+    DWORD FixupNum; // Количество фиксапов дампа | Number of dump fixups
+    BYTE *Dump;     // Бинарный дамп | Binary dump
 };
 
-//Значения байта Kind информации о типе
+// Значения байта Kind информации о типе
+// Byte type kind information values
 #define drArrayDef          0x4C    //'L'
 #define drClassDef          0x46    //'F'
 #define drFileDef           0x4F    //'O'
