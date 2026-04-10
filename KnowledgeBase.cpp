@@ -153,6 +153,11 @@ bool __fastcall MKnowledgeBase::CheckKBFile() {
 }
 
 //---------------------------------------------------------------------------
+/**
+ * Open a Knowledge Base file.
+ * @param filename Knowledge Base filename
+ * @return If file was opened successfully or not.
+ */
 bool __fastcall MKnowledgeBase::Open(char *filename) {
     if (Inited) {
         if (NameKBFile == String(filename))

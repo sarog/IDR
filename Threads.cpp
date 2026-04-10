@@ -1888,9 +1888,9 @@ void __fastcall TAnalyzeThread::FindPrototypes() {
 //---------------------------------------------------------------------------
 typedef struct {
     bool used;
-    const char *name;    //имя юнита
-    float matched; //максимальное кол-во совпадений
-    int maxno;     //номер юнита с максимальным кол-вом совпадений
+    const char *name;    // имя юнита | unit name
+    float matched; // максимальное кол-во совпадений | maximum number of matches
+    int maxno;     // номер юнита с максимальным кол-вом совпадений | unit number with the maximum number of matches
 } StdUnitInfo, *PStdUnitInfo;
 
 #define StdUnitsNum 7

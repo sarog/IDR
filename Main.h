@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #ifndef MainH
 #define MainH
 //---------------------------------------------------------------------------
@@ -772,7 +772,7 @@ public: // User declarations
     String AppDir;
     String WrkDir;
     String SourceFile;
-    int SysProcsNum; //Number of elements in SysProcs array
+    int SysProcsNum; // Number of elements in SysProcs array
 
     int WhereSearch;
     //UNITS

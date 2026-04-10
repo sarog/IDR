@@ -92,15 +92,15 @@ String cmdAdr = "";
 
 int dummy = 0; //for debugging purposes!!!
 
-MDisasm Disasm; //Дизассемблер для анализатора кода
+MDisasm Disasm; // Дизассемблер для анализатора кода | Disassembler for code analyzer
 MKnowledgeBase KnowledgeBase;
-TResourceInfo *ResInfo = 0;               //Information about forms
-int CodeHistorySize;                      //Current size of Code navigation History Array
-int CodeHistoryPtr;                       //Curent pointer of Code navigation History Array
-int CodeHistoryMax;                       //Max pointer position of Code navigation History Array (for ->)
-DynamicArray<PROCHISTORYREC> CodeHistory; //Code navigation History Array
+TResourceInfo *ResInfo = nullptr;         // Information about forms
+int CodeHistorySize;                      // Current size of Code navigation History Array
+int CodeHistoryPtr;                       // Current pointer of Code navigation History Array
+int CodeHistoryMax;                       // Max pointer position of Code navigation History Array (for ->)
+DynamicArray<PROCHISTORYREC> CodeHistory; // Code navigation History Array
 
-TAnalyzeThread *AnalyzeThread = 0; //Поток для фонового анализа кода
+TAnalyzeThread *AnalyzeThread = nullptr; // Поток для фонового анализа кода | Background code analysis thread
 int AnalyzeThreadRetVal = 0;
 bool SourceIsLibrary = false;
 bool ClassTreeDone;
@@ -7810,7 +7810,7 @@ void __fastcall TFMain_11011981::LoadDelphiFile1(String FileName, int version, b
     //ShowCode(EP, 0, -1, -1);
 
     bEP->Enabled = true;
-    //На время загрузки файла отключаем пункты меню
+    // На время загрузки файла отключаем пункты меню | Disable menu items while the file is loading.
     miLoadFile->Enabled = false;
     miOpenProject->Enabled = false;
     miMRF->Enabled = false;
@@ -8313,6 +8313,10 @@ void __fastcall TFMain_11011981::ReadNode(FILE *fIn, TTreeNode *node, char *buf)
 }
 
 //---------------------------------------------------------------------------
+/**
+ * Open an IDR Project File
+ * @param FileName IDR Project filename
+ */
 void __fastcall TFMain_11011981::OpenProject(String FileName) {
     bool _useFuzzy = true;
     int n, m, k, u, pos, len, num, cnum, evnum, size, infosCnt, bssCnt, _ver;
@@ -8324,7 +8328,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
 
     Screen->Cursor = crHourGlass;
     FILE *projectFile = fopen(AnsiString(FileName).c_str(), "rb");
-    //Read Delphi version and maximum length of buffer
+    // Read Delphi version and maximum length of buffer
     fseek(projectFile, 12, SEEK_SET);
     fread(&_ver, sizeof(_ver), 1, projectFile);
 
@@ -8361,7 +8365,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
 
     SetVmtConsts(DelphiVersion);
 
-    //Disable menu items
+    // Disable menu items
     miLoadFile->Enabled = false;
     miOpenProject->Enabled = false;
     miMRF->Enabled = false;
@@ -8394,7 +8398,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
         fread(&DataSize, sizeof(DataSize), 1, fIn);   //inStream->Read(&DataSize, sizeof(DataSize));
         fread(&DataStart, sizeof(DataStart), 1, fIn); //inStream->Read(&DataStart, sizeof(DataStart));
 
-        //SegmentList
+        // SegmentList
         fread(&num, sizeof(num), 1, fIn); //inStream->Read(&num, sizeof(num));
         for (n = 0; n < num; n++) {
             PSegmentInfo segInfo = new SegmentInfo;
@@ -8446,7 +8450,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
             recN = new InfoRec(pos, kind);
             recN->Load(fIn, buf); //recN->Load(inStream, buf);
         }
-        //BSSInfos
+        // BSSInfos
         BSSInfos = new TStringList;
         fread(&bssCnt, sizeof(bssCnt), 1, fIn); //inStream->Read(&bssCnt, sizeof(bssCnt));
         for (n = 0; n < bssCnt; n++) {
@@ -8461,7 +8465,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
         BSSInfos->Sorted = true;
         lbCXrefs->Enabled = true;
 
-        //Units
+        // Units
         fread(&num, sizeof(num), 1, fIn); //inStream->Read(&num, sizeof(num));
 
         UnitsNum = num;
@@ -8509,7 +8513,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
             fread(&CurUnitAdr, sizeof(CurUnitAdr), 1, fIn); //inStream->Read(&CurUnitAdr, sizeof(CurUnitAdr));
             fread(&topIdxU, sizeof(topIdxU), 1, fIn);       //inStream->Read(&topIdxU, sizeof(topIdxU));
             fread(&itemIdxU, sizeof(itemIdxU), 1, fIn);     //inStream->Read(&itemIdxU, sizeof(itemIdxU));
-            //UnitItems
+            // UnitItems
             if (CurUnitAdr) {
                 fread(&topIdxI, sizeof(topIdxI), 1, fIn);   //inStream->Read(&topIdxI, sizeof(topIdxI));
                 fread(&itemIdxI, sizeof(itemIdxI), 1, fIn); //inStream->Read(&itemIdxI, sizeof(itemIdxI));
@@ -8550,7 +8554,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
         miFuzzyScanKB->Enabled = true;
         miSearchItem->Enabled = true;
 
-        //Types
+        // Types
         fread(&num, sizeof(num), 1, fIn); //inStream->Read(&num, sizeof(num));
         for (n = 0; n < num; n++) {
             PTypeRec recT = new TypeRec;
@@ -8564,7 +8568,8 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
         RTTISortField = 0;
         if (num) fread(&RTTISortField, sizeof(RTTISortField), 1, fIn);
         //inStream->Read(&RTTISortField, sizeof(RTTISortField));
-        //UpdateRTTIs
+
+        // UpdateRTTIs
         tsRTTIs->Enabled = true;
         miSearchRTTI->Enabled = true;
         miSortRTTI->Enabled = true;
@@ -8588,25 +8593,25 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
         }
         ShowRTTIs();
 
-        //Forms
+        // Forms
         fread(&num, sizeof(num), 1, fIn); //inStream->Read(&num, sizeof(num));
         for (n = 0; n < num; n++) {
             TDfm *dfm = new TDfm;
-            //Flags
+            // Flags
             fread(&dfm->Flags, sizeof(dfm->Flags), 1, fIn); //inStream->Read(&dfm->Flags, sizeof(dfm->Flags));
-            //ResName
+            // ResName
             fread(&len, sizeof(len), 1, fIn); //inStream->Read(&len, sizeof(len));
             fread(buf, len, 1, fIn);          //inStream->Read(buf, len);
             dfm->ResName = String(buf, len);
-            //Name
+            // Name
             fread(&len, sizeof(len), 1, fIn); //inStream->Read(&len, sizeof(len));
             fread(buf, len, 1, fIn);          //inStream->Read(buf, len);
             dfm->Name = String(buf, len);
-            //ClassName
+            // ClassName
             fread(&len, sizeof(len), 1, fIn); //inStream->Read(&len, sizeof(len));
             fread(buf, len, 1, fIn);          //inStream->Read(buf, len);
             dfm->ClassName = String(buf, len);
-            //MemStream
+            // MemStream
             fread(&size, sizeof(size), 1, fIn); //inStream->Read(&size, sizeof(size));
             dfm->MemStream->Size = size;
             while (size >= 4096) {
@@ -8618,16 +8623,16 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
                 fread(buf, size, 1, fIn); //inStream->Read(buf, size);
                 dfm->MemStream->Write(buf, size);
             }
-            //Events
+            // Events
             dfm->Events = new TList;
             fread(&evnum, sizeof(evnum), 1, fIn); //inStream->Read(&evnum, sizeof(evnum));
             for (m = 0; m < evnum; m++) {
                 PEventInfo eInfo = new EventInfo;
-                //EventName
+                // EventName
                 fread(&len, sizeof(len), 1, fIn); //inStream->Read(&len, sizeof(len));
                 fread(buf, len, 1, fIn);          //inStream->Read(buf, len);
                 eInfo->EventName = String(buf, len);
-                //ProcName
+                // ProcName
                 fread(&len, sizeof(len), 1, fIn); //inStream->Read(&len, sizeof(len));
                 fread(buf, len, 1, fIn);          //inStream->Read(buf, len);
                 eInfo->ProcName = String(buf, len);
@@ -8639,30 +8644,30 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
                 dfm->Components = new TList;
                 for (m = 0; m < cnum; m++) {
                     PComponentInfo cInfo = new ComponentInfo;
-                    //Inherited
+                    // Inherited
                     fread(&cInfo->Inherit, sizeof(cInfo->Inherit), 1, fIn);
                     //inStream->Read(&cInfo->Inherit, sizeof(cInfo->Inherit));
-                    //HasGlyph
+                    // HasGlyph
                     fread(&cInfo->HasGlyph, sizeof(cInfo->HasGlyph), 1, fIn);
                     //inStream->Read(&cInfo->HasGlyph, sizeof(cInfo->HasGlyph));
-                    //Name
+                    // Name
                     fread(&len, sizeof(len), 1, fIn); //inStream->Read(&len, sizeof(len));
                     fread(buf, len, 1, fIn);          //inStream->Read(buf, len);
                     cInfo->Name = String(buf, len);
-                    //ClassName
+                    // ClassName
                     fread(&len, sizeof(len), 1, fIn); //inStream->Read(&len, sizeof(len));
                     fread(buf, len, 1, fIn);          //inStream->Read(buf, len);
                     cInfo->ClassName = String(buf, len);
-                    //Events
+                    // Events
                     cInfo->Events = new TList;
                     fread(&evnum, sizeof(evnum), 1, fIn); //inStream->Read(&evnum, sizeof(evnum));
                     for (k = 0; k < evnum; k++) {
                         PEventInfo eInfo = new EventInfo;
-                        //EventName
+                        // EventName
                         fread(&len, sizeof(len), 1, fIn); //inStream->Read(&len, sizeof(len));
                         fread(buf, len, 1, fIn);          //inStream->Read(buf, len);
                         eInfo->EventName = String(buf, len);
-                        //ProcName
+                        // ProcName
                         fread(&len, sizeof(len), 1, fIn); //inStream->Read(&len, sizeof(len));
                         fread(buf, len, 1, fIn);          //inStream->Read(buf, len);
                         eInfo->ProcName = String(buf, len);
@@ -8673,9 +8678,9 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
             }
             ResInfo->FormList->Add(static_cast<void *>(dfm));
         }
-        //UpdateForms
+        // UpdateForms
         ResInfo->ShowResources(lbForms);
-        //Aliases
+        // Aliases
         fread(&num, sizeof(num), 1, fIn); //inStream->Read(&num, sizeof(num));
         for (n = 0; n < num; n++) {
             fread(&len, sizeof(len), 1, fIn); //inStream->Read(&len, sizeof(len));
@@ -8685,7 +8690,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
         InitAliases(false);
         tsForms->Enabled = (lbForms->Items->Count > 0);
 
-        //CodeHistory
+        // CodeHistory
         fread(&CodeHistorySize, sizeof(CodeHistorySize), 1, fIn);
         //inStream->Read(&CodeHistorySize, sizeof(CodeHistorySize));
         fread(&CodeHistoryPtr, sizeof(CodeHistoryPtr), 1, fIn);
@@ -8703,7 +8708,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
         fread(&CurProcAdr, sizeof(CurProcAdr), 1, fIn); //inStream->Read(&CurProcAdr, sizeof(CurProcAdr));
         fread(&topIdxC, sizeof(topIdxC), 1, fIn);       //inStream->Read(&topIdxC, sizeof(topIdxC));
 
-        //Important variables
+        // Important variables
         fread(&HInstanceVarAdr, sizeof(HInstanceVarAdr), 1, fIn);
         //inStream->Read(&HInstanceVarAdr, sizeof(HInstanceVarAdr));
         fread(&LastTls, sizeof(LastTls), 1, fIn); //inStream->Read(&LastTls, sizeof(LastTls));
@@ -8713,9 +8718,9 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
 
         fread(&CtdRegAdr, sizeof(CtdRegAdr), 1, fIn); //inStream->Read(&CtdRegAdr, sizeof(CtdRegAdr));
 
-        //UpdateVmtList
+        // UpdateVmtList
         FillVmtList();
-        //UpdateCode
+        // UpdateCode
         tsCodeView->Enabled = true;
         miGoTo->Enabled = true;
         miExploreAdr->Enabled = true;
@@ -8724,18 +8729,18 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
         DWORD adr = CurProcAdr;
         CurProcAdr = 0;
         ShowCode(adr, 0, -1, topIdxC);
-        //UpdateStrings
+        // UpdateStrings
         tsStrings->Enabled = true;
         miSearchString->Enabled = true;
         ShowStrings(0);
-        //UpdateNames
+        // UpdateNames
         tsNames->Enabled = true;
         ShowNames(0);
 
         Update();
 
-        //Class Viewer
-        //Total nodes num (for progress bar)
+        // Class Viewer
+        // Total nodes num (for progress bar)
         int nodesNum;
         fread(&nodesNum, sizeof(nodesNum), 1, fIn); //inStream->Read(&nodesNum, sizeof(nodesNum));
         if (nodesNum) {
@@ -8745,7 +8750,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
             tvClassesFull->Items->EndUpdate();
             ClassTreeDone = true;
         }
-        //UpdateClassViewer
+        // UpdateClassViewer
         tsClassView->Enabled = true;
         miViewClass->Enabled = true;
         miSearchVMT->Enabled = true;
@@ -8765,7 +8770,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
         }
         miClassTreeBuilder->Enabled = true;
 
-        //Just cheking
+        // Just checking
         fread(&MaxBufLen, sizeof(MaxBufLen), 1, fIn); //inStream->Read(&MaxBufLen, sizeof(MaxBufLen));
         fclose(fIn);
     }
@@ -8778,7 +8783,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
 
     AddIdp2MRF(FileName);
 
-    //Enable lemu items
+    // Enable lemu items
     miLoadFile->Enabled = true;
     miOpenProject->Enabled = true;
     miMRF->Enabled = true;
@@ -8887,7 +8892,7 @@ void __fastcall TFMain_11011981::miIdp8Click(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-//SAVE PROJECT
+// Save Project
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::miSaveProjectClick(TObject *Sender) {
     if (IDPFile == "") IDPFile = ChangeFileExt(SourceFile, ".idp");
@@ -8921,6 +8926,10 @@ void __fastcall TFMain_11011981::WriteNode(FILE *f, TTreeNode *node)
 }
 
 //---------------------------------------------------------------------------
+/**
+ * Save the current IDR project to file
+ * @param FileName Project filename
+ */
 void __fastcall TFMain_11011981::SaveProject(String FileName) {
     int n, m, k, len, num, cnum, evnum, size, pos, res, infosCnt, topIdx, itemIdx;
     FILE *outF; //TMemoryStream*    outStream = 0;
@@ -8955,7 +8964,8 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
             fwrite(&DataBase, sizeof(DataBase), 1, outF);   //outStream->Write(&DataBase, sizeof(DataBase));
             fwrite(&DataSize, sizeof(DataSize), 1, outF);   //outStream->Write(&DataSize, sizeof(DataSize));
             fwrite(&DataStart, sizeof(DataStart), 1, outF); //outStream->Write(&DataStart, sizeof(DataStart));
-            //SegmentList
+
+            // SegmentList
             num = SegmentList->Count;
             fwrite(&num, sizeof(num), 1, outF); //outStream->Write(&num, sizeof(num));
             for (n = 0; n < num; n++) {
@@ -9025,11 +9035,11 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
             } catch (Exception &exception) {
                 ShowMessage("Error at " + Val2Str8(Pos2Adr(n)));
             }
-            //Last position = -1 -> end of items
+            // Last position = -1 -> end of items
             pos = -1;
             fwrite(&pos, sizeof(pos), 1, outF); //outStream->Write(&pos, sizeof(pos));
 
-            //BSSInfos
+            // BSSInfos
             String _adr;
             int bssCnt = BSSInfos->Count;
             fwrite(&bssCnt, sizeof(bssCnt), 1, outF); //outStream->Write(&bssCnt, sizeof(bssCnt));
@@ -9045,7 +9055,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                 recN->Save(outF);                     //recN->Save(outStream);
             }
 
-            //Units
+            // Units
             num = UnitsNum;
             FProgressBar->StartProgress("Writing Units (number = " + String(num) + ")...", "", num);
             fwrite(&num, sizeof(num), 1, outF); //outStream->Write(&num, sizeof(num));
@@ -9092,7 +9102,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                 fwrite(&topIdx, sizeof(topIdx), 1, outF); //outStream->Write(&topIdx, sizeof(topIdx));
                 itemIdx = lbUnits->ItemIndex;
                 fwrite(&itemIdx, sizeof(itemIdx), 1, outF); //outStream->Write(&itemIdx, sizeof(itemIdx));
-                //UnitItems
+                // UnitItems
                 if (CurUnitAdr) {
                     topIdx = lbUnitItems->TopIndex;
                     fwrite(&topIdx, sizeof(topIdx), 1, outF); //outStream->Write(&topIdx, sizeof(topIdx));
@@ -9101,7 +9111,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                 }
             }
 
-            //Types
+            // Types
             num = OwnTypeList->Count;
             FProgressBar->StartProgress("Writing Types (number = " + String(num) + ")...", "", num);
             fwrite(&num, sizeof(num), 1, outF); //outStream->Write(&num, sizeof(num));
@@ -9119,7 +9129,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
             if (num) fwrite(&RTTISortField, sizeof(RTTISortField), 1, outF);
             //outStream->Write(&RTTISortField, sizeof(RTTISortField));
 
-            //Forms
+            // Forms
             num = ResInfo->FormList->Count;
             FProgressBar->StartProgress("Writing Forms (number = " + String(num) + ")...", "", num);
             fwrite(&num, sizeof(num), 1, outF); //outStream->Write(&num, sizeof(num));
@@ -9127,24 +9137,27 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                 FProgressBar->pb->StepIt();
                 Application->ProcessMessages();
                 TDfm *dfm = (TDfm *) ResInfo->FormList->Items[n];
-                //Flags
+                // Flags
                 fwrite(&dfm->Flags, sizeof(dfm->Flags), 1, outF); //outStream->Write(&dfm->Flags, sizeof(dfm->Flags));
-                //ResName
+                // ResName
                 len = dfm->ResName.Length();
                 if (len > MaxBufLen) MaxBufLen = len;
                 fwrite(&len, sizeof(len), 1, outF);         //outStream->Write(&len, sizeof(len));
                 fwrite(dfm->ResName.c_str(), len, 1, outF); //outStream->Write(dfm->ResName.c_str(), len);
                 //Name
+                // Name
                 len = dfm->Name.Length();
                 if (len > MaxBufLen) MaxBufLen = len;
                 fwrite(&len, sizeof(len), 1, outF);      //outStream->Write(&len, sizeof(len));
                 fwrite(dfm->Name.c_str(), len, 1, outF); //outStream->Write(dfm->Name.c_str(), len);
                 //ClassName
+                // ClassName
                 len = dfm->ClassName.Length();
                 if (len > MaxBufLen) MaxBufLen = len;
                 fwrite(&len, sizeof(len), 1, outF);           //outStream->Write(&len, sizeof(len));
                 fwrite(dfm->ClassName.c_str(), len, 1, outF); //outStream->Write(dfm->ClassName.c_str(), len);
                 //MemStream
+                // MemStream
                 size = dfm->MemStream->Size;
                 if (4096 > MaxBufLen) MaxBufLen = 4096;
                 fwrite(&size, sizeof(size), 1, outF); //outStream->Write(&size, sizeof(size));
@@ -9158,7 +9171,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                     dfm->MemStream->Read(buf, size);
                     fwrite(buf, size, 1, outF); //outStream->Write(buf, size);
                 }
-                //Events
+                // Events
                 evnum = (dfm->Events) ? dfm->Events->Count : 0;
                 fwrite(&evnum, sizeof(evnum), 1, outF); //outStream->Write(&evnum, sizeof(evnum));
                 for (m = 0; m < evnum; m++) {
@@ -9174,39 +9187,43 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                     fwrite(&len, sizeof(len), 1, outF);            //outStream->Write(&len, sizeof(len));
                     fwrite(eInfo->ProcName.c_str(), len, 1, outF); //outStream->Write(eInfo->ProcName.c_str(), len);
                 }
-                //Components
+                // Components
                 cnum = (dfm->Components) ? dfm->Components->Count : 0;
                 fwrite(&cnum, sizeof(cnum), 1, outF); //outStream->Write(&cnum, sizeof(cnum));
                 for (m = 0; m < cnum; m++) {
                     PComponentInfo cInfo = (PComponentInfo) dfm->Components->Items[m];
                     //Inherited
+                    // Inherited
                     fwrite(&cInfo->Inherit, sizeof(cInfo->Inherit), 1, outF);
                     //outStream->Write(&cInfo->Inherit, sizeof(cInfo->Inherit));
-                    //HasGlyph
+                    // HasGlyph
                     fwrite(&cInfo->HasGlyph, sizeof(cInfo->HasGlyph), 1, outF);
                     //outStream->Write(&cInfo->HasGlyph, sizeof(cInfo->HasGlyph));
-                    //Name
+                    // Name
                     len = cInfo->Name.Length();
                     if (len > MaxBufLen) MaxBufLen = len;
                     fwrite(&len, sizeof(len), 1, outF);        //outStream->Write(&len, sizeof(len));
                     fwrite(cInfo->Name.c_str(), len, 1, outF); //outStream->Write(cInfo->Name.c_str(), len);
                     //ClassName
+                    // ClassName
                     len = cInfo->ClassName.Length();
                     if (len > MaxBufLen) MaxBufLen = len;
                     fwrite(&len, sizeof(len), 1, outF);             //outStream->Write(&len, sizeof(len));
                     fwrite(cInfo->ClassName.c_str(), len, 1, outF); //outStream->Write(cInfo->ClassName.c_str(), len);
                     //Events
+                    // Events
                     evnum = (cInfo->Events) ? cInfo->Events->Count : 0;
                     fwrite(&evnum, sizeof(evnum), 1, outF); //outStream->Write(&evnum, sizeof(evnum));
                     for (k = 0; k < evnum; k++) {
                         PEventInfo eInfo = (PEventInfo) cInfo->Events->Items[k];
                         //EventName
+                        // EventName
                         len = eInfo->EventName.Length();
                         if (len > MaxBufLen) MaxBufLen = len;
                         fwrite(&len, sizeof(len), 1, outF); //outStream->Write(&len, sizeof(len));
                         fwrite(eInfo->EventName.c_str(), len, 1, outF);
                         //outStream->Write(eInfo->EventName.c_str(), len);
-                        //ProcName
+                        // ProcName
                         len = eInfo->ProcName.Length();
                         if (len > MaxBufLen) MaxBufLen = len;
                         fwrite(&len, sizeof(len), 1, outF);            //outStream->Write(&len, sizeof(len));
@@ -9214,7 +9231,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                     }
                 }
             }
-            //Aliases
+            // Aliases
             num = ResInfo->Aliases->Count;
             FProgressBar->StartProgress("Writing Aliases  (number = " + String(num) + ")...", "", num);
             fwrite(&num, sizeof(num), 1, outF); //outStream->Write(&num, sizeof(num));
@@ -9228,7 +9245,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                 //outStream->Write(ResInfo->Aliases->Strings[n].c_str(), len);
             }
 
-            //CodeHistory
+            // CodeHistory
             fwrite(&CodeHistorySize, sizeof(CodeHistorySize), 1, outF);
             //outStream->Write(&CodeHistorySize, sizeof(CodeHistorySize));
             fwrite(&CodeHistoryPtr, sizeof(CodeHistoryPtr), 1, outF);
@@ -9249,7 +9266,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
             topIdx = lbCode->TopIndex;
             fwrite(&topIdx, sizeof(topIdx), 1, outF); //outStream->Write(&topIdx, sizeof(topIdx));
 
-            //Important variables
+            // Important variables
             fwrite(&HInstanceVarAdr, sizeof(HInstanceVarAdr), 1, outF);
             //outStream->Write(&HInstanceVarAdr, sizeof(HInstanceVarAdr));
             fwrite(&LastTls, sizeof(LastTls), 1, outF); //outStream->Write(&LastTls, sizeof(LastTls));
@@ -9261,8 +9278,8 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
             fwrite(&CtdRegAdr, sizeof(CtdRegAdr), 1, outF); //outStream->Write(&CtdRegAdr, sizeof(CtdRegAdr));
 
             FProgressBar->Close();
-            //Class Viewer
-            //Total nodes (for progress)
+            // Class Viewer
+            // Total nodes (for progress)
             num = 0;
             if (ClassTreeDone) num = tvClassesFull->Items->Count;
             if (num && Application->MessageBox(L"Save full Tree of Classes?", L"Warning", MB_YESNO) == IDYES) {
