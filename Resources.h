@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #ifndef ResourcesH
 #define ResourcesH
 //---------------------------------------------------------------------------
@@ -37,8 +37,8 @@ class IdrDfmLoader;
 //Records to resource list
 class TDfm {
 public:
-    __fastcall TDfm();
-    __fastcall ~TDfm();
+    TDfm();
+    ~TDfm();
     BYTE Open;                //2 - form opened; 1 - form closed but loader not destroyed; 0 - form closed
     BYTE Flags;               //Form flags (see FF_...)
     String ResName;           //Resource name (ABOUTDIALOG)
@@ -55,8 +55,8 @@ public:
 
 class TResourceInfo {
 public:
-    __fastcall TResourceInfo();
-    __fastcall ~TResourceInfo();
+    TResourceInfo();
+    ~TResourceInfo();
     void __fastcall GetFormAsText(TDfm *Dfm, TStrings *DstList);
     bool __fastcall EnumResources(String FileName);
     void __fastcall ShowResources(TListBox *ListBox);

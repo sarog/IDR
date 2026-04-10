@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #include <vcl.h>
 #pragma hdrstop
 
@@ -55,7 +55,7 @@ const char*   RepPrefixTab[4] =
     "lock", "repne", "repe", "rep"
 };
 //---------------------------------------------------------------------------
-__fastcall MDisasm::MDisasm()
+MDisasm::MDisasm()
 {
     hModule = 0;
     PdisNew = 0;
@@ -64,7 +64,7 @@ __fastcall MDisasm::MDisasm()
     DIS = 0;
 }
 //---------------------------------------------------------------------------
-__fastcall MDisasm::~MDisasm()
+MDisasm::~MDisasm()
 {
     if (hModule) FreeLibrary(hModule);
     hModule = 0;

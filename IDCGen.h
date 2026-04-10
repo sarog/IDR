@@ -11,8 +11,8 @@ typedef struct {
 
 class TIDCGen {
 public:
-    __fastcall TIDCGen(FILE *FIdc, int splitSize);
-    __fastcall ~TIDCGen();
+    TIDCGen(FILE *FIdc, int splitSize);
+    ~TIDCGen();
     void __fastcall NewIDCPart(FILE *FIdc);
     void __fastcall DeleteName(int pos);
     int __fastcall MakeByte(int pos);

@@ -13,7 +13,7 @@ extern DWORD *Flags;
 extern PInfoRec *Infos;
 extern bool SplitIDC;
 //---------------------------------------------------------------------------
-__fastcall TIDCGen::TIDCGen(FILE *FIdc, int splitSize) {
+TIDCGen::TIDCGen(FILE *FIdc, int splitSize) {
     idcF = FIdc;
     unitName = "";
     itemName = "";
@@ -25,7 +25,7 @@ __fastcall TIDCGen::TIDCGen(FILE *FIdc, int splitSize) {
 }
 
 //---------------------------------------------------------------------------
-__fastcall TIDCGen::~TIDCGen() {
+TIDCGen::~TIDCGen() {
     delete names;
     delete repeated;
 }

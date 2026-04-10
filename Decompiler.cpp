@@ -111,14 +111,14 @@ void __fastcall AssignItem(PITEM DstItem, PITEM SrcItem) {
 }
 
 //---------------------------------------------------------------------------
-__fastcall TNamer::TNamer() {
+TNamer::TNamer() {
     MaxIdx = -1;
     Names = new TStringList;
     Names->Sorted = true;
 }
 
 //---------------------------------------------------------------------------
-__fastcall TNamer::~TNamer() {
+TNamer::~TNamer() {
     delete Names;
 }
 
@@ -146,7 +146,7 @@ String __fastcall TNamer::MakeName(String shablon) {
 }
 
 //---------------------------------------------------------------------------
-__fastcall TForInfo::TForInfo(bool ANoVar, bool ADown, int AStopAdr, String AFrom, String ATo, BYTE AVarType,
+TForInfo::TForInfo(bool ANoVar, bool ADown, int AStopAdr, String AFrom, String ATo, BYTE AVarType,
                               int AVarIdx, BYTE ACntType, int ACntIdx) {
     NoVar = ANoVar;
     Down = ADown;
@@ -160,12 +160,12 @@ __fastcall TForInfo::TForInfo(bool ANoVar, bool ADown, int AStopAdr, String AFro
 }
 
 //---------------------------------------------------------------------------
-__fastcall TWhileInfo::TWhileInfo(bool ANoCond) {
+TWhileInfo::TWhileInfo(bool ANoCond) {
     NoCondition = ANoCond;
 }
 
 //---------------------------------------------------------------------------
-__fastcall TLoopInfo::TLoopInfo(BYTE AKind, DWORD AContAdr, DWORD ABreakAdr, DWORD ALastAdr) {
+TLoopInfo::TLoopInfo(BYTE AKind, DWORD AContAdr, DWORD ABreakAdr, DWORD ALastAdr) {
     Kind = AKind;
     ContAdr = AContAdr;
     BreakAdr = ABreakAdr;
@@ -175,9 +175,9 @@ __fastcall TLoopInfo::TLoopInfo(BYTE AKind, DWORD AContAdr, DWORD ABreakAdr, DWO
 }
 
 //---------------------------------------------------------------------------
-__fastcall TLoopInfo::~TLoopInfo() {}
+TLoopInfo::~TLoopInfo() {}
 //---------------------------------------------------------------------------
-__fastcall TDecompileEnv::TDecompileEnv(DWORD AStartAdr, int ASize, PInfoRec recN) {
+TDecompileEnv::TDecompileEnv(DWORD AStartAdr, int ASize, PInfoRec recN) {
     StartAdr = AStartAdr;
     Size = ASize;
 
@@ -202,7 +202,7 @@ __fastcall TDecompileEnv::TDecompileEnv(DWORD AStartAdr, int ASize, PInfoRec rec
 }
 
 //---------------------------------------------------------------------------
-__fastcall TDecompileEnv::~TDecompileEnv() {
+TDecompileEnv::~TDecompileEnv() {
     if (Stack) delete[] Stack;
     if (Body) delete Body;
     if (Namer) delete Namer;
@@ -278,7 +278,7 @@ void __fastcall TDecompileEnv::RestoreContext(DWORD Adr) {
 }
 
 //---------------------------------------------------------------------------
-__fastcall TDecompiler::TDecompiler(TDecompileEnv *AEnv) {
+TDecompiler::TDecompiler(TDecompileEnv *AEnv) {
     WasRet = false;
     Env = AEnv;
     Stack = 0;
@@ -286,7 +286,7 @@ __fastcall TDecompiler::TDecompiler(TDecompileEnv *AEnv) {
 }
 
 //---------------------------------------------------------------------------
-__fastcall TDecompiler::~TDecompiler() {
+TDecompiler::~TDecompiler() {
     if (Stack) delete[] Stack;
     if (DeFlags) delete DeFlags;
 }

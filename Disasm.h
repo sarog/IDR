@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #ifndef DisasmH
 #define DisasmH
 //---------------------------------------------------------------------------
@@ -92,8 +92,8 @@ typedef struct {
 
 class MDisasm {
 public:
-    __fastcall MDisasm();
-    __fastcall ~MDisasm();
+    MDisasm();
+    ~MDisasm();
     int __fastcall Init();
     int __fastcall Disassemble(DWORD fromAdr, PDISINFO pDisInfo, char *disLine);
     int __fastcall Disassemble(BYTE *from, __int64 address, PDISINFO pDisInfo, char *disLine);

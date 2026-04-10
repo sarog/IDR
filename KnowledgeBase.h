@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #ifndef KnowledgeBaseH
 #define KnowledgeBaseH
 //---------------------------------------------------------------------------
@@ -175,8 +175,8 @@ typedef struct {
 
 class MConstInfo {
 public:
-    __fastcall MConstInfo();
-    __fastcall ~MConstInfo();
+    MConstInfo();
+    ~MConstInfo();
 
 public:
     WORD ModuleID;
@@ -209,8 +209,8 @@ public:
 
 class MTypeInfo {
 public:
-    __fastcall MTypeInfo();
-    __fastcall ~MTypeInfo();
+    MTypeInfo();
+    ~MTypeInfo();
 
 public:
     DWORD Size;
@@ -238,8 +238,8 @@ public:
 
 class MVarInfo {
 public:
-    __fastcall MVarInfo();
-    __fastcall ~MVarInfo();
+    MVarInfo();
+    ~MVarInfo();
 
 public:
     WORD ModuleID;
@@ -251,8 +251,8 @@ public:
 
 class MResStrInfo {
 public:
-    __fastcall MResStrInfo();
-    __fastcall ~MResStrInfo();
+    MResStrInfo();
+    ~MResStrInfo();
 
 public:
     WORD ModuleID;
@@ -263,8 +263,8 @@ public:
 
 class MProcInfo {
 public:
-    __fastcall MProcInfo();
-    __fastcall ~MProcInfo();
+    MProcInfo();
+    ~MProcInfo();
 
 public:
     WORD ModuleID;
@@ -294,8 +294,8 @@ public:
 
 class MKnowledgeBase {
 public:
-    __fastcall MKnowledgeBase();
-    __fastcall ~MKnowledgeBase();
+    MKnowledgeBase();
+    ~MKnowledgeBase();
 
     bool __fastcall Open(char *filename);
     void __fastcall Close();

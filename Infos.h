@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #ifndef InfosH
 #define InfosH
 
@@ -38,8 +38,8 @@ public:
     TList *methods;
 
 public:
-    __fastcall InfoVmtInfo();
-    __fastcall ~InfoVmtInfo();
+    InfoVmtInfo();
+    ~InfoVmtInfo();
     void __fastcall AddInterface(String Value);
     PFIELDINFO __fastcall AddField(DWORD ProcAdr, int ProcOfs, BYTE Scope, int Offset, int Case, String Name,
                                    String Type);
@@ -77,8 +77,8 @@ public:
     TList *locals;
 
 public:
-    __fastcall InfoProcInfo();
-    __fastcall ~InfoProcInfo();
+    InfoProcInfo();
+    ~InfoProcInfo();
     PARGINFO __fastcall AddArg(PARGINFO aInfo);
     PARGINFO __fastcall AddArg(BYTE Tag, int Ofs, int Size, String Name, String TypeDef);
     String __fastcall AddArgsFromDeclaration(char *Decl, int from, int callKind);
@@ -124,8 +124,8 @@ private:
     String name;
 
 public:
-    __fastcall InfoRec(int APos, BYTE AKind);
-    __fastcall ~InfoRec();
+    InfoRec(int APos, BYTE AKind);
+    ~InfoRec();
     bool __fastcall HasName();
     String __fastcall GetName();
     int __fastcall GetNameLength();

@@ -19,7 +19,7 @@ FIELDINFO::~FIELDINFO() {
 }
 
 //---------------------------------------------------------------------------
-__fastcall MConstInfo::MConstInfo() {
+MConstInfo::MConstInfo() {
     ModuleID = 0xFFFF;
     ConstName = "";
     Type = 0;
@@ -31,13 +31,13 @@ __fastcall MConstInfo::MConstInfo() {
 }
 
 //---------------------------------------------------------------------------
-__fastcall MConstInfo::~MConstInfo() {
+MConstInfo::~MConstInfo() {
     //as direct cache mem usage
     //if (Dump) delete[] Dump;
 }
 
 //---------------------------------------------------------------------------
-__fastcall MTypeInfo::MTypeInfo() {
+MTypeInfo::MTypeInfo() {
     Size = 0;
     ModuleID = 0xFFFF;
     TypeName = "";
@@ -56,9 +56,9 @@ __fastcall MTypeInfo::MTypeInfo() {
 }
 
 //---------------------------------------------------------------------------
-__fastcall MTypeInfo::~MTypeInfo() {}
+MTypeInfo::~MTypeInfo() {}
 //---------------------------------------------------------------------------
-__fastcall MVarInfo::MVarInfo() {
+MVarInfo::MVarInfo() {
     ModuleID = 0xFFFF;
     VarName = "";
     Type = 0;
@@ -67,9 +67,9 @@ __fastcall MVarInfo::MVarInfo() {
 }
 
 //---------------------------------------------------------------------------
-__fastcall MVarInfo::~MVarInfo() {}
+MVarInfo::~MVarInfo() {}
 //---------------------------------------------------------------------------
-__fastcall MResStrInfo::MResStrInfo() {
+MResStrInfo::MResStrInfo() {
     ModuleID = 0xFFFF;
     ResStrName = "";
     TypeDef = "";
@@ -77,9 +77,9 @@ __fastcall MResStrInfo::MResStrInfo() {
 }
 
 //---------------------------------------------------------------------------
-__fastcall MResStrInfo::~MResStrInfo() {}
+MResStrInfo::~MResStrInfo() {}
 //---------------------------------------------------------------------------
-__fastcall MProcInfo::MProcInfo() {
+MProcInfo::MProcInfo() {
     ModuleID = 0xFFFF;
     ProcName = "";
     Embedded = false;
@@ -98,9 +98,9 @@ __fastcall MProcInfo::MProcInfo() {
 }
 
 //---------------------------------------------------------------------------
-__fastcall MProcInfo::~MProcInfo() {}
+MProcInfo::~MProcInfo() {}
 //---------------------------------------------------------------------------
-__fastcall MKnowledgeBase::MKnowledgeBase() {
+MKnowledgeBase::MKnowledgeBase() {
     Inited = false;
     Version = 0.0;
     Handle = 0;
@@ -120,7 +120,7 @@ __fastcall MKnowledgeBase::MKnowledgeBase() {
 }
 
 //---------------------------------------------------------------------------
-__fastcall MKnowledgeBase::~MKnowledgeBase() {
+MKnowledgeBase::~MKnowledgeBase() {
     Close();
 }
 

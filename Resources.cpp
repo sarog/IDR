@@ -176,7 +176,7 @@ RegClassInfo RegClasses[] =
     {0, 0}*/
 };
 //---------------------------------------------------------------------------
-__fastcall TDfm::TDfm() {
+TDfm::TDfm() {
     Open = 0;
     Flags = 0;
     ResName = "";
@@ -191,7 +191,7 @@ __fastcall TDfm::TDfm() {
 }
 
 //---------------------------------------------------------------------------
-__fastcall TDfm::~TDfm() {
+TDfm::~TDfm() {
     delete MemStream;
 
     int cnt = Events->Count;
@@ -225,7 +225,7 @@ bool __fastcall TDfm::IsFormComponent(String CompName) {
 }
 
 //---------------------------------------------------------------------------
-__fastcall TResourceInfo::TResourceInfo() {
+TResourceInfo::TResourceInfo() {
     citadel = false;
     Counter = 0;
     hFormPlugin = 0;
@@ -243,7 +243,7 @@ __fastcall TResourceInfo::TResourceInfo() {
 }
 
 //---------------------------------------------------------------------------
-__fastcall TResourceInfo::~TResourceInfo() {
+TResourceInfo::~TResourceInfo() {
     if (hFormPlugin) {
         FreeLibrary(hFormPlugin);
         hFormPlugin = 0;

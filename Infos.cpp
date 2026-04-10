@@ -21,14 +21,14 @@ extern char StringBuf[MAXSTRBUFFER];
 //as some statistics for memory leaks detection (remove it when fixed)
 long stat_InfosOverride = 0;
 //---------------------------------------------------------------------------
-__fastcall InfoVmtInfo::InfoVmtInfo() {
+InfoVmtInfo::InfoVmtInfo() {
     interfaces = 0;
     fields = 0;
     methods = 0;
 }
 
 //---------------------------------------------------------------------------
-__fastcall InfoVmtInfo::~InfoVmtInfo() {
+InfoVmtInfo::~InfoVmtInfo() {
     if (interfaces) delete interfaces;
     CleanupList<FIELDINFO>(fields);
     CleanupList<MethodRec>(methods);
@@ -138,7 +138,7 @@ bool __fastcall InfoVmtInfo::AddMethod(bool Abstract, char Kind, int Id, DWORD A
 }
 
 //---------------------------------------------------------------------------
-_fastcall InfoProcInfo::InfoProcInfo() {
+InfoProcInfo::InfoProcInfo() {
     flags = 0;
     bpBase = 0;
     retBytes = 0;
@@ -149,7 +149,7 @@ _fastcall InfoProcInfo::InfoProcInfo() {
 }
 
 //---------------------------------------------------------------------------
-__fastcall InfoProcInfo::~InfoProcInfo() {
+InfoProcInfo::~InfoProcInfo() {
     CleanupList<ARGINFO>(args);
     CleanupList<LOCALINFO>(locals);
 }
@@ -555,7 +555,7 @@ void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef) {
 }
 
 //---------------------------------------------------------------------------
-__fastcall InfoRec::InfoRec(int APos, BYTE AKind) {
+InfoRec::InfoRec(int APos, BYTE AKind) {
     counter = 0;
     kind = AKind;
     kbIdx = -1;
@@ -584,7 +584,7 @@ __fastcall InfoRec::InfoRec(int APos, BYTE AKind) {
 }
 
 //---------------------------------------------------------------------------
-__fastcall InfoRec::~InfoRec() {
+InfoRec::~InfoRec() {
     if (picode) delete picode;
 
     CleanupList<XrefRec>(xrefs);

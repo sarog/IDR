@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #ifndef DecompilerH
 #define DecompilerH
 
@@ -114,7 +114,7 @@ public:
     IDXINFO CntInfo;
 
 public:
-    __fastcall TForInfo(bool ANoVar, bool ADown, int AStopAdr, String AFrom, String ATo, BYTE AVarType, int AVarIdx,
+    TForInfo(bool ANoVar, bool ADown, int AStopAdr, String AFrom, String ATo, BYTE AVarType, int AVarIdx,
                         BYTE ACntType, int ACntIdx);
 };
 
@@ -124,7 +124,7 @@ class TWhileInfo {
 public:
     bool NoCondition; //No condition
 public:
-    __fastcall TWhileInfo(bool ANoCond);
+    TWhileInfo(bool ANoCond);
 };
 
 typedef TWhileInfo *PWhileInfo;
@@ -139,8 +139,8 @@ public:
     PWhileInfo whileInfo;
 
 public:
-    __fastcall TLoopInfo(BYTE AKind, DWORD AContAdr, DWORD ABreakAdr, DWORD ALastAdr);
-    __fastcall ~TLoopInfo();
+    TLoopInfo(BYTE AKind, DWORD AContAdr, DWORD ABreakAdr, DWORD ALastAdr);
+    ~TLoopInfo();
 };
 
 typedef TLoopInfo *PLoopInfo;
@@ -156,8 +156,8 @@ class TNamer {
 public:
     int MaxIdx;
     TStringList *Names;
-    __fastcall TNamer();
-    __fastcall ~TNamer();
+    TNamer();
+    ~TNamer();
     String __fastcall MakeName(String shablon);
 };
 
@@ -207,8 +207,8 @@ public:
     bool Embedded;             //Is proc embedded
     TStringList *EmbeddedList; //List of embedded procedures addresses
 
-    __fastcall TDecompileEnv(DWORD AStartAdr, int ASize, PInfoRec recN);
-    __fastcall ~TDecompileEnv();
+    TDecompileEnv(DWORD AStartAdr, int ASize, PInfoRec recN);
+    ~TDecompileEnv();
     String __fastcall GetFieldName(PFIELDINFO fInfo);
     String __fastcall GetArgName(PARGINFO argInfo);
     String __fastcall GetGvarName(DWORD adr);
@@ -254,8 +254,8 @@ public:
     BYTE *DeFlags;
     PITEM Stack;
 
-    __fastcall TDecompiler(TDecompileEnv *AEnv);
-    __fastcall ~TDecompiler();
+    TDecompiler(TDecompileEnv *AEnv);
+    ~TDecompiler();
     bool __fastcall CheckPrototype(PInfoRec ARec);
     void __fastcall ClearStop(DWORD Adr);
     DWORD __fastcall Decompile(DWORD fromAdr, DWORD flags, PLoopInfo loopInfo);
