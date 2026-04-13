@@ -31,6 +31,10 @@ endif ()
 # test w/presets: add_compile_options(-D_DEBUG -DUSEPACKAGES -H -n.\\Win32\\Debug\\Obj -H=.\\IdrPCH1.h)
 # add_compile_options(-y -Q -k -r- -c -w-par -w-mcc -w-csu -vi- -D_DEBUG -DUSEPACKAGES)
 
+set(CMAKE_RC_FLAGS "${CMAKE_RC_FLAGS} -d_DEBUG")
+
+message(STATUS "RC compiler: ${CMAKE_RC_COMPILER}")
+
 project(${APP} VERSION 1.0.0.0 LANGUAGES CXX)
 
 # -tR -eidr.exe -tM -lS:1048576 -lSc:4098 -lH:1048576 -lHc:8192 -v -tC -lGl -lGpr -tM -Od -v @MAKE0000.@@@

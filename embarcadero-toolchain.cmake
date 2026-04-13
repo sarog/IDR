@@ -219,7 +219,11 @@ endforeach()
 
 # Resource files
 if(NOT CMAKE_RC_COMPILER_INIT)
-    set(CMAKE_RC_COMPILER_INIT "rc.exe")
+  #   bin\brcc32.exe -d_DEBUG -i"\include\windows\vcl" IdcDialog.rc -fo.\Win32\Debug\Obj\IdcDialog.res
+  set(CMAKE_RC_COMPILER_INIT "brcc32.exe")
+  set(CMAKE_RC_FLAGS "-i\"${ROOTDIR}/include/windows/vcl/\"")
+  set(CMAKE_RC_COMPILE_OBJECT
+          "<CMAKE_RC_COMPILER> <FLAGS> <SOURCE> -fo <OBJECT>")
 endif()
 enable_language(RC)
 
