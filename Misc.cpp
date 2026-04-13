@@ -285,16 +285,14 @@ bool __fastcall IsValidImageAdr(DWORD Adr) {
     if (Adr >> 8 == 0x408D) return false; //Add by ZGL assigned global byte or boolean variable
     if (Adr >= CodeBase && Adr < CodeBase + ImageSize)
         return true;
-    else
-        return false;
+    return false;
 }
 
 //---------------------------------------------------------------------------
 bool __fastcall IsValidCodeAdr(DWORD Adr) {
     if (Adr >= CodeBase && Adr < CodeBase + CodeSize)
         return true;
-    else
-        return false;
+    return false;
 }
 
 //---------------------------------------------------------------------------
@@ -303,8 +301,7 @@ String __fastcall ExtractClassName(const String &AName) {
     int pos = AName.Pos(".");
     if (pos)
         return AName.SubString(1, pos - 1);
-    else
-        return "";
+    return "";
 }
 
 //---------------------------------------------------------------------------
@@ -313,8 +310,7 @@ String __fastcall ExtractProcName(const String &AName) {
     int pos = AName.Pos(".");
     if (pos)
         return AName.SubString(pos + 1, AName.Length());
-    else
-        return AName;
+    return AName;
 }
 
 //---------------------------------------------------------------------------
@@ -323,8 +319,7 @@ String __fastcall ExtractName(const String &AName) {
     int _pos = AName.Pos(":");
     if (_pos)
         return AName.SubString(1, _pos - 1);
-    else
-        return AName;
+    return AName;
 }
 
 //---------------------------------------------------------------------------
@@ -333,8 +328,7 @@ String __fastcall ExtractType(const String &AName) {
     int _pos = AName.Pos(":");
     if (_pos)
         return AName.SubString(_pos + 1, AName.Length());
-    else
-        return "";
+    return "";
 }
 
 //---------------------------------------------------------------------------
@@ -1432,7 +1426,7 @@ String TypeKinds[TypeKindsNum] =
 //---------------------------------------------------------------------------
 String __fastcall TypeKind2Name(BYTE kind) {
     if (kind < TypeKindsNum) return TypeKinds[kind];
-    else return "";
+    return "";
 }
 
 //---------------------------------------------------------------------------
@@ -1493,6 +1487,7 @@ int __fastcall GetRTTIRecordSize(DWORD adr) {
         return *((int *) (Code + pos));
     else
         return 0;
+    return 0;
 }
 
 //---------------------------------------------------------------------------
