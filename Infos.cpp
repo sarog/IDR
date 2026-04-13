@@ -727,15 +727,15 @@ void __fastcall InfoRec::Save(FILE *outs) {
     // Name
     len = name.Length();
     if (len > MaxBufLen) MaxBufLen = len;
-    fwrite(&len, sizeof(len), 1, outs); //outs->Write(&len, sizeof(len));
-    fwrite(name.c_str(), len, 1, outs); //outs->Write(name.c_str(), len);
-    //type
+    fwrite(&len, sizeof(len), 1, outs);
+    fwrite(AnsiString(name).c_str(), len, 1, outs);
+    // Type
     len = type.Length();
     if (len > MaxBufLen) MaxBufLen = len;
-    fwrite(&len, sizeof(len), 1, outs); //outs->Write(&len, sizeof(len));
-    fwrite(type.c_str(), len, 1, outs); //outs->Write(type.c_str(), len);
-    //picode
-    fwrite(&picode, sizeof(picode), 1, outs); //outs->Write(&picode, sizeof(picode));
+    fwrite(&len, sizeof(len), 1, outs);
+    fwrite(AnsiString(type).c_str(), len, 1, outs);
+    // picode
+    fwrite(&picode, sizeof(picode), 1, outs);
     if (picode) {
         // Op
         fwrite(&picode->Op, sizeof(picode->Op), 1, outs);
@@ -747,8 +747,8 @@ void __fastcall InfoRec::Save(FILE *outs) {
         // Name
         len = picode->Name.Length();
         if (len > MaxBufLen) MaxBufLen = len;
-        fwrite(&len, sizeof(len), 1, outs);         //outs->Write(&len, sizeof(len));
-        fwrite(picode->Name.c_str(), len, 1, outs); //outs->Write(picode->Name.c_str(), len);
+        fwrite(&len, sizeof(len), 1, outs);
+        fwrite(AnsiString(picode->Name).c_str(), len, 1, outs);
     }
     // XRefs
     if (xrefs && xrefs->Count)
@@ -778,9 +778,8 @@ void __fastcall InfoRec::Save(FILE *outs) {
         for (m = 0; m < num; m++) {
             len = vmtInfo->interfaces->Strings[m].Length();
             if (len > MaxBufLen) MaxBufLen = len;
-            fwrite(&len, sizeof(len), 1, outs); //outs->Write(&len, sizeof(len));
-            fwrite(vmtInfo->interfaces->Strings[m].c_str(), len, 1, outs);
-            //outs->Write(vmtInfo->interfaces->Strings[m].c_str(), len);
+            fwrite(&len, sizeof(len), 1, outs);
+            fwrite(AnsiString(vmtInfo->interfaces->Strings[m]).c_str(), len, 1, outs);
         }
         // Fields
         if (vmtInfo->fields && vmtInfo->fields->Count)
@@ -795,14 +794,14 @@ void __fastcall InfoRec::Save(FILE *outs) {
             fwrite(&fInfo->Case, sizeof(fInfo->Case), 1, outs);
             len = fInfo->Name.Length();
             if (len > MaxBufLen) MaxBufLen = len;
-            fwrite(&len, sizeof(len), 1, outs);        //outs->Write(&len, sizeof(len));
-            fwrite(fInfo->Name.c_str(), len, 1, outs); //outs->Write(fInfo->Name.c_str(), len);
-            //Type
+            fwrite(&len, sizeof(len), 1, outs);
+            fwrite(AnsiString(fInfo->Name).c_str(), len, 1, outs);
+            // Type
             len = fInfo->Type.Length();
             if (len > MaxBufLen) MaxBufLen = len;
-            fwrite(&len, sizeof(len), 1, outs);        //outs->Write(&len, sizeof(len));
-            fwrite(fInfo->Type.c_str(), len, 1, outs); //outs->Write(fInfo->Type.c_str(), len);
-            //xrefs
+            fwrite(&len, sizeof(len), 1, outs);
+            fwrite(AnsiString(fInfo->Type).c_str(), len, 1, outs);
+            // XRefs
             if (fInfo->xrefs && fInfo->xrefs->Count)
                 xnum = fInfo->xrefs->Count;
             else
@@ -829,21 +828,15 @@ void __fastcall InfoRec::Save(FILE *outs) {
             fwrite(&recM->address, sizeof(recM->address), 1, outs);
             len = recM->name.Length();
             if (len > MaxBufLen) MaxBufLen = len;
-            fwrite(&len, sizeof(len), 1, outs);       //outs->Write(&len, sizeof(len));
-            fwrite(recM->name.c_str(), len, 1, outs); //outs->Write(recM->name.c_str(), len);
+            fwrite(&len, sizeof(len), 1, outs);
+            fwrite(AnsiString(recM->name).c_str(), len, 1, outs);
         }
     } else if (kind >= ikRefine && kind <= ikFunc) {
-        // flags
         fwrite(&procInfo->flags, sizeof(procInfo->flags), 1, outs);
-        // bpBase
         fwrite(&procInfo->bpBase, sizeof(procInfo->bpBase), 1, outs);
-        // retBytes
         fwrite(&procInfo->retBytes, sizeof(procInfo->retBytes), 1, outs);
-        // procSize
         fwrite(&procInfo->procSize, sizeof(procInfo->procSize), 1, outs);
-        // stackSize
         fwrite(&procInfo->stackSize, sizeof(procInfo->stackSize), 1, outs);
-        // args
         if (procInfo->args && procInfo->args->Count)
             num = procInfo->args->Count;
         else
@@ -851,24 +844,18 @@ void __fastcall InfoRec::Save(FILE *outs) {
         fwrite(&num, sizeof(num), 1, outs);
         for (m = 0; m < num; m++) {
             PARGINFO argInfo = (PARGINFO) procInfo->args->Items[m];
-            // Tag
             fwrite(&argInfo->Tag, sizeof(argInfo->Tag), 1, outs);
-            // Register
             fwrite(&argInfo->Register, sizeof(argInfo->Register), 1, outs);
-            // Ndx
             fwrite(&argInfo->Ndx, sizeof(argInfo->Ndx), 1, outs);
-            // Size
             fwrite(&argInfo->Size, sizeof(argInfo->Size), 1, outs);
-            // Name
             len = argInfo->Name.Length();
             if (len > MaxBufLen) MaxBufLen = len;
-            fwrite(&len, sizeof(len), 1, outs);          //outs->Write(&len, sizeof(len));
-            fwrite(argInfo->Name.c_str(), len, 1, outs); //outs->Write(argInfo->Name.c_str(), len);
-            //TypeDef
+            fwrite(&len, sizeof(len), 1, outs);
+            fwrite(AnsiString(argInfo->Name).c_str(), len, 1, outs);
             len = argInfo->TypeDef.Length();
             if (len > MaxBufLen) MaxBufLen = len;
-            fwrite(&len, sizeof(len), 1, outs);             //outs->Write(&len, sizeof(len));
-            fwrite(argInfo->TypeDef.c_str(), len, 1, outs); //outs->Write(argInfo->TypeDef.c_str(), len);
+            fwrite(&len, sizeof(len), 1, outs);
+            fwrite(AnsiString(argInfo->TypeDef).c_str(), len, 1, outs);
         }
         // Locals
         if (procInfo->locals && procInfo->locals->Count)
@@ -878,20 +865,17 @@ void __fastcall InfoRec::Save(FILE *outs) {
         fwrite(&num, sizeof(num), 1, outs);
         for (m = 0; m < num; m++) {
             PLOCALINFO locInfo = (PLOCALINFO) procInfo->locals->Items[m];
-            // Ofs
             fwrite(&locInfo->Ofs, sizeof(locInfo->Ofs), 1, outs);
-            // Size
             fwrite(&locInfo->Size, sizeof(locInfo->Size), 1, outs);
-            // Name
             len = locInfo->Name.Length();
             if (len > MaxBufLen) MaxBufLen = len;
-            fwrite(&len, sizeof(len), 1, outs);          //outs->Write(&len, sizeof(len));
-            fwrite(locInfo->Name.c_str(), len, 1, outs); //outs->Write(locInfo->Name.c_str(), len);
-            //TypeDef
+            fwrite(&len, sizeof(len), 1, outs);
+            fwrite(AnsiString(locInfo->Name).c_str(), len, 1, outs);
+            // TypeDef
             len = locInfo->TypeDef.Length();
             if (len > MaxBufLen) MaxBufLen = len;
-            fwrite(&len, sizeof(len), 1, outs);             //outs->Write(&len, sizeof(len));
-            fwrite(locInfo->TypeDef.c_str(), len, 1, outs); //outs->Write(locInfo->TypeDef.c_str(), len);
+            fwrite(&len, sizeof(len), 1, outs);
+            fwrite(AnsiString(locInfo->TypeDef).c_str(), len, 1, outs);
         }
     }
 }
