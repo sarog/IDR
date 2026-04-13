@@ -10251,7 +10251,7 @@ void __fastcall TFMain_11011981::OutputLine(FILE *OutF, BYTE flags, DWORD Adr, S
     else
     	fprintf(OutF, "        ");
     */
-    fprintf(OutF, "%08lX    %s\n", Adr, Content.c_str());
+    fprintf(OutF, "%08lX    %s\n", Adr, AnsiString(Content).c_str());
 }
 
 //---------------------------------------------------------------------------
