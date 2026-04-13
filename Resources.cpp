@@ -1137,10 +1137,10 @@ void __fastcall IdrDfmForm::miPopupClick(TObject *Sender) {
 void __fastcall IdrDfmForm::SetupControlHint(String FormName, TControl *Control, String InitHint) {
     for (int n = 0; n < ResInfo->FormList->Count; n++) {
         TDfm *dfm = reinterpret_cast<TDfm *>(ResInfo->FormList->Items[n]);
-        //????? ?????, ??????? ??????????? control
+        // Нашли форму, которой принадлежит control
         if (SameText(dfm->Name, FormName)) {
             String hint = InitHint;
-            //???? ??????
+            // Сама форма?
             if (SameText(dfm->Name, Control->Name)) {
                 if (hint != "") hint += "\n";
                 hint += dfm->Name + ":" + dfm->ClassName;
@@ -1156,7 +1156,7 @@ void __fastcall IdrDfmForm::SetupControlHint(String FormName, TControl *Control,
             } else {
                 for (int m = 0; m < dfm->Components->Count; m++) {
                     PComponentInfo cInfo = reinterpret_cast<PComponentInfo>(dfm->Components->Items[m]);
-                    //????? ??????????, ??????? ??????????? control
+                    // Нашли компоненту, которой принадлежит control
                     if (SameText(cInfo->Name, Control->Name)) {
                         if (hint != "") hint += "\n";
                         hint += cInfo->Name + ":" + cInfo->ClassName;
@@ -1187,7 +1187,7 @@ void __fastcall IdrDfmForm::SetupMenuItem(TMenuItem *mi, String searchName) {
         //as: I dont like this, maybe put TDfm* into IdrDfmForm?
         TDfm *dfm = reinterpret_cast<TDfm *>(ResInfo->FormList->Items[n]);
 
-        //????? ?????, ??????? ??????????? control
+        // Нашли форму, которой принадлежит control
         if (SameText(dfm->Name, searchName)) {
             curDfm = dfm;
             formInherited = dfm->Flags & FF_INHERITED;
@@ -1195,7 +1195,7 @@ void __fastcall IdrDfmForm::SetupMenuItem(TMenuItem *mi, String searchName) {
             for (int m = 0; m < dfm->Components->Count; m++) {
                 PComponentInfo cInfo = reinterpret_cast<PComponentInfo>(dfm->Components->Items[m]);
 
-                //????? ??????????, ??????? ??????????? mi
+                // Нашли компоненту, которой принадлежит mi
                 if (SameText(cInfo->Name, mi->Name)) {
                     DWORD classAdr = GetClassAdr(dfm->ClassName);
                     PInfoRec recN = (IsValidImageAdr(classAdr)) ? Infos[Adr2Pos(classAdr)] : 0;
@@ -1208,7 +1208,7 @@ void __fastcall IdrDfmForm::SetupMenuItem(TMenuItem *mi, String searchName) {
                         PMethodRec recM;
                         if (SameText(eInfo->EventName, "OnClick")) {
                             methodName = dfm->ClassName + "." + eInfo->ProcName;
-                            //???? ????? ???????????????? ??????
+                            // Ищем адрес соответствующего метода
                             recM = FMain_11011981->GetMethodInfo(recN, methodName);
                             mi->Tag = (recM) ? recM->address : 0;
                             mi->OnClick = miPopupClick;
@@ -1217,11 +1217,11 @@ void __fastcall IdrDfmForm::SetupMenuItem(TMenuItem *mi, String searchName) {
                         }
                         //Action
                         if (SameText(eInfo->EventName, "Action")) {
-                            //???? ?????????? ? ?????? eInfo->ProcName
+                            // Ищем компоненту с именем eInfo->ProcName
                             for (int r = 0; r < dfm->Components->Count; r++) {
                                 PComponentInfo cInfo1 = reinterpret_cast<PComponentInfo>(dfm->Components->Items[r]);
                                 if (SameText(cInfo1->Name, eInfo->ProcName)) {
-                                    //???? ??????? OnExecute
+                                    // Ищем событие OnExecute
                                     TList *ev1 = cInfo1->Events;
                                     for (int i = 0; i < ev1->Count; i++) {
                                         PEventInfo eInfo1 = reinterpret_cast<PEventInfo>(ev1->Items[i]);
