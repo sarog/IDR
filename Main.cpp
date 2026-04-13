@@ -7976,13 +7976,13 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
         memset(segname, 0, 9);
         memmove(segname, SectionHeaders[i].Name, 8);
         segInfo->Name = String(segname);
-        SegmentList->Add((void *) segInfo);
+        SegmentList->Add(static_cast<void *>(segInfo));
     }
     //DataEnd = TotalSize;
 
     //Load Image into memory
     Image = new BYTE[TotalSize];
-    memset((void *) Image, 0, TotalSize);
+    memset(static_cast<void *>(Image), 0, TotalSize);
     int num;
     BYTE *p = Image;
     for (i = 0; i < SectionsNum; i++) {
@@ -8118,7 +8118,7 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
                 WORD dw = *reinterpret_cast<WORD *>(Image + Adr2Pos(ExpFuncOrdPos + ImageBase));
                 recE->address = *reinterpret_cast<DWORD *>(Image + Adr2Pos(ExpFuncAdrPos + 4 * dw + ImageBase)) + ImageBase;
                 recE->ord = dw + ExportDescriptor.Base;
-                ExpFuncList->Add((void *) recE);
+                ExpFuncList->Add(static_cast<void *>(recE));
 
                 ExpFuncNamPos += 4;
                 ExpFuncOrdPos += 2;
@@ -12591,7 +12591,7 @@ void __fastcall TFMain_11011981::OutputForwardDeclarationsOfKind(FILE *hF, BYTE 
     String str, RTTIName;
 
     for (n = 0; n < OwnTypeList->Count; n++) {
-        recT = (PTypeRec) OwnTypeList->Items[n];
+        recT = static_cast<PTypeRec>(OwnTypeList->Items[n]);
         if (recT->kind == kind) {
             adr = recT->adr;
             RTTIName = recT->name;
@@ -12772,7 +12772,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
     }
 
     for (int n = 0; n < UnitsNum; n++) {
-        recU = (PUnitRec) Units->Items[n];
+        recU = static_cast<PUnitRec>(Units->Items[n]);
         if (recU->trivial) continue;
         unitName = GetUnitName(recU);
         fprintf(hF, "//%s\n", unitName.c_str());
@@ -12878,7 +12878,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                     //Fill VMT_PROCS list
                     vmtProcs = new TList;
                     for (m = 0, id = 0; m < virtNum; m++) {
-                        recM = (PMethodRec) virtList->Items[m];
+                        recM = static_cast<PMethodRec>(virtList->Items[m]);
                         if (recM->id >= 0) {
                             vmtProc = GetProcFromVmtList(vmtProcs, recM->address);
                             if (!vmtProc) {
@@ -12886,7 +12886,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                                 vmtProc->Adr = recM->address;
                                 vmtProc->CurIdx = 0;
                                 vmtProc->Multiple = 0;
-                                vmtProcs->Add((void *) vmtProc);
+                                vmtProcs->Add(static_cast<void *>(vmtProc));
                             } else {
                                 vmtProc->Multiple = 1;
                             }
@@ -12894,7 +12894,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                     }
                     //Output function prorotype declarations
                     for (m = 0, id = 0; m < virtNum; m++) {
-                        recM = (PMethodRec) virtList->Items[m];
+                        recM = static_cast<PMethodRec>(virtList->Items[m]);
                         if (recM->id >= 0) {
                             fprintf(hF, "typedef ");
                             recN = GetInfoRec(recM->address);
@@ -12912,7 +12912,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                     fprintf(hF, "struct %s_vmt\n", RTTIName.c_str());
                     fprintf(hF, "{\n");
                     for (m = 0, id = 0; m < virtNum; m++) {
-                        recM = (PMethodRec) virtList->Items[m];
+                        recM = static_cast<PMethodRec>(virtList->Items[m]);
                         if (recM->id >= 0) {
                             name = recM->name;
                             recN = GetInfoRec(recM->address);

@@ -304,7 +304,7 @@ template<class T>
 void CleanupList(TList *list) {
     if (list) {
         for (int i = 0; i < list->Count; ++i) {
-            T *item = (T *) list->Items[i];
+            T *item = static_cast<T *>(list->Items[i]);
             delete item;
         }
 
