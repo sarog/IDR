@@ -635,7 +635,7 @@ bool __fastcall InfoRec::SameName(String AValue) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall InfoRec::AddXref(char Type, DWORD Adr, int Offset) {
+void __fastcall InfoRec::AddXref(const char Type, DWORD Adr, int Offset) {
     PXrefRec recX;
 
     if (!xrefs) xrefs = new TList;
@@ -715,9 +715,189 @@ void __fastcall InfoRec::ScanUpItemAndAddRef(int fromPos, DWORD itemAdr, char re
 }
 
 //---------------------------------------------------------------------------
-void __fastcall InfoRec::Save(FILE *outs)
-//void __fastcall InfoRec::Save(TStream* outs)
-{
+/**
+ * Save record information to project file.
+ * @param outs Output file
+ */
+void __fastcall InfoRec::Save(FILE *outs) {
+    int m, xm, num, xnum, len;
+
+    // kbIdx
+    fwrite(&kbIdx, sizeof(kbIdx), 1, outs);
+    // Name
+    len = name.Length();
+    if (len > MaxBufLen) MaxBufLen = len;
+    fwrite(&len, sizeof(len), 1, outs); //outs->Write(&len, sizeof(len));
+    fwrite(name.c_str(), len, 1, outs); //outs->Write(name.c_str(), len);
+    //type
+    len = type.Length();
+    if (len > MaxBufLen) MaxBufLen = len;
+    fwrite(&len, sizeof(len), 1, outs); //outs->Write(&len, sizeof(len));
+    fwrite(type.c_str(), len, 1, outs); //outs->Write(type.c_str(), len);
+    //picode
+    fwrite(&picode, sizeof(picode), 1, outs); //outs->Write(&picode, sizeof(picode));
+    if (picode) {
+        // Op
+        fwrite(&picode->Op, sizeof(picode->Op), 1, outs);
+        // Ofs
+        if (picode->Op == OP_CALL)
+            fwrite(&picode->Ofs.Address, sizeof(picode->Ofs.Address), 1, outs);
+        else
+            fwrite(&picode->Ofs.Offset, sizeof(picode->Ofs.Offset), 1, outs);
+        // Name
+        len = picode->Name.Length();
+        if (len > MaxBufLen) MaxBufLen = len;
+        fwrite(&len, sizeof(len), 1, outs);         //outs->Write(&len, sizeof(len));
+        fwrite(picode->Name.c_str(), len, 1, outs); //outs->Write(picode->Name.c_str(), len);
+    }
+    // XRefs
+    if (xrefs && xrefs->Count)
+        num = xrefs->Count;
+    else
+        num = 0;
+    fwrite(&num, sizeof(num), 1, outs);
+    for (m = 0; m < num; m++) {
+        PXrefRec recX = (PXrefRec) xrefs->Items[m];
+        fwrite(&recX->type, sizeof(recX->type), 1, outs);
+        fwrite(&recX->adr, sizeof(recX->adr), 1, outs);
+        fwrite(&recX->offset, sizeof(recX->offset), 1, outs);
+    }
+    if (kind == ikResString) {
+        // Value
+        len = rsInfo->value.Length();
+        if (len > MaxBufLen) MaxBufLen = len;
+        fwrite(&len, sizeof(len), 1, outs);
+        fwrite(AnsiString(rsInfo->value).c_str(), len, 1, outs);
+    } else if (kind == ikVMT) {
+        // Interfaces
+        if (vmtInfo->interfaces && vmtInfo->interfaces->Count)
+            num = vmtInfo->interfaces->Count;
+        else
+            num = 0;
+        fwrite(&num, sizeof(num), 1, outs);
+        for (m = 0; m < num; m++) {
+            len = vmtInfo->interfaces->Strings[m].Length();
+            if (len > MaxBufLen) MaxBufLen = len;
+            fwrite(&len, sizeof(len), 1, outs); //outs->Write(&len, sizeof(len));
+            fwrite(vmtInfo->interfaces->Strings[m].c_str(), len, 1, outs);
+            //outs->Write(vmtInfo->interfaces->Strings[m].c_str(), len);
+        }
+        // Fields
+        if (vmtInfo->fields && vmtInfo->fields->Count)
+            num = vmtInfo->fields->Count;
+        else
+            num = 0;
+        fwrite(&num, sizeof(num), 1, outs);
+        for (m = 0; m < num; m++) {
+            PFIELDINFO fInfo = (PFIELDINFO) vmtInfo->fields->Items[m];
+            fwrite(&fInfo->Scope, sizeof(fInfo->Scope), 1, outs);
+            fwrite(&fInfo->Offset, sizeof(fInfo->Offset), 1, outs);
+            fwrite(&fInfo->Case, sizeof(fInfo->Case), 1, outs);
+            len = fInfo->Name.Length();
+            if (len > MaxBufLen) MaxBufLen = len;
+            fwrite(&len, sizeof(len), 1, outs);        //outs->Write(&len, sizeof(len));
+            fwrite(fInfo->Name.c_str(), len, 1, outs); //outs->Write(fInfo->Name.c_str(), len);
+            //Type
+            len = fInfo->Type.Length();
+            if (len > MaxBufLen) MaxBufLen = len;
+            fwrite(&len, sizeof(len), 1, outs);        //outs->Write(&len, sizeof(len));
+            fwrite(fInfo->Type.c_str(), len, 1, outs); //outs->Write(fInfo->Type.c_str(), len);
+            //xrefs
+            if (fInfo->xrefs && fInfo->xrefs->Count)
+                xnum = fInfo->xrefs->Count;
+            else
+                xnum = 0;
+            fwrite(&xnum, sizeof(xnum), 1, outs);
+            for (xm = 0; xm < xnum; xm++) {
+                PXrefRec recX = (PXrefRec) fInfo->xrefs->Items[xm];
+                fwrite(&recX->type, sizeof(recX->type), 1, outs);
+                fwrite(&recX->adr, sizeof(recX->adr), 1, outs);
+                fwrite(&recX->offset, sizeof(recX->offset), 1, outs);
+            }
+        }
+        // Methods
+        if (vmtInfo->methods && vmtInfo->methods->Count)
+            num = vmtInfo->methods->Count;
+        else
+            num = 0;
+        fwrite(&num, sizeof(num), 1, outs);
+        for (m = 0; m < num; m++) {
+            PMethodRec recM = (PMethodRec) vmtInfo->methods->Items[m];
+            fwrite(&recM->abstract, sizeof(recM->abstract), 1, outs);
+            fwrite(&recM->kind, sizeof(recM->kind), 1, outs);
+            fwrite(&recM->id, sizeof(recM->id), 1, outs);
+            fwrite(&recM->address, sizeof(recM->address), 1, outs);
+            len = recM->name.Length();
+            if (len > MaxBufLen) MaxBufLen = len;
+            fwrite(&len, sizeof(len), 1, outs);       //outs->Write(&len, sizeof(len));
+            fwrite(recM->name.c_str(), len, 1, outs); //outs->Write(recM->name.c_str(), len);
+        }
+    } else if (kind >= ikRefine && kind <= ikFunc) {
+        // flags
+        fwrite(&procInfo->flags, sizeof(procInfo->flags), 1, outs);
+        // bpBase
+        fwrite(&procInfo->bpBase, sizeof(procInfo->bpBase), 1, outs);
+        // retBytes
+        fwrite(&procInfo->retBytes, sizeof(procInfo->retBytes), 1, outs);
+        // procSize
+        fwrite(&procInfo->procSize, sizeof(procInfo->procSize), 1, outs);
+        // stackSize
+        fwrite(&procInfo->stackSize, sizeof(procInfo->stackSize), 1, outs);
+        // args
+        if (procInfo->args && procInfo->args->Count)
+            num = procInfo->args->Count;
+        else
+            num = 0;
+        fwrite(&num, sizeof(num), 1, outs);
+        for (m = 0; m < num; m++) {
+            PARGINFO argInfo = (PARGINFO) procInfo->args->Items[m];
+            // Tag
+            fwrite(&argInfo->Tag, sizeof(argInfo->Tag), 1, outs);
+            // Register
+            fwrite(&argInfo->Register, sizeof(argInfo->Register), 1, outs);
+            // Ndx
+            fwrite(&argInfo->Ndx, sizeof(argInfo->Ndx), 1, outs);
+            // Size
+            fwrite(&argInfo->Size, sizeof(argInfo->Size), 1, outs);
+            // Name
+            len = argInfo->Name.Length();
+            if (len > MaxBufLen) MaxBufLen = len;
+            fwrite(&len, sizeof(len), 1, outs);          //outs->Write(&len, sizeof(len));
+            fwrite(argInfo->Name.c_str(), len, 1, outs); //outs->Write(argInfo->Name.c_str(), len);
+            //TypeDef
+            len = argInfo->TypeDef.Length();
+            if (len > MaxBufLen) MaxBufLen = len;
+            fwrite(&len, sizeof(len), 1, outs);             //outs->Write(&len, sizeof(len));
+            fwrite(argInfo->TypeDef.c_str(), len, 1, outs); //outs->Write(argInfo->TypeDef.c_str(), len);
+        }
+        // Locals
+        if (procInfo->locals && procInfo->locals->Count)
+            num = procInfo->locals->Count;
+        else
+            num = 0;
+        fwrite(&num, sizeof(num), 1, outs);
+        for (m = 0; m < num; m++) {
+            PLOCALINFO locInfo = (PLOCALINFO) procInfo->locals->Items[m];
+            // Ofs
+            fwrite(&locInfo->Ofs, sizeof(locInfo->Ofs), 1, outs);
+            // Size
+            fwrite(&locInfo->Size, sizeof(locInfo->Size), 1, outs);
+            // Name
+            len = locInfo->Name.Length();
+            if (len > MaxBufLen) MaxBufLen = len;
+            fwrite(&len, sizeof(len), 1, outs);          //outs->Write(&len, sizeof(len));
+            fwrite(locInfo->Name.c_str(), len, 1, outs); //outs->Write(locInfo->Name.c_str(), len);
+            //TypeDef
+            len = locInfo->TypeDef.Length();
+            if (len > MaxBufLen) MaxBufLen = len;
+            fwrite(&len, sizeof(len), 1, outs);             //outs->Write(&len, sizeof(len));
+            fwrite(locInfo->TypeDef.c_str(), len, 1, outs); //outs->Write(locInfo->TypeDef.c_str(), len);
+        }
+    }
+}
+
+/*
+void __fastcall InfoRec::Save(TStream* outs) {
     int m, xm, num, xnum, len;
 
     //kbIdx
@@ -920,52 +1100,208 @@ void __fastcall InfoRec::Save(FILE *outs)
         }
     }
 }
+*/
 
 //---------------------------------------------------------------------------
-void __fastcall InfoRec::Load(FILE *ins, char *buf) //void __fastcall InfoRec::Load(TStream* ins, char* buf)
+/**
+ * Load record information from a file.
+ * @param ins Input file
+ * @param buf
+ */
+void __fastcall InfoRec::Load(FILE *ins, char *buf) {
+    int m, xm, num, xnum, len, xrefAdr, pxrefAdr;
+    XrefRec recX1;
+
+    // kbIdx
+    fread(&kbIdx, sizeof(kbIdx), 1, ins);
+    // Name
+    fread(&len, sizeof(len), 1, ins);
+    fread(buf, len, 1, ins);
+    name = String(buf, len);
+    // Type
+    fread(&len, sizeof(len), 1, ins);
+    fread(buf, len, 1, ins);
+    type = String(buf, len);
+    // picode
+    fread(&picode, sizeof(picode), 1, ins);
+    if (picode) {
+        picode = new PICODE;
+        // Op
+        fread(&picode->Op, sizeof(picode->Op), 1, ins);
+        // Ofs
+        if (picode->Op == OP_CALL)
+            fread(&picode->Ofs.Address, sizeof(picode->Ofs.Address), 1, ins);
+        else
+            fread(&picode->Ofs.Offset, sizeof(picode->Ofs.Offset), 1, ins);
+        // Name
+        fread(&len, sizeof(len), 1, ins);
+        fread(buf, len, 1, ins);
+        picode->Name = String(buf, len);
+    }
+    // XRefs
+    fread(&num, sizeof(num), 1, ins);
+    if (num) xrefs = new TList;
+    pxrefAdr = 0;
+    for (m = 0; m < num; m++) {
+        fread(&recX1.type, sizeof(recX1.type), 1, ins);
+        fread(&recX1.adr, sizeof(recX1.adr), 1, ins);
+        fread(&recX1.offset, sizeof(recX1.offset), 1, ins);
+        xrefAdr = recX1.adr + recX1.offset;
+
+        // Clear duplicates
+        if (!pxrefAdr || pxrefAdr != xrefAdr) {
+            PXrefRec recX = new XrefRec;
+            recX->type = recX1.type;
+            recX->adr = recX1.adr;
+            recX->offset = recX1.offset;
+            xrefs->Add(static_cast<void *>(recX));
+            pxrefAdr = xrefAdr;
+        }
+    }
+    if (kind == ikResString) {
+        // Value
+        fread(&len, sizeof(len), 1, ins);
+        fread(buf, len, 1, ins);
+        rsInfo->value = String(buf, len);
+    } else if (kind == ikVMT) {
+        // Interfaces
+        fread(&num, sizeof(num), 1, ins);
+        if (num) vmtInfo->interfaces = new TStringList;
+        for (m = 0; m < num; m++) {
+            fread(&len, sizeof(len), 1, ins);
+            fread(buf, len, 1, ins);
+            vmtInfo->interfaces->Add(String(buf, len));
+        }
+        // Fields
+        fread(&num, sizeof(num), 1, ins);
+        if (num) vmtInfo->fields = new TList;
+        for (m = 0; m < num; m++) {
+            PFIELDINFO fInfo = new FIELDINFO;
+            fread(&fInfo->Scope, sizeof(fInfo->Scope), 1, ins);
+            fread(&fInfo->Offset, sizeof(fInfo->Offset), 1, ins);
+            fread(&fInfo->Case, sizeof(fInfo->Case), 1, ins);
+            fread(&len, sizeof(len), 1, ins);
+            fread(buf, len, 1, ins);
+            fInfo->Name = String(buf, len);
+            fread(&len, sizeof(len), 1, ins);
+            fread(buf, len, 1, ins);
+            fInfo->Type = String(buf, len);
+            // XRefs
+            fread(&xnum, sizeof(xnum), 1, ins);
+            if (xnum)
+                fInfo->xrefs = new TList;
+            else
+                fInfo->xrefs = 0;
+            for (xm = 0; xm < xnum; xm++) {
+                PXrefRec recX = new XrefRec;
+                fread(&recX->type, sizeof(recX->type), 1, ins);
+                fread(&recX->adr, sizeof(recX->adr), 1, ins);
+                fread(&recX->offset, sizeof(recX->offset), 1, ins);
+                fInfo->xrefs->Add(static_cast<void *>(recX));
+            }
+            vmtInfo->fields->Add(static_cast<void *>(fInfo));
+        }
+        // Methods
+        fread(&num, sizeof(num), 1, ins);
+        if (num) vmtInfo->methods = new TList;
+        for (m = 0; m < num; m++) {
+            PMethodRec recM = new MethodRec;
+            fread(&recM->abstract, sizeof(recM->abstract), 1, ins);
+            fread(&recM->kind, sizeof(recM->kind), 1, ins);
+            fread(&recM->id, sizeof(recM->id), 1, ins);
+            fread(&recM->address, sizeof(recM->address), 1, ins);
+            fread(&len, sizeof(len), 1, ins);
+            fread(buf, len, 1, ins);
+            recM->name = String(buf, len);
+            vmtInfo->methods->Add(static_cast<void *>(recM));
+        }
+    } else if (kind >= ikRefine && kind <= ikFunc) {
+        fread(&procInfo->flags, sizeof(procInfo->flags), 1, ins);
+        fread(&procInfo->bpBase, sizeof(procInfo->bpBase), 1, ins);
+        fread(&procInfo->retBytes, sizeof(procInfo->retBytes), 1, ins);
+        fread(&procInfo->procSize, sizeof(procInfo->procSize), 1, ins);
+        fread(&procInfo->stackSize, sizeof(procInfo->stackSize), 1, ins);
+        fread(&num, sizeof(num), 1, ins);
+        if (num) procInfo->args = new TList;
+        for (m = 0; m < num; m++) {
+            PARGINFO argInfo = new ARGINFO;
+            fread(&argInfo->Tag, sizeof(argInfo->Tag), 1, ins);
+            fread(&argInfo->Register, sizeof(argInfo->Register), 1, ins);
+            fread(&argInfo->Ndx, sizeof(argInfo->Ndx), 1, ins);
+            fread(&argInfo->Size, sizeof(argInfo->Size), 1, ins);
+            // Name
+            fread(&len, sizeof(len), 1, ins);
+            fread(buf, len, 1, ins);
+            argInfo->Name = String(buf, len);
+            // TypeDef
+            fread(&len, sizeof(len), 1, ins);
+            fread(buf, len, 1, ins);
+            argInfo->TypeDef = TrimTypeName(String(buf, len));
+            procInfo->args->Add(static_cast<void *>(argInfo));
+        }
+        // Locals
+        fread(&num, sizeof(num), 1, ins);
+        if (num) procInfo->locals = new TList;
+        for (m = 0; m < num; m++) {
+            PLOCALINFO locInfo = new LOCALINFO;
+            fread(&locInfo->Ofs, sizeof(locInfo->Ofs), 1, ins);
+            fread(&locInfo->Size, sizeof(locInfo->Size), 1, ins);
+            // Name
+            fread(&len, sizeof(len), 1, ins);
+            fread(buf, len, 1, ins);
+            locInfo->Name = String(buf, len);
+            // TypeDef
+            fread(&len, sizeof(len), 1, ins);
+            fread(buf, len, 1, ins);
+            locInfo->TypeDef = TrimTypeName(String(buf, len));
+            procInfo->locals->Add(static_cast<void *>(locInfo));
+        }
+    }
+}
+
+/*
+void __fastcall InfoRec::Load(TStream* ins, char* buf)
 {
     int m, xm, num, xnum, len, xrefAdr, pxrefAdr;
     XrefRec recX1;
 
     //kbIdx
-    fread(&kbIdx, sizeof(kbIdx), 1, ins); //ins->Read(&kbIdx, sizeof(kbIdx));
+    ins->Read(&kbIdx, sizeof(kbIdx));
     //name
-    fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
-    fread(buf, len, 1, ins);          //ins->Read(buf, len);
+    ins->Read(&len, sizeof(len));
+    ins->Read(buf, len);
     name = String(buf, len);
     //type
-    fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
-    fread(buf, len, 1, ins);          //ins->Read(buf, len);
+    ins->Read(&len, sizeof(len));
+    ins->Read(buf, len);
     type = String(buf, len);
     //picode
-    fread(&picode, sizeof(picode), 1, ins); //ins->Read(&picode, sizeof(picode));
+    ins->Read(&picode, sizeof(picode));
     if (picode) {
         picode = new PICODE;
         //Op
-        fread(&picode->Op, sizeof(picode->Op), 1, ins); //ins->Read(&picode->Op, sizeof(picode->Op));
+        ins->Read(&picode->Op, sizeof(picode->Op));
         //Ofs
         if (picode->Op == OP_CALL)
-            fread(&picode->Ofs.Address, sizeof(picode->Ofs.Address), 1, ins);
-            //ins->Read(&picode->Ofs.Address, sizeof(picode->Ofs.Address));
+            ins->Read(&picode->Ofs.Address, sizeof(picode->Ofs.Address));
         else
-            fread(&picode->Ofs.Offset, sizeof(picode->Ofs.Offset), 1, ins);
-        //ins->Read(&picode->Ofs.Offset, sizeof(picode->Ofs.Offset));
+            ins->Read(&picode->Ofs.Offset, sizeof(picode->Ofs.Offset));
         //Name
-        fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
-        fread(buf, len, 1, ins);          //ins->Read(buf, len);
+        ins->Read(&len, sizeof(len));
+        ins->Read(buf, len);
         picode->Name = String(buf, len);
     }
     //xrefs
-    fread(&num, sizeof(num), 1, ins); //ins->Read(&num, sizeof(num));
+    ins->Read(&num, sizeof(num));
     if (num) xrefs = new TList;
     pxrefAdr = 0;
     for (m = 0; m < num; m++) {
         //type
-        fread(&recX1.type, sizeof(recX1.type), 1, ins); //ins->Read(&recX1.type, sizeof(recX1.type));
+        ins->Read(&recX1.type, sizeof(recX1.type));
         //adr
-        fread(&recX1.adr, sizeof(recX1.adr), 1, ins); //ins->Read(&recX1.adr, sizeof(recX1.adr));
+        ins->Read(&recX1.adr, sizeof(recX1.adr));
         //offset
-        fread(&recX1.offset, sizeof(recX1.offset), 1, ins); //ins->Read(&recX1.offset, sizeof(recX1.offset));
+        ins->Read(&recX1.offset, sizeof(recX1.offset));
         xrefAdr = recX1.adr + recX1.offset;
         if (!pxrefAdr || pxrefAdr != xrefAdr) //clear duplicates
         {
@@ -979,39 +1315,39 @@ void __fastcall InfoRec::Load(FILE *ins, char *buf) //void __fastcall InfoRec::L
     }
     if (kind == ikResString) {
         //value
-        fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
-        fread(buf, len, 1, ins);          //ins->Read(buf, len);
+        ins->Read(&len, sizeof(len));
+        ins->Read(buf, len);
         rsInfo->value = String(buf, len);
     } else if (kind == ikVMT) {
         //interfaces
-        fread(&num, sizeof(num), 1, ins); //ins->Read(&num, sizeof(num));
+        ins->Read(&num, sizeof(num));
         if (num) vmtInfo->interfaces = new TStringList;
         for (m = 0; m < num; m++) {
-            fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
-            fread(buf, len, 1, ins);          //ins->Read(buf, len);
+            ins->Read(&len, sizeof(len));
+            ins->Read(buf, len);
             vmtInfo->interfaces->Add(String(buf, len));
         }
         //fields
-        fread(&num, sizeof(num), 1, ins); //ins->Read(&num, sizeof(num));
+        ins->Read(&num, sizeof(num));
         if (num) vmtInfo->fields = new TList;
         for (m = 0; m < num; m++) {
             PFIELDINFO fInfo = new FIELDINFO;
             //Scope
-            fread(&fInfo->Scope, sizeof(fInfo->Scope), 1, ins); //ins->Read(&fInfo->Scope, sizeof(fInfo->Scope));
+            ins->Read(&fInfo->Scope, sizeof(fInfo->Scope));
             //Offset
-            fread(&fInfo->Offset, sizeof(fInfo->Offset), 1, ins); //ins->Read(&fInfo->Offset, sizeof(fInfo->Offset));
+            ins->Read(&fInfo->Offset, sizeof(fInfo->Offset));
             //Case
-            fread(&fInfo->Case, sizeof(fInfo->Case), 1, ins); //ins->Read(&fInfo->Case, sizeof(fInfo->Case));
+            ins->Read(&fInfo->Case, sizeof(fInfo->Case));
             //Name
-            fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
-            fread(buf, len, 1, ins);          //ins->Read(buf, len);
+            ins->Read(&len, sizeof(len));
+            ins->Read(buf, len);
             fInfo->Name = String(buf, len);
             //Type
-            fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
-            fread(buf, len, 1, ins);          //ins->Read(buf, len);
+            ins->Read(&len, sizeof(len));
+            ins->Read(buf, len);
             fInfo->Type = String(buf, len);
             //xrefs
-            fread(&xnum, sizeof(xnum), 1, ins); //ins->Read(&xnum, sizeof(xnum));
+            ins->Read(&xnum, sizeof(xnum));
             if (xnum)
                 fInfo->xrefs = new TList;
             else
@@ -1019,91 +1355,85 @@ void __fastcall InfoRec::Load(FILE *ins, char *buf) //void __fastcall InfoRec::L
             for (xm = 0; xm < xnum; xm++) {
                 PXrefRec recX = new XrefRec;
                 //type
-                fread(&recX->type, sizeof(recX->type), 1, ins); //ins->Read(&recX->type, sizeof(recX->type));
+                ins->Read(&recX->type, sizeof(recX->type));
                 //adr
-                fread(&recX->adr, sizeof(recX->adr), 1, ins); //ins->Read(&recX->adr, sizeof(recX->adr));
+                ins->Read(&recX->adr, sizeof(recX->adr));
                 //offset
-                fread(&recX->offset, sizeof(recX->offset), 1, ins); //ins->Read(&recX->offset, sizeof(recX->offset));
+                ins->Read(&recX->offset, sizeof(recX->offset));
                 fInfo->xrefs->Add(static_cast<void *>(recX));
             }
             vmtInfo->fields->Add(static_cast<void *>(fInfo));
         }
         //methods
-        fread(&num, sizeof(num), 1, ins); //ins->Read(&num, sizeof(num));
+        ins->Read(&num, sizeof(num));
         if (num) vmtInfo->methods = new TList;
         for (m = 0; m < num; m++) {
             PMethodRec recM = new MethodRec;
-            fread(&recM->abstract, sizeof(recM->abstract), 1, ins);
-            //ins->Read(&recM->abstract, sizeof(recM->abstract));
-            fread(&recM->kind, sizeof(recM->kind), 1, ins);       //ins->Read(&recM->kind, sizeof(recM->kind));
-            fread(&recM->id, sizeof(recM->id), 1, ins);           //ins->Read(&recM->id, sizeof(recM->id));
-            fread(&recM->address, sizeof(recM->address), 1, ins); //ins->Read(&recM->address, sizeof(recM->address));
-            fread(&len, sizeof(len), 1, ins);                     //ins->Read(&len, sizeof(len));
-            fread(buf, len, 1, ins);                              //ins->Read(buf, len);
+            ins->Read(&recM->abstract, sizeof(recM->abstract));
+            ins->Read(&recM->kind, sizeof(recM->kind));
+            ins->Read(&recM->id, sizeof(recM->id));
+            ins->Read(&recM->address, sizeof(recM->address));
+            ins->Read(&len, sizeof(len));
+            ins->Read(buf, len);
             recM->name = String(buf, len);
             vmtInfo->methods->Add(static_cast<void *>(recM));
         }
     } else if (kind >= ikRefine && kind <= ikFunc) {
         //flags
-        fread(&procInfo->flags, sizeof(procInfo->flags), 1, ins);
-        //ins->Read(&procInfo->flags, sizeof(procInfo->flags));
+        ins->Read(&procInfo->flags, sizeof(procInfo->flags));
         //bpBase
-        fread(&procInfo->bpBase, sizeof(procInfo->bpBase), 1, ins);
-        //ins->Read(&procInfo->bpBase, sizeof(procInfo->bpBase));
+        ins->Read(&procInfo->bpBase, sizeof(procInfo->bpBase));
         //retBytes
-        fread(&procInfo->retBytes, sizeof(procInfo->retBytes), 1, ins);
-        //ins->Read(&procInfo->retBytes, sizeof(procInfo->retBytes));
+        ins->Read(&procInfo->retBytes, sizeof(procInfo->retBytes));
         //procSize
-        fread(&procInfo->procSize, sizeof(procInfo->procSize), 1, ins);
-        //ins->Read(&procInfo->procSize, sizeof(procInfo->procSize));
+        ins->Read(&procInfo->procSize, sizeof(procInfo->procSize));
         //stackSize
-        fread(&procInfo->stackSize, sizeof(procInfo->stackSize), 1, ins);
-        //ins->Read(&procInfo->stackSize, sizeof(procInfo->stackSize));
+        ins->Read(&procInfo->stackSize, sizeof(procInfo->stackSize));
         //args
-        fread(&num, sizeof(num), 1, ins); //ins->Read(&num, sizeof(num));
+        ins->Read(&num, sizeof(num));
         if (num) procInfo->args = new TList;
         for (m = 0; m < num; m++) {
             PARGINFO argInfo = new ARGINFO;
             //Tag
-            fread(&argInfo->Tag, sizeof(argInfo->Tag), 1, ins); //ins->Read(&argInfo->Tag, sizeof(argInfo->Tag));
+            ins->Read(&argInfo->Tag, sizeof(argInfo->Tag));
             //Register
-            fread(&argInfo->Register, sizeof(argInfo->Register), 1, ins);
-            //ins->Read(&argInfo->Register, sizeof(argInfo->Register));
+            ins->Read(&argInfo->Register, sizeof(argInfo->Register));
             //Ndx
-            fread(&argInfo->Ndx, sizeof(argInfo->Ndx), 1, ins); //ins->Read(&argInfo->Ndx, sizeof(argInfo->Ndx));
+            ins->Read(&argInfo->Ndx, sizeof(argInfo->Ndx));
             //Size
-            fread(&argInfo->Size, sizeof(argInfo->Size), 1, ins); //ins->Read(&argInfo->Size, sizeof(argInfo->Size));
+            ins->Read(&argInfo->Size, sizeof(argInfo->Size));
             //Name
-            fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
-            fread(buf, len, 1, ins);          //ins->Read(buf, len);
+            ins->Read(&len, sizeof(len));
+            ins->Read(buf, len);
             argInfo->Name = String(buf, len);
             //TypeDef
-            fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
-            fread(buf, len, 1, ins);          //ins->Read(buf, len);
+            ins->Read(&len, sizeof(len));
+            ins->Read(buf, len);
             argInfo->TypeDef = TrimTypeName(String(buf, len));
             procInfo->args->Add(static_cast<void *>(argInfo));
         }
         //locals
-        fread(&num, sizeof(num), 1, ins); //ins->Read(&num, sizeof(num));
+        ins->Read(&num, sizeof(num));
         if (num) procInfo->locals = new TList;
         for (m = 0; m < num; m++) {
             PLOCALINFO locInfo = new LOCALINFO;
             //Ofs
-            fread(&locInfo->Ofs, sizeof(locInfo->Ofs), 1, ins); //ins->Read(&locInfo->Ofs, sizeof(locInfo->Ofs));
+            ins->Read(&locInfo->Ofs, sizeof(locInfo->Ofs));
             //Size
-            fread(&locInfo->Size, sizeof(locInfo->Size), 1, ins); //ins->Read(&locInfo->Size, sizeof(locInfo->Size));
+            ins->Read(&locInfo->Size, sizeof(locInfo->Size));
             //Name
-            fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
-            fread(buf, len, 1, ins);          //ins->Read(buf, len);
+            ins->Read(&len, sizeof(len));
+            ins->Read(buf, len);
             locInfo->Name = String(buf, len);
             //TypeDef
-            fread(&len, sizeof(len), 1, ins); //ins->Read(&len, sizeof(len));
-            fread(buf, len, 1, ins);          //ins->Read(buf, len);
+            ins->Read(&len, sizeof(len));
+            ins->Read(buf, len);
             locInfo->TypeDef = TrimTypeName(String(buf, len));
             procInfo->locals->Add(static_cast<void *>(locInfo));
         }
     }
 }
+*/
 
 //---------------------------------------------------------------------------
 /*

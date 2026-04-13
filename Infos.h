@@ -132,7 +132,7 @@ public:
     void __fastcall SetName(String AValue);
     void __fastcall ConcatName(String AValue);
     bool __fastcall SameName(String AValue);
-    void __fastcall AddXref(char Type, DWORD Adr, int Offset);
+    void __fastcall AddXref(const char Type, DWORD Adr, int Offset);
     void __fastcall DeleteXref(DWORD Adr);
     void __fastcall ScanUpItemAndAddRef(int fromPos, DWORD itemAdr, char refType, DWORD refAdr);
     virtual void __fastcall Save(FILE *outs);           //virtual void __fastcall Save(TStream* outs);
