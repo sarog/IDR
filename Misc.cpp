@@ -107,7 +107,7 @@ void __fastcall ScaleForm(TForm *AForm) {
 int __fastcall Adr2Pos(DWORD adr) {
     int ofs = 0;
     for (int n = 0; n < SegmentList->Count; n++) {
-        PSegmentInfo segInfo = (PSegmentInfo) SegmentList->Items[n];
+        PSegmentInfo segInfo = static_cast<PSegmentInfo>(SegmentList->Items[n]);
         if (segInfo->Start <= adr && adr < segInfo->Start + segInfo->Size) {
             if (segInfo->Flags & 0x80000)
                 return -1;
@@ -124,7 +124,7 @@ DWORD __fastcall Pos2Adr(int Pos) {
     int fromPos = 0;
     int toPos = 0;
     for (int n = 0; n < SegmentList->Count; n++) {
-        PSegmentInfo segInfo = (PSegmentInfo) SegmentList->Items[n];
+        PSegmentInfo segInfo = static_cast<PSegmentInfo>(SegmentList->Items[n]);
         if (!(segInfo->Flags & 0x80000)) {
             fromPos = toPos;
             toPos += segInfo->Size;
@@ -153,32 +153,32 @@ String __fastcall GetDefaultProcName(DWORD adr) {
 
 //---------------------------------------------------------------------------
 String __fastcall Val2Str0(DWORD Val) {
-    return IntToHex((int) Val, 0);
+    return IntToHex(static_cast<int>(Val), 0);
 }
 
 //---------------------------------------------------------------------------
 String __fastcall Val2Str1(DWORD Val) {
-    return IntToHex((int) Val, 1);
+    return IntToHex(static_cast<int>(Val), 1);
 }
 
 //---------------------------------------------------------------------------
 String __fastcall Val2Str2(DWORD Val) {
-    return IntToHex((int) Val, 2);
+    return IntToHex(static_cast<int>(Val), 2);
 }
 
 //---------------------------------------------------------------------------
 String __fastcall Val2Str4(DWORD Val) {
-    return IntToHex((int) Val, 4);
+    return IntToHex(static_cast<int>(Val), 4);
 }
 
 //---------------------------------------------------------------------------
 String __fastcall Val2Str5(DWORD Val) {
-    return IntToHex((int) Val, 5);
+    return IntToHex(static_cast<int>(Val), 5);
 }
 
 //---------------------------------------------------------------------------
 String __fastcall Val2Str8(DWORD Val) {
-    return IntToHex((int) Val, 8);
+    return IntToHex(static_cast<int>(Val), 8);
 }
 
 //---------------------------------------------------------------------------
@@ -1250,7 +1250,7 @@ String __fastcall TransformString(char *str, int len) {
                 if (k) res += "'+";
             } else
                 res += "+";
-            res += "#" + String((int) c);
+            res += "#" + String(static_cast<int>(c));
             s = false;
         } else {
             if (s) {
@@ -1266,7 +1266,7 @@ String __fastcall TransformString(char *str, int len) {
         else if (c == 0x5C)
             res += "\\";
         else if (c > 13)
-            res += (char) c;
+            res += static_cast<char>(c);
     }
     if (s) res += "'";
     return res;
@@ -1447,7 +1447,7 @@ DWORD __fastcall GetOwnTypeAdr(String AName) {
 PTypeRec __fastcall GetOwnTypeByName(String AName) {
     if (AName == "") return 0;
     for (int m = 0; m < OwnTypeList->Count; m++) {
-        PTypeRec recT = (PTypeRec) OwnTypeList->Items[m];
+        PTypeRec recT = static_cast<PTypeRec>(OwnTypeList->Items[m]);
         if (SameText(recT->name, AName)) return recT;
     }
     return 0;

@@ -644,52 +644,52 @@ void __fastcall InfoRec::AddXref(const char Type, DWORD Adr, int Offset) {
         recX->type = Type;
         recX->adr = Adr;
         recX->offset = Offset;
-        xrefs->Add((void *) recX);
+        xrefs->Add(static_cast<void *>(recX));
         return;
     }
 
     int F = 0;
-    recX = (PXrefRec) xrefs->Items[F];
+    recX = static_cast<PXrefRec>(xrefs->Items[F]);
     if (Adr + Offset < recX->adr + recX->offset) {
         recX = new XrefRec;
         recX->type = Type;
         recX->adr = Adr;
         recX->offset = Offset;
-        xrefs->Insert(F, (void *) recX);
+        xrefs->Insert(F, static_cast<void *>(recX));
         return;
     }
     int L = xrefs->Count - 1;
-    recX = (PXrefRec) xrefs->Items[L];
+    recX = static_cast<PXrefRec>(xrefs->Items[L]);
     if (Adr + Offset > recX->adr + recX->offset) {
         recX = new XrefRec;
         recX->type = Type;
         recX->adr = Adr;
         recX->offset = Offset;
-        xrefs->Add((void *) recX);
+        xrefs->Add(static_cast<void *>(recX));
         return;
     }
     while (F < L) {
         int M = (F + L) / 2;
-        recX = (PXrefRec) xrefs->Items[M];
+        recX = static_cast<PXrefRec>(xrefs->Items[M]);
         if (Adr + Offset <= recX->adr + recX->offset)
             L = M;
         else
             F = M + 1;
     }
-    recX = (PXrefRec) xrefs->Items[L];
+    recX = static_cast<PXrefRec>(xrefs->Items[L]);
     if (recX->adr + recX->offset != Adr + Offset) {
         recX = new XrefRec;
         recX->type = Type;
         recX->adr = Adr;
         recX->offset = Offset;
-        xrefs->Insert(L, (void *) recX);
+        xrefs->Insert(L, static_cast<void *>(recX));
     }
 }
 
 //---------------------------------------------------------------------------
 void __fastcall InfoRec::DeleteXref(DWORD Adr) {
     for (int n = 0; n < xrefs->Count; n++) {
-        PXrefRec recX = (PXrefRec) xrefs->Items[n];
+        PXrefRec recX = static_cast<PXrefRec>(xrefs->Items[n]);
         if (Adr == recX->adr + recX->offset) {
             xrefs->Delete(n);
             break;
@@ -757,7 +757,7 @@ void __fastcall InfoRec::Save(FILE *outs) {
         num = 0;
     fwrite(&num, sizeof(num), 1, outs);
     for (m = 0; m < num; m++) {
-        PXrefRec recX = (PXrefRec) xrefs->Items[m];
+        PXrefRec recX = static_cast<PXrefRec>(xrefs->Items[m]);
         fwrite(&recX->type, sizeof(recX->type), 1, outs);
         fwrite(&recX->adr, sizeof(recX->adr), 1, outs);
         fwrite(&recX->offset, sizeof(recX->offset), 1, outs);
@@ -788,7 +788,7 @@ void __fastcall InfoRec::Save(FILE *outs) {
             num = 0;
         fwrite(&num, sizeof(num), 1, outs);
         for (m = 0; m < num; m++) {
-            PFIELDINFO fInfo = (PFIELDINFO) vmtInfo->fields->Items[m];
+            PFIELDINFO fInfo = static_cast<PFIELDINFO>(vmtInfo->fields->Items[m]);
             fwrite(&fInfo->Scope, sizeof(fInfo->Scope), 1, outs);
             fwrite(&fInfo->Offset, sizeof(fInfo->Offset), 1, outs);
             fwrite(&fInfo->Case, sizeof(fInfo->Case), 1, outs);
@@ -808,7 +808,7 @@ void __fastcall InfoRec::Save(FILE *outs) {
                 xnum = 0;
             fwrite(&xnum, sizeof(xnum), 1, outs);
             for (xm = 0; xm < xnum; xm++) {
-                PXrefRec recX = (PXrefRec) fInfo->xrefs->Items[xm];
+                PXrefRec recX = static_cast<PXrefRec>(fInfo->xrefs->Items[xm]);
                 fwrite(&recX->type, sizeof(recX->type), 1, outs);
                 fwrite(&recX->adr, sizeof(recX->adr), 1, outs);
                 fwrite(&recX->offset, sizeof(recX->offset), 1, outs);
@@ -821,7 +821,7 @@ void __fastcall InfoRec::Save(FILE *outs) {
             num = 0;
         fwrite(&num, sizeof(num), 1, outs);
         for (m = 0; m < num; m++) {
-            PMethodRec recM = (PMethodRec) vmtInfo->methods->Items[m];
+            PMethodRec recM = static_cast<PMethodRec>(vmtInfo->methods->Items[m]);
             fwrite(&recM->abstract, sizeof(recM->abstract), 1, outs);
             fwrite(&recM->kind, sizeof(recM->kind), 1, outs);
             fwrite(&recM->id, sizeof(recM->id), 1, outs);
@@ -843,7 +843,7 @@ void __fastcall InfoRec::Save(FILE *outs) {
             num = 0;
         fwrite(&num, sizeof(num), 1, outs);
         for (m = 0; m < num; m++) {
-            PARGINFO argInfo = (PARGINFO) procInfo->args->Items[m];
+            PARGINFO argInfo = static_cast<PARGINFO>(procInfo->args->Items[m]);
             fwrite(&argInfo->Tag, sizeof(argInfo->Tag), 1, outs);
             fwrite(&argInfo->Register, sizeof(argInfo->Register), 1, outs);
             fwrite(&argInfo->Ndx, sizeof(argInfo->Ndx), 1, outs);
@@ -864,7 +864,7 @@ void __fastcall InfoRec::Save(FILE *outs) {
             num = 0;
         fwrite(&num, sizeof(num), 1, outs);
         for (m = 0; m < num; m++) {
-            PLOCALINFO locInfo = (PLOCALINFO) procInfo->locals->Items[m];
+            PLOCALINFO locInfo = static_cast<PLOCALINFO>(procInfo->locals->Items[m]);
             fwrite(&locInfo->Ofs, sizeof(locInfo->Ofs), 1, outs);
             fwrite(&locInfo->Size, sizeof(locInfo->Size), 1, outs);
             len = locInfo->Name.Length();

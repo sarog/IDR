@@ -8216,7 +8216,7 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
                     }
                     recI->module = modName;
                     recI->address = ImageBase + ThunkRVA;
-                    ImpFuncList->Add((void *) recI);
+                    ImpFuncList->Add(static_cast<void *>(recI));
                     //
                     SetFlag(cfImport, Adr2Pos(recI->address));
                     PInfoRec recN = new InfoRec(Adr2Pos(recI->address), ikData);
@@ -8966,7 +8966,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
             num = SegmentList->Count;
             fwrite(&num, sizeof(num), 1, outF); //outStream->Write(&num, sizeof(num));
             for (n = 0; n < num; n++) {
-                PSegmentInfo segInfo = reinterpret_cast<PSegmentInfo>(SegmentList->Items[n]);
+                PSegmentInfo segInfo = static_cast<PSegmentInfo>(SegmentList->Items[n]);
                 fwrite(&segInfo->Start, sizeof(segInfo->Start), 1, outF);
                 //outStream->Write(&segInfo->Start, sizeof(segInfo->Start));
                 fwrite(&segInfo->Size, sizeof(segInfo->Size), 1, outF);
@@ -9058,7 +9058,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
             for (n = 0; n < num; n++) {
                 FProgressBar->pb->StepIt();
                 Application->ProcessMessages();
-                PUnitRec recU = reinterpret_cast<PUnitRec>(Units->Items[n]);
+                PUnitRec recU = static_cast<PUnitRec>(Units->Items[n]);
                 fwrite(&recU->trivial, sizeof(recU->trivial), 1, outF);
                 //outStream->Write(&recU->trivial, sizeof(recU->trivial));
                 fwrite(&recU->trivialIni, sizeof(recU->trivialIni), 1, outF);
@@ -9114,7 +9114,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
             for (n = 0; n < num; n++) {
                 FProgressBar->pb->StepIt();
                 Application->ProcessMessages();
-                PTypeRec recT = reinterpret_cast<PTypeRec>(OwnTypeList->Items[n]);
+                PTypeRec recT = static_cast<PTypeRec>(OwnTypeList->Items[n]);
                 fwrite(&recT->kind, sizeof(recT->kind), 1, outF); //outStream->Write(&recT->kind, sizeof(recT->kind));
                 fwrite(&recT->adr, sizeof(recT->adr), 1, outF);   //outStream->Write(&recT->adr, sizeof(recT->adr));
                 len = recT->name.Length();
@@ -9132,7 +9132,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
             for (n = 0; n < num; n++) {
                 FProgressBar->pb->StepIt();
                 Application->ProcessMessages();
-                TDfm *dfm = reinterpret_cast<TDfm *>(ResInfo->FormList->Items[n]);
+                TDfm *dfm = static_cast<TDfm *>(ResInfo->FormList->Items[n]);
                 // Flags
                 fwrite(&dfm->Flags, sizeof(dfm->Flags), 1, outF); //outStream->Write(&dfm->Flags, sizeof(dfm->Flags));
                 // ResName
@@ -9168,7 +9168,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                 evnum = (dfm->Events) ? dfm->Events->Count : 0;
                 fwrite(&evnum, sizeof(evnum), 1, outF); //outStream->Write(&evnum, sizeof(evnum));
                 for (m = 0; m < evnum; m++) {
-                    PEventInfo eInfo = reinterpret_cast<PEventInfo>(dfm->Events->Items[m]);
+                    PEventInfo eInfo = static_cast<PEventInfo>(dfm->Events->Items[m]);
                     // EventName
                     len = eInfo->EventName.Length();
                     if (len > MaxBufLen) MaxBufLen = len;
@@ -9184,7 +9184,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                 cnum = (dfm->Components) ? dfm->Components->Count : 0;
                 fwrite(&cnum, sizeof(cnum), 1, outF); //outStream->Write(&cnum, sizeof(cnum));
                 for (m = 0; m < cnum; m++) {
-                    PComponentInfo cInfo = reinterpret_cast<PComponentInfo>(dfm->Components->Items[m]);
+                    PComponentInfo cInfo = static_cast<PComponentInfo>(dfm->Components->Items[m]);
                     // Inherited
                     fwrite(&cInfo->Inherit, sizeof(cInfo->Inherit), 1, outF);
                     //outStream->Write(&cInfo->Inherit, sizeof(cInfo->Inherit));
@@ -9205,7 +9205,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                     evnum = (cInfo->Events) ? cInfo->Events->Count : 0;
                     fwrite(&evnum, sizeof(evnum), 1, outF); //outStream->Write(&evnum, sizeof(evnum));
                     for (k = 0; k < evnum; k++) {
-                        PEventInfo eInfo = reinterpret_cast<PEventInfo>(cInfo->Events->Items[k]);
+                        PEventInfo eInfo = static_cast<PEventInfo>(cInfo->Events->Items[k]);
                         // EventName
                         len = eInfo->EventName.Length();
                         if (len > MaxBufLen) MaxBufLen = len;
@@ -10114,7 +10114,7 @@ void __fastcall TFMain_11011981::miListerClick(TObject *Sender) {
 
     FILE *lstF = fopen(AnsiString(lstName).c_str(), "wt+");
     for (int n = 0; n < UnitsNum; n++) {
-        PUnitRec recU = reinterpret_cast<PUnitRec>(Units->Items[n]);
+        PUnitRec recU = static_cast<PUnitRec>(Units->Items[n]);
         if (recU->kb || recU->trivial) continue;
         fprintf(lstF, "//===========================================================================\n");
         fprintf(lstF, "//Unit%03d", recU->iniOrder);
@@ -11643,7 +11643,7 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
 
                     num = LoadMethodTable(adr, tmpList);
                     for (m = 0; m < num; m++) {
-                        recM = reinterpret_cast<PMethodRec>(tmpList->Items[m]);
+                        recM = static_cast<PMethodRec>(tmpList->Items[m]);
                         recN = GetInfoRec(recM->address);
                         procName = recN->MakePrototype(recM->address, true, false, false, false, false);
                         if (!procName.Pos(":?"))
