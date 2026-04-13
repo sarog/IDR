@@ -9577,10 +9577,10 @@ void __fastcall TFMain_11011981::miMapGeneratorClick(TObject *Sender) {
                         else
                             procName = recN->MakeMapName(adr);
 
-                        fprintf(fMap, " 0001:%08X %s.%s_%08X\n", n, moduleName.c_str(), procName.c_str(), adr);
+                        fprintf(fMap, " 0001:%08X %s.%s_%08X\n", n, AnsiString(moduleName).c_str(), AnsiString(procName).c_str(), adr);
                     } else {
                         procName = recN->MakeMapName(adr);
-                        fprintf(fMap, " 0001:%08X %s_%08X\n", n, procName.c_str(), adr);
+                        fprintf(fMap, " 0001:%08X %s_%08X\n", n, AnsiString(procName).c_str(), adr);
                     }
                 } else {
                     fprintf(fMap, " 0001:%08X EntryPoint_%08X\n", n, adr);
