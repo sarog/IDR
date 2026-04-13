@@ -39,6 +39,7 @@ file(GLOB SOURCES
         "*.h"
         "*.cpp"
         Idr.rc
+        IdcDialog.rc
 )
 
 ## .DFM
