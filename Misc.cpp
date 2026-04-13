@@ -982,7 +982,7 @@ int __fastcall GetField(String TypeName, int Offset, String &name, String &type)
             if (fInfo->Name != "")
                 name += fInfo->Name;
             else
-                name += "f" + IntToHex((int) fInfo->Offset, 0);
+                name += "f" + IntToHex(static_cast<int>(fInfo->Offset), 0);
             type = fInfo->Type;
 
             _type = fInfo->Type;
@@ -1111,7 +1111,7 @@ DWORD __fastcall GetParentAdr(DWORD Adr) {
 DWORD __fastcall GetChildAdr(DWORD Adr) {
     if (!IsValidImageAdr(Adr)) return 0;
     for (int m = 0; m < VmtList->Count; m++) {
-        PVmtListRec recV = (PVmtListRec) VmtList->Items[m];
+        PVmtListRec recV = static_cast<PVmtListRec>(VmtList->Items[m]);
         if (recV->vmtAdr != Adr && IsInheritsByAdr(recV->vmtAdr, Adr))
             return recV->vmtAdr;
     }
@@ -1168,7 +1168,7 @@ DWORD __fastcall GetClassAdr(const String &AName) {
 
     const int vmtCnt = VmtList->Count;
     for (int n = 0; n < vmtCnt; n++) {
-        PVmtListRec recV = (PVmtListRec) VmtList->Items[n];
+        PVmtListRec recV = static_cast<PVmtListRec>(VmtList->Items[n]);
         if (SameText(recV->vmtName, name)) {
             adr = recV->vmtAdr;
             AddClassAdr(adr, name);
@@ -4300,8 +4300,8 @@ String __fastcall TransformShadowName(String name, BYTE typeKind, DWORD typeAdr)
 
 //---------------------------------------------------------------------------
 int __fastcall FieldsCmpFunction(void *item1, void *item2) {
-    PFIELDINFO rec1 = (PFIELDINFO) item1;
-    PFIELDINFO rec2 = (PFIELDINFO) item2;
+    PFIELDINFO rec1 = static_cast<PFIELDINFO>(item1);
+    PFIELDINFO rec2 = static_cast<PFIELDINFO>(item2);
     if (rec1->Offset > rec2->Offset) return 1;
     if (rec1->Offset < rec2->Offset) return -1;
     return 0;
@@ -4309,8 +4309,8 @@ int __fastcall FieldsCmpFunction(void *item1, void *item2) {
 
 //---------------------------------------------------------------------------
 int __fastcall LocalsCmpFunction(void *item1, void *item2) {
-    PLOCALINFO rec1 = (PLOCALINFO) item1;
-    PLOCALINFO rec2 = (PLOCALINFO) item2;
+    PLOCALINFO rec1 = static_cast<PLOCALINFO>(item1);
+    PLOCALINFO rec2 = static_cast<PLOCALINFO>(item2);
 
     if (rec1->Ofs > rec2->Ofs) return 1;
     if (rec1->Ofs < rec2->Ofs) return -1;
@@ -4319,9 +4319,9 @@ int __fastcall LocalsCmpFunction(void *item1, void *item2) {
 
 //---------------------------------------------------------------------------
 int __fastcall FieldInfoCmpFunction(void *item1, void *item2) {
-    if (((FIELD_INFO *) item1)->Offset > ((FIELD_INFO *) item2)->Offset)
+    if (static_cast<FIELD_INFO *>(item1)->Offset > static_cast<FIELD_INFO *>(item2)->Offset)
         return 1;
-    if (((FIELD_INFO *) item1)->Offset < ((FIELD_INFO *) item2)->Offset)
+    if (static_cast<FIELD_INFO *>(item1)->Offset < static_cast<FIELD_INFO *>(item2)->Offset)
         return -1;
     return 0;
 }

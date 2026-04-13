@@ -6906,7 +6906,7 @@ void __fastcall TFMain_11011981::miCopyCodeClick(TObject *Sender) {
 void __fastcall TFMain_11011981::lbFormsDblClick(TObject *Sender) {
     int n, m;
 
-    TDfm *dfm = (TDfm *) ResInfo->FormList->Items[lbForms->ItemIndex];
+    TDfm *dfm = static_cast<TDfm *>(ResInfo->FormList->Items[lbForms->ItemIndex]);
     switch (rgViewFormAs->ItemIndex) {
         //As Text
         case 0:
@@ -11618,7 +11618,7 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
                         }
                         //Add UnitName to UsesList if necessary
                         for (k = 0; k < VmtList->Count; k++) {
-                            recV = (PVmtListRec) VmtList->Items[k];
+                            recV = static_cast<PVmtListRec>(VmtList->Items[k]);
                             if (recV && SameText(typeName, recV->vmtName)) {
                                 uName = GetUnitName(recV->vmtAdr);
                                 if (intUsesLines->IndexOf(uName) == -1)
@@ -11653,7 +11653,7 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
 
                     num = LoadVirtualTable(adr, tmpList);
                     for (m = 0; m < num; m++) {
-                        recM = (PMethodRec) tmpList->Items[m];
+                        recM = static_cast<PMethodRec>(tmpList->Items[m]);
                         //Check if procadr from other class
                         if (!IsOwnVirtualMethod(adr, recM->address)) continue;
 
@@ -11671,7 +11671,7 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
 
                     num = LoadDynamicTable(adr, tmpList);
                     for (m = 0; m < num; m++) {
-                        recM = (PMethodRec) tmpList->Items[m];
+                        recM = static_cast<PMethodRec>(tmpList->Items[m]);
                         recN = GetInfoRec(recM->address);
                         procName = recN->MakePrototype(recM->address, true, false, false, false, false);
                         PMsgMInfo _info = GetMsgInfo(recM->id);
@@ -11825,7 +11825,7 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
         delete publicList;
     }
     //dpr
-    recU = (PUnitRec) Units->Items[UnitsNum - 1];
+    recU = static_cast<PUnitRec>(Units->Items[UnitsNum - 1]);
     unitName = recU->names->Strings[0];
     f = fopen(AnsiString(unitName + ".dpr").c_str(), "wt+");
 
@@ -11844,7 +11844,7 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
     if (SourceIsLibrary) {
         bool _expExists = false;
         for (n = 0; n < ExpFuncList->Count; n++) {
-            PExportNameRec recE = (PExportNameRec) ExpFuncList->Items[n];
+            PExportNameRec recE = static_cast<PExportNameRec>(ExpFuncList->Items[n]);
             adr = recE->address;
             if (IsValidImageAdr(adr)) {
                 fprintf(f, "//%08lX\n", adr);
@@ -11865,7 +11865,7 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
         if (_expExists) {
             fprintf(f, "exports\n");
             for (n = 0; n < ExpFuncList->Count; n++) {
-                PExportNameRec recE = (PExportNameRec) ExpFuncList->Items[n];
+                PExportNameRec recE = static_cast<PExportNameRec>(ExpFuncList->Items[n]);
                 adr = recE->address;
                 if (IsValidImageAdr(adr)) {
                     recN = GetInfoRec(adr);
