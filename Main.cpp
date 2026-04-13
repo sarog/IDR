@@ -11580,7 +11580,7 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
                 case ikDynArray:
                     typePresent = true;
                     line = FTypeInfo_11011981->GetRTTI(adr);
-                    len = sprintf(StringBuf, "  %s = %s;", recN->GetName().c_str(), line.c_str());
+                    len = sprintf(StringBuf, "  %s = %s;", AnsiString(recN->GetName()).c_str(), AnsiString(line).c_str());
                     intBodyLines->Add(String(StringBuf, len));
                     break;
                 //class
@@ -11599,7 +11599,7 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
 
                     parentAdr = GetParentAdr(adr);
                     parentName = GetClsName(parentAdr);
-                    len = sprintf(StringBuf, "  %s = class(%s)", className.c_str(), parentName.c_str());
+                    len = sprintf(StringBuf, "  %s = class(%s)", AnsiString(className).c_str(), AnsiString(parentName).c_str());
                     intBodyLines->Add(String(StringBuf, len));
 
                     num = LoadFieldTable(adr, tmpList);
@@ -11628,10 +11628,10 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
                         }
 
                         if (!comment)
-                            len = sprintf(StringBuf, "    %s:%s;//f%X", fieldName.c_str(), typeName.c_str(),
+                            len = sprintf(StringBuf, "    %s:%s;//f%X", AnsiString(fieldName).c_str(), AnsiString(typeName).c_str(),
                                           fInfo->Offset);
                         else
-                            len = sprintf(StringBuf, "    //%s:%s;//f%X", fieldName.c_str(), typeName.c_str(),
+                            len = sprintf(StringBuf, "    //%s:%s;//f%X", AnsiString(fieldName).c_str(), AnsiString(typeName).c_str(),
                                           fInfo->Offset);
                         if (_isForm && dfm && dfm->IsFormComponent(fieldName))
                             publishedList->Add(String(StringBuf, len));
@@ -11662,7 +11662,7 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
 
                         len = sprintf(StringBuf, "    ");
                         if (procName.Pos(":?")) len += sprintf(StringBuf + len, "//");
-                        len += sprintf(StringBuf + len, "%s", procName.c_str());
+                        len += sprintf(StringBuf + len, "%s", AnsiString(procName).c_str());
                         if (recM->id >= 0) len += sprintf(StringBuf + len, "//v%X", recM->id);
                         len += sprintf(StringBuf + len, "//%08lX", recM->address);
 
@@ -11681,9 +11681,9 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
                             procName += " dynamic;";
 
                         if (!procName.Pos(":?"))
-                            len = sprintf(StringBuf, "    %s//%08lX", procName.c_str(), recM->address);
+                            len = sprintf(StringBuf, "    %s//%08lX", AnsiString(procName).c_str(), recM->address);
                         else
-                            len = sprintf(StringBuf, "    //%s//%08lX", procName.c_str(), recM->address);
+                            len = sprintf(StringBuf, "    //%s//%08lX", AnsiString(procName).c_str(), recM->address);
                         publicList->Add(String(StringBuf, len));
                     }
 
@@ -11715,9 +11715,9 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
                         if (recN->kind == ikConstructor || (recN->procInfo->flags & PF_METHOD)) {
                             procName = recN->MakePrototype(adr1, true, false, false, false, false);
                             if (!procName.Pos(":?"))
-                                len = sprintf(StringBuf, "    %s//%08lX", procName.c_str(), adr1);
+                                len = sprintf(StringBuf, "    %s//%08lX", AnsiString(procName).c_str(), adr1);
                             else
-                                len = sprintf(StringBuf, "    //%s//%08lX", procName.c_str(), adr1);
+                                len = sprintf(StringBuf, "    //%s//%08lX", AnsiString(procName).c_str(), adr1);
                             if (intBodyLines->IndexOf(String(StringBuf, len)) == -1)
                                 intBodyLines->Add(String(StringBuf, len));
                         }
@@ -11736,14 +11736,14 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
             fprintf(f, "\nuses\n  ");
             for (m = 0; m < intUsesLines->Count; m++) {
                 if (m) fprintf(f, ", ");
-                fprintf(f, "%s", intUsesLines->Strings[m].c_str());
+                fprintf(f, "%s", AnsiString(intUsesLines->Strings[m]).c_str());
             }
             fprintf(f, ";\n\n");
         }
         //Type
         if (typePresent) fprintf(f, "type\n");
         for (m = 0; m < intBodyLines->Count; m++) {
-            fprintf(f, "%s\n", intBodyLines->Strings[m].c_str());
+            fprintf(f, "%s\n", AnsiString(intBodyLines->Strings[m]).c_str());
         }
         //Other procs (not class members)
         for (adr = recU->fromAdr; adr < recU->toAdr; adr++) {
@@ -11755,9 +11755,9 @@ void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
 
             procName = recN->MakePrototype(adr, true, false, false, false, false);
             if (!procName.Pos(":?"))
-                len = sprintf(StringBuf, "    %s//%08lX", procName.c_str(), adr);
+                len = sprintf(StringBuf, "    %s//%08lX", AnsiString(procName).c_str(), adr);
             else
-                len = sprintf(StringBuf, "    //%s//%08lX", procName.c_str(), adr);
+                len = sprintf(StringBuf, "    //%s//%08lX", AnsiString(procName).c_str(), adr);
 
             if (intBodyLines->IndexOf(String(StringBuf, len)) != -1) continue;
 
