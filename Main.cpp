@@ -12411,9 +12411,9 @@ void __fastcall TFMain_11011981::miHiewGeneratorClick(TObject *Sender) {
                         procName = recN->MakeMapName(adr);
                     }
                     if (moduleName != "")
-                        fprintf(fNamet, ".%08X %s.%s_%08X\n", adr, moduleName.c_str(), procName.c_str(), adr);
+                        fprintf(fNamet, ".%08X %s.%s_%08X\n", adr, AnsiString(moduleName).c_str(), AnsiString(procName).c_str(), adr);
                     else
-                        fprintf(fNamet, ".%08X %s_%08X\n", adr, procName.c_str(), adr);
+                        fprintf(fNamet, ".%08X %s_%08X\n", adr, AnsiString(procName).c_str(), adr);
                 }
             }
         }
