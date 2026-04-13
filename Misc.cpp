@@ -1124,7 +1124,7 @@ int __fastcall GetClassSize(DWORD adr) {
 
     DWORD vmtAdr = adr - cVmtSelfPtr;
     DWORD pos = Adr2Pos(vmtAdr) + cVmtInstanceSize;
-    int size = *((int *) (Code + pos));
+    int size = *reinterpret_cast<int *>(Code + pos);
     if (DelphiVersion >= 2009) return size - 4;
     return size;
 }
@@ -1146,7 +1146,7 @@ String __fastcall GetClsName(DWORD adr) {
     pos = Adr2Pos(nameAdr);
     BYTE len = Code[pos];
     pos++;
-    return String((char *) &Code[pos], len);
+    return String(reinterpret_cast<char *>(&Code[pos]), len);
 }
 
 //---------------------------------------------------------------------------
