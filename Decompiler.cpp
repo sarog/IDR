@@ -1370,6 +1370,13 @@ String __fastcall TDecompileEnv::PrintBJL() {
 }
 
 //---------------------------------------------------------------------------
+/**
+ * Decompile
+ * @param fromAdr From address
+ * @param flags Flags
+ * @param loopInfo Loop info
+ * @return
+ */
 DWORD __fastcall TDecompiler::Decompile(DWORD fromAdr, DWORD flags, PLoopInfo loopInfo) {
     bool _cmp, _immInt64Val, _fullSim;
     BYTE _op;
@@ -1440,7 +1447,7 @@ DWORD __fastcall TDecompiler::Decompile(DWORD fromAdr, DWORD flags, PLoopInfo lo
             _curAdr = _adr;
             continue;
         }
-        //Try
+        // Try
         if (IsFlagSet(cfTry, _curPos)) {
             try {
                 _curAdr = DecompileTry(_curAdr, flags, loopInfo);
@@ -1458,7 +1465,7 @@ DWORD __fastcall TDecompiler::Decompile(DWORD fromAdr, DWORD flags, PLoopInfo lo
                     _recX = (PXrefRec) _recN->xrefs->Items[0];
                     _endPos = GetNearestUpInstruction(Adr2Pos(_recX->adr + _recX->offset));
                     _endAdr = Pos2Adr(_endPos);
-                    //Check instructions between _curAdr and _endAdr (must be push, add or sub to full simulation)
+                    // Check instructions between _curAdr and _endAdr (must be push, add or sub to full simulation)
                     _fullSim = true;
                     _pos = _curPos;
                     _adr = _curAdr;
@@ -1480,15 +1487,15 @@ DWORD __fastcall TDecompiler::Decompile(DWORD fromAdr, DWORD flags, PLoopInfo lo
                         _adr = _endAdr;
                         _instrLen = Disasm.Disassemble(Code + _pos, (__int64) _adr, &_disInfo, 0);
                         _op = Disasm.GetOp(_disInfo.Mnem);
-                        //dec reg in frame - full simulate
+                        // dec reg in frame - full simulate
                         if (_op == OP_DEC && _disInfo.OpType[0] == otREG) {
                             _regIdx = _disInfo.OpRegIdx[0];
                             GetRegItem(_regIdx, &_item);
-                            //Save dec position
+                            // Save dec position
                             _decPos = _pos;
 
                             _num = _item.IntValue;
-                            //next instruction is jne
+                            // next instruction is jne
                             _pos += _instrLen;
                             _adr += _instrLen;
                             _instrLen = Disasm.Disassemble(Code + _pos, (__int64) _adr, &_disInfo, 0);
@@ -1522,7 +1529,7 @@ DWORD __fastcall TDecompiler::Decompile(DWORD fromAdr, DWORD flags, PLoopInfo lo
                 }
             } else //loop
             {
-                //Count xrefs from above
+                // Count xrefs from above
                 for (n = 0, _num = 0; n < _recN->xrefs->Count; n++) {
                     _recX = (PXrefRec) _recN->xrefs->Items[n];
                     if (_recX->adr + _recX->offset < _curAdr) _num++;

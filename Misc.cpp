@@ -332,7 +332,7 @@ String __fastcall ExtractType(const String &AName) {
 }
 
 //---------------------------------------------------------------------------
-//Return position of nearest up argument eax from position fromPos
+// Return position of nearest up argument eax from position fromPos
 int __fastcall GetNearestArgA(int fromPos) {
     int curPos = fromPos;
 
@@ -346,7 +346,7 @@ int __fastcall GetNearestArgA(int fromPos) {
 }
 
 //---------------------------------------------------------------------------
-//Return position of nearest up instruction with segment prefix fs:
+// Return position of nearest up instruction with segment prefix fs:
 int __fastcall GetNearestUpPrefixFs(int fromPos) {
     int _pos;
     DISINFO _disInfo;
@@ -363,7 +363,7 @@ int __fastcall GetNearestUpPrefixFs(int fromPos) {
 }
 
 //---------------------------------------------------------------------------
-//Return position of nearest up instruction from position fromPos
+// Return position of nearest up instruction from position fromPos
 int __fastcall GetNearestUpInstruction(int fromPos) {
     assert(fromPos >= 0);
     for (int pos = fromPos - 1; pos >= 0; pos--) {
@@ -374,7 +374,7 @@ int __fastcall GetNearestUpInstruction(int fromPos) {
 }
 
 //---------------------------------------------------------------------------
-//Return position of N-th up instruction from position fromPos
+// Return position of N-th up instruction from position fromPos
 int __fastcall GetNthUpInstruction(int fromPos, int N) {
     if (fromPos < 0)
         return -1;
@@ -390,7 +390,7 @@ int __fastcall GetNthUpInstruction(int fromPos, int N) {
 }
 
 //---------------------------------------------------------------------------
-//Return position of nearest up instruction from position fromPos
+// Return position of nearest up instruction from position fromPos
 int __fastcall GetNearestUpInstruction(int fromPos, int toPos) {
     assert(fromPos >= 0);
     for (int pos = fromPos - 1; pos >= toPos; pos--) {
@@ -413,7 +413,7 @@ int __fastcall GetNearestUpInstruction(int fromPos, int toPos, int no) {
 }
 
 //---------------------------------------------------------------------------
-//Return position of nearest up instruction from position fromPos
+// Return position of nearest up instruction from position fromPos
 int __fastcall GetNearestUpInstruction1(int fromPos, int toPos, const char *Instruction) {
     int len = strlen(Instruction);
     int pos;
@@ -431,7 +431,7 @@ int __fastcall GetNearestUpInstruction1(int fromPos, int toPos, const char *Inst
 }
 
 //---------------------------------------------------------------------------
-//Return position of nearest up instruction from position fromPos
+// Return position of nearest up instruction from position fromPos
 int __fastcall GetNearestUpInstruction2(int fromPos, int toPos, const char *Instruction1, const char *Instruction2) {
     int len1 = strlen(Instruction1), len2 = strlen(Instruction2);
     int pos;
@@ -451,7 +451,7 @@ int __fastcall GetNearestUpInstruction2(int fromPos, int toPos, const char *Inst
 }
 
 //---------------------------------------------------------------------------
-//Return position of nearest down instruction from position fromPos
+// Return position of nearest down instruction from position fromPos
 int __fastcall GetNearestDownInstruction(int fromPos) {
     int instrLen;
     DISINFO DisInfo;
@@ -463,7 +463,7 @@ int __fastcall GetNearestDownInstruction(int fromPos) {
 }
 
 //---------------------------------------------------------------------------
-//Return position of nearest down "Instruction" from position fromPos
+// Return position of nearest down "Instruction" from position fromPos
 int __fastcall GetNearestDownInstruction(int fromPos, const char *Instruction) {
     int instrLen, len = strlen(Instruction);
     int curPos = fromPos;
@@ -674,7 +674,7 @@ int __fastcall GetRecordSize(String AName) {
     PTypeRec _recT;
     String _str, _sz;
 
-    //File
+    // File
     String _recFileName = FMain_11011981->WrkDir + "\\types.idr";
     FILE *_recFile = fopen(AnsiString(_recFileName).c_str(), "rt");
     if (_recFile) {
@@ -689,7 +689,7 @@ int __fastcall GetRecordSize(String AName) {
         }
         fclose(_recFile);
     }
-    //KB
+    // KB
     _uses = KnowledgeBase.GetTypeUses(AnsiString(AName).c_str());
     _idx = KnowledgeBase.GetTypeIdxByModuleIds(_uses, AnsiString(AName).c_str());
     if (_uses) delete[] _uses;
@@ -699,17 +699,17 @@ int __fastcall GetRecordSize(String AName) {
         if (KnowledgeBase.GetTypeInfo(_idx, INFO_DUMP, &_tInfo))
             return _tInfo.Size;
     }
-    //RTTI
+    // RTTI
     _recT = GetOwnTypeByName(AName);
     if (_recT && _recT->kind == ikRecord) {
         _pos = Adr2Pos(_recT->adr);
-        _pos += 4; //SelfPtr
-        _pos++;    //TypeKind
+        _pos += 4; // SelfPtr
+        _pos++;    // TypeKind
         _len = Code[_pos];
-        _pos += _len + 1; //Name
+        _pos += _len + 1; // Name
         return *((DWORD *) (Code + _pos));
     }
-    //Manual
+    // Manual
     return 0;
 }
 
@@ -1455,7 +1455,7 @@ String __fastcall GetTypeDeref(String ATypeName) {
 
     if (ATypeName[1] == '^') return ATypeName.SubString(2, ATypeName.Length());
 
-    //Scan knowledgeBase
+    // Scan KnowledgeBase
     uses = KnowledgeBase.GetTypeUses(AnsiString(ATypeName).c_str());
     idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(ATypeName).c_str());
     if (uses) delete[] uses;
@@ -4260,7 +4260,7 @@ int __fastcall GetAdrOfsFromShadowName(String name) {
 }
 
 //---------------------------------------------------------------------------
-//Replace symbols like '<', '>', ',', '.' to 'L', 'R', 'C', 'D'
+// Replace symbols like '<', '>', ',', '.' to 'L', 'R', 'C', 'D'
 String __fastcall SanitizeName(String name) {
     int pos = 0;
 
@@ -4272,7 +4272,7 @@ String __fastcall SanitizeName(String name) {
 }
 
 //---------------------------------------------------------------------------
-//Shadow name is name like ":1"
+// Shadow name is name like ":1"
 String __fastcall TransformShadowName(String name, BYTE typeKind, DWORD typeAdr) {
     String prefix;
     switch (typeKind) {

@@ -217,7 +217,7 @@ typedef struct {
 
 enum NameVersion { nvPrimary, nvAfterScan, nvByUser };
 
-//XRef Type
+// XRef Type
 #define XREF_UNKNOWN    0x20    //Black
 #define XREF_CALL       1       //Blue
 #define XREF_JUMP       2       //Green
@@ -253,16 +253,16 @@ enum MethodKind {
 
 enum IntfFlag { IfHasGuid, IfDispInterface, IfDispatch };
 
-//Proc navigation history record
+// Proc navigation history record
 typedef struct {
-    DWORD adr;   //Procedure Address
-    int itemIdx; //Selected Item Index
-    int xrefIdx; //Selected Xref Index
-    int topIdx;  //TopIndex of ListBox
+    DWORD adr;   // Procedure Address
+    int itemIdx; // Selected Item Index
+    int xrefIdx; // Selected Xref Index
+    int topIdx;  // TopIndex of ListBox
 } PROCHISTORYREC, *PPROCHISTORYREC;
 
 //---------------------------------------------------------------------------
-//Information about registry
+// Information about registry
 typedef struct {
     BYTE result; //0 - nothing, 1 - type was set, 2 - type mismatch
     char source; //0 - not defined; 'L' - local var; 'A' - argument; 'M' - memory; 'I' - immediate
@@ -277,7 +277,7 @@ typedef struct {
 } SysProcInfo;
 
 //---------------------------------------------------------------------------
-//Common
+// Common
 #define		MAXLEN		        100
 #define     MAXLINE             1024
 #define     MAXNAME             1024
@@ -286,7 +286,7 @@ typedef struct {
 #define     MAX_DISASSEMBLE     250000
 #define     MAX_ITEMS           0x10000    //Max items number for read-write
 #define     HISTORY_CHUNK_LENGTH    256
-//Search
+// Search
 #define     SEARCH_UNITS        0
 #define     SEARCH_UNITITEMS    1
 #define     SEARCH_RTTIS        2

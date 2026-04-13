@@ -12566,7 +12566,7 @@ void __fastcall TFMain_11011981::OutputForwardDeclarationsHeader(FILE *hF) {
 
     OutputStandardForwardDeclarations(hF);
     fprintf(hF, "\n");
-    //Variant
+    // Variant
     fprintf(hF, "struct TVarData\n");
     fprintf(hF, "{\n");
     fprintf(hF, "WORD VType;\n");
@@ -12711,6 +12711,10 @@ PVMT_PROC __fastcall GetProcFromVmtList(TList *list, DWORD procAdr) {
 }
 
 //---------------------------------------------------------------------------
+/**
+ * Create a C++ Header file
+ * @param hF Output file
+ */
 void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
     BYTE len, RTTIKind;
     int n, m, k, id, adr, kind, pos, size, sort, virtNum, idx, intfNum, curOfs, nxtOfs, iAdr;
@@ -12725,7 +12729,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
     PMethodRec recM;
     PVMT_PROC vmtProc;
 
-    //Save sort style
+    // Save sort style
     sort = RTTISortField;
     OwnTypeList->Sort(SortRTTIsByAdr);
     OutputForwardDeclarationsHeader(hF);
@@ -12757,7 +12761,8 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
     OutputForwardDeclarationsOfKind(hF, ikMethod);
     fprintf(hF, "//<Interface>\n");
     OutputForwardDeclarationsOfKind(hF, ikInterface);
-    //Restore old sort style
+
+    // Restore old sort style
     RTTISortField = sort;
     switch (RTTISortField) {
         case 0:
@@ -12827,12 +12832,12 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                     fprintf(hF, AnsiString(str).c_str(), AnsiString(RTTIName).c_str());
                     break;
                 case ikRecord:
-                    //These names already present
+                    // These names already present
                     if (SameText(RTTIName, "TVarData") ||
                         SameText(RTTIName, "TVarRec")) {
                         break;
                     }
-                    //shadow name
+                    // Shadow name
                     if (RTTIName.Pos(":") > 0)
                         RTTIName = "Record_" + Val2Str8(adr); //SHADOW + 4
                     str = FTypeInfo_11011981->GetCppTypeInfo(adr, &size, 0);
@@ -12872,10 +12877,10 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                     fprintf(hF, "typedef struct %s *%s;\n\n", AnsiString(str).c_str(), AnsiString(RTTIName).c_str());
                     break;
                 case ikVMT:
-                    //Output virtual functions
+                    // Output virtual functions
                     virtList = new TList;
                     virtNum = LoadVirtualTable(adr, virtList);
-                    //Fill VMT_PROCS list
+                    // Fill VMT_PROCS list
                     vmtProcs = new TList;
                     for (m = 0, id = 0; m < virtNum; m++) {
                         recM = static_cast<PMethodRec>(virtList->Items[m]);
@@ -12892,7 +12897,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                             }
                         }
                     }
-                    //Output function prorotype declarations
+                    // Output function prototype declarations
                     for (m = 0, id = 0; m < virtNum; m++) {
                         recM = static_cast<PMethodRec>(virtList->Items[m]);
                         if (recM->id >= 0) {
@@ -12949,14 +12954,14 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                     delete vmtProcs;
                     delete virtList;
 
-                    //Output fields
+                    // Output fields
                     str = FTypeInfo_11011981->GetCppTypeInfo(adr, &size, 0);
                     fprintf(hF, "struct %s//size = 0x%lX\n", AnsiString(RTTIName).c_str(), GetClassSize(adr));
                     fprintf(hF, "{\n");
                     fprintf(hF, "%s", AnsiString(str).c_str());
                     fprintf(hF, "};\n\n");
 
-                    //Output Interfaces
+                    // Output Interfaces
                     intfList = new TStringList;
                     intfNum = FMain_11011981->LoadIntfTable(adr, intfList);
                     if (intfNum > 0) {
@@ -12964,7 +12969,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                         for (m = 0; m < intfNum; m++) {
                             item = intfList->Strings[m];
                             item = item.SubString(1, item.Pos(' ') - 1);
-                            //Offset of interface table
+                            // Offset of interface table
                             intfOfsets[m] = StrToInt("$" + item);
                         }
                         if (intfNum > 1) {
