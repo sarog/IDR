@@ -190,9 +190,9 @@ PInfoRec __fastcall AddToBSSInfos(DWORD Adr, String AName, String ATypeName) {
         recN = new InfoRec(-1, ikData);
         recN->SetName(AName);
         recN->type = ATypeName;
-        BSSInfos->AddObject(_key, (TObject *) recN);
+        BSSInfos->AddObject(_key, reinterpret_cast<TObject *>(recN));
     } else {
-        recN = (PInfoRec) BSSInfos->Objects[_idx];
+        recN = reinterpret_cast<PInfoRec>(BSSInfos->Objects[_idx]);
         if (recN->type == "") {
             recN->type = ATypeName;
         }
@@ -217,13 +217,13 @@ void __fastcall FillArgInfo(int k, BYTE callkind, PARGINFO argInfo, BYTE **p, in
     int ss = *s;
     argInfo->Tag = *pp;
     pp++;
-    int locflags = *((int *) pp);
+    int locflags = *reinterpret_cast<int *>(pp);
     pp += 4;
 
     if ((locflags & 7) == 1) argInfo->Tag = 0x23; //Add by ZGL
 
     argInfo->Register = (locflags & 8);
-    int ndx = *((int *) pp);
+    int ndx = *reinterpret_cast<int *>(pp);
     pp += 4;
 
     //fastcall
@@ -243,11 +243,11 @@ void __fastcall FillArgInfo(int k, BYTE callkind, PARGINFO argInfo, BYTE **p, in
     argInfo->Size = 4;
     WORD wlen = *((WORD *) pp);
     pp += 2;
-    argInfo->Name = String((char *) pp, wlen);
+    argInfo->Name = String(reinterpret_cast<char *>(pp), wlen);
     pp += wlen + 1;
     wlen = *((WORD *) pp);
     pp += 2;
-    argInfo->TypeDef = TrimTypeName(String((char *) pp, wlen));
+    argInfo->TypeDef = TrimTypeName(String(reinterpret_cast<char *>(pp), wlen));
     pp += wlen + 1;
     *p = pp;
     *s = ss;
@@ -1484,9 +1484,7 @@ int __fastcall GetRTTIRecordSize(DWORD adr) {
     pos += len + 1;
 
     if (kind == ikRecord)
-        return *((int *) (Code + pos));
-    else
-        return 0;
+        return *reinterpret_cast<int *>(Code + pos);
     return 0;
 }
 

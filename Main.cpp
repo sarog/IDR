@@ -8026,7 +8026,7 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
         DWORD evalEP = 0;
         //Find instruction mov eax,offset InitTable
         for (n = 0; n < TotalSize - 5; n++) {
-            if (Image[n] == 0xB8 && *((DWORD *) (Image + n + 1)) == evalInitTable) {
+            if (Image[n] == 0xB8 && *reinterpret_cast<DWORD *>(Image + n + 1) == evalInitTable) {
                 evalEP = n;
                 break;
             }
@@ -8111,12 +8111,12 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
             for (i = 0; i < ExpNum; i++) {
                 PExportNameRec recE = new ExportNameRec;
 
-                DWORD dp = *((DWORD *) (Image + Adr2Pos(ExpFuncNamPos + ImageBase)));
-                NameLength = strlen((char *) (Image + Adr2Pos(dp + ImageBase)));
-                recE->name = String((char *) (Image + Adr2Pos(dp + ImageBase)), NameLength);
+                DWORD dp = *reinterpret_cast<DWORD *>(Image + Adr2Pos(ExpFuncNamPos + ImageBase));
+                NameLength = strlen(reinterpret_cast<char *>(Image + Adr2Pos(dp + ImageBase)));
+                recE->name = String(reinterpret_cast<char *>(Image + Adr2Pos(dp + ImageBase)), NameLength);
 
-                WORD dw = *((WORD *) (Image + Adr2Pos(ExpFuncOrdPos + ImageBase)));
-                recE->address = *((DWORD *) (Image + Adr2Pos(ExpFuncAdrPos + 4 * dw + ImageBase))) + ImageBase;
+                WORD dw = *reinterpret_cast<WORD *>(Image + Adr2Pos(ExpFuncOrdPos + ImageBase));
+                recE->address = *reinterpret_cast<DWORD *>(Image + Adr2Pos(ExpFuncAdrPos + 4 * dw + ImageBase)) + ImageBase;
                 recE->ord = dw + ExportDescriptor.Base;
                 ExpFuncList->Add((void *) recE);
 
@@ -8160,8 +8160,8 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
                     !ImportDescriptor.FirstThunk)
                     break;
 
-                NameLength = strlen((char *) (Image + Adr2Pos(ImportDescriptor.Name + ImageBase)));
-                moduleName = String((char *) (Image + Adr2Pos(ImportDescriptor.Name + ImageBase)), NameLength);
+                NameLength = strlen(reinterpret_cast<char *>(Image + Adr2Pos(ImportDescriptor.Name + ImageBase)));
+                moduleName = String(reinterpret_cast<char *>(Image + Adr2Pos(ImportDescriptor.Name + ImageBase)), NameLength);
 
                 int pos = moduleName.Pos(".");
                 if (pos)
@@ -8185,7 +8185,7 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
                 //Get Imported Functions
                 while (1) {
                     //Names or ordinals get from LookupTable (this table can be inside OriginalFirstThunk or FirstThunk)
-                    ThunkValue = *((DWORD *) (Image + Adr2Pos(LookupRVA + ImageBase)));
+                    ThunkValue = *reinterpret_cast<DWORD *>(Image + Adr2Pos(LookupRVA + ImageBase));
                     if (!ThunkValue) break;
 
                     //fnProc = 0;
@@ -8202,9 +8202,9 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
                         recI->name = String(Hint);
                     } else {
                         // by name
-                        Hint = *((WORD *) (Image + Adr2Pos(ThunkValue + ImageBase)));
-                        NameLength = lstrlen((char *) (Image + Adr2Pos(ThunkValue + 2 + ImageBase)));
-                        impFuncName = String((char *) (Image + Adr2Pos(ThunkValue + 2 + ImageBase)), NameLength);
+                        Hint = *reinterpret_cast<WORD *>(Image + Adr2Pos(ThunkValue + ImageBase));
+                        NameLength = lstrlen(reinterpret_cast<char *>(Image + Adr2Pos(ThunkValue + 2 + ImageBase)));
+                        impFuncName = String(reinterpret_cast<char *>(Image + Adr2Pos(ThunkValue + 2 + ImageBase)), NameLength);
 
                         //if (hLib)
                         //{
@@ -12786,7 +12786,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                 pos = Adr2Pos(adr) + 4 + 1;
                 len = Code[pos];
                 pos++;
-                RTTIName = String((char *) (Code + pos), len);
+                RTTIName = String(reinterpret_cast<char *>(Code + pos), len);
             } else
                 RTTIName = recN->GetName();
 
@@ -12983,7 +12983,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                                 fprintf(hF, "{\n");
 
                                 for (k = curOfs; k < nxtOfs; k += 4) {
-                                    iAdr = *((DWORD *) (Code + Adr2Pos(k)));
+                                    iAdr = *reinterpret_cast<DWORD *>(Code + Adr2Pos(k));
                                     fprintf(hF, "void* sub_%08lX;\n", iAdr);
                                 }
 
@@ -13000,7 +13000,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                         fprintf(hF, "{\n");
 
                         for (k = curOfs;; k += 4) {
-                            iAdr = *((DWORD *) (Code + Adr2Pos(k)));
+                            iAdr = *reinterpret_cast<DWORD *>(Code + Adr2Pos(k));
                             if (!IsValidCodeAdr(iAdr))
                                 break;
 
