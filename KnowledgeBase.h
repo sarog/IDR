@@ -308,7 +308,7 @@ public:
     int __fastcall GetItemSection(WORD *ModuleIDs, char *ItemName);
     int __fastcall GetConstIdx(WORD *ModuleID, const char *ConstName);
     int __fastcall GetConstIdxs(const char *ConstName, int *ConstIdx);
-    int __fastcall GetTypeIdxByModuleIds(WORD *ModuleIDs, char *TypeName);
+    int __fastcall GetTypeIdxByModuleIds(WORD *ModuleIDs, const char *TypeName);
     int __fastcall GetTypeIdxsByName(const char *TypeName, int *TypeIdx);
     int __fastcall GetTypeIdxByUID(char *UID);
     int __fastcall GetVarIdx(WORD *ModuleIDs, const char *VarName);

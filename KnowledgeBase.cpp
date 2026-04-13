@@ -708,7 +708,7 @@ int __fastcall MKnowledgeBase::GetConstIdxs(const char *ConstName, int *ConstIdx
 }
 
 //---------------------------------------------------------------------------
-int __fastcall MKnowledgeBase::GetTypeIdxByModuleIds(WORD *ModuleIDs, char *TypeName) {
+int __fastcall MKnowledgeBase::GetTypeIdxByModuleIds(WORD *ModuleIDs, const char *TypeName) {
     if (!Inited) return -1;
 
     if (!ModuleIDs || !TypeName || !*TypeName || !TypeCount) return -1;
