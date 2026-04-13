@@ -8286,23 +8286,21 @@ void __fastcall TFMain_11011981::DoOpenProjectFile(String FileName) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::ReadNode(FILE *fIn, TTreeNode *node, char *buf)
-//void __fastcall TFMain_11011981::ReadNode(TStream* stream, TTreeNode* node, char* buf)
-{
-    //Count
+void __fastcall TFMain_11011981::ReadNode(FILE *fIn, TTreeNode *node, char *buf) {
+    // Count
     int itemsCount;
-    fread(&itemsCount, sizeof(itemsCount), 1, fIn); //stream->Read(&itemsCount, sizeof(itemsCount));
+    fread(&itemsCount, sizeof(itemsCount), 1, fIn);
 
-    //Text
+    // Text
     int len;
-    fread(&len, sizeof(len), 1, fIn); //stream->Read(&len, sizeof(len));
-    fread(buf, len, 1, fIn);          //stream->Read(buf, len);
+    fread(&len, sizeof(len), 1, fIn);
+    fread(buf, len, 1, fIn);
     node->Text = String(buf, len);
     FProgressBar->pb->StepIt();
 
     for (int n = 0; n < itemsCount; n++) {
         TTreeNode *snode = node->Owner->AddChild(node, "");
-        ReadNode(fIn, snode, buf); //ReadNode(stream, snode, buf);
+        ReadNode(fIn, snode, buf);
     }
     Application->ProcessMessages();
 }
