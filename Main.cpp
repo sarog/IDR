@@ -9667,6 +9667,10 @@ void __fastcall TFMain_11011981::miCommentsGeneratorClick(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
+/**
+ * Generate an IDC file.
+ * @param Sender
+ */
 void __fastcall TFMain_11011981::miIDCGeneratorClick(TObject *Sender) {
     String idcName = "", idcTemplate = "";
     if (SourceFile != "") {
@@ -10082,6 +10086,10 @@ void __fastcall TFMain_11011981::lbCodeDrawItem(TWinControl *Control,
 }
 
 //---------------------------------------------------------------------------
+/**
+ * Generate a .lst file
+ * @param Sender
+ */
 void __fastcall TFMain_11011981::miListerClick(TObject *Sender) {
     bool imp, emb;
     String line;
@@ -10215,15 +10223,22 @@ void __fastcall TFMain_11011981::miListerClick(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
+/**
+ * Output line to a file.
+ * @param OutF Output file
+ * @param flags Flags
+ * @param Adr Address
+ * @param Content String output content
+ */
 void __fastcall TFMain_11011981::OutputLine(FILE *OutF, BYTE flags, DWORD Adr, String Content) {
-    //Ouput comments
+    // Output comments
     if (flags & 0x10) {
         char *p = strchr(AnsiString(Content).c_str(), ';');
         if (p) fprintf(OutF, "C %08lX %s\n", Adr, p + 1);
         return;
     }
 
-    //Jump direction
+    // Jump direction
     if (flags & 4)
         fprintf(OutF, "<");
     else if (flags & 8)
@@ -10240,6 +10255,13 @@ void __fastcall TFMain_11011981::OutputLine(FILE *OutF, BYTE flags, DWORD Adr, S
 }
 
 //---------------------------------------------------------------------------
+/**
+ * Outputs code to a file. Used by the .lst, comments, and Delphi project generators.
+ * @param outF Output file
+ * @param fromAdr From address
+ * @param prototype Prototype name
+ * @param onlyComments Only include comments
+ */
 void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWORD fromAdr, String prototype, bool onlyComments) {
     BYTE op, flags;
     int row = 0, num, instrLen, instrLen1, instrLen2;
