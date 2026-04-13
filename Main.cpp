@@ -12604,32 +12604,32 @@ void __fastcall TFMain_11011981::OutputForwardDeclarationsOfKind(FILE *hF, BYTE 
                 case ikChar:
                 case ikWChar:
                     str = FTypeInfo_11011981->GetCppTypeInfo(adr, &size, 0);
-                    fprintf(hF, "typedef %s %s;\n", str.c_str(), RTTIName.c_str());
+                    fprintf(hF, "typedef %s %s;\n", AnsiString(str).c_str(), AnsiString(RTTIName).c_str());
                     break;
                 case ikEnumeration:
                     //shadow name
                     if (RTTIName.Pos(":") > 0)
                         RTTIName = "Enum_" + Val2Str8(adr);
                     str = FTypeInfo_11011981->GetCppTypeInfo(adr, &size, 0);
-                    fprintf(hF, "enum %s : ", RTTIName.c_str());
+                    fprintf(hF, "enum %s : ", AnsiString(RTTIName).c_str());
                     if (size <= 255)
                         fprintf(hF, "BYTE");
                     else
                         fprintf(hF, "WORD");
-                    fprintf(hF, "\n{\n%s\n};\n\n", str.c_str());
+                    fprintf(hF, "\n{\n%s\n};\n\n", AnsiString(str).c_str());
                     break;
                 case ikString:
                 case ikLString:
                     if (!SameText(RTTIName, "String") && !SameText(RTTIName, "AnsiString"))
-                        fprintf(hF, "typedef String %s;\n", RTTIName.c_str());
+                        fprintf(hF, "typedef String %s;\n", AnsiString(RTTIName).c_str());
                     break;
                 case ikWString:
                     if (!SameText(RTTIName, "WideString"))
-                        fprintf(hF, "typedef WideString %s;\n", RTTIName.c_str());
+                        fprintf(hF, "typedef WideString %s;\n", AnsiString(RTTIName).c_str());
                     break;
                 case ikUString:
                     if (!SameText(RTTIName, "UString") && !SameText(RTTIName, "String"))
-                        fprintf(hF, "typedef UString %s;\n", RTTIName.c_str());
+                        fprintf(hF, "typedef UString %s;\n", AnsiString(RTTIName).c_str());
                     break;
                 case ikSet:
                     //shadow name
@@ -12637,7 +12637,7 @@ void __fastcall TFMain_11011981::OutputForwardDeclarationsOfKind(FILE *hF, BYTE 
                         RTTIName = "Set_" + Val2Str8(adr);
                     str = FTypeInfo_11011981->GetCppTypeInfo(adr, &size, 1);
                     if (str != "") {
-                        fprintf(hF, "enum %s : ", RTTIName.c_str());
+                        fprintf(hF, "enum %s : ", AnsiString(RTTIName).c_str());
                         if (size <= 8)
                             fprintf(hF, "BYTE");
                         else if (size <= 16)
@@ -12650,15 +12650,15 @@ void __fastcall TFMain_11011981::OutputForwardDeclarationsOfKind(FILE *hF, BYTE 
                             fprintf(hF, "__int128");
                         else
                             fprintf(hF, "__int256");
-                        fprintf(hF, "\n{\n%s\n};\n\n", str.c_str());
+                        fprintf(hF, "\n{\n%s\n};\n\n", AnsiString(str).c_str());
                     }
                     break;
                 case ikRecord:
                 case ikClass:
-                    fprintf(hF, "struct %s;\n", RTTIName.c_str());
+                    fprintf(hF, "struct %s;\n", AnsiString(RTTIName).c_str());
                     break;
                 case ikMethod:
-                    fprintf(hF, "struct %s\n", RTTIName.c_str());
+                    fprintf(hF, "struct %s\n", AnsiString(RTTIName).c_str());
                     fprintf(hF, "{\n");
                     fprintf(hF, "void* p;\n");
                     fprintf(hF, "DWORD m;\n");
@@ -12673,16 +12673,16 @@ void __fastcall TFMain_11011981::OutputForwardDeclarationsOfKind(FILE *hF, BYTE 
                 case ikProcedure:
                     break;
                 case ikInterface:
-                    fprintf(hF, "struct %s_vt\n", RTTIName.c_str());
+                    fprintf(hF, "struct %s_vt\n", AnsiString(RTTIName).c_str());
                     fprintf(hF, "{\n");
                     fprintf(hF, "void* QueryInterface;\n");
                     fprintf(hF, "void* AddRef;\n");
                     fprintf(hF, "void* Release;\n");
                     fprintf(hF, "};\n");
-                    fprintf(hF, "typedef %s_vt *%s;\n\n", RTTIName.c_str(), RTTIName.c_str());
+                    fprintf(hF, "typedef %s_vt *%s;\n\n", AnsiString(RTTIName).c_str(), AnsiString(RTTIName).c_str());
                     break;
                 case ikVariant:
-                    fprintf(hF, "typedef Variant %s;\n", RTTIName.c_str());
+                    fprintf(hF, "typedef Variant %s;\n", AnsiString(RTTIName).c_str());
                     break;
             }
         }
