@@ -11195,7 +11195,7 @@ void __fastcall TFMain_11011981::miCopyListClick(TObject *Sender) {
         }
         //Output result
         for (n = 0; n < tmpList->Count; n++) {
-            fprintf(outFile, "%s.dcu\n", tmpList->Strings[n].c_str());
+            fprintf(outFile, "%s.dcu\n", AnsiString(tmpList->Strings[n]).c_str());
         }
         delete tmpList;
         fclose(outFile);
