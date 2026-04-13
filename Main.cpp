@@ -12775,7 +12775,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
         recU = static_cast<PUnitRec>(Units->Items[n]);
         if (recU->trivial) continue;
         unitName = GetUnitName(recU);
-        fprintf(hF, "//%s\n", unitName.c_str());
+        fprintf(hF, "//%s\n", AnsiString(unitName).c_str());
 
         for (adr = recU->fromAdr; adr < recU->toAdr; adr++) {
             recN = GetInfoRec(adr);
@@ -12801,7 +12801,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                 case ikChar:
                 case ikWChar:
                     str = FTypeInfo_11011981->GetCppTypeInfo(adr, &size, 0);
-                    fprintf(hF, "typedef %s %s;\n\n", str.c_str(), RTTIName.c_str());
+                    fprintf(hF, "typedef %s %s;\n\n", AnsiString(str).c_str(), AnsiString(RTTIName).c_str());
                     break;
                 case ikEnumeration:
                     break;
@@ -12809,14 +12809,14 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                     break;
                 case ikProcedure:
                     str = FTypeInfo_11011981->GetCppTypeInfo(adr, &size, 0);
-                    fprintf(hF, "typedef %s;\n", str.c_str());
+                    fprintf(hF, "typedef %s;\n", AnsiString(str).c_str());
                     break;
                 case ikMethod:
                     str = FTypeInfo_11011981->GetCppTypeInfo(adr, &size, 0);
-                    fprintf(hF, "typedef %s;\n", str.c_str());
-                    fprintf(hF, "struct %s\n", RTTIName.c_str());
+                    fprintf(hF, "typedef %s;\n", AnsiString(str).c_str());
+                    fprintf(hF, "struct %s\n", AnsiString(RTTIName).c_str());
                     fprintf(hF, "{\n");
-                    fprintf(hF, "P%s p;\n", RTTIName.c_str());
+                    fprintf(hF, "P%s p;\n", AnsiString(RTTIName).c_str());
                     fprintf(hF, "DWORD m;\n");
                     fprintf(hF, "};\n\n");
                     break;
@@ -12824,7 +12824,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                     if (RTTIName.Pos(":") > 0)
                         RTTIName = "Array_" + Val2Str8(adr);
                     str = FTypeInfo_11011981->GetCppTypeInfo(adr, &size, 0);
-                    fprintf(hF, AnsiString(str).c_str(), RTTIName.c_str());
+                    fprintf(hF, AnsiString(str).c_str(), AnsiString(RTTIName).c_str());
                     break;
                 case ikRecord:
                     //These names already present
@@ -12839,12 +12839,12 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                     if (size > 10000) fprintf(hF, "//Big size!\n");
                     fprintf(hF, "struct %s//size=0x%s\n", AnsiString(RTTIName).c_str(), AnsiString(Val2Str0(size)).c_str());
                     fprintf(hF, "{\n");
-                    fprintf(hF, "%s", str.c_str());
+                    fprintf(hF, "%s", AnsiString(str).c_str());
                     fprintf(hF, "};\n\n");
                     break;
                 case ikInt64:
                     str = FTypeInfo_11011981->GetCppTypeInfo(adr, &size, 0);
-                    fprintf(hF, "typedef %s %s;\n\n", str.c_str(), RTTIName.c_str());
+                    fprintf(hF, "typedef %s %s;\n\n", AnsiString(str).c_str(), AnsiString(RTTIName).c_str());
                     break;
                 case ikDynArray:
                     if (RTTIName.Pos(":") > 0)
@@ -12854,10 +12854,10 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                     fprintf(hF, "typedef ");
                     if (kind == ikRecord || kind == ikVMT)
                         fprintf(hF, "struct ");
-                    fprintf(hF, "%s *", str.c_str());
+                    fprintf(hF, "%s *", AnsiString(str).c_str());
                     if (kind == ikVMT)
                         fprintf(hF, "*");
-                    fprintf(hF, "%s;\n\n", RTTIName.c_str());
+                    fprintf(hF, "%s;\n\n", AnsiString(RTTIName).c_str());
                     break;
                 case ikPointer:
                     str = FTypeInfo_11011981->GetCppTypeInfo(adr, &size, 0);
@@ -12865,11 +12865,11 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                     fprintf(hF, "typedef ");
                     if (kind == ikRecord || kind == ikVMT)
                         fprintf(hF, "struct ");
-                    fprintf(hF, "%s *%s;\n", str.c_str(), RTTIName.c_str());
+                    fprintf(hF, "%s *%s;\n", AnsiString(str).c_str(), AnsiString(RTTIName).c_str());
                     break;
                 case ikClassRef:
                     str = FTypeInfo_11011981->GetCppTypeInfo(adr, &size, 0);
-                    fprintf(hF, "typedef struct %s *%s;\n\n", str.c_str(), RTTIName.c_str());
+                    fprintf(hF, "typedef struct %s *%s;\n\n", AnsiString(str).c_str(), AnsiString(RTTIName).c_str());
                     break;
                 case ikVMT:
                     //Output virtual functions
@@ -12900,16 +12900,16 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                             recN = GetInfoRec(recM->address);
                             if (recN) {
                                 str = recN->MakeCppPrototype(recM->address, RTTIName + "_m" + Val2Str0(id));
-                                fprintf(hF, "%s", str.c_str());
+                                fprintf(hF, "%s", AnsiString(str).c_str());
                             } else {
-                                fprintf(hF, "DWORD (__usercall *P%s_m%d)@<eax>", RTTIName.c_str(), id);
+                                fprintf(hF, "DWORD (__usercall *P%s_m%d)@<eax>", AnsiString(RTTIName).c_str(), id);
                             }
                             fprintf(hF, ";\n");
                             id += 4;
                         }
                     }
 
-                    fprintf(hF, "struct %s_vmt\n", RTTIName.c_str());
+                    fprintf(hF, "struct %s_vmt\n", AnsiString(RTTIName).c_str());
                     fprintf(hF, "{\n");
                     for (m = 0, id = 0; m < virtNum; m++) {
                         recM = static_cast<PMethodRec>(virtList->Items[m]);
@@ -12925,21 +12925,21 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                             if (recN) {
                                 if (name == "")
                                     name = recN->GetName();
-                                fprintf(hF, "P%s_m%lX %s_sub_%08lX", RTTIName.c_str(), id, RTTIName.c_str(),
+                                fprintf(hF, "P%s_m%lX %s_sub_%08lX", AnsiString(RTTIName).c_str(), id, AnsiString(RTTIName).c_str(),
                                         recM->address);
                                 if (idx >= 0)
                                     fprintf(hF, "_%d", idx);
                                 fprintf(hF, ";");
                                 if (name != "")
-                                    fprintf(hF, "//%s", name.c_str());
+                                    fprintf(hF, "//%s", AnsiString(name).c_str());
                             } else {
-                                fprintf(hF, "P%s_m%lX %s_sub_%08lX", RTTIName.c_str(), id, RTTIName.c_str(),
+                                fprintf(hF, "P%s_m%lX %s_sub_%08lX", AnsiString(RTTIName).c_str(), id, AnsiString(RTTIName).c_str(),
                                         recM->address);
                                 if (idx >= 0)
                                     fprintf(hF, "_%d", idx);
                                 fprintf(hF, ";");
                                 if (name != "")
-                                    fprintf(hF, "//%s", name.c_str());
+                                    fprintf(hF, "//%s", AnsiString(name).c_str());
                             }
                             fprintf(hF, "\n");
                             id += 4;
@@ -12951,9 +12951,9 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
 
                     //Output fields
                     str = FTypeInfo_11011981->GetCppTypeInfo(adr, &size, 0);
-                    fprintf(hF, "struct %s//size = 0x%lX\n", RTTIName.c_str(), GetClassSize(adr));
+                    fprintf(hF, "struct %s//size = 0x%lX\n", AnsiString(RTTIName).c_str(), GetClassSize(adr));
                     fprintf(hF, "{\n");
-                    fprintf(hF, "%s", str.c_str());
+                    fprintf(hF, "%s", AnsiString(str).c_str());
                     fprintf(hF, "};\n\n");
 
                     //Output Interfaces
