@@ -1401,7 +1401,7 @@ DWORD __fastcall TDecompiler::Decompile(DWORD fromAdr, DWORD flags, PLoopInfo lo
     _curAdr = fromAdr;
     _procSize = GetProcSize(Env->StartAdr);
 
-    while (1) {
+    while (true) {
         //!!!
         if (_curAdr == 0x007422A4)
             _curAdr = _curAdr;
