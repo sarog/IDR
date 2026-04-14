@@ -411,6 +411,7 @@ void __fastcall TFMain_11011981::Init() {
     miKBTypeInfo->Enabled = false;
     miCtdPassword->Enabled = false;
     miHex2Double->Enabled = false;
+    miCreateCHeaderFile->Enabled = false;
 
     //Init Units
     lbUnits->Clear();
@@ -7364,6 +7365,7 @@ void __fastcall TFMain_11011981::miClassTreeBuilderClick(TObject *Sender) {
     miKBTypeInfo->Enabled = false;
     miCtdPassword->Enabled = false;
     miHex2Double->Enabled = false;
+    miCreateCHeaderFile->Enabled = false;
 
     FProgressBar->Show();
 
@@ -7860,6 +7862,7 @@ void __fastcall TFMain_11011981::AnalyzeThreadDone(TObject *Sender) {
     miKBTypeInfo->Enabled = true;
     miCtdPassword->Enabled = IsValidCodeAdr(CtdRegAdr);
     miHex2Double->Enabled = true;
+    miCreateCHeaderFile->Enabled = true;
 
     delete AnalyzeThread;
     AnalyzeThread = 0;
@@ -8799,6 +8802,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
     miKBTypeInfo->Enabled = true;
     miCtdPassword->Enabled = IsValidCodeAdr(CtdRegAdr);
     miHex2Double->Enabled = true;
+    miCreateCHeaderFile->Enabled = true;
 
     WrkDir = ExtractFileDir(FileName);
     Screen->Cursor = crDefault;
@@ -12451,7 +12455,7 @@ void __fastcall TFMain_11011981::mniShellIntegration1Click(TObject *Sender) {
 
 //TerminatorX code END
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::mCreateCHeaderFileClick(TObject *Sender) {
+void __fastcall TFMain_11011981::miCreateCHeaderFileClick(TObject *Sender) {
     String hName = "";
     if (SourceFile != "") {
         hName = ChangeFileExt(SourceFile, ".h");

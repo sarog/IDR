@@ -506,7 +506,8 @@ class TFMain_11011981 : public TForm {
     TMenuItem *mniShellIntegration1;
     TMenuItem *mniN3;
     TMenuItem *mniN4;
-    TMenuItem *mCreateCHeaderFile;
+    TMenuItem *miCreateCHeaderFile;
+
     void __fastcall miExitClick(TObject *Sender);
     void __fastcall miAutodetectVersionClick(TObject *Sender);
     void __fastcall FormCreate(TObject *Sender);
@@ -699,8 +700,8 @@ class TFMain_11011981 : public TForm {
     void __fastcall miCopytoClipboardNamesClick(TObject *Sender);
     void __fastcall miHiewGeneratorClick(TObject *Sender);
     void __fastcall mniShellIntegration1Click(TObject *Sender);
-    void __fastcall mCreateCHeaderFileClick(TObject *Sender);
-    void __fastcall OutputForwardDeclarationsHeader(FILE *hF);
+    void __fastcall miCreateCHeaderFileClick(TObject *Sender);
+    static void __fastcall OutputForwardDeclarationsHeader(FILE *hF);
     void __fastcall OutputForwardDeclarationsOfKind(FILE *hF, BYTE kind);
     void __fastcall CreateCppHeaderFile(FILE *hF);
     //void __fastcall mniMap1Click(TObject *Sender);

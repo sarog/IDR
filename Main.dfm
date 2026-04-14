@@ -920,9 +920,9 @@ object FMain_11011981: TFMain_11011981
         Caption = '&Hex->Double'
         OnClick = miHex2DoubleClick
       end
-      object mCreateCHeaderFile: TMenuItem
+      object miCreateCHeaderFile: TMenuItem
         Caption = 'Create C header file'
-        OnClick = mCreateCHeaderFileClick
+        OnClick = miCreateCHeaderFileClick
       end
     end
     object miTabs: TMenuItem
