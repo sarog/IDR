@@ -38,7 +38,7 @@ void __fastcall TIDCGen::NewIDCPart(FILE *FIdc) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TIDCGen::DeleteName(int pos) {
+void __fastcall TIDCGen::DeleteName(const int pos) {
     DWORD adr = Pos2Adr(pos);
 
     CurrentBytes += fprintf(idcF, "MakeUnkn(0x%lX, 1);\n", adr);
@@ -46,31 +46,31 @@ void __fastcall TIDCGen::DeleteName(int pos) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TIDCGen::MakeByte(int pos) {
+int __fastcall TIDCGen::MakeByte(const int pos) {
     CurrentBytes += fprintf(idcF, "MakeByte(0x%lX);\n", Pos2Adr(pos));
     return pos + 1;
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TIDCGen::MakeWord(int pos) {
+int __fastcall TIDCGen::MakeWord(const int pos) {
     CurrentBytes += fprintf(idcF, "MakeWord(0x%lX);\n", Pos2Adr(pos));
     return pos + 2;
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TIDCGen::MakeDword(int pos) {
+int __fastcall TIDCGen::MakeDword(const int pos) {
     CurrentBytes += fprintf(idcF, "MakeDword(0x%lX);\n", Pos2Adr(pos));
     return pos + 4;
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TIDCGen::MakeQword(int pos) {
+int __fastcall TIDCGen::MakeQword(const int pos) {
     CurrentBytes += fprintf(idcF, "MakeQword(0x%lX);\n", Pos2Adr(pos));
     return pos + 8;
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TIDCGen::MakeArray(int pos, int num) {
+int __fastcall TIDCGen::MakeArray(const int pos, const int num) {
     CurrentBytes += fprintf(idcF, "MakeByte(0x%lX);\n", Pos2Adr(pos));
     CurrentBytes += fprintf(idcF, "MakeArray(0x%lX, %d);\n", Pos2Adr(pos), num);
     return pos + num;
@@ -98,7 +98,7 @@ int __fastcall TIDCGen::MakeCString(int pos) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TIDCGen::MakeLString(int pos) {
+void __fastcall TIDCGen::MakeLString(const int pos) {
     CurrentBytes += fprintf(idcF, "SetLongPrm(INF_STRTYPE, ASCSTR_TERMCHR);\n");
     CurrentBytes += fprintf(idcF, "MakeStr(0x%lX, -1);\n", Pos2Adr(pos));
     //Length
@@ -108,7 +108,7 @@ void __fastcall TIDCGen::MakeLString(int pos) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TIDCGen::MakeWString(int pos) {
+void __fastcall TIDCGen::MakeWString(const int pos) {
     CurrentBytes += fprintf(idcF, "SetLongPrm(INF_STRTYPE, ASCSTR_UNICODE);\n");
     CurrentBytes += fprintf(idcF, "MakeStr(0x%lX, -1);\n", Pos2Adr(pos));
     //Length
@@ -116,7 +116,7 @@ void __fastcall TIDCGen::MakeWString(int pos) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TIDCGen::MakeUString(int pos) {
+void __fastcall TIDCGen::MakeUString(const int pos) {
     CurrentBytes += fprintf(idcF, "SetLongPrm(INF_STRTYPE, ASCSTR_UNICODE);\n");
     CurrentBytes += fprintf(idcF, "MakeStr(0x%lX, -1);\n", Pos2Adr(pos));
     //Length
@@ -148,7 +148,7 @@ void __fastcall TIDCGen::MakeFunction(DWORD adr) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TIDCGen::MakeComment(int pos, String text) {
+void __fastcall TIDCGen::MakeComment(const int pos, String text) {
     CurrentBytes += fprintf(idcF, "MakeComm(0x%lX, \"%s\");\n", Pos2Adr(pos), AnsiString(text).c_str());
 }
 
