@@ -400,7 +400,7 @@ bool __stdcall EnumResNameProcedure(HMODULE hModule, char *Type, char *Name, lon
                         }
                         delete formText;
 
-                        reinterpret_cast<TResourceInfo *>(Param)->FormList->Add((void *) dfm);
+                        reinterpret_cast<TResourceInfo *>(Param)->FormList->Add(static_cast<void *>(dfm));
                     } else if (!ResInfo->citadel) {
                         ShowMessage("Citadel for Delphi detected, forms cannot be loaded");
                         ResInfo->citadel = true;
@@ -415,7 +415,7 @@ bool __stdcall EnumResNameProcedure(HMODULE hModule, char *Type, char *Name, lon
             dfm = new TDfm;
             dfm->ResName = Name;
             dfm->MemStream->LoadFromStream(resStream);
-            reinterpret_cast<TResourceInfo *>(Param)->FormList->Add((void *) dfm);
+            reinterpret_cast<TResourceInfo *>(Param)->FormList->Add(static_cast<void *>(dfm));
         }
         delete resStream;
     }

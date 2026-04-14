@@ -1624,7 +1624,7 @@ String __fastcall InfoRec::MakePrototype(int adr, bool showKind, bool showTail, 
                     result += " ";
             }
 
-            argInfo = (PARGINFO) procInfo->args->Items[n];
+            argInfo = static_cast<PARGINFO>(procInfo->args->Items[n]);
             if (argInfo->Tag == 0x22) result += "var ";
 
             else if (argInfo->Tag == 0x23) result += "const "; //Add by ZGL
@@ -1672,7 +1672,7 @@ String __fastcall InfoRec::MakePrototype(int adr, bool showKind, bool showTail, 
     if (!callKind) //(!IsFlagSet(cfImport, Adr2Pos(Adr)))
     {
         for (n = 0; n < argsNum; n++) {
-            argInfo = (PARGINFO) procInfo->args->Items[n];
+            argInfo = static_cast<PARGINFO>(procInfo->args->Items[n]);
             if (argInfo->Ndx == 0)
                 argres += "A";
             else if (argInfo->Ndx == 1)
@@ -1744,7 +1744,7 @@ String __fastcall InfoRec::MakeDelphiPrototype(int Adr, PMethodRec recM) {
             for (n = firstArg; n < argsNum; n++) {
                 if (n != firstArg) len += sprintf(StringBuf + len, "; ");
 
-                argInfo = (PARGINFO) procInfo->args->Items[n];
+                argInfo = static_cast<PARGINFO>(procInfo->args->Items[n]);
                 if (argInfo->Tag == 0x22) len += sprintf(StringBuf + len, "var ");
 
                 else if (argInfo->Tag == 0x23) len += sprintf(StringBuf + len, "const "); //Add by ZGL
@@ -1822,7 +1822,7 @@ String __fastcall InfoRec::MakeMultilinePrototype(int Adr, int *ArgsBytes, Strin
             procInfo->AddArg(argInfo);
         } else {
             if (MethodType != "") {
-                argInfo = (PARGINFO) procInfo->args->Items[0];
+                argInfo = static_cast<PARGINFO>(procInfo->args->Items[0]);
                 argInfo->Name = "Self";
                 argInfo->TypeDef = MethodType;
                 procInfo->args->Items[0] = argInfo;
@@ -1837,7 +1837,7 @@ String __fastcall InfoRec::MakeMultilinePrototype(int Adr, int *ArgsBytes, Strin
     for (n = firstArg; n < argsNum; n++) {
         if (n != firstArg) result += ";\r\n";
 
-        argInfo = (PARGINFO) procInfo->args->Items[n];
+        argInfo = static_cast<PARGINFO>(procInfo->args->Items[n]);
         //var
         if (argInfo->Tag == 0x22) result += "var ";
 
@@ -1902,7 +1902,7 @@ String __fastcall InfoRec::MakeCppPrototype(int Adr, String FType) {
     argsNum = (procInfo->args) ? procInfo->args->Count : 0;
     for (n = 0; n < argsNum; n++) {
         if (n) result += ", ";
-        argInfo = (PARGINFO) procInfo->args->Items[n];
+        argInfo = static_cast<PARGINFO>(procInfo->args->Items[n]);
         argType = argInfo->TypeDef;
         if (argType != "" && argType != "?") {
             typeKind = GetTypeKind(argType, &size);
