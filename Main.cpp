@@ -313,10 +313,13 @@ void __fastcall TFMain_11011981::ClassViewer1Click(TObject *Sender) {
     //if (tsClassView->Enabled)
     //{
     pcWorkArea->ActivePage = tsClassView;
-    if (!rgViewerMode->ItemIndex)
-        if (tvClassesFull->CanFocus()) ActiveControl = tvClassesFull;
-        else
-            if (tvClassesShort->CanFocus()) ActiveControl = tvClassesShort;
+    if (!rgViewerMode->ItemIndex) {
+        if (tvClassesFull->CanFocus()) {
+            ActiveControl = tvClassesFull;
+        } else if (tvClassesShort->CanFocus()) {
+            ActiveControl = tvClassesShort;
+        }
+    }
     //}
 }
 
