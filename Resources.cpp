@@ -329,32 +329,26 @@ int __fastcall AnalyzeSection(TDfm *Dfm, TStringList *FormText, int From, PCompo
 
 //---------------------------------------------------------------------------
 bool __stdcall EnumResNameProcedure(HMODULE hModule, char *Type, char *Name, long Param) {
-    bool res;
     TFilerFlags flags;
-    int position, srcSize, dstSize;
-    TDfm *dfm;
-    TStringList *formText;
-    TMemoryStream *ms;
-    TResourceStream *resStream;
     String className, vmtName;
     BYTE signature[4];
 
     // -sg: RT_BITMAP is never used
     if (Type == RT_RCDATA || Type == RT_BITMAP) {
-        resStream = new TResourceStream(hModule, String(Name), String(Type).c_str());
+        TDfm *dfm;
         // resStream = new TResourceStream(hModule, String(Name), String(Type).c_str());
-        resStream = new TResourceStream(reinterpret_cast<unsigned int>(hModule), String(Name), reinterpret_cast<System::Char *>(RT_RCDATA));
+        TResourceStream *resStream = new TResourceStream(reinterpret_cast<unsigned int>(hModule), String(Name), reinterpret_cast<System::Char *>(RT_RCDATA));
         if (Type == RT_RCDATA) {
-            ms = new TMemoryStream;
+            TMemoryStream *ms = new TMemoryStream;
             ms->LoadFromStream(resStream);
-            res = true;
+            bool res = true;
             if (ResInfo->hFormPlugin) {
                 fnGetDstSize = (int(__stdcall *)(BYTE *, int)) GetProcAddress(ResInfo->hFormPlugin, "GetDstSize");
                 fnDecrypt = (boolean(__stdcall *)(BYTE *, int, BYTE *, int)) GetProcAddress(ResInfo->hFormPlugin, "Decrypt");
                 res = (fnGetDstSize && fnDecrypt);
                 if (res) {
-                    srcSize = ms->Size;
-                    dstSize = fnGetDstSize((BYTE *) ms->Memory, srcSize);
+                    int srcSize = ms->Size;
+                    int dstSize = fnGetDstSize((BYTE *) ms->Memory, srcSize);
                     if (srcSize != dstSize) {
                         TMemoryStream *ds = new TMemoryStream;
                         ds->Size = dstSize;
@@ -384,7 +378,7 @@ bool __stdcall EnumResNameProcedure(HMODULE hModule, char *Type, char *Name, lon
                         dfm->MemStream = ms;
 
                         // Analyze text representation
-                        formText = new TStringList;
+                        TStringList *formText = new TStringList;
                         ResInfo->GetFormAsText(dfm, formText);
 
                         String line = formText->Strings[0];
