@@ -369,7 +369,7 @@ bool __stdcall EnumResNameProcedure(HMODULE hModule, char *Type, char *Name, lon
                 if (res) {
                     BYTE *mp = (BYTE *) ms->Memory;
                     BYTE len = *(mp + 4);
-                    res = (len == strlen(Name) && SameText(Name, String((char *) mp + 5, len)));
+                    res = (len == strlen(Name) && SameText(Name, String(reinterpret_cast<char *>(mp + 5), len)));
                 }
             }
             if (res) {
