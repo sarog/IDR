@@ -1,41 +1,33 @@
 # https://docwiki.embarcadero.com/RADStudio/Athens/en/Using_CMake_with_C%2B%2B_Builder
 # https://docwiki.embarcadero.com/RADStudio/Athens/en/CMake_Macros_and_Variables
-
-# Target Win32: cmake -DCMAKE_C_COMPILER=bcc32x.exe -DCMAKE_CXX_COMPILER=bcc32x.exe -G Ninja <directory> [1]
-# Target Win64: cmake -DCMAKE_C_COMPILER=bcc64.exe -DCMAKE_CXX_COMPILER=bcc64.exe -G Ninja <directory> [
+# https://docwiki.embarcadero.com/RADStudio/Tokyo/en/BCC32.EXE,_the_C%2B%2B_32-bit_Command-Line_Compiler
 
 cmake_minimum_required(VERSION 3.21)
 
 set(APP "IDR")
 
-# set(CMAKE_BUILD_TYPE "DEBUG")
-# set(CMAKE_CXX_COMPILER bcc32)
-# set(CMAKE_MAKE_PROGRAM Ninja)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-#set(CMAKE_DEPFILE_FLAGS_CXX "-md -mo\"<DEPFILE>\"")
+project(${APP} VERSION 1.0.0.0 LANGUAGES CXX)
 
-# https://docwiki.embarcadero.com/RADStudio/Tokyo/en/BCC32.EXE,_the_C%2B%2B_32-bit_Command-Line_Compiler
-# https://docwiki.embarcadero.com/RADStudio/Sydney/en/Message_Options
+# https://docwiki.embarcadero.com/RADStudio/Athens/en/Message_Options
 # -w-csu -w-aus -w-mcc -w-
-# -DUNICODE -D_UNICODE
 add_compile_options(-D_DEBUG -DUSEPACKAGES)
 
-if (BCC32C)
-    add_compile_options(-y -Q -k -r- -w -wall -D_DEBUG -DUSEPACKAGES)
-elseif (BCC32)
+if (BCC32)
     add_compile_options(-y -Q -k -r- -c -w-par -vi- -C8 -Od -D_DEBUG -DUSEPACKAGES -H -n.\\Win32\\Debug\\Obj -H=.\\IdrPCH1.h)
+elseif (BCC32C)
+    # not supported: -y -Q -k -r- -w -wall
+    add_compile_options(-D_DEBUG -DUSEPACKAGES)
+elseif (BCC32X)
+    add_compile_options(-D_DEBUG -DUSEPACKAGES)
+elseif (BCC64)
+    # -DUNICODE -D_UNICODE
+    add_compile_options(-D_DEBUG -DUSEPACKAGES -D FRAMEWORK_VCL)
 endif ()
 
-# test w/presets: add_compile_options(-D_DEBUG -DUSEPACKAGES -H -n.\\Win32\\Debug\\Obj -H=.\\IdrPCH1.h)
-# add_compile_options(-y -Q -k -r- -c -w-par -w-mcc -w-csu -vi- -D_DEBUG -DUSEPACKAGES)
-
 set(CMAKE_RC_FLAGS "${CMAKE_RC_FLAGS} -d_DEBUG")
-
-message(STATUS "RC compiler: ${CMAKE_RC_COMPILER}")
-
-project(${APP} VERSION 1.0.0.0 LANGUAGES CXX)
 
 # -tR -eidr.exe -tM -lS:1048576 -lSc:4098 -lH:1048576 -lHc:8192 -v -tC -lGl -lGpr -tM -Od -v @MAKE0000.@@@
 file(GLOB SOURCES
