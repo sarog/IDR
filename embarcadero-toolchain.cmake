@@ -1,14 +1,8 @@
 cmake_minimum_required(VERSION 3.21)
 
-set(BCC32C TRUE)
-set(_EMBT_CPP_PREPROCESSOR "cpp32c")
-set(CLANG_BASED TRUE)
-
 set(EMBT_TARGET Windows)
 
-set(ROOTDIR "$ENV{USERPROFILE}\\Programs\\BCC1210")
-
-#[[if(CMAKE_BASE_NAME STREQUAL "bcc32x")
+if(CMAKE_BASE_NAME STREQUAL "bcc32x")
     set(BCC32X TRUE)
     set(_EMBT_CPP_PREPROCESSOR "cpp32x")
     set(CLANG_BASED TRUE)
@@ -27,8 +21,9 @@ elseif(CMAKE_BASE_NAME STREQUAL "bcc32")
     set(_EMBT_CPP_PREPROCESSOR "cpp32")
     set(CLANG_BASED FALSE)
 else()
-    message(FATAL_ERROR "Unknown compiler specified ${CMAKE_BASE_NAME}")
-endif()]]
+    # message(STATUS "Unknown compiler specified ${CMAKE_BASE_NAME}")
+    # message(FATAL_ERROR "Unknown compiler specified ${CMAKE_BASE_NAME}")
+endif()
 
 # This module is shared by multiple languages; use include blocker.
 if(__WINDOWS_EMBARCADERO)
@@ -85,8 +80,9 @@ endif()
 
 if(CLANG_BASED_OPTS)
     if(NOT CMAKE_GENERATOR MATCHES "Borland Makefiles")
-        set(CMAKE_DEPFILE_FLAGS_C "-MD -MT <OBJECT> -MF <DEP_FILE>")
-        set(CMAKE_DEPFILE_FLAGS_CXX ${CMAKE_DEPFILE_FLAGS_C})
+        # set(CMAKE_DEPFILE_FLAGS_C "-MD -MT <OBJECT> -MF <DEP_FILE>")
+        set(CMAKE_DEPFILE_FLAGS_CXX "-dependency-file <DEP_FILE>")
+        # set(CMAKE_DEPFILE_FLAGS_CXX ${CMAKE_DEPFILE_FLAGS_C})
     endif()
 else()
     if(NOT CMAKE_GENERATOR MATCHES "Borland Makefiles")
@@ -121,7 +117,7 @@ elseif(BCC32)
     link_directories("${ROOTDIR}/lib/win32/release")
     link_directories("${ROOTDIR}/lib/win32/release/psdk")
 else()
-    message(FATAL_ERROR "Unknown compiler")
+  # message(FATAL_ERROR "Unknown compiler")
 endif()
 
 
