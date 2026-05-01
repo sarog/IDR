@@ -12,7 +12,9 @@
       "binaryDir": "${sourceDir}/build/${presetName}",
       "toolchainFile": "embarcadero-toolchain.cmake",
       "environment": {
-        "BDS_ROOT": "$penv{USERPROFILE}\\Programs\\BCC1210",
+        "BDS_ROOT": "$penv{USERPROFILE}\\Programs\\BCC1210"
+      },
+      "cacheVariables": {
         "ROOTDIR": "$env{BDS_ROOT}"
       },
       "hidden": true
@@ -38,7 +40,6 @@
         "BCC32": true,
         "CLANG_BASED": false,
         "_EMBT_CPP_PREPROCESSOR": "cpp32",
-        "CMAKE_BASE_NAME": "bcc32",
         "CMAKE_C_COMPILER": "$env{BDS_ROOT}\\bin\\bcc32.exe",
         "CMAKE_CXX_COMPILER": "$env{BDS_ROOT}\\bin\\bcc32.exe",
         "CMAKE_ASM_COMPILER": "$env{BDS_ROOT}\\bin\\bcc32.exe"
@@ -48,7 +49,9 @@
       "name": "bcc32c",
       "inherits": "default",
       "cacheVariables": {
-        "CMAKE_BASE_NAME": "bcc32c",
+        "BCC32C": true,
+        "CLANG_BASED": true,
+        "_EMBT_CPP_PREPROCESSOR": "cpp32c",
         "CMAKE_C_COMPILER": "$env{BDS_ROOT}\\bin\\bcc32c.exe",
         "CMAKE_CXX_COMPILER": "$env{BDS_ROOT}\\bin\\bcc32c.exe",
         "CMAKE_ASM_COMPILER": "$env{BDS_ROOT}\\bin\\bcc32c.exe"
@@ -58,6 +61,10 @@
       "name": "bcc32x",
       "inherits": "default",
       "cacheVariables": {
+        "BCC32X": true,
+        "CLANG_BASED": true,
+        "CLANG_BASED_OPTS": true,
+        "_EMBT_CPP_PREPROCESSOR": "cpp32x",
         "CMAKE_C_COMPILER": "$env{BDS_ROOT}\\bin\\bcc32x.exe",
         "CMAKE_CXX_COMPILER": "$env{BDS_ROOT}\\bin\\bcc32x.exe",
         "CMAKE_ASM_COMPILER": "$env{BDS_ROOT}\\bin\\bcc32x.exe"
@@ -67,6 +74,10 @@
       "name": "bcc64",
       "inherits": "default",
       "cacheVariables": {
+        "BCC64": true,
+        "CLANG_BASED": true,
+        "CLANG_BASED_OPTS": true,
+        "_EMBT_CPP_PREPROCESSOR": "cpp64",
         "CMAKE_C_COMPILER": "$env{BDS_ROOT}\\bin\\bcc64.exe",
         "CMAKE_CXX_COMPILER": "$env{BDS_ROOT}\\bin\\bcc64.exe",
         "CMAKE_ASM_COMPILER": "$env{BDS_ROOT}\\bin\\bcc64.exe"
@@ -85,9 +96,9 @@
       "name": "bcc64x",
       "inherits": "default",
       "cacheVariables": {
-        "CMAKE_C_COMPILER": "$env{BDS_ROOT}\\bin\\bcc64x.exe",
-        "CMAKE_CXX_COMPILER": "$env{BDS_ROOT}\\bin\\bcc64x.exe",
-        "CMAKE_ASM_COMPILER": "$env{BDS_ROOT}\\bin\\bcc64x.exe"
+        "CMAKE_C_COMPILER": "$env{BDS_ROOT}\\bin64\\bcc64x.exe",
+        "CMAKE_CXX_COMPILER": "$env{BDS_ROOT}\\bin64\\bcc64x.exe",
+        "CMAKE_ASM_COMPILER": "$env{BDS_ROOT}\\bin64\\bcc64x.exe"
       }
     }
   ],
@@ -113,7 +124,7 @@
     {
       "name": "BCC64",
       "displayName": "Embarcadero BCC64",
-      "description": "BCC64 classic compiler",
+      "description": "BCC64 Clangd-based compiler",
       "configurePreset": "bcc64"
     },
     {
