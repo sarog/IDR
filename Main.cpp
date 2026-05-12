@@ -6951,7 +6951,7 @@ void __fastcall TFMain_11011981::ShowDfm(TDfm *dfm) {
     if (dfm->Form) {
         PUnitRec recU = GetUnit(GetClassAdr(dfm->ClassName));
         if (recU) {
-            int stringLen = sprintf(StringBuf, "[#%03d] %s", recU->iniOrder, dfm->Form->Caption.c_str());
+            int stringLen = sprintf(StringBuf, "[#%03d] %s", recU->iniOrder, AnsiString(dfm->Form->Caption).c_str());
             dfm->Form->Caption = String(StringBuf, stringLen);
         }
         dfm->Open = 2;
