@@ -15,16 +15,16 @@ extern TResourceInfo *ResInfo;
 
 extern int dummy;
 extern int DelphiVersion;
-extern DWORD CurProcAdr;
-extern DWORD CurUnitAdr;
+extern DWord CurProcAdr;
+extern DWord CurUnitAdr;
 extern bool ClassTreeDone;
 extern SysProcInfo SysProcs[];
 extern SysProcInfo SysInitProcs[];
-extern BYTE *Code;
-extern DWORD *Flags;
-extern DWORD CodeSize;
-extern DWORD CodeBase;
-extern DWORD TotalSize;
+extern Byte *Code;
+extern DWord *Flags;
+extern DWord CodeSize;
+extern DWord CodeBase;
+extern DWord TotalSize;
 extern PInfoRec *Infos;
 extern TList *OwnTypeList;
 extern int cVmtSelfPtr;
@@ -36,8 +36,8 @@ extern int UnitsNum;
 extern TList *ExpFuncList;
 extern TList *VmtList;
 extern TList *Units;
-extern DWORD EP;
-extern DWORD HInstanceVarAdr;
+extern DWord EP;
+extern DWord HInstanceVarAdr;
 extern int LastResStrNo;
 extern MDisasm Disasm;
 
@@ -221,7 +221,7 @@ void __fastcall TAnalyzeThread::UpdateStatusBar(const String &sbText) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TAnalyzeThread::UpdateAddrInStatusBar(DWORD adr) {
+void __fastcall TAnalyzeThread::UpdateAddrInStatusBar(DWord adr) {
     if (!Terminated) {
         adrCnt++;
         if (adrCnt == SKIPADDR_COUNT) {
@@ -292,11 +292,11 @@ void __fastcall TAnalyzeThread::UpdateBeforeClassViewer() {
 
 //---------------------------------------------------------------------------
 void __fastcall TAnalyzeThread::StrapSysProcs() {
-    int n, Idx, pos;
+    int Idx, pos;
     MProcInfo aInfo, *pInfo;
 
-    WORD moduleID = KnowledgeBase.GetModuleID("System");
-    for (n = 0; SysProcs[n].name && !Terminated; n++) {
+    Word moduleID = KnowledgeBase.GetModuleID("System");
+    for (int n = 0; SysProcs[n].name && !Terminated; n++) {
         Idx = KnowledgeBase.GetProcIdx(moduleID, SysProcs[n].name);
         if (Idx != -1) {
             Idx = KnowledgeBase.ProcOffsets[Idx].NamId;
@@ -315,7 +315,7 @@ void __fastcall TAnalyzeThread::StrapSysProcs() {
     }
 
     moduleID = KnowledgeBase.GetModuleID("SysInit");
-    for (n = 0; SysInitProcs[n].name && !Terminated; n++) {
+    for (int n = 0; SysInitProcs[n].name && !Terminated; n++) {
         Idx = KnowledgeBase.GetProcIdx(moduleID, SysInitProcs[n].name);
         if (Idx != -1) {
             Idx = KnowledgeBase.ProcOffsets[Idx].NamId;
@@ -333,9 +333,9 @@ void __fastcall TAnalyzeThread::StrapSysProcs() {
 
 //---------------------------------------------------------------------------
 void __fastcall TAnalyzeThread::FindRTTIs() {
-    BYTE paramCnt, numOps, methodKind, flags;
-    WORD dw, Count, methCnt;
-    DWORD typInfo, baseTypeAdr, dd, procSig;
+    Byte paramCnt, numOps, methodKind, flags;
+    Word dw, Count, methCnt;
+    DWord typInfo, baseTypeAdr, dd, procSig;
     int j, n, m, minValue, maxValue, elNum, pos, instrLen;
     PInfoRec recN, recN1;
     String name, unitName;
@@ -345,17 +345,17 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
 
     for (int i = 0; i < CodeSize && !Terminated; i += 4) {
         if ((i & stepMask) == 0) UpdateProgress();
-        DWORD adr = *((DWORD *) (Code + i));
+        DWord adr = *((DWord *) (Code + i));
         if (IsValidImageAdr(adr) && adr == Pos2Adr(i) + 4) {
             //Euristica - look at byte Code + i - 3 - may be case (jmp [adr + reg*4])
             instrLen = Disasm.Disassemble(Code + i - 3, (__int64) Pos2Adr(i) - 3, &DisInfo, 0);
             if (instrLen > 3 && DisInfo.Branch && DisInfo.Offset == adr) continue;
 
-            DWORD typeAdr = adr - 4;
-            BYTE typeKind = Code[i + 4];
+            DWord typeAdr = adr - 4;
+            Byte typeKind = Code[i + 4];
             if (typeKind == ikUnknown || typeKind > ikProcedure) continue;
 
-            BYTE len = Code[i + 5];
+            Byte len = Code[i + 5];
             if (!IsValidName(len, i + 6)) continue;
 
             n = i + 6 + len;
@@ -372,7 +372,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                     n += 4;     //MaxVal
                     if (DelphiVersion >= 2010) {
                         //AttrData
-                        dw = *((WORD *) (Code + n));
+                        dw = *((Word *) (Code + n));
                         n += dw; //ATR!!
                     }
                     SetFlags(cfData, i, n - i);
@@ -383,7 +383,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                     n += 4;  //MaxVal
                     if (DelphiVersion >= 2010) {
                         //AttrData
-                        dw = *((WORD *) (Code + n));
+                        dw = *((Word *) (Code + n));
                         n += dw; //ATR!!
                     }
                     SetFlags(cfData, i, n - i);
@@ -395,7 +395,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                     maxValue = *((int *) (Code + n));
                     n += 4;
                     //BaseType
-                    baseTypeAdr = *((DWORD *) (Code + n));
+                    baseTypeAdr = *((DWord *) (Code + n));
                     n += 4;
 
                     if (baseTypeAdr == typeAdr) {
@@ -422,7 +422,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                     if (DelphiVersion >= 2010)
                     {
                         //AttrData
-                        dw = *((WORD*)(Code + n)); n += dw;
+                        dw = *((Word*)(Code + n)); n += dw;
                     }
                     */
                     SetFlags(cfData, i, n - i);
@@ -431,7 +431,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                     n++;      //FloatType
                     if (DelphiVersion >= 2010) {
                         //AttrData
-                        dw = *((WORD *) (Code + n));
+                        dw = *((Word *) (Code + n));
                         n += dw; //ATR!!
                     }
                     SetFlags(cfData, i, n - i);
@@ -440,7 +440,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                     n++;       //MaxLength
                     if (DelphiVersion >= 2010) {
                         //AttrData
-                        dw = *((WORD *) (Code + n));
+                        dw = *((Word *) (Code + n));
                         n += dw; //ATR!!
                     }
                     SetFlags(cfData, i, n - i);
@@ -449,7 +449,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                     n += 1 + 4; //ordType+CompType
                     if (DelphiVersion >= 2010) {
                         //AttrData
-                        dw = *((WORD *) (Code + n));
+                        dw = *((Word *) (Code + n));
                         n += dw; //ATR!!
                     }
                     SetFlags(cfData, i, n - i);
@@ -466,7 +466,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                     }
                     n += len + 1;
                     //PropData
-                    Count = *((WORD *) (Code + n));
+                    Count = *((Word *) (Code + n));
                     n += 2;
                     for (j = 0; j < Count; j++) {
                         //TPropInfo
@@ -476,28 +476,28 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                     }
                     if (DelphiVersion >= 2010) {
                         //PropDataEx
-                        Count = *((WORD *) (Code + n));
+                        Count = *((Word *) (Code + n));
                         n += 2;
                         for (j = 0; j < Count; j++) {
                             //TPropInfoEx
                             //Flags
                             n++;
                             //Info
-                            typInfo = *((DWORD *) (Code + n));
+                            typInfo = *((DWord *) (Code + n));
                             n += 4;
                             pos = Adr2Pos(typInfo);
                             len = Code[pos + 26];
                             SetFlags(cfData, pos, 27 + len);
                             //AttrData
-                            dw = *((WORD *) (Code + n));
+                            dw = *((Word *) (Code + n));
                             n += dw; //ATR!!
                         }
                         //AttrData
-                        dw = *((WORD *) (Code + n));
+                        dw = *((Word *) (Code + n));
                         n += dw; //ATR!!
                         if (DelphiVersion >= 2012) {
                             //ArrayPropCount
-                            Count = *((WORD *) (Code + n));
+                            Count = *((Word *) (Code + n));
                             n += 2;
                             //ArrayPropData
                             for (j = 0; j < Count; j++) {
@@ -511,7 +511,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                                 len = Code[n];
                                 n += len + 1;
                                 //AttrData
-                                dw = *((WORD *) (Code + n));
+                                dw = *((Word *) (Code + n));
                                 n += dw; //ATR!!
                             }
                         }
@@ -547,10 +547,10 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                         n += 4 * paramCnt;
                         if (DelphiVersion >= 2010) {
                             //MethSig
-                            procSig = *((DWORD *) (Code + n));
+                            procSig = *((DWord *) (Code + n));
                             n += 4;
                             //AttrData
-                            dw = *((WORD *) (Code + n));
+                            dw = *((Word *) (Code + n));
                             n += dw; //ATR!!
                             //Procedure Signature
                             if (procSig) {
@@ -579,7 +579,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                                         len = Code[pos + m];
                                         m += len + 1;
                                         //AttrData
-                                        dw = *((WORD *) (Code + pos + m));
+                                        dw = *((Word *) (Code + pos + m));
                                         m += dw; //ATR!!
                                     }
                                 }
@@ -595,7 +595,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                     n += 4;   //MaxVal
                     if (DelphiVersion >= 2010) {
                         //AttrData
-                        dw = *((WORD *) (Code + n));
+                        dw = *((Word *) (Code + n));
                         n += dw; //ATR!!
                     }
                     SetFlags(cfData, i, n - i);
@@ -605,7 +605,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                     if (DelphiVersion >= 2009) n += 2;
                     if (DelphiVersion >= 2010) {
                         //AttrData
-                        dw = *((WORD *) (Code + n));
+                        dw = *((Word *) (Code + n));
                         n += dw; //ATR!!
                     }
                     SetFlags(cfData, i, n - i);
@@ -613,7 +613,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                 case ikWString: //0xB
                     if (DelphiVersion >= 2010) {
                         //AttrData
-                        dw = *((WORD *) (Code + n));
+                        dw = *((Word *) (Code + n));
                         n += dw; //ATR!!
                     }
                     SetFlags(cfData, i, n - i);
@@ -621,7 +621,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                 case ikVariant: //0xC
                     if (DelphiVersion >= 2010) {
                         //AttrData
-                        dw = *((WORD *) (Code + n));
+                        dw = *((Word *) (Code + n));
                         n += dw; //ATR!!
                     }
                     SetFlags(cfData, i, n - i);
@@ -639,7 +639,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                             n += 4;
                         }
                         //AttrData
-                        dw = *((WORD *) (Code + n));
+                        dw = *((Word *) (Code + n));
                         n += dw; //ATR!!
                     }
                     SetFlags(cfData, i, n - i);
@@ -668,17 +668,17 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                             n++;    //Flags
                             len = Code[n];
                             n += len + 1; //Name
-                            dw = *((WORD *) (Code + n));
+                            dw = *((Word *) (Code + n));
                             if (dw != 2)
                                 dummy = 1;
                             n += dw; //ATR!!
                         }
-                        dw = *((WORD *) (Code + n));
+                        dw = *((Word *) (Code + n));
                         if (dw != 2)
                             dummy = 1;
                         n += dw; //ATR!!
                         if (DelphiVersion >= 2012) {
-                            methCnt = *((WORD *) (Code + n));
+                            methCnt = *((Word *) (Code + n));
                             n += 2;
                             for (j = 0; j < methCnt; j++) {
                                 n++;    //Flags
@@ -703,13 +703,13 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                                         n += 4; //ParamType
                                         len = Code[n];
                                         n += len + 1; //Name
-                                        dw = *((WORD *) (Code + n));
+                                        dw = *((Word *) (Code + n));
                                         if (dw != 2)
                                             dummy = 1;
                                         n += dw; //ATR!!
                                     }
                                 }
-                                dw = *((WORD *) (Code + n));
+                                dw = *((Word *) (Code + n));
                                 if (dw != 2)
                                     dummy = 1;
                                 n += dw; //ATR!!
@@ -730,11 +730,11 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                     }
                     n += len + 1;
                     //PropCount
-                    Count = *((WORD *) (Code + n));
+                    Count = *((Word *) (Code + n));
                     n += 2;
                     if (DelphiVersion >= 6) {
                         //RttiCount
-                        dw = *((WORD *) (Code + n));
+                        dw = *((Word *) (Code + n));
                         n += 2;
                         if (dw != 0xFFFF) {
                             if (DelphiVersion >= 2010) {
@@ -762,7 +762,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                                         //ParamType
                                         n += 4;
                                         //AttrData
-                                        dw = *((WORD *) (Code + n));
+                                        dw = *((Word *) (Code + n));
                                         n += dw; //ATR!!
                                     }
                                     if (methodKind) {
@@ -774,7 +774,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                                             n += 4;
                                             //////////////////////////// Insert by Pigrecos
                                             //AttrData
-                                            dw = *((WORD *) (Code + n));
+                                            dw = *((Word *) (Code + n));
                                             n += dw; //ATR!!
                                             ////////////////////////////
                                         }
@@ -804,7 +804,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                         }
                         if (DelphiVersion >= 2010) {
                             //AttrData
-                            dw = *((WORD *) (Code + n));
+                            dw = *((Word *) (Code + n));
                             n += dw; //ATR!!
                         }
                     }
@@ -815,7 +815,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                     n += 8;   //MaxVal
                     if (DelphiVersion >= 2010) {
                         //AttrData
-                        dw = *((WORD *) (Code + n));
+                        dw = *((Word *) (Code + n));
                         n += dw; //ATR!!
                     }
                     SetFlags(cfData, i, n - i);
@@ -838,7 +838,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                         //DynArrElType
                         n += 4;
                         //AttrData
-                        dw = *((WORD *) (Code + n));
+                        dw = *((Word *) (Code + n));
                         n += dw; //ATR!!
                     }
                     SetFlags(cfData, i, n - i);
@@ -846,7 +846,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                 case ikUString: //0x12
                     if (DelphiVersion >= 2010) {
                         //AttrData
-                        dw = *((WORD *) (Code + n));
+                        dw = *((Word *) (Code + n));
                         n += dw; //ATR!!
                     }
                     SetFlags(cfData, i, n - i);
@@ -855,7 +855,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                     //InstanceType
                     n += 4;
                     //AttrData
-                    dw = *((WORD *) (Code + n));
+                    dw = *((Word *) (Code + n));
                     n += dw; //ATR!!
                     SetFlags(cfData, i, n - i);
                     break;
@@ -863,16 +863,16 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                     //RefType
                     n += 4;
                     //AttrData
-                    dw = *((WORD *) (Code + n));
+                    dw = *((Word *) (Code + n));
                     n += dw; //ATR!!
                     SetFlags(cfData, i, n - i);
                     break;
                 case ikProcedure: //0x15
                     //MethSig
-                    procSig = *((DWORD *) (Code + n));
+                    procSig = *((DWord *) (Code + n));
                     n += 4;
                     //AttrData
-                    dw = *((WORD *) (Code + n));
+                    dw = *((Word *) (Code + n));
                     n += dw; //ATR!!
                     SetFlags(cfData, i, n - i);
                     //Procedure Signature
@@ -900,7 +900,7 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
                                 len = Code[pos + m];
                                 m += len + 1;
                                 //AttrData
-                                dw = *((WORD *) (Code + pos + m));
+                                dw = *((Word *) (Code + pos + m));
                                 m += dw; //ATR!!
                             }
                         }
@@ -926,10 +926,10 @@ void __fastcall TAnalyzeThread::FindRTTIs() {
 
 //---------------------------------------------------------------------------
 void __fastcall TAnalyzeThread::FindVMTs2() {
-    BYTE len;
-    WORD Num16;
+    Byte len;
+    Word Num16;
     int i, pos = 0, bytes, _ap, _ap0;
-    DWORD Num32;
+    DWord Num32;
     String TypeName;
 
     int stepMask = StartProgress(CodeSize, "Find Virtual Method Tables D2");
@@ -938,79 +938,79 @@ void __fastcall TAnalyzeThread::FindVMTs2() {
         if ((i & stepMask) == 0) UpdateProgress();
         if (IsFlagSet(cfCode | cfData, i)) continue;
 
-        DWORD selfPtr = *((DWORD *) (Code + i));
+        DWord selfPtr = *((DWord *) (Code + i));
         if (selfPtr && !IsValidImageAdr(selfPtr)) continue;
 
-        DWORD initTableAdr = *((DWORD *) (Code + i + 4));
+        DWord initTableAdr = *((DWord *) (Code + i + 4));
         if (initTableAdr) {
             if (!IsValidImageAdr(initTableAdr)) continue;
             if (*(Code + pos) != 0xE) continue;
             pos = Adr2Pos(initTableAdr);
-            Num32 = *((DWORD *) (Code + pos + 5));
+            Num32 = *((DWord *) (Code + pos + 5));
             if (Num32 > 10000) continue;
         }
 
-        DWORD typeInfoAdr = *((DWORD *) (Code + i + 8));
+        DWord typeInfoAdr = *((DWord *) (Code + i + 8));
         if (typeInfoAdr) {
             if (!IsValidImageAdr(typeInfoAdr)) continue;
             //typeInfoAdr contains kind of type
             pos = Adr2Pos(typeInfoAdr);
-            BYTE typeKind = *(Code + pos);
+            Byte typeKind = *(Code + pos);
             if (typeKind > tkVariant) continue;
             //len = *(Code + pos + 1);
             //if (!IsValidName(len, pos + 2)) continue;
         }
 
-        DWORD fieldTableAdr = *((DWORD *) (Code + i + 0xC));
+        DWord fieldTableAdr = *((DWord *) (Code + i + 0xC));
         if (fieldTableAdr) {
             if (!IsValidImageAdr(fieldTableAdr)) continue;
             pos = Adr2Pos(fieldTableAdr);
-            Num16 = *((WORD *) (Code + pos));
+            Num16 = *((Word *) (Code + pos));
             if (Num16 > 10000) continue;
         }
 
-        DWORD methodTableAdr = *((DWORD *) (Code + i + 0x10));
+        DWord methodTableAdr = *((DWord *) (Code + i + 0x10));
         if (methodTableAdr) {
             if (!IsValidImageAdr(methodTableAdr)) continue;
             pos = Adr2Pos(methodTableAdr);
-            Num16 = *((WORD *) (Code + pos));
+            Num16 = *((Word *) (Code + pos));
             if (Num16 > 10000) continue;
         }
 
-        DWORD dynamicTableAdr = *((DWORD *) (Code + i + 0x14));
+        DWord dynamicTableAdr = *((DWord *) (Code + i + 0x14));
         if (dynamicTableAdr) {
             if (!IsValidImageAdr(dynamicTableAdr)) continue;
             pos = Adr2Pos(dynamicTableAdr);
-            Num16 = *((WORD *) (Code + pos));
+            Num16 = *((Word *) (Code + pos));
             if (Num16 > 10000) continue;
         }
 
-        DWORD classNameAdr = *((DWORD *) (Code + i + 0x18));
+        DWord classNameAdr = *((DWord *) (Code + i + 0x18));
         if (!classNameAdr || !IsValidImageAdr(classNameAdr)) continue;
 
         //_ap = Adr2Pos(classNameAdr);
         //len = *(Code + _ap);
         //if (!IsValidName(len, _ap + 1)) continue;
 
-        DWORD instanceSize = *((DWORD *) (Code + i + 0x1C));
+        DWord instanceSize = *((DWord *) (Code + i + 0x1C));
         if (!instanceSize) continue;
 
-        DWORD parentAdr = *((DWORD *) (Code + i + 0x20));
+        DWord parentAdr = *((DWord *) (Code + i + 0x20));
         if (parentAdr && !IsValidImageAdr(parentAdr)) continue;
 
-        DWORD defaultHandlerAdr = *((DWORD *) (Code + i + 0x24));
+        DWord defaultHandlerAdr = *((DWord *) (Code + i + 0x24));
         if (defaultHandlerAdr && !IsValidImageAdr(defaultHandlerAdr)) continue;
 
-        DWORD newInstanceAdr = *((DWORD *) (Code + i + 0x28));
+        DWord newInstanceAdr = *((DWord *) (Code + i + 0x28));
         if (newInstanceAdr && !IsValidImageAdr(newInstanceAdr)) continue;
 
-        DWORD freeInstanceAdr = *((DWORD *) (Code + i + 0x2C));
+        DWord freeInstanceAdr = *((DWord *) (Code + i + 0x2C));
         if (freeInstanceAdr && !IsValidImageAdr(freeInstanceAdr)) continue;
 
-        DWORD destroyAdr = *((DWORD *) (Code + i + 0x30));
+        DWord destroyAdr = *((DWord *) (Code + i + 0x30));
         if (destroyAdr && !IsValidImageAdr(destroyAdr)) continue;
 
-        DWORD classVMT = Pos2Adr(i) - cVmtSelfPtr;
+        DWord classVMT = Pos2Adr(i) - cVmtSelfPtr;
         if (Adr2Pos(classVMT) < 0) continue;
 
         int StopAt = GetStopAt(classVMT);
@@ -1046,7 +1046,7 @@ void __fastcall TAnalyzeThread::FindVMTs2() {
             bytes++; //unknown byte
             pos += 4;
             bytes += 4; //unknown dd
-            Num32 = *((DWORD *) (Code + pos));
+            Num32 = *((DWord *) (Code + pos));
             bytes += 4;
 
             for (int m = 0; m < Num32; m++) {
@@ -1062,11 +1062,11 @@ void __fastcall TAnalyzeThread::FindVMTs2() {
         if (fieldTableAdr) {
             pos = Adr2Pos(fieldTableAdr);
             bytes = 0;
-            Num16 = *((WORD *) (Code + pos));
+            Num16 = *((Word *) (Code + pos));
             pos += 2;
             bytes += 2;
             //TypesTab
-            DWORD typesTab = *((DWORD *) (Code + pos));
+            DWord typesTab = *((DWord *) (Code + pos));
             pos += 4;
             bytes += 4;
 
@@ -1087,20 +1087,20 @@ void __fastcall TAnalyzeThread::FindVMTs2() {
             //FieldTable used
             SetFlags(cfData, Adr2Pos(fieldTableAdr), bytes);
             //Use TypesTab
-            Num16 = *((WORD *) (Code + Adr2Pos(typesTab)));
+            Num16 = *((Word *) (Code + Adr2Pos(typesTab)));
             SetFlags(cfData, Adr2Pos(typesTab), 2 + Num16 * 4);
         }
         //MethodTable
         if (methodTableAdr) {
             pos = Adr2Pos(methodTableAdr);
             bytes = 0;
-            Num16 = *((WORD *) (Code + pos));
+            Num16 = *((Word *) (Code + pos));
             pos += 2;
             bytes += 2;
 
             for (int m = 0; m < Num16; m++) {
                 //Length of Method Description
-                WORD skipNext = *((WORD *) (Code + pos));
+                Word skipNext = *((Word *) (Code + pos));
                 pos += skipNext;
                 bytes += skipNext;
             }
@@ -1111,7 +1111,7 @@ void __fastcall TAnalyzeThread::FindVMTs2() {
         if (dynamicTableAdr) {
             pos = Adr2Pos(dynamicTableAdr);
             bytes = 0;
-            Num16 = *((WORD *) (Code + pos));
+            Num16 = *((Word *) (Code + pos));
             pos += 2;
             bytes += 2;
 
@@ -1125,7 +1125,7 @@ void __fastcall TAnalyzeThread::FindVMTs2() {
             SetFlags(cfData, Adr2Pos(dynamicTableAdr), bytes);
         }
 
-        //DWORD StopAt = GetStopAt(classVMT);
+        //DWord StopAt = GetStopAt(classVMT);
         //Использовали виртуальную таблицу
         SetFlags(cfData, i, StopAt - classVMT - cVmtSelfPtr);
 
@@ -1135,7 +1135,7 @@ void __fastcall TAnalyzeThread::FindVMTs2() {
             {
                 _ap0 = Adr2Pos(typeInfoAdr);
                 _ap = _ap0;
-                BYTE b = Code[_ap];
+                Byte b = Code[_ap];
                 _ap++;
                 if (b != 7) continue;
                 len = Code[_ap];
@@ -1159,92 +1159,92 @@ void __fastcall TAnalyzeThread::FindVMTs2() {
 //---------------------------------------------------------------------------
 //Collect information from VMT structure
 void __fastcall TAnalyzeThread::FindVMTs() {
-    WORD Num16;
+    Word Num16;
     int bytes, pos, posv, EntryCount;
-    DWORD Num32;
+    DWord Num32;
 
     int stepMask = StartProgress(TotalSize, "Find Virtual Method Tables");
 
     for (int i = 0; i < TotalSize && !Terminated; i += 4) {
         if ((i & stepMask) == 0) UpdateProgress();
         if (IsFlagSet(cfCode | cfData, i)) continue;
-        DWORD adr = *((DWORD *) (Code + i)); //Points to vmt0 (cVmtSelfPtr)
+        DWord adr = *((DWord *) (Code + i)); //Points to vmt0 (cVmtSelfPtr)
         if (IsValidImageAdr(adr) && Pos2Adr(i) == adr + cVmtSelfPtr) {
-            DWORD classVMT = adr;
-            DWORD StopAt = GetStopAt(classVMT);
+            DWord classVMT = adr;
+            DWord StopAt = GetStopAt(classVMT);
             //if (i + StopAt - classVMT - cVmtSelfPtr >= CodeSize) continue;
 
-            DWORD intfTableAdr = *((DWORD *) (Code + i + 4));
+            DWord intfTableAdr = *((DWord *) (Code + i + 4));
             if (intfTableAdr) {
                 if (!IsValidImageAdr(intfTableAdr)) continue;
                 pos = Adr2Pos(intfTableAdr);
-                EntryCount = *((DWORD *) (Code + pos));
+                EntryCount = *((DWord *) (Code + pos));
                 if (EntryCount > 10000) continue;
             }
 
-            DWORD autoTableAdr = *((DWORD *) (Code + i + 8));
+            DWord autoTableAdr = *((DWord *) (Code + i + 8));
             if (autoTableAdr) {
                 if (!IsValidImageAdr(autoTableAdr)) continue;
                 pos = Adr2Pos(autoTableAdr);
-                EntryCount = *((DWORD *) (Code + pos));
+                EntryCount = *((DWord *) (Code + pos));
                 if (EntryCount > 10000) continue;
             }
 
-            DWORD initTableAdr = *((DWORD *) (Code + i + 0xC));
+            DWord initTableAdr = *((DWord *) (Code + i + 0xC));
             if (initTableAdr) {
                 if (!IsValidImageAdr(initTableAdr)) continue;
                 pos = Adr2Pos(initTableAdr);
-                Num32 = *((DWORD *) (Code + pos + 6));
+                Num32 = *((DWord *) (Code + pos + 6));
                 if (Num32 > 10000) continue;
             }
 
-            DWORD typeInfoAdr = *((DWORD *) (Code + i + 0x10));
+            DWord typeInfoAdr = *((DWord *) (Code + i + 0x10));
             if (typeInfoAdr) {
                 if (!IsValidImageAdr(typeInfoAdr)) continue;
                 //По адресу typeInfoAdr должны быть данные о типе, начинающиеся с определенной информации
                 pos = Adr2Pos(typeInfoAdr);
-                BYTE typeKind = *(Code + pos);
+                Byte typeKind = *(Code + pos);
                 if (typeKind > ikProcedure) continue;
                 //len = *(Code + pos + 1);
                 //if (!IsValidName(len, pos + 2)) continue;
             }
 
-            DWORD fieldTableAdr = *((DWORD *) (Code + i + 0x14));
+            DWord fieldTableAdr = *((DWord *) (Code + i + 0x14));
             if (fieldTableAdr) {
                 if (!IsValidImageAdr(fieldTableAdr)) continue;
                 pos = Adr2Pos(fieldTableAdr);
-                Num16 = *((WORD *) (Code + pos));
+                Num16 = *((Word *) (Code + pos));
                 if (Num16 > 10000) continue;
             }
 
-            DWORD methodTableAdr = *((DWORD *) (Code + i + 0x18));
+            DWord methodTableAdr = *((DWord *) (Code + i + 0x18));
             if (methodTableAdr) {
                 if (!IsValidImageAdr(methodTableAdr)) continue;
                 pos = Adr2Pos(methodTableAdr);
-                Num16 = *((WORD *) (Code + pos));
+                Num16 = *((Word *) (Code + pos));
                 if (Num16 > 10000) continue;
             }
 
-            DWORD dynamicTableAdr = *((DWORD *) (Code + i + 0x1C));
+            DWord dynamicTableAdr = *((DWord *) (Code + i + 0x1C));
             if (dynamicTableAdr) {
                 if (!IsValidImageAdr(dynamicTableAdr)) continue;
                 pos = Adr2Pos(dynamicTableAdr);
-                Num16 = *((WORD *) (Code + pos));
+                Num16 = *((Word *) (Code + pos));
                 if (Num16 > 10000) continue;
             }
 
-            DWORD classNameAdr = *((DWORD *) (Code + i + 0x20));
+            DWord classNameAdr = *((DWord *) (Code + i + 0x20));
             if (!classNameAdr || !IsValidImageAdr(classNameAdr)) continue;
 
             //n = Adr2Pos(classNameAdr);
             //len = *(Code + n);
             //if (!IsValidName(len, n + 1)) continue;
 
-            DWORD parentAdr = *((DWORD *) (Code + i + 0x28));
+            DWord parentAdr = *((DWord *) (Code + i + 0x28));
             if (parentAdr && !IsValidImageAdr(parentAdr)) continue;
 
             int n = Adr2Pos(classNameAdr);
-            BYTE len = Code[n];
+            Byte len = Code[n];
             //if (!IsValidName(len, n + 1)) continue;
             String TypeName = String((char *) (Code + n + 1), len);
             UpdateStatusBar(TypeName);
@@ -1266,20 +1266,20 @@ void __fastcall TAnalyzeThread::FindVMTs() {
             SetFlag(cfData, i);
 
             //IntfTable
-            DWORD vTableAdr;
+            DWord vTableAdr;
 
             if (intfTableAdr) {
                 pos = Adr2Pos(intfTableAdr);
                 bytes = 0;
                 SetFlag(cfData | cfVTable, pos);
-                EntryCount = *((DWORD *) (Code + pos));
+                EntryCount = *((DWord *) (Code + pos));
                 pos += 4;
                 bytes += 4;
                 for (int m = 0; m < EntryCount; m++) {
                     //GUID
                     pos += 16;
                     bytes += 16;
-                    vTableAdr = *((DWORD *) (Code + pos));
+                    vTableAdr = *((DWord *) (Code + pos));
                     pos += 4;
                     bytes += 4;
                     if (IsValidImageAdr(vTableAdr)) SetFlag(cfData | cfVTable, Adr2Pos(vTableAdr));
@@ -1302,7 +1302,7 @@ void __fastcall TAnalyzeThread::FindVMTs() {
                 for (int m = 0; m < EntryCount; m++) {
                     //Skip GUID
                     pos += 16;
-                    vTableAdr = *((DWORD *) (Code + pos));
+                    vTableAdr = *((DWord *) (Code + pos));
                     pos += 4;
                     //IOffset
                     pos += 4;
@@ -1312,13 +1312,13 @@ void __fastcall TAnalyzeThread::FindVMTs() {
                     }
                     //Use VTable
                     if (IsValidImageAdr(vTableAdr)) {
-                        DWORD vEnd = vTableAdr;
-                        DWORD vStart = vTableAdr;
+                        DWord vEnd = vTableAdr;
+                        DWord vStart = vTableAdr;
                         posv = Adr2Pos(vTableAdr);
                         bytes = 0;
                         for (int k = 0;; k++) {
                             if (Pos2Adr(posv) == intfTableAdr) break;
-                            DWORD vAdr = *((DWORD *) (Code + posv));
+                            DWord vAdr = *((DWord *) (Code + posv));
                             posv += 4;
                             bytes += 4;
                             if (vAdr && vAdr < vStart) vStart = vAdr;
@@ -1336,7 +1336,7 @@ void __fastcall TAnalyzeThread::FindVMTs() {
             if (autoTableAdr) {
                 pos = Adr2Pos(autoTableAdr);
                 bytes = 0;
-                EntryCount = *((DWORD *) (Code + pos));
+                EntryCount = *((DWord *) (Code + pos));
                 pos += 4;
                 bytes += 4;
                 for (int m = 0; m < EntryCount; m++) {
@@ -1344,7 +1344,7 @@ void __fastcall TAnalyzeThread::FindVMTs() {
                     pos += 4;
                     bytes += 4;
                     //NameAdr
-                    DWORD pos1 = Adr2Pos(*((DWORD *) (Code + pos)));
+                    DWord pos1 = Adr2Pos(*((DWord *) (Code + pos)));
                     pos += 4;
                     bytes += 4;
                     len = Code[pos1];
@@ -1354,10 +1354,10 @@ void __fastcall TAnalyzeThread::FindVMTs() {
                     pos += 4;
                     bytes += 4;
                     //ParamsAdr
-                    pos1 = Adr2Pos(*((DWORD *) (Code + pos)));
+                    pos1 = Adr2Pos(*((DWord *) (Code + pos)));
                     pos += 4;
                     bytes += 4;
-                    BYTE ParamCnt = Code[pos1 + 1];
+                    Byte ParamCnt = Code[pos1 + 1];
                     //Use Params
                     SetFlags(cfData, pos1, ParamCnt + 2);
                     //AddressAdr
@@ -1380,7 +1380,7 @@ void __fastcall TAnalyzeThread::FindVMTs() {
                 //Unknown dword
                 pos += 4;
                 bytes += 4;
-                Num32 = *((DWORD *) (Code + pos));
+                Num32 = *((DWord *) (Code + pos));
                 bytes += 4;
 
                 for (int m = 0; m < Num32; m++) {
@@ -1396,11 +1396,11 @@ void __fastcall TAnalyzeThread::FindVMTs() {
             if (fieldTableAdr) {
                 pos = Adr2Pos(fieldTableAdr);
                 bytes = 0;
-                Num16 = *((WORD *) (Code + pos));
+                Num16 = *((Word *) (Code + pos));
                 pos += 2;
                 bytes += 2;
                 //TypesTab
-                DWORD typesTab = *((DWORD *) (Code + pos));
+                DWord typesTab = *((DWord *) (Code + pos));
                 pos += 4;
                 bytes += 4;
 
@@ -1420,12 +1420,12 @@ void __fastcall TAnalyzeThread::FindVMTs() {
                 }
                 //Use TypesTab
                 if (typesTab) {
-                    Num16 = *((WORD *) (Code + Adr2Pos(typesTab)));
+                    Num16 = *((Word *) (Code + Adr2Pos(typesTab)));
                     SetFlags(cfData, Adr2Pos(typesTab), 2 + Num16 * 4);
                 }
                 //Extended Information
                 if (DelphiVersion >= 2010) {
-                    Num16 = *((WORD *) (Code + pos));
+                    Num16 = *((Word *) (Code + pos));
                     pos += 2;
                     bytes += 2;
                     for (int m = 0; m < Num16; m++) {
@@ -1445,7 +1445,7 @@ void __fastcall TAnalyzeThread::FindVMTs() {
                         pos += len;
                         bytes += len;
                         //AttrData
-                        WORD dw = *((WORD *) (Code + pos));
+                        Word dw = *((Word *) (Code + pos));
                         pos += dw;
                         bytes += dw; //ATR!!
                     }
@@ -1457,26 +1457,26 @@ void __fastcall TAnalyzeThread::FindVMTs() {
             if (methodTableAdr) {
                 pos = Adr2Pos(methodTableAdr);
                 bytes = 0;
-                Num16 = *((WORD *) (Code + pos));
+                Num16 = *((Word *) (Code + pos));
                 pos += 2;
                 bytes += 2;
 
                 for (int m = 0; m < Num16; m++) {
                     //Len
-                    WORD skipBytes = *((WORD *) (Code + pos));
+                    Word skipBytes = *((Word *) (Code + pos));
                     pos += skipBytes;
                     bytes += skipBytes;
                 }
                 if (DelphiVersion >= 2010) {
-                    Num16 = *((WORD *) (Code + pos));
+                    Num16 = *((Word *) (Code + pos));
                     pos += 2;
                     bytes += 2;
                     for (int m = 0; m < Num16; m++) {
                         //MethodEntry
-                        DWORD methodEntry = *((DWORD *) (Code + pos));
+                        DWord methodEntry = *((DWord *) (Code + pos));
                         pos += 4;
                         bytes += 4;
-                        WORD skipBytes = *((WORD *) (Code + Adr2Pos(methodEntry)));
+                        Word skipBytes = *((Word *) (Code + Adr2Pos(methodEntry)));
                         SetFlags(cfData, Adr2Pos(methodEntry), skipBytes);
                         //Flags
                         pos += 2;
@@ -1497,7 +1497,7 @@ void __fastcall TAnalyzeThread::FindVMTs() {
             if (dynamicTableAdr) {
                 pos = Adr2Pos(dynamicTableAdr);
                 bytes = 0;
-                Num16 = *((WORD *) (Code + pos));
+                Num16 = *((Word *) (Code + pos));
                 bytes += 2;
                 for (int m = 0; m < Num16; m++) {
                     //Msg+ProcAdr
@@ -1507,18 +1507,18 @@ void __fastcall TAnalyzeThread::FindVMTs() {
                 SetFlags(cfData, Adr2Pos(dynamicTableAdr), bytes);
             }
 
-            //DWORD StopAt = GetStopAt(classVMT);
+            //DWord StopAt = GetStopAt(classVMT);
             //Use Virtual Table
             SetFlags(cfData, i, StopAt - classVMT - cVmtSelfPtr);
 
             PUnitRec recU = mainForm->GetUnit(classVMT);
             if (recU) {
-                adr = *((DWORD *) (Code + i - cVmtSelfPtr + cVmtTypeInfo));
+                adr = *((DWord *) (Code + i - cVmtSelfPtr + cVmtTypeInfo));
                 if (adr && IsValidImageAdr(adr)) {
                     //Extract unit name
                     pos = Adr2Pos(adr);
                     bytes = 0;
-                    BYTE b = Code[pos];
+                    Byte b = Code[pos];
                     pos++;
                     bytes++;
                     if (b != 7) continue;
@@ -1555,7 +1555,7 @@ void __fastcall TAnalyzeThread::StrapVMTs() {
         if (recN && recN->kind == ikVMT) {
             String _name = recN->GetName();
             String ConstName = "_DV_" + _name;
-            WORD *uses = KnowledgeBase.GetConstUses(AnsiString(ConstName).c_str());
+            Word *uses = KnowledgeBase.GetConstUses(AnsiString(ConstName).c_str());
             int ConstIdx = KnowledgeBase.GetConstIdx(uses, AnsiString(ConstName).c_str());
             if (ConstIdx != -1) {
                 ConstIdx = KnowledgeBase.ConstOffsets[ConstIdx].NamId;
@@ -1582,12 +1582,12 @@ void __fastcall TAnalyzeThread::FindTypeFields() {
         if ((i & stepMask) == 0) UpdateProgress();
         PInfoRec recN = GetInfoRec(Pos2Adr(i));
         if (recN && recN->kind == ikVMT) {
-            DWORD vmtAdr = Pos2Adr(i) - cVmtSelfPtr;
+            DWord vmtAdr = Pos2Adr(i) - cVmtSelfPtr;
             PUnitRec recU = mainForm->GetUnit(vmtAdr);
             if (recU) {
                 for (int u = 0; u < recU->names->Count && !Terminated; u++) {
-                    WORD ModuleID = KnowledgeBase.GetModuleID(AnsiString(recU->names->Strings[u]).c_str());
-                    WORD *uses = KnowledgeBase.GetModuleUses(ModuleID);
+                    Word ModuleID = KnowledgeBase.GetModuleID(AnsiString(recU->names->Strings[u]).c_str());
+                    Word *uses = KnowledgeBase.GetModuleUses(ModuleID);
                     //Find Type to extract information about fields
                     int TypeIdx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(recN->GetName()).c_str());
                     if (TypeIdx != -1) {
@@ -1595,7 +1595,7 @@ void __fastcall TAnalyzeThread::FindTypeFields() {
                         if (KnowledgeBase.GetTypeInfo(TypeIdx, INFO_FIELDS, tInfo)) {
                             if (tInfo->Fields) {
                                 UpdateStatusBar(tInfo->TypeName);
-                                BYTE *p = tInfo->Fields;
+                                Byte *p = tInfo->Fields;
                                 FIELDINFO fInfo;
                                 for (int n = 0; n < tInfo->FieldsNum; n++) {
                                     fInfo.Scope = *p;
@@ -1604,11 +1604,11 @@ void __fastcall TAnalyzeThread::FindTypeFields() {
                                     p += 4;
                                     fInfo.Case = *((int *) p);
                                     p += 4;
-                                    WORD Len = *((WORD *) p);
+                                    Word Len = *((Word *) p);
                                     p += 2;
                                     fInfo.Name = String((char *) p, Len);
                                     p += Len + 1;
-                                    Len = *((WORD *) p);
+                                    Len = *((Word *) p);
                                     p += 2;
                                     fInfo.Type = TrimTypeName(String((char *) p, Len));
                                     p += Len + 1;
@@ -1637,8 +1637,8 @@ void __fastcall TAnalyzeThread::FindTypeFields() {
 }
 
 //---------------------------------------------------------------------------
-String __fastcall TAnalyzeThread::FindEvent(DWORD VmtAdr, String Name) {
-    DWORD adr = VmtAdr;
+String __fastcall TAnalyzeThread::FindEvent(DWord VmtAdr, String Name) {
+    DWord adr = VmtAdr;
     while (adr) {
         PInfoRec recN = GetInfoRec(adr);
         if (recN && recN->vmtInfo->fields) {
@@ -1661,7 +1661,7 @@ void __fastcall TAnalyzeThread::FindPrototypes() {
     MProcInfo *pInfo = &aInfo;
     MTypeInfo atInfo;
     MTypeInfo *tInfo = &atInfo;
-    WORD uses[128];
+    Word uses[128];
 
     int stepMask = StartProgress(CodeSize, "Find Import Prototypes");
 
@@ -1673,8 +1673,8 @@ void __fastcall TAnalyzeThread::FindPrototypes() {
             int dot = _name.Pos(".");
             int len = _name.Length();
             bool found = false;
-            BYTE *p;
-            WORD wlen;
+            Byte *p;
+            Word wlen;
             //try find arguments
             //FullName
             importName = _name.SubString(dot + 1, len);
@@ -1694,7 +1694,7 @@ void __fastcall TAnalyzeThread::FindPrototypes() {
                             recN->procInfo = new InfoProcInfo;
 
                         if (pInfo->Args) {
-                            BYTE callKind = pInfo->CallKind;
+                            Byte callKind = pInfo->CallKind;
 
                             recN->procInfo->flags |= callKind;
 
@@ -1730,7 +1730,7 @@ void __fastcall TAnalyzeThread::FindPrototypes() {
                                 recN->procInfo = new InfoProcInfo;
 
                             if (pInfo->Args) {
-                                BYTE callKind = pInfo->CallKind;
+                                Byte callKind = pInfo->CallKind;
                                 recN->procInfo->flags |= callKind;
 
                                 ARGINFO argInfo;
@@ -1801,7 +1801,7 @@ void __fastcall TAnalyzeThread::FindPrototypes() {
         UpdateProgress();
         TDfm *dfm = (TDfm *) ResInfo->FormList->Items[n];
         String className = dfm->ClassName;
-        DWORD formAdr = GetClassAdr(className);
+        DWord formAdr = GetClassAdr(className);
         if (!formAdr) continue;
         recN = GetInfoRec(formAdr);
         if (!recN || !recN->vmtInfo->methods) continue;
@@ -1810,7 +1810,7 @@ void __fastcall TAnalyzeThread::FindPrototypes() {
         TList *ev = dfm->Events;
         for (m = 0; m < ev->Count && !Terminated; m++) {
             PEventInfo eInfo = (PEventInfo) ev->Items[m];
-            DWORD controlAdr = GetClassAdr(dfm->ClassName);
+            DWord controlAdr = GetClassAdr(dfm->ClassName);
             String typeName = FindEvent(controlAdr, "F" + eInfo->EventName);
             if (typeName == "") typeName = FindEvent(controlAdr, eInfo->EventName);
             if (typeName != "") {
@@ -1848,7 +1848,7 @@ void __fastcall TAnalyzeThread::FindPrototypes() {
             TList *ev = cInfo->Events;
             for (k = 0; k < ev->Count && !Terminated; k++) {
                 PEventInfo eInfo = (PEventInfo) ev->Items[k];
-                DWORD controlAdr = GetClassAdr(cInfo->ClassName);
+                DWord controlAdr = GetClassAdr(cInfo->ClassName);
                 String typeName = FindEvent(controlAdr, "F" + eInfo->EventName);
                 if (typeName == "") typeName = FindEvent(controlAdr, eInfo->EventName);
                 if (typeName != "") {
@@ -1907,8 +1907,8 @@ StdUnitInfo StdUnits[] = {
 //---------------------------------------------------------------------------
 void __fastcall TAnalyzeThread::ScanCode() {
     bool matched;
-    WORD moduleID;
-    DWORD Adr, iniAdr, finAdr, vmtAdr;
+    Word moduleID;
+    DWord Adr, iniAdr, finAdr, vmtAdr;
     int FirstProcIdx, LastProcIdx, Num, DumpSize;
     int i, n, m, k, r, u, Idx, fromPos, toPos, stepMask;
     PUnitRec recU;
@@ -2221,8 +2221,8 @@ void __fastcall TAnalyzeThread::ScanCode() {
 //---------------------------------------------------------------------------
 void __fastcall TAnalyzeThread::ScanCode1() {
     bool matched;
-    WORD moduleID;
-    DWORD pos, Adr;
+    Word moduleID;
+    DWord pos, Adr;
     int FirstProcIdx, LastProcIdx, Num;
     int n, m, k, r, u, Idx, fromPos, toPos;
     PUnitRec recU;
@@ -2398,7 +2398,7 @@ void __fastcall TAnalyzeThread::ScanVMTs() {
         if ((n & stepMask) == 0) UpdateProgress();
         PInfoRec recN = GetInfoRec(Pos2Adr(n));
         if (recN && recN->kind == ikVMT) {
-            DWORD vmtAdr = Pos2Adr(n);
+            DWord vmtAdr = Pos2Adr(n);
             String name = recN->GetName();
             UpdateStatusBar(name);
 
@@ -2425,9 +2425,9 @@ void __fastcall TAnalyzeThread::ScanVMTs() {
 
 //---------------------------------------------------------------------------
 void __fastcall TAnalyzeThread::ScanConsts() {
-    WORD ModID;
+    Word ModID;
     int n, m, u, Bytes, ResStrIdx, pos, ResStrNum, ResStrNo;
-    DWORD adr, resid;
+    DWord adr, resid;
     PUnitRec recU;
     PInfoRec recN;
     MResStrInfo arsInfo;
@@ -2460,8 +2460,8 @@ void __fastcall TAnalyzeThread::ScanConsts() {
                 //Если из базы знаний, вытащим из нее информацию о ResStr
                 if (ModID != 0xFFFF) {
                     for (n = Adr2Pos(recU->fromAdr); (n < Adr2Pos(recU->toAdr)) && !Terminated; n += 4) {
-                        adr = *((DWORD *) (Code + n));
-                        resid = *((DWORD *) (Code + n + 4));
+                        adr = *((DWord *) (Code + n));
+                        resid = *((DWord *) (Code + n + 4));
 
                         if (IsValidImageAdr(adr) && adr == HInstanceVarAdr && resid < 0x10000) {
                             recN = GetInfoRec(Pos2Adr(n));
@@ -2507,8 +2507,8 @@ void __fastcall TAnalyzeThread::ScanConsts() {
                 //Else extract ResStrings from analyzed file
                 else {
                     for (n = Adr2Pos(recU->fromAdr); (n < Adr2Pos(recU->toAdr)) && !Terminated; n += 4) {
-                        adr = *((DWORD *) (Code + n));
-                        resid = *((DWORD *) (Code + n + 4));
+                        adr = *((DWord *) (Code + n));
+                        resid = *((DWord *) (Code + n + 4));
 
                         if (IsValidImageAdr(adr) && adr == HInstanceVarAdr && resid < 0x10000) {
                             recN = GetInfoRec(Pos2Adr(n));
@@ -2549,8 +2549,8 @@ void __fastcall TAnalyzeThread::ScanConsts() {
             ResStrNum = 0;
 
             for (n = Adr2Pos(recU->fromAdr); (n < Adr2Pos(recU->toAdr)) && !Terminated; n += 4) {
-                adr = *((DWORD *) (Code + n));
-                resid = *((DWORD *) (Code + n + 4));
+                adr = *((DWord *) (Code + n));
+                resid = *((DWord *) (Code + n + 4));
 
                 if (IsValidImageAdr(adr) && adr == HInstanceVarAdr && resid < 0x10000) {
                     Bytes = LoadString(hInst, (UINT) resid, buf, 1024);
@@ -2582,8 +2582,8 @@ void __fastcall TAnalyzeThread::ScanConsts() {
                     recU->kb = true;
 
                     for (n = Adr2Pos(recU->fromAdr); (n < Adr2Pos(recU->toAdr)) && !Terminated; n += 4) {
-                        adr = *((DWORD *) (Code + n));
-                        resid = *((DWORD *) (Code + n + 4));
+                        adr = *((DWord *) (Code + n));
+                        resid = *((DWord *) (Code + n + 4));
 
                         if (IsValidImageAdr(adr) && adr == HInstanceVarAdr && resid < 0x10000) {
                             recN = GetInfoRec(Pos2Adr(n));
@@ -2629,8 +2629,8 @@ void __fastcall TAnalyzeThread::ScanConsts() {
                 //Module not found, get ResStrings from analyzed file
                 else {
                     for (n = Adr2Pos(recU->fromAdr); (n < Adr2Pos(recU->toAdr)) && !Terminated; n += 4) {
-                        adr = *((DWORD *) (Code + n));
-                        resid = *((DWORD *) (Code + n + 4));
+                        adr = *((DWord *) (Code + n));
+                        resid = *((DWord *) (Code + n + 4));
 
                         if (IsValidImageAdr(adr) && adr == HInstanceVarAdr && resid < 0x10000) {
                             recN = GetInfoRec(Pos2Adr(n));
@@ -2680,28 +2680,28 @@ void __fastcall TAnalyzeThread::ScanGetSetStoredProcs() {
             n += 4;
             //typeKind
             n++;
-            BYTE len = Code[n];
+            Byte len = Code[n];
             n++;
             //clsName
             n += len;
 
-            DWORD classVMT = *((DWORD *) (Code + n));
+            DWord classVMT = *((DWord *) (Code + n));
             n += 4;
             PInfoRec recN1 = GetInfoRec(classVMT + cVmtSelfPtr);
-            /*DWORD parentAdr = *((DWORD*)(Code + n));*/
+            /*DWord parentAdr = *((DWord*)(Code + n));*/
             n += 4;
-            WORD propCount = *((WORD *) (Code + n));
+            Word propCount = *((Word *) (Code + n));
             n += 2;
             //Skip unit name
             len = Code[n];
             n++;
             n += len;
             //Real properties count
-            propCount = *((WORD *) (Code + n));
+            propCount = *((Word *) (Code + n));
             n += 2;
 
             for (int i = 0; i < propCount && !Terminated; i++) {
-                DWORD propType = *((DWORD *) (Code + n));
+                DWord propType = *((DWord *) (Code + n));
                 n += 4;
                 int posn = Adr2Pos(propType);
                 posn += 4;
@@ -2710,11 +2710,11 @@ void __fastcall TAnalyzeThread::ScanGetSetStoredProcs() {
                 posn++;
                 String fieldType = String((char *) (Code + posn), len);
 
-                DWORD getProc = *((DWORD *) (Code + n));
+                DWord getProc = *((DWord *) (Code + n));
                 n += 4;
-                DWORD setProc = *((DWORD *) (Code + n));
+                DWord setProc = *((DWord *) (Code + n));
                 n += 4;
-                DWORD storedProc = *((DWORD *) (Code + n));
+                DWord storedProc = *((DWord *) (Code + n));
                 n += 4;
                 //idx
                 n += 4;
@@ -2758,8 +2758,8 @@ void __fastcall TAnalyzeThread::ScanGetSetStoredProcs() {
 //                                  recN (kind = ikUString, name = context)
 void __fastcall TAnalyzeThread::FindStrings() {
     int i, len;
-    WORD codePage, elemSize;
-    DWORD refCnt;
+    Word codePage, elemSize;
+    DWord refCnt;
     PInfoRec recN;
 
     if (DelphiVersion >= 2009) {
@@ -2769,10 +2769,10 @@ void __fastcall TAnalyzeThread::FindStrings() {
             if ((i & stepMask) == 0) UpdateProgress();
             if (IsFlagSet(cfData, i)) continue;
 
-            codePage = *((WORD *) (Code + i));
-            elemSize = *((WORD *) (Code + i + 2));
+            codePage = *((Word *) (Code + i));
+            elemSize = *((Word *) (Code + i + 2));
             if (!elemSize || elemSize > 4) continue;
-            refCnt = *((DWORD *) (Code + i + 4));
+            refCnt = *((DWord *) (Code + i + 4));
             if (refCnt != 0xFFFFFFFF) continue;
             //len = wcslen((wchar_t*)(Code + i + 12));
             len = *((int *) (Code + i + 8));
@@ -2799,7 +2799,7 @@ void __fastcall TAnalyzeThread::FindStrings() {
         if ((i & stepMask) == 0) UpdateProgress();
         if (IsFlagSet(cfData, i)) continue;
 
-        refCnt = *((DWORD *) (Code + i));
+        refCnt = *((DWord *) (Code + i));
         if (refCnt != 0xFFFFFFFF) continue;
         len = *((int *) (Code + i + 4));
         if (len <= 0 || len > 10000) continue;
@@ -2832,12 +2832,12 @@ void __fastcall TAnalyzeThread::AnalyzeCode1() {
         UpdateProgress();
         recU = (UnitRec *) Units->Items[n];
         if (recU) {
-            DWORD iniAdr = recU->iniadr;
+            DWord iniAdr = recU->iniadr;
             if (iniAdr) {
                 UpdateStatusBar(iniAdr);
                 mainForm->AnalyzeProc(1, iniAdr);
             }
-            DWORD finAdr = recU->finadr;
+            DWord finAdr = recU->finadr;
             if (finAdr) {
                 UpdateStatusBar(finAdr);
                 mainForm->AnalyzeProc(1, finAdr);
@@ -2848,7 +2848,7 @@ void __fastcall TAnalyzeThread::AnalyzeCode1() {
     int stepMask = StartProgress(TotalSize, msg);
     //EP
     mainForm->AnalyzeProc(1, EP);
-    DWORD vmtAdr;
+    DWord vmtAdr;
     //Classes (methods, dynamics procedures, virtual methods)
     for (int n = 0; n < TotalSize && !Terminated; n++) {
         if ((n & stepMask) == 0) UpdateProgress();
@@ -2870,7 +2870,7 @@ void __fastcall TAnalyzeThread::AnalyzeCode1() {
     for (int n = 0; n < CodeSize && !Terminated; n++) {
         if ((n & stepMask) == 0) UpdateProgress();
         if (IsFlagSet(cfProcStart, n)) {
-            DWORD adr = Pos2Adr(n);
+            DWord adr = Pos2Adr(n);
             UpdateAddrInStatusBar(adr);
             mainForm->AnalyzeProc(1, adr);
         }
@@ -2890,7 +2890,7 @@ void __fastcall TAnalyzeThread::AnalyzeCode2(bool args) {
     for (int n = 0; n < CodeSize && !Terminated; n++) {
         if ((n & stepMask) == 0) UpdateProgress();
         if (IsFlagSet(cfProcStart, n)) {
-            DWORD adr = Pos2Adr(n);
+            DWord adr = Pos2Adr(n);
             UpdateAddrInStatusBar(adr);
             if (args) mainForm->AnalyzeArguments(adr);
             mainForm->AnalyzeProc(2, adr);
@@ -2908,7 +2908,7 @@ void __fastcall TAnalyzeThread::PropagateClassProps() {
         if ((n & stepMask) == 0) UpdateProgress();
         recN = GetInfoRec(Pos2Adr(n));
         if (recN && recN->HasName()) {
-            BYTE typeKind = recN->kind;
+            Byte typeKind = recN->kind;
             if (typeKind > ikProcedure) continue;
             //Пройдемся по свойствам класса и поименуем процедуры
             if (typeKind == ikClass) {
@@ -2917,11 +2917,11 @@ void __fastcall TAnalyzeThread::PropagateClassProps() {
                 pos += 4;
                 //TypeKind
                 pos++;
-                BYTE len = Code[pos];
+                Byte len = Code[pos];
                 pos++;
                 String clsName = String((char *) (Code + pos), len);
                 pos += len;
-                DWORD classVMT = *((DWORD *) (Code + pos));
+                DWord classVMT = *((DWord *) (Code + pos));
                 pos += 4;
                 pos += 4; //ParentAdr
                 pos += 2; //PropCount
@@ -2929,11 +2929,11 @@ void __fastcall TAnalyzeThread::PropagateClassProps() {
                 len = Code[pos];
                 pos++;
                 pos += len;
-                WORD propCount = *((WORD *) (Code + pos));
+                Word propCount = *((Word *) (Code + pos));
                 pos += 2;
 
                 for (int i = 0; i < propCount && !Terminated; i++) {
-                    DWORD propType = *((DWORD *) (Code + pos));
+                    DWord propType = *((DWord *) (Code + pos));
                     pos += 4;
                     int posn = Adr2Pos(propType);
                     posn += 4;
@@ -2942,11 +2942,11 @@ void __fastcall TAnalyzeThread::PropagateClassProps() {
                     posn++;
                     String typeName = String((char *) (Code + posn), len);
 
-                    DWORD getProc = *((DWORD *) (Code + pos));
+                    DWord getProc = *((DWord *) (Code + pos));
                     pos += 4;
-                    DWORD setProc = *((DWORD *) (Code + pos));
+                    DWord setProc = *((DWord *) (Code + pos));
                     pos += 4;
-                    DWORD storedProc = *((DWORD *) (Code + pos));
+                    DWord storedProc = *((DWord *) (Code + pos));
                     pos += 4;
                     pos += 4; //Idx
                     pos += 4; //DefVal
@@ -2971,7 +2971,7 @@ void __fastcall TAnalyzeThread::PropagateClassProps() {
                             else
                                 vmtofs = getProc & 0x0000FFFF;
                             posn = Adr2Pos(classVMT) + vmtofs;
-                            getProc = *((DWORD *) (Code + posn));
+                            getProc = *((DWord *) (Code + posn));
                             recN1 = GetInfoRec(getProc);
                             if (!recN1)
                                 recN1 = new InfoRec(Adr2Pos(getProc), ikFunc);
@@ -3011,7 +3011,7 @@ void __fastcall TAnalyzeThread::PropagateClassProps() {
                             else
                                 vmtofs = setProc & 0x0000FFFF;
                             posn = Adr2Pos(classVMT) + vmtofs;
-                            setProc = *((DWORD *) (Code + posn));
+                            setProc = *((DWord *) (Code + posn));
                             recN1 = GetInfoRec(setProc);
                             if (!recN1)
                                 recN1 = new InfoRec(Adr2Pos(setProc), ikProc);
@@ -3051,7 +3051,7 @@ void __fastcall TAnalyzeThread::PropagateClassProps() {
                             else
                                 vmtofs = storedProc & 0x0000FFFF;
                             posn = Adr2Pos(classVMT) + vmtofs;
-                            storedProc = *((DWORD *) (Code + posn));
+                            storedProc = *((DWord *) (Code + posn));
                             recN1 = GetInfoRec(storedProc);
                             if (!recN1)
                                 recN1 = new InfoRec(Adr2Pos(storedProc), ikFunc);
@@ -3121,7 +3121,7 @@ void __fastcall TAnalyzeThread::FillClassViewer() {
 //---------------------------------------------------------------------------
 void __fastcall TAnalyzeThread::AnalyzeDC() {
     int n, m, k, dotpos, pos, stepMask, instrLen;
-    DWORD vmtAdr, adr, procAdr, stopAt, classAdr;
+    DWord vmtAdr, adr, procAdr, stopAt, classAdr;
     String className, name;
     PVmtListRec recV;
     PInfoRec recN, recN1, recN2;
@@ -3143,7 +3143,7 @@ void __fastcall TAnalyzeThread::AnalyzeDC() {
 
         //Destructor
         pos = Adr2Pos(vmtAdr) - cVmtSelfPtr + cVmtDestroy;
-        adr = *((DWORD *) (Code + pos));
+        adr = *((DWord *) (Code + pos));
         if (IsValidImageAdr(adr)) {
             recN = GetInfoRec(adr);
             if (recN && !recN->HasName()) {
@@ -3183,7 +3183,7 @@ void __fastcall TAnalyzeThread::AnalyzeDC() {
 
         for (m = cVmtParent + 4;; m += 4, pos += 4) {
             if (Pos2Adr(pos) == stopAt) break;
-            procAdr = *((DWORD *) (Code + pos));
+            procAdr = *((DWord *) (Code + pos));
             if (m >= 0) {
                 recN = GetInfoRec(procAdr);
                 if (recN && recN->kind == ikConstructor && !recN->HasName()) {

@@ -38,14 +38,14 @@ class TFKBViewer_11011981 : public TForm {
 private: // User declarations
     int UnitsNum;
     int CurrIdx;
-    DWORD CurrAdr;
+    DWord CurrAdr;
 
 public: // User declarations
     int Position;
-    DWORD FromIdx; //First Unit idx
-    DWORD ToIdx;   //Last Unit idx
+    DWord FromIdx; //First Unit idx
+    DWord ToIdx;   //Last Unit idx
     __fastcall TFKBViewer_11011981(TComponent *Owner);
-    void __fastcall ShowCode(DWORD adr, int idx);
+    void __fastcall ShowCode(DWord adr, int idx);
 };
 
 //---------------------------------------------------------------------------

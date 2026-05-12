@@ -25,12 +25,12 @@ class TFActiveProcesses : public TForm {
 private: // User declarations
     HINSTANCE InstKernel32;
     HINSTANCE InstPSAPI;
-    DWORD ProcessesNum;
-    DWORD ModulesNum;
-    DWORD ProcessIds[1024];
+    DWord ProcessesNum;
+    DWord ModulesNum;
+    DWord ProcessIds[1024];
     HMODULE ModuleHandles[1024];
 
-    typedef HANDLE __stdcall(*TCreateToolhelp32Snapshot)(DWORD dwFlags, DWORD th32ProcessID);
+    typedef HANDLE __stdcall(*TCreateToolhelp32Snapshot)(DWord dwFlags, DWord th32ProcessID);
     typedef BOOL __stdcall(*TProcess32First)(HANDLE hSnapshot, PROCESSENTRY32 *lppe);
     typedef BOOL __stdcall(*TProcess32Next)(HANDLE hSnapshot, PROCESSENTRY32 *lppe);
     typedef BOOL __stdcall(*TModule32First)(HANDLE hSnapshot, MODULEENTRY32 *lpme);
@@ -42,10 +42,10 @@ private: // User declarations
     TModule32First lpModule32First;
     TModule32Next lpModule32Next;
 
-    typedef BOOL __stdcall(*TEnumProcesses)(HANDLE lpidProcess, DWORD cb, PDWORD cbNeeded);
-    typedef BOOL __stdcall(*TEnumProcessModules)(HANDLE hProcess, HMODULE lphModule, DWORD cb, PDWORD lpcbNeeded);
-    typedef DWORD __stdcall(*TGetModuleFileNameEx)(HANDLE hProcess, HMODULE hModule, LPTSTR lpFilename, DWORD nSize);
-    typedef BOOL __stdcall(*TGetModuleInformation)(HANDLE hProcess, HMODULE hModule, LPMODULEINFO lpmodinfo, DWORD cb);
+    typedef BOOL __stdcall(*TEnumProcesses)(HANDLE lpidProcess, DWord cb, PDWORD cbNeeded);
+    typedef BOOL __stdcall(*TEnumProcessModules)(HANDLE hProcess, HMODULE lphModule, DWord cb, PDWORD lpcbNeeded);
+    typedef DWord __stdcall(*TGetModuleFileNameEx)(HANDLE hProcess, HMODULE hModule, LPTSTR lpFilename, DWord nSize);
+    typedef BOOL __stdcall(*TGetModuleInformation)(HANDLE hProcess, HMODULE hModule, LPMODULEINFO lpmodinfo, DWord cb);
 
     TEnumProcesses lpEnumProcesses;
     TEnumProcessModules lpEnumProcessModules;
@@ -60,8 +60,8 @@ public: // User declarations
     __fastcall ~TFActiveProcesses();
 
     void ShowProcesses();
-    void __fastcall EnumSections(HANDLE HProcess, BYTE *PProcessBase, IMAGE_SECTION_HEADER *Buffer, DWORD *Secnum);
-    void __fastcall DumpProcess(DWORD PID, TMemoryStream *MemStream, DWORD *BoC, DWORD *PoC, DWORD *ImB);
+    void __fastcall EnumSections(HANDLE HProcess, Byte *PProcessBase, IMAGE_SECTION_HEADER *Buffer, DWord *Secnum);
+    void __fastcall DumpProcess(DWord PID, TMemoryStream *MemStream, DWord *BoC, DWord *PoC, DWord *ImB);
 };
 
 //---------------------------------------------------------------------------

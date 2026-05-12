@@ -1,29 +1,29 @@
 ﻿//---------------------------------------------------------------------------
 #include <vcl.h>
+#include <minwindef.h>
 #pragma hdrstop
 
 #include <dbghelp.h>
 #include <Vcl.Clipbrd.hpp>
 #include "Misc.h"
 #include "InputDlg.h"
-
 //---------------------------------------------------------------------------
 extern int dummy;
 extern String IDRVersion;
 extern String SelectedAsmItem;
 extern char StringBuf[MAXSTRBUFFER];
-extern DWORD ImageBase;
-extern DWORD ImageSize;
-extern DWORD TotalSize;
-extern DWORD CodeBase;
-extern DWORD CodeSize;
-extern DWORD DataBase;
-extern DWORD *Flags;
+extern DWord ImageBase;
+extern DWord ImageSize;
+extern DWord TotalSize;
+extern DWord CodeBase;
+extern DWord CodeSize;
+extern DWord DataBase;
+extern DWord *Flags;
 extern PInfoRec *Infos;
 extern TStringList *BSSInfos;
 extern MDisasm Disasm;
 extern MKnowledgeBase KnowledgeBase;
-extern BYTE *Code;
+extern Byte *Code;
 extern int DelphiVersion;
 extern TList *SegmentList;
 extern TList *OwnTypeList;
@@ -104,7 +104,7 @@ void __fastcall ScaleForm(TForm *AForm) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall Adr2Pos(DWORD adr) {
+int __fastcall Adr2Pos(DWord adr) {
     int ofs = 0;
     for (int n = 0; n < SegmentList->Count; n++) {
         PSegmentInfo segInfo = static_cast<PSegmentInfo>(SegmentList->Items[n]);
@@ -120,7 +120,7 @@ int __fastcall Adr2Pos(DWORD adr) {
 }
 
 //---------------------------------------------------------------------------
-DWORD __fastcall Pos2Adr(int Pos) {
+DWord __fastcall Pos2Adr(int Pos) {
     int fromPos = 0;
     int toPos = 0;
     for (int n = 0; n < SegmentList->Count; n++) {
@@ -147,42 +147,42 @@ bool __fastcall CanReplace(const String &fromName, const String &toName) {
 }
 
 //---------------------------------------------------------------------------
-String __fastcall GetDefaultProcName(DWORD adr) {
+String __fastcall GetDefaultProcName(DWord adr) {
     return "sub_" + Val2Str8(adr);
 }
 
 //---------------------------------------------------------------------------
-String __fastcall Val2Str0(DWORD Val) {
+String __fastcall Val2Str0(DWord Val) {
     return IntToHex(static_cast<int>(Val), 0);
 }
 
 //---------------------------------------------------------------------------
-String __fastcall Val2Str1(DWORD Val) {
+String __fastcall Val2Str1(DWord Val) {
     return IntToHex(static_cast<int>(Val), 1);
 }
 
 //---------------------------------------------------------------------------
-String __fastcall Val2Str2(DWORD Val) {
+String __fastcall Val2Str2(DWord Val) {
     return IntToHex(static_cast<int>(Val), 2);
 }
 
 //---------------------------------------------------------------------------
-String __fastcall Val2Str4(DWORD Val) {
+String __fastcall Val2Str4(DWord Val) {
     return IntToHex(static_cast<int>(Val), 4);
 }
 
 //---------------------------------------------------------------------------
-String __fastcall Val2Str5(DWORD Val) {
+String __fastcall Val2Str5(DWord Val) {
     return IntToHex(static_cast<int>(Val), 5);
 }
 
 //---------------------------------------------------------------------------
-String __fastcall Val2Str8(DWORD Val) {
+String __fastcall Val2Str8(DWord Val) {
     return IntToHex(static_cast<int>(Val), 8);
 }
 
 //---------------------------------------------------------------------------
-PInfoRec __fastcall AddToBSSInfos(DWORD Adr, String AName, String ATypeName) {
+PInfoRec __fastcall AddToBSSInfos(DWord Adr, String AName, String ATypeName) {
     PInfoRec recN;
     String _key = Val2Str8(Adr);
     int _idx = BSSInfos->IndexOf(_key);
@@ -201,19 +201,19 @@ PInfoRec __fastcall AddToBSSInfos(DWORD Adr, String AName, String ATypeName) {
 }
 
 //---------------------------------------------------------------------------
-String __fastcall MakeGvarName(DWORD adr) {
+String __fastcall MakeGvarName(DWord adr) {
     return "gvar_" + Val2Str8(adr);
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MakeGvar(PInfoRec recN, DWORD adr, DWORD xrefAdr) {
+void __fastcall MakeGvar(PInfoRec recN, DWord adr, DWord xrefAdr) {
     if (!recN->HasName()) recN->SetName(MakeGvarName(adr));
     if (xrefAdr) recN->AddXref('C', xrefAdr, 0);
 }
 
 //---------------------------------------------------------------------------
-void __fastcall FillArgInfo(int k, BYTE callkind, PARGINFO argInfo, BYTE **p, int *s) {
-    BYTE *pp = *p;
+void __fastcall FillArgInfo(int k, Byte callkind, PARGINFO argInfo, Byte **p, int *s) {
+    Byte *pp = *p;
     int ss = *s;
     argInfo->Tag = *pp;
     pp++;
@@ -241,11 +241,11 @@ void __fastcall FillArgInfo(int k, BYTE callkind, PARGINFO argInfo, BYTE **p, in
     }
 
     argInfo->Size = 4;
-    WORD wlen = *((WORD *) pp);
+    Word wlen = *((Word *) pp);
     pp += 2;
     argInfo->Name = String(reinterpret_cast<char *>(pp), wlen);
     pp += wlen + 1;
-    wlen = *((WORD *) pp);
+    wlen = *((Word *) pp);
     pp += 2;
     argInfo->TypeDef = TrimTypeName(String(reinterpret_cast<char *>(pp), wlen));
     pp += wlen + 1;
@@ -281,7 +281,7 @@ String __fastcall TrimTypeName(const String &TypeName) {
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall IsValidImageAdr(DWORD Adr) {
+bool __fastcall IsValidImageAdr(DWord Adr) {
     if (Adr >> 8 == 0x408D) return false; //Add by ZGL assigned global byte or boolean variable
     if (Adr >= CodeBase && Adr < CodeBase + ImageSize)
         return true;
@@ -289,7 +289,7 @@ bool __fastcall IsValidImageAdr(DWORD Adr) {
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall IsValidCodeAdr(DWORD Adr) {
+bool __fastcall IsValidCodeAdr(DWord Adr) {
     if (Adr >= CodeBase && Adr < CodeBase + CodeSize)
         return true;
     return false;
@@ -490,12 +490,11 @@ int __fastcall GetNearestDownInstruction(int fromPos, const char *Instruction) {
 //2 - jcc up
 //3 - jmp down
 //4 - jump up
-int __fastcall BranchGetPrevInstructionType(DWORD fromAdr, DWORD *jmpAdr, PLoopInfo loopInfo) {
-    int _pos;
+int __fastcall BranchGetPrevInstructionType(DWord fromAdr, DWord *jmpAdr, PLoopInfo loopInfo) {
     DISINFO _disInfo;
 
     *jmpAdr = 0;
-    _pos = GetNearestUpInstruction(Adr2Pos(fromAdr));
+    int _pos = GetNearestUpInstruction(Adr2Pos(fromAdr));
     if (_pos == -1) return -1;
     Disasm.Disassemble(Pos2Adr(_pos), &_disInfo, 0);
     if (_disInfo.Branch) {
@@ -526,7 +525,7 @@ int __fastcall BranchGetPrevInstructionType(DWORD fromAdr, DWORD *jmpAdr, PLoopI
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall IsFlagSet(DWORD flag, int pos) {
+bool __fastcall IsFlagSet(DWord flag, int pos) {
     //!!!
     if (pos < 0 || pos >= TotalSize) {
         dummy = 1;
@@ -537,7 +536,7 @@ bool __fastcall IsFlagSet(DWORD flag, int pos) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall SetFlag(DWORD flag, int pos) {
+void __fastcall SetFlag(DWord flag, int pos) {
     //!!!
     if (pos < 0 || pos >= TotalSize) {
         dummy = 1;
@@ -548,7 +547,7 @@ void __fastcall SetFlag(DWORD flag, int pos) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall SetFlags(DWORD flag, int pos, int num) {
+void __fastcall SetFlags(DWord flag, int pos, int num) {
     //!!!
     if (pos < 0 || pos + num >= TotalSize) {
         dummy = 1;
@@ -561,7 +560,7 @@ void __fastcall SetFlags(DWORD flag, int pos, int num) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall ClearFlag(DWORD flag, int pos) {
+void __fastcall ClearFlag(DWord flag, int pos) {
     //!!!
     if (pos < 0 || pos >= TotalSize) {
         dummy = 1;
@@ -572,7 +571,7 @@ void __fastcall ClearFlag(DWORD flag, int pos) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall ClearFlags(DWORD flag, int pos, int num) {
+void __fastcall ClearFlags(DWord flag, int pos, int num) {
     if (pos < 0 || pos + num > TotalSize) {
         dummy = 1;
         return;
@@ -587,7 +586,7 @@ void __fastcall ClearFlags(DWORD flag, int pos, int num) {
 //pInfo must contain pInfo->
 int __fastcall GetProcRetBytes(MProcInfo *pInfo) {
     int _pos = pInfo->DumpSz - 1;
-    DWORD _curAdr = CodeBase + _pos;
+    DWord _curAdr = CodeBase + _pos;
     DISINFO _disInfo;
 
     while (_pos >= 0) {
@@ -605,7 +604,7 @@ int __fastcall GetProcRetBytes(MProcInfo *pInfo) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall GetProcSize(DWORD fromAdr) {
+int __fastcall GetProcSize(DWord fromAdr) {
     int _size = 0;
     PInfoRec recN = GetInfoRec(fromAdr);
     if (recN && recN->procInfo) _size = recN->procInfo->procSize;
@@ -667,8 +666,8 @@ String __fastcall StrGetRecordFieldType(String str) {
 
 //---------------------------------------------------------------------------
 int __fastcall GetRecordSize(String AName) {
-    BYTE _len;
-    WORD *_uses;
+    Byte _len;
+    Word *_uses;
     int _idx, _pos, _size;
     MTypeInfo _tInfo;
     PTypeRec _recT;
@@ -707,7 +706,7 @@ int __fastcall GetRecordSize(String AName) {
         _pos++;    // TypeKind
         _len = Code[_pos];
         _pos += _len + 1; // Name
-        return *((DWORD *) (Code + _pos));
+        return *((DWord *) (Code + _pos));
     }
     // Manual
     return 0;
@@ -716,7 +715,7 @@ int __fastcall GetRecordSize(String AName) {
 //---------------------------------------------------------------------------
 PFIELDINFO __fastcall GetClassField(String TypeName, int Offset) {
     int n, Ofs1, Ofs2;
-    DWORD classAdr, prevClassAdr = 0;
+    DWord classAdr, prevClassAdr = 0;
     PInfoRec recN;
     PFIELDINFO fInfo1, fInfo2;
 
@@ -750,12 +749,12 @@ PFIELDINFO __fastcall GetClassField(String TypeName, int Offset) {
 //---------------------------------------------------------------------------
 int __fastcall GetRecordField(String ARecType, int AOfs, String &name, String &type) {
     bool _brk;
-    BYTE _len, _numOps, _kind;
+    Byte _len, _numOps, _kind;
     char *p, *ps;
-    WORD _dw;
-    WORD *_uses;
+    Word _dw;
+    Word *_uses;
     int n, m, k, _idx, _pos, _elNum, Ofs, Ofs1, Ofs2, _case, _fieldsNum, _size;
-    DWORD _typeAdr;
+    DWord _typeAdr;
     PTypeRec _recT;
     MTypeInfo _tInfo;
     String _str, _prevstr, _name, _typeName, _ofs, _sz, _result = "";
@@ -833,9 +832,9 @@ int __fastcall GetRecordField(String ARecType, int AOfs, String &name, String &t
                             _cases[m].caseno = _case;
                         }
                         _cases[m].count++;
-                        _len = *((WORD *) p);
+                        _len = *reinterpret_cast<Word *>(p);
                         p += _len + 3; //name
-                        _len = *((WORD *) p);
+                        _len = *reinterpret_cast<Word *>(p);
                         p += _len + 3; //type
                     }
 
@@ -849,9 +848,9 @@ int __fastcall GetRecordField(String ARecType, int AOfs, String &name, String &t
                                 p += 4; //offset
                                 _case = *((int *) p);
                                 p += 4; //case
-                                _len = *((WORD *) p);
+                                _len = *reinterpret_cast<Word *>(p);
                                 p += _len + 3; //name
-                                _len = *((WORD *) p);
+                                _len = *reinterpret_cast<Word *>(p);
                                 p += _len + 3; //type
                                 if (_case == _cases[m].caseno) {
                                     if (k == _cases[m].count - 1) {
@@ -865,11 +864,11 @@ int __fastcall GetRecordField(String ARecType, int AOfs, String &name, String &t
                                         Ofs1 = *((int *) p);
                                         p += 4; //offset
                                         p += 4; //case
-                                        _len = *((WORD *) p);
+                                        _len = *reinterpret_cast<Word *>(p);
                                         p += 2;
                                         name = String(p, _len);
                                         p += _len + 1;
-                                        _len = *((WORD *) p);
+                                        _len = *reinterpret_cast<Word *>(p);
                                         p += 2;
                                         type = String(p, _len);
                                         p += _len + 1;
@@ -900,17 +899,17 @@ int __fastcall GetRecordField(String ARecType, int AOfs, String &name, String &t
         _name = String((char *) (Code + _pos), _len);
         _pos += _len; //Name
         _pos += 4;    //Size
-        _elNum = *((DWORD *) (Code + _pos));
+        _elNum = *reinterpret_cast<DWord *>(Code + _pos);
         _pos += 4;
         for (n = 0; n < _elNum; n++) {
-            _typeAdr = *((DWORD *) (Code + _pos));
+            _typeAdr = *reinterpret_cast<DWord *>(Code + _pos);
             _pos += 4;
-            Ofs1 = *((DWORD *) (Code + _pos));
+            Ofs1 = *reinterpret_cast<DWord *>(Code + _pos);
             _pos += 4;
             if (n == _elNum - 1)
                 Ofs2 = 0;
             else
-                Ofs2 = *((DWORD *) (Code + _pos + 4));
+                Ofs2 = *reinterpret_cast<DWord *>(Code + _pos + 4);
             if (AOfs >= Ofs1 && AOfs < Ofs2) {
                 name = _name + ".f" + Val2Str0(Ofs1);
                 type = GetTypeName(_typeAdr);
@@ -925,13 +924,13 @@ int __fastcall GetRecordField(String ARecType, int AOfs, String &name, String &t
             {
                 _pos += 4;
             }
-            _elNum = *((DWORD *) (Code + _pos));
+            _elNum = *reinterpret_cast<DWord *>(Code + _pos);
             _pos += 4; //RecFldCnt
 
             for (n = 0; n < _elNum; n++) {
-                _typeAdr = *((DWORD *) (Code + _pos));
+                _typeAdr = *reinterpret_cast<DWord *>(Code + _pos);
                 _pos += 4;
-                Ofs1 = *((DWORD *) (Code + _pos));
+                Ofs1 = *reinterpret_cast<DWord *>(Code + _pos);
                 _pos += 4;
                 _pos++; //Flags
                 _len = Code[_pos];
@@ -939,13 +938,13 @@ int __fastcall GetRecordField(String ARecType, int AOfs, String &name, String &t
                 _name = String((char *) (Code + _pos), _len);
                 _pos += _len;
                 //AttrData
-                _dw = *((WORD *) (Code + _pos));
+                _dw = *reinterpret_cast<Word *>(Code + _pos);
                 _pos += _dw; //ATR!!
 
                 if (n == _elNum - 1)
                     Ofs2 = 0;
                 else
-                    Ofs2 = *((DWORD *) (Code + _pos + 4));
+                    Ofs2 = *reinterpret_cast<DWord *>(Code + _pos + 4);
 
                 if (AOfs >= Ofs1 && AOfs < Ofs2) {
                     if (_name != "")
@@ -1042,7 +1041,7 @@ String __fastcall GetDecompilerRegisterName(int Idx) {
 bool __fastcall IsValidModuleName(int len, int pos) {
     if (!len) return false;
     for (int i = pos; i < pos + len; i++) {
-        BYTE b = *(Code + i);
+        Byte b = *(Code + i);
         if (b < ' ' || b == ':' || (b & 0x80)) return false;
     }
     return true;
@@ -1054,7 +1053,7 @@ bool __fastcall IsValidName(int len, int pos) {
     for (int i = pos; i < pos + len; i++) {
         //if (IsFlagSet(cfCode, i)) return false;
 
-        BYTE b = *(Code + i);
+        Byte b = *(Code + i);
         //first symbol may be letter or '_' or '.' or ':'
         if (i == pos) {
             if ((b >= 'A' && b <= 'z') || b == '.' || b == '_' || b == ':')
@@ -1074,7 +1073,7 @@ bool __fastcall IsValidString(int len, int pos) {
     for (int i = pos; i < pos + len; i++) {
         //if (IsFlagSet(cfCode, i)) return false;
 
-        BYTE b = *(Code + i);
+        Byte b = *(Code + i);
         if (b < ' ' && b != '\t' && b != '\n' && b != '\r') return false;
     }
     return true;
@@ -1084,7 +1083,7 @@ bool __fastcall IsValidString(int len, int pos) {
 bool __fastcall IsValidCString(int pos) {
     int len = 0;
     for (int i = pos; i < pos + 1024; i++) {
-        BYTE b = *(Code + i);
+        Byte b = *(Code + i);
         //if (IsFlagSet(cfCode, i)) break;
         if (!b) return (len >= 5);
         if (b < ' ' && b != '\t' && b != '\n' && b != '\r') break;
@@ -1094,12 +1093,12 @@ bool __fastcall IsValidCString(int pos) {
 }
 
 //---------------------------------------------------------------------------
-DWORD __fastcall GetParentAdr(DWORD Adr) {
+DWord __fastcall GetParentAdr(DWord Adr) {
     if (!IsValidImageAdr(Adr)) return 0;
 
-    DWORD vmtAdr = Adr - cVmtSelfPtr;
-    DWORD pos = Adr2Pos(vmtAdr) + cVmtParent;
-    DWORD adr = *((DWORD *) (Code + pos));
+    DWord vmtAdr = Adr - cVmtSelfPtr;
+    DWord pos = Adr2Pos(vmtAdr) + cVmtParent;
+    DWord adr = *((DWord *) (Code + pos));
     if (IsValidImageAdr(adr) && IsFlagSet(cfImport, Adr2Pos(adr)))
         return 0;
 
@@ -1108,7 +1107,7 @@ DWORD __fastcall GetParentAdr(DWORD Adr) {
 }
 
 //---------------------------------------------------------------------------
-DWORD __fastcall GetChildAdr(DWORD Adr) {
+DWord __fastcall GetChildAdr(DWord Adr) {
     if (!IsValidImageAdr(Adr)) return 0;
     for (int m = 0; m < VmtList->Count; m++) {
         PVmtListRec recV = static_cast<PVmtListRec>(VmtList->Items[m]);
@@ -1119,43 +1118,43 @@ DWORD __fastcall GetChildAdr(DWORD Adr) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall GetClassSize(DWORD adr) {
+int __fastcall GetClassSize(DWord adr) {
     if (!IsValidImageAdr(adr)) return 0;
 
-    DWORD vmtAdr = adr - cVmtSelfPtr;
-    DWORD pos = Adr2Pos(vmtAdr) + cVmtInstanceSize;
+    DWord vmtAdr = adr - cVmtSelfPtr;
+    DWord pos = Adr2Pos(vmtAdr) + cVmtInstanceSize;
     int size = *reinterpret_cast<int *>(Code + pos);
     if (DelphiVersion >= 2009) return size - 4;
     return size;
 }
 
 //---------------------------------------------------------------------------
-String __fastcall GetClsName(DWORD adr) {
+String __fastcall GetClsName(DWord adr) {
     if (!IsValidImageAdr(adr)) return "";
 
-    DWORD vmtAdr = adr - cVmtSelfPtr;
-    DWORD pos = Adr2Pos(vmtAdr) + cVmtClassName;
+    DWord vmtAdr = adr - cVmtSelfPtr;
+    DWord pos = Adr2Pos(vmtAdr) + cVmtClassName;
     if (IsFlagSet(cfImport, pos)) {
         PInfoRec recN = GetInfoRec(vmtAdr + cVmtClassName);
         return recN->GetName();
     }
-    DWORD nameAdr = *((DWORD *) (Code + pos));
+    DWord nameAdr = *((DWord *) (Code + pos));
     if (!IsValidImageAdr(nameAdr))
         return "";
 
     pos = Adr2Pos(nameAdr);
-    BYTE len = Code[pos];
+    Byte len = Code[pos];
     pos++;
     return String(reinterpret_cast<char *>(&Code[pos]), len);
 }
 
 //---------------------------------------------------------------------------
-DWORD __fastcall GetClassAdr(const String &AName) {
+DWord __fastcall GetClassAdr(const String &AName) {
     String name;
 
     if (AName.IsEmpty()) return 0;
 
-    DWORD adr = FindClassAdrByName(AName);
+    DWord adr = FindClassAdrByName(AName);
     if (adr) return adr;
 
     int pos = AName.Pos(".");
@@ -1179,13 +1178,13 @@ DWORD __fastcall GetClassAdr(const String &AName) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall GetParentSize(DWORD Adr) {
+int __fastcall GetParentSize(DWord Adr) {
     return GetClassSize(GetParentAdr(Adr));
 }
 
 //---------------------------------------------------------------------------
-String __fastcall GetParentName(DWORD Adr) {
-    DWORD adr = GetParentAdr(Adr);
+String __fastcall GetParentName(DWord Adr) {
+    DWord adr = GetParentAdr(Adr);
     if (!adr) return "";
     return GetClsName(adr);
 }
@@ -1197,8 +1196,8 @@ String __fastcall GetParentName(const String &ClassName) {
 
 //---------------------------------------------------------------------------
 //Adr1 inherits Adr2 (Adr1 >= Adr2)
-bool __fastcall IsInheritsByAdr(const DWORD Adr1, const DWORD Adr2) {
-    DWORD adr = Adr1;
+bool __fastcall IsInheritsByAdr(const DWord Adr1, const DWord Adr2) {
+    DWord adr = Adr1;
     while (adr) {
         if (adr == Adr2) return true;
         adr = GetParentAdr(adr);
@@ -1209,7 +1208,7 @@ bool __fastcall IsInheritsByAdr(const DWORD Adr1, const DWORD Adr2) {
 //---------------------------------------------------------------------------
 //Name1 >= Name2
 bool __fastcall IsInheritsByClassName(const String &Name1, const String &Name2) {
-    DWORD adr = GetClassAdr(Name1);
+    DWord adr = GetClassAdr(Name1);
     while (adr) {
         if (SameText(GetClsName(adr), Name2)) return true;
         adr = GetParentAdr(adr);
@@ -1233,7 +1232,7 @@ bool __fastcall IsInheritsByProcName(const String &Name1, const String &Name2) {
  */
 String __fastcall TransformString(char *str, int len) {
     bool s = true; //true - print string, false - print #XX
-    BYTE c, *p = reinterpret_cast<BYTE *>(str);
+    Byte c, *p = reinterpret_cast<Byte *>(str);
     String res = "";
 
     for (int k = 0; k < len; k++) {
@@ -1274,7 +1273,7 @@ String __fastcall TransformString(char *str, int len) {
  * @param len Length of string
  * @return String as Unicode
  */
-String __fastcall TransformUString(WORD codePage, const wchar_t *data, int len) {
+String __fastcall TransformUString(Word codePage, const wchar_t *data, int len) {
     if (!IsValidCodePage(codePage)) codePage = CP_ACP;
     int nChars = WideCharToMultiByte(codePage, 0, data, -1, 0, 0, 0, 0);
     if (!nChars) return "";
@@ -1288,14 +1287,14 @@ String __fastcall TransformUString(WORD codePage, const wchar_t *data, int len) 
 
 //---------------------------------------------------------------------------
 //Get stop address for analyzing virtual tables
-DWORD __fastcall GetStopAt(DWORD VmtAdr) {
+DWord __fastcall GetStopAt(DWord VmtAdr) {
     int m;
-    DWORD pos, pointer, stopAt = CodeBase + TotalSize;
+    DWord pos, pointer, stopAt = CodeBase + TotalSize;
 
     if (DelphiVersion != 2) {
         pos = Adr2Pos(VmtAdr) + cVmtIntfTable;
         for (m = cVmtIntfTable; m != cVmtInstanceSize; m += 4, pos += 4) {
-            pointer = *((DWORD *) (Code + pos));
+            pointer = *((DWord *) (Code + pos));
             if (pointer >= VmtAdr && pointer < stopAt) stopAt = pointer;
         }
     } else {
@@ -1303,7 +1302,7 @@ DWORD __fastcall GetStopAt(DWORD VmtAdr) {
         for (m = cVmtInitTable; m != cVmtInstanceSize; m += 4, pos += 4) {
             if (Adr2Pos(VmtAdr) < 0)
                 return 0;
-            pointer = *((DWORD *) (Code + pos));
+            pointer = *((DWord *) (Code + pos));
             if (pointer >= VmtAdr && pointer < stopAt) stopAt = pointer;
         }
     }
@@ -1311,7 +1310,7 @@ DWORD __fastcall GetStopAt(DWORD VmtAdr) {
 }
 
 //---------------------------------------------------------------------------
-String __fastcall GetTypeName(DWORD adr) {
+String __fastcall GetTypeName(DWord adr) {
     if (!IsValidImageAdr(adr)) return "?";
     if (IsFlagSet(cfImport, Adr2Pos(adr))) {
         PInfoRec recN = GetInfoRec(adr);
@@ -1324,9 +1323,9 @@ String __fastcall GetTypeName(DWORD adr) {
     else
         adr -= 4;
     //TypeKind
-    BYTE kind = *(Code + pos);
+    Byte kind = *(Code + pos);
     pos++;
-    BYTE len = *(Code + pos);
+    Byte len = *(Code + pos);
     pos++;
     String Result = String((char *) (Code + pos), len);
     if (Result.Pos(":") > 0)
@@ -1335,9 +1334,9 @@ String __fastcall GetTypeName(DWORD adr) {
 }
 
 //---------------------------------------------------------------------------
-String __fastcall GetDynaInfo(DWORD adr, WORD id, DWORD *dynAdr) {
+String __fastcall GetDynaInfo(DWord adr, Word id, DWord *dynAdr) {
     int m;
-    DWORD classAdr = adr;
+    DWord classAdr = adr;
     PInfoRec recN;
     PMethodRec recM;
 
@@ -1363,7 +1362,7 @@ String __fastcall GetDynaInfo(DWORD adr, WORD id, DWORD *dynAdr) {
 }
 
 //---------------------------------------------------------------------------
-String __fastcall GetDynArrayTypeName(DWORD adr) {
+String __fastcall GetDynArrayTypeName(DWord adr) {
     Byte len;
     int pos;
 
@@ -1374,13 +1373,13 @@ String __fastcall GetDynArrayTypeName(DWORD adr) {
     pos++;
     pos += len; //Name
     pos += 4;   //elSize
-    return GetTypeName(*((DWORD *) (Code + pos)));
+    return GetTypeName(*((DWord *) (Code + pos)));
 }
 
 //---------------------------------------------------------------------------
 int __fastcall GetTypeSize(String AName) {
     int idx = -1;
-    WORD *uses;
+    Word *uses;
     MTypeInfo tInfo;
 
     uses = KnowledgeBase.GetTypeUses(AnsiString(AName).c_str());
@@ -1424,13 +1423,13 @@ String TypeKinds[TypeKindsNum] =
     "Procedure"
 };
 //---------------------------------------------------------------------------
-String __fastcall TypeKind2Name(BYTE kind) {
+String __fastcall TypeKind2Name(Byte kind) {
     if (kind < TypeKindsNum) return TypeKinds[kind];
     return "";
 }
 
 //---------------------------------------------------------------------------
-DWORD __fastcall GetOwnTypeAdr(String AName) {
+DWord __fastcall GetOwnTypeAdr(String AName) {
     if (AName == "") return 0;
     PTypeRec recT = GetOwnTypeByName(AName);
     if (recT) return recT->adr;
@@ -1450,7 +1449,7 @@ PTypeRec __fastcall GetOwnTypeByName(String AName) {
 //---------------------------------------------------------------------------
 String __fastcall GetTypeDeref(String ATypeName) {
     int idx = -1;
-    WORD *uses;
+    Word *uses;
     MTypeInfo tInfo;
 
     if (ATypeName[1] == '^') return ATypeName.SubString(2, ATypeName.Length());
@@ -1471,8 +1470,8 @@ String __fastcall GetTypeDeref(String ATypeName) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall GetRTTIRecordSize(DWORD adr) {
-    BYTE len;
+int __fastcall GetRTTIRecordSize(DWord adr) {
+    Byte len;
     int pos, kind, _ap;
 
     _ap = Adr2Pos(adr);
@@ -1489,7 +1488,7 @@ int __fastcall GetRTTIRecordSize(DWORD adr) {
 }
 
 //---------------------------------------------------------------------------
-BYTE __fastcall GetTypeKind(DWORD Adr) {
+Byte __fastcall GetTypeKind(DWord Adr) {
     int _ap = Adr2Pos(Adr);
     int pos = _ap;
     pos += 4;
@@ -1497,10 +1496,10 @@ BYTE __fastcall GetTypeKind(DWORD Adr) {
 }
 
 //---------------------------------------------------------------------------
-BYTE __fastcall GetTypeKind(String AName, int *size) {
-    BYTE res, kind;
+Byte __fastcall GetTypeKind(String AName, int *size) {
+    Byte res, kind;
     int pos, idx = -1;
-    WORD *uses;
+    Word *uses;
     MTypeInfo tInfo;
     String name, typeName, str, sz;
 
@@ -1745,7 +1744,7 @@ String __fastcall GetImmString(int Val) {
 String __fastcall GetImmString(String TypeName, int Val) {
     int _size;
     String _str, _default = GetImmString(Val);
-    BYTE _kind = GetTypeKind(TypeName, &_size);
+    Byte _kind = GetTypeKind(TypeName, &_size);
     if (!Val && (_kind == ikString || _kind == ikLString || _kind == ikWString || _kind == ikUString)) return "''";
     if (!Val && (_kind == ikClass || _kind == ikVMT)) return "Nil";
     if (_kind == ikEnumeration) {
@@ -1758,7 +1757,7 @@ String __fastcall GetImmString(String TypeName, int Val) {
 }
 
 //---------------------------------------------------------------------------
-PInfoRec __fastcall GetInfoRec(DWORD adr) {
+PInfoRec __fastcall GetInfoRec(DWord adr) {
     int pos = Adr2Pos(adr);
     if (pos >= 0)
         return Infos[pos];
@@ -1772,11 +1771,11 @@ PInfoRec __fastcall GetInfoRec(DWORD adr) {
 
 //---------------------------------------------------------------------------
 String __fastcall GetEnumerationString(String TypeName, Variant Val) {
-    BYTE len;
+    Byte len;
     int n, pos, _val, idx;
-    DWORD adr, typeAdr, minValue, maxValue, minValueB, maxValueB;
+    DWord adr, typeAdr, minValue, maxValue, minValueB, maxValueB;
     char *p, *b = nullptr, *e;
-    WORD *uses;
+    Word *uses;
     MTypeInfo tInfo;
     String clsName;
 
@@ -1807,12 +1806,12 @@ String __fastcall GetEnumerationString(String TypeName, Variant Val) {
         pos += len;
         //ordType
         pos++;
-        minValue = *((DWORD *) (Code + pos));
+        minValue = *((DWord *) (Code + pos));
         pos += 4;
-        maxValue = *((DWORD *) (Code + pos));
+        maxValue = *((DWord *) (Code + pos));
         pos += 4;
         //BaseTypeAdr
-        typeAdr = *((DWORD *) (Code + pos));
+        typeAdr = *((DWord *) (Code + pos));
         pos += 4;
 
         //If BaseTypeAdr != SelfAdr then fields extracted from BaseType
@@ -1824,9 +1823,9 @@ String __fastcall GetEnumerationString(String TypeName, Variant Val) {
             pos++;
             pos += len; //BaseClassName
             pos++;      //ordType
-            minValueB = *((DWORD *) (Code + pos));
+            minValueB = *((DWord *) (Code + pos));
             pos += 4;
-            maxValueB = *((DWORD *) (Code + pos));
+            maxValueB = *((DWord *) (Code + pos));
             pos += 4;
             pos += 4; //BaseClassPtr
         } else {
@@ -1872,11 +1871,11 @@ String __fastcall GetEnumerationString(String TypeName, Variant Val) {
 }
 
 //---------------------------------------------------------------------------
-String __fastcall GetSetString(String TypeName, BYTE *ValAdr) {
+String __fastcall GetSetString(String TypeName, Byte *ValAdr) {
     int n, m, idx, size;
-    BYTE b, *pVal;
+    Byte b, *pVal;
     char *pDecl, *p;
-    WORD *uses;
+    Word *uses;
     MTypeInfo tInfo;
     String name, result = "";
 
@@ -1904,7 +1903,7 @@ String __fastcall GetSetString(String TypeName, BYTE *ValAdr) {
                         for (n = 0; n < size; n++) {
                             b = *pVal;
                             for (m = 0; m < 8; m++) {
-                                if (b & ((DWORD) 1 << m)) {
+                                if (b & ((DWord) 1 << m)) {
                                     if (result != "") result += ",";
                                     if (p)
                                         result += String(p);
@@ -1945,7 +1944,7 @@ void __fastcall OutputDecompilerHeader(FILE *f) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall AddFieldXref(PFIELDINFO fInfo, DWORD ProcAdr, int ProcOfs, char type) {
+void __fastcall AddFieldXref(PFIELDINFO fInfo, DWord ProcAdr, int ProcOfs, char type) {
     PXrefRec recX;
 
     if (!fInfo->xrefs) fInfo->xrefs = new TList;
@@ -2038,7 +2037,7 @@ int __fastcall MethodsCmpFunction(void *item1, void *item2) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall AddPicode(int Pos, BYTE Op, String Name, int Ofs) {
+void __fastcall AddPicode(int Pos, Byte Op, String Name, int Ofs) {
     if (Name == "") return;
 
     PInfoRec recN = GetInfoRec(Pos2Adr(Pos));
@@ -2097,7 +2096,7 @@ int __fastcall SortUnitsByNam(void *item1, void *item2) {
 
 //---------------------------------------------------------------------------
 String __fastcall GetArrayElementType(String arrType) {
-    DWORD adr = GetOwnTypeAdr(arrType);
+    DWord adr = GetOwnTypeAdr(arrType);
     if (IsValidImageAdr(adr) && IsFlagSet(cfRTTI, Adr2Pos(adr)))
         return GetDynArrayTypeName(adr);
 
@@ -2320,23 +2319,23 @@ void __fastcall Copy2Clipboard(TStrings *items, int leftMargin, bool asmCode) {
 
 //---------------------------------------------------------------------------
 String __fastcall GetModuleVersion(const String &module) {
-    DWORD dwDummy;
-    DWORD dwFVISize = GetFileVersionInfoSize(AnsiString(module).c_str(), &dwDummy);
+    DWord dwDummy;
+    DWord dwFVISize = GetFileVersionInfoSize(AnsiString(module).c_str(), &dwDummy);
     if (!dwFVISize) return "";
 
     String strVersion = ""; //empty means not found, etc - some error
 
-    LPBYTE lpVersionInfo = new BYTE[dwFVISize];
+    LPBYTE lpVersionInfo = new Byte[dwFVISize];
     if (GetFileVersionInfo(AnsiString(module).c_str(), 0, dwFVISize, lpVersionInfo)) {
         UINT uLen;
         VS_FIXEDFILEINFO *lpFfi;
         if (VerQueryValue(lpVersionInfo, _T("\\"), (LPVOID *) &lpFfi, &uLen)) {
-            DWORD dwFileVersionMS = lpFfi->dwFileVersionMS;
-            DWORD dwFileVersionLS = lpFfi->dwFileVersionLS;
-            DWORD dwLeftMost = HIWORD(dwFileVersionMS);
-            DWORD dwSecondLeft = LOWORD(dwFileVersionMS);
-            DWORD dwSecondRight = HIWORD(dwFileVersionLS);
-            DWORD dwRightMost = LOWORD(dwFileVersionLS);
+            DWord dwFileVersionMS = lpFfi->dwFileVersionMS;
+            DWord dwFileVersionLS = lpFfi->dwFileVersionLS;
+            DWord dwLeftMost = HIWORD(dwFileVersionMS);
+            DWord dwSecondLeft = LOWORD(dwFileVersionMS);
+            DWord dwSecondRight = HIWORD(dwFileVersionLS);
+            DWord dwRightMost = LOWORD(dwFileVersionLS);
 
             strVersion.sprintf(L"%d.%d.%d.%d", dwLeftMost, dwSecondLeft, dwSecondRight, dwRightMost);
         }
@@ -2349,11 +2348,11 @@ String __fastcall GetModuleVersion(const String &module) {
 bool __fastcall IsBplByExport(const char *bpl) {
     PIMAGE_NT_HEADERS pHeader = 0;
     PIMAGE_EXPORT_DIRECTORY pExport = 0;
-    DWORD *pFuncNames = 0;
-    WORD *pFuncOrdinals = 0;
-    DWORD *pFuncAddr = 0;
-    DWORD pName = 0;
-    DWORD imageBase = 0;
+    DWord *pFuncNames = 0;
+    Word *pFuncOrdinals = 0;
+    DWord *pFuncAddr = 0;
+    DWord pName = 0;
+    DWord imageBase = 0;
     char *szDll = 0;
     bool result = 0;
     bool haveInitializeFunc = false;
@@ -2361,7 +2360,7 @@ bool __fastcall IsBplByExport(const char *bpl) {
     bool haveGetPackageInfoTableFunc = false;
 
     HMODULE hLib = LoadLibraryEx(bpl, 0, LOAD_LIBRARY_AS_DATAFILE);
-    imageBase = (DWORD)(DWORD_PTR)
+    imageBase = (DWord)(DWORD_PTR)
     hLib;
 
     if (hLib) {
@@ -2374,9 +2373,9 @@ bool __fastcall IsBplByExport(const char *bpl) {
 
             szDll = (char *) (imageBase + pExport->Name);
 
-            pFuncOrdinals = (WORD *) (imageBase + pExport->AddressOfNameOrdinals);
-            pFuncNames = (DWORD *) (imageBase + pExport->AddressOfNames);
-            pFuncAddr = (DWORD *) (imageBase + pExport->AddressOfFunctions);
+            pFuncOrdinals = (Word *) (imageBase + pExport->AddressOfNameOrdinals);
+            pFuncNames = (DWord *) (imageBase + pExport->AddressOfNames);
+            pFuncAddr = (DWord *) (imageBase + pExport->AddressOfFunctions);
 
             for (int i = 0; i < pExport->NumberOfFunctions; i++) {
                 int index = -1;
@@ -2407,9 +2406,9 @@ bool __fastcall IsBplByExport(const char *bpl) {
 
 //---------------------------------------------------------------------------
 //toAdr:dec reg
-int __fastcall IsInitStackViaLoop(DWORD fromAdr, DWORD toAdr) {
+int __fastcall IsInitStackViaLoop(DWord fromAdr, DWord toAdr) {
     int stackSize = 0;
-    DWORD dd, curAdr;
+    DWord dd, curAdr;
     int instrLen;
     DISINFO _disInfo;
 
@@ -2421,7 +2420,7 @@ int __fastcall IsInitStackViaLoop(DWORD fromAdr, DWORD toAdr) {
             curAdr++;
             continue;
         }
-        dd = *((DWORD *) _disInfo.Mnem);
+        dd = *((DWord *) _disInfo.Mnem);
         //push ...
         if (dd == 'hsup') {
             stackSize += 4;
@@ -2472,7 +2471,7 @@ bool __fastcall IsADC(int Idx) {
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall IsAnalyzedAdr(DWORD Adr) {
+bool __fastcall IsAnalyzedAdr(DWord Adr) {
     bool analyze = false;
     for (int n = 0; n < SegmentList->Count; n++) {
         PSegmentInfo segInfo = (PSegmentInfo) SegmentList->Items[n];
@@ -2486,9 +2485,9 @@ bool __fastcall IsAnalyzedAdr(DWORD Adr) {
 
 //---------------------------------------------------------------------------
 //Check that fromAdr is BoundErr sequence
-int __fastcall IsBoundErr(DWORD fromAdr) {
+int __fastcall IsBoundErr(DWord fromAdr) {
     int _pos, _instrLen;
-    DWORD _adr;
+    DWord _adr;
     PInfoRec _recN;
     DISINFO _disInfo;
 
@@ -2507,9 +2506,9 @@ int __fastcall IsBoundErr(DWORD fromAdr) {
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall IsConnected(DWORD fromAdr, DWORD toAdr) {
+bool __fastcall IsConnected(DWord fromAdr, DWord toAdr) {
     int n, _pos, _instrLen;
-    DWORD _adr;
+    DWord _adr;
     DISINFO _disInfo;
 
     _pos = Adr2Pos(fromAdr);
@@ -2525,10 +2524,10 @@ bool __fastcall IsConnected(DWORD fromAdr, DWORD toAdr) {
 
 //---------------------------------------------------------------------------
 //Check that fromAdr points to Exit
-bool __fastcall IsExit(DWORD fromAdr) {
-    BYTE _op;
+bool __fastcall IsExit(DWord fromAdr) {
+    Byte _op;
     int _pos, _instrLen;
-    DWORD _adr;
+    DWord _adr;
     DISINFO _disInfo;
 
     if (!IsValidCodeAdr(fromAdr)) return 0;
@@ -2569,10 +2568,10 @@ bool __fastcall IsExit(DWORD fromAdr) {
 }
 
 //---------------------------------------------------------------------------
-DWORD __fastcall IsGeneralCase(DWORD fromAdr, int retAdr) {
+DWord __fastcall IsGeneralCase(DWord fromAdr, int retAdr) {
     int _regIdx = -1, _pos;
-    DWORD _dd;
-    DWORD _curAdr = fromAdr, _jmpAdr = 0;
+    DWord _dd;
+    DWord _curAdr = fromAdr, _jmpAdr = 0;
     int _curPos = Adr2Pos(fromAdr);
     int _len, _num1 = 0;
     DISINFO _disInfo;
@@ -2581,11 +2580,11 @@ DWORD __fastcall IsGeneralCase(DWORD fromAdr, int retAdr) {
 
     while (1) {
         _len = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-        _dd = *((DWORD *) _disInfo.Mnem);
+        _dd = *((DWord *) _disInfo.Mnem);
         //Switch at current address
         if (IsFlagSet(cfSwitch, _curPos)) {
             Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-            _dd = *((DWORD *) _disInfo.Mnem);
+            _dd = *((DWord *) _disInfo.Mnem);
             if (_dd == 'aj') {
                 if (IsValidCodeAdr(_disInfo.Immediate))
                     return _disInfo.Immediate;
@@ -2597,7 +2596,7 @@ DWORD __fastcall IsGeneralCase(DWORD fromAdr, int retAdr) {
         if (IsFlagSet(cfSwitch, _curPos + _len)) {
             _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
             Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-            _dd = *((DWORD *) _disInfo.Mnem);
+            _dd = *((DWord *) _disInfo.Mnem);
             if (_dd == 'aj') {
                 if (IsValidCodeAdr(_disInfo.Immediate))
                     return _disInfo.Immediate;
@@ -2609,14 +2608,14 @@ DWORD __fastcall IsGeneralCase(DWORD fromAdr, int retAdr) {
         if (_dd == 'pmc' && _disInfo.OpType[0] == otREG && _disInfo.OpType[1] == otIMM) {
             _regIdx = _disInfo.OpRegIdx[0];
             _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-            _dd = *((DWORD *) _disInfo.Mnem);
+            _dd = *((DWord *) _disInfo.Mnem);
             if (_dd == 'bj' || _dd == 'gj' || _dd == 'egj') {
                 if (IsGeneralCase(_disInfo.Immediate, retAdr)) {
                     _curAdr += _len;
                     _curPos += _len;
 
                     _len = Disasm.Disassemble(Code + _curPos, (__int64)(_curAdr), &_disInfo, 0);
-                    _dd = *((DWORD *) _disInfo.Mnem);
+                    _dd = *((DWord *) _disInfo.Mnem);
                     if (_dd == 'zj' || _dd == 'ej') {
                         _curAdr += _len;
                         _curPos += _len;
@@ -2637,16 +2636,16 @@ DWORD __fastcall IsGeneralCase(DWORD fromAdr, int retAdr) {
                 break;
 
             _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-            _dd = *((DWORD *) _disInfo.Mnem);
+            _dd = *((DWord *) _disInfo.Mnem);
             if (_dd == 'bus' && IsSameRegister(_regIdx, _disInfo.OpRegIdx[0])) {
                 _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-                _dd = *((DWORD *) _disInfo.Mnem);
+                _dd = *((DWord *) _disInfo.Mnem);
             }
             if (_dd == 'bj') {
                 _curAdr += _len;
                 _curPos += _len;
                 _len = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-                _dd = *((DWORD *) _disInfo.Mnem);
+                _dd = *((DWord *) _disInfo.Mnem);
                 if (_dd == 'zj' || _dd == 'ej') {
                     _curAdr += _len;
                     _curPos += _len;
@@ -2656,7 +2655,7 @@ DWORD __fastcall IsGeneralCase(DWORD fromAdr, int retAdr) {
             if (_dd == 'zj' || _dd == 'ej') {
                 _pos = GetNearestUpInstruction(Adr2Pos(_disInfo.Immediate));
                 Disasm.Disassemble(Code + _pos, (__int64) Pos2Adr(_pos), &_disInfo, 0);
-                _dd = *((DWORD *) _disInfo.Mnem);
+                _dd = *((DWord *) _disInfo.Mnem);
                 if (_dd == 'pmj')
                     _jmpAdr = _disInfo.Immediate;
                 if (_disInfo.Ret)
@@ -2685,10 +2684,10 @@ DWORD __fastcall IsGeneralCase(DWORD fromAdr, int retAdr) {
                 break;
 
             _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-            _dd = *((DWORD *) _disInfo.Mnem);
+            _dd = *((DWord *) _disInfo.Mnem);
             if (_dd == 'bus') {
                 _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-                _dd = *((DWORD *) _disInfo.Mnem);
+                _dd = *((DWord *) _disInfo.Mnem);
                 if (_dd == 'bj') {
                     _curAdr += _len;
                     _curPos += _len;
@@ -2717,21 +2716,21 @@ DWORD __fastcall IsGeneralCase(DWORD fromAdr, int retAdr) {
 //check
 //xor reg, reg
 //mov reg,...
-bool __fastcall IsXorMayBeSkipped(DWORD fromAdr) {
-    DWORD _curAdr = fromAdr, _dd;
+bool __fastcall IsXorMayBeSkipped(DWord fromAdr) {
+    DWord _curAdr = fromAdr, _dd;
     int _instrlen, _regIdx;
     int _curPos = Adr2Pos(fromAdr);
     DISINFO _disInfo;
 
     _instrlen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-    _dd = *((DWORD *) _disInfo.Mnem);
+    _dd = *((DWord *) _disInfo.Mnem);
     if (_dd == 'rox' && _disInfo.OpType[0] == otREG && _disInfo.OpType[1] == otREG && _disInfo.OpRegIdx[0] == _disInfo.
         OpRegIdx[1]) {
         _regIdx = _disInfo.OpRegIdx[0];
         _curPos += _instrlen;
         _curAdr += _instrlen;
         Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-        _dd = *((DWORD *) _disInfo.Mnem);
+        _dd = *((DWord *) _disInfo.Mnem);
         if (_dd == 'vom' && _disInfo.OpType[0] == otREG && IsSameRegister(_disInfo.OpRegIdx[0], _regIdx)) return true;
     }
     return false;
@@ -2783,13 +2782,13 @@ String __fastcall UnmangleName(String Name)
 //xor eax, edx
 //sub eax, edx
 //return bytes to skip, if Abs, else return 0
-int __fastcall IsAbs(DWORD fromAdr) {
+int __fastcall IsAbs(DWord fromAdr) {
     int _curPos = Adr2Pos(fromAdr), _instrLen;
-    DWORD _dd, _curAdr = fromAdr;
+    DWord _dd, _curAdr = fromAdr;
     DISINFO _disInfo;
 
     _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-    _dd = *((DWORD *) _disInfo.Mnem);
+    _dd = *((DWord *) _disInfo.Mnem);
     if (_dd == 'rox' &&
         _disInfo.OpType[0] == otREG &&
         _disInfo.OpType[1] == otREG &&
@@ -2798,7 +2797,7 @@ int __fastcall IsAbs(DWORD fromAdr) {
         _curPos += _instrLen;
         _curAdr += _instrLen;
         _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-        _dd = *((DWORD *) _disInfo.Mnem);
+        _dd = *((DWord *) _disInfo.Mnem);
         if (_dd == 'bus' &&
             _disInfo.OpType[0] == otREG &&
             _disInfo.OpType[1] == otREG &&
@@ -2816,9 +2815,9 @@ int __fastcall IsAbs(DWORD fromAdr) {
 //call @IntOver
 //@1:
 //return bytes to skip, if @IntOver, else return 0
-int __fastcall IsIntOver(DWORD fromAdr) {
+int __fastcall IsIntOver(DWord fromAdr) {
     int _instrLen, _curPos = Adr2Pos(fromAdr);
-    DWORD _curAdr = fromAdr;
+    DWord _curAdr = fromAdr;
     PInfoRec _recN;
     DISINFO _disInfo;
 
@@ -2847,13 +2846,13 @@ int __fastcall IsIntOver(DWORD fromAdr) {
 //jz @1
 //sub reg, 4
 //mov reg, [reg]
-int __fastcall IsInlineLengthTest(DWORD fromAdr) {
+int __fastcall IsInlineLengthTest(DWord fromAdr) {
     int _curPos = Adr2Pos(fromAdr), _instrLen, _regIdx;
-    DWORD _dd, _adr, _curAdr = fromAdr;
+    DWord _dd, _adr, _curAdr = fromAdr;
     DISINFO _disInfo;
 
     _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-    _dd = *((DWORD *) _disInfo.Mnem);
+    _dd = *((DWord *) _disInfo.Mnem);
     if (_dd == 'tset' &&
         _disInfo.OpType[0] == otREG &&
         _disInfo.OpType[1] == otREG &&
@@ -2862,13 +2861,13 @@ int __fastcall IsInlineLengthTest(DWORD fromAdr) {
         _curPos += _instrLen;
         _curAdr += _instrLen;
         _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-        _dd = *((DWORD *) _disInfo.Mnem);
+        _dd = *((DWord *) _disInfo.Mnem);
         if (_dd == 'zj' || _dd == 'ej') {
             _adr = _disInfo.Immediate;
             _curPos += _instrLen;
             _curAdr += _instrLen;
             _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-            _dd = *((DWORD *) _disInfo.Mnem);
+            _dd = *((DWord *) _disInfo.Mnem);
             //mov reg, [reg-4]
             if (_dd == 'vom' &&
                 _disInfo.OpType[0] == otREG &&
@@ -2886,7 +2885,7 @@ int __fastcall IsInlineLengthTest(DWORD fromAdr) {
                 _curPos += _instrLen;
                 _curAdr += _instrLen;
                 _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-                _dd = *((DWORD *) _disInfo.Mnem);
+                _dd = *((DWord *) _disInfo.Mnem);
                 //mov reg, [reg]
                 if (_dd == 'vom' &&
                     _disInfo.OpType[0] == otREG &&
@@ -2909,11 +2908,11 @@ int __fastcall IsInlineLengthTest(DWORD fromAdr) {
 //sub reg, 4
 //mov reg, [reg]
 //mov [lvar], reg
-int __fastcall IsInlineLengthCmp(DWORD fromAdr) {
-    BYTE _op;
+int __fastcall IsInlineLengthCmp(DWord fromAdr) {
+    Byte _op;
     int _curPos = Adr2Pos(fromAdr), _instrLen, _regIdx;
     int _baseReg, _offset;
-    DWORD _dd, _adr, _curAdr = fromAdr;
+    DWord _dd, _adr, _curAdr = fromAdr;
     DISINFO _disInfo;
 
     _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
@@ -2927,7 +2926,7 @@ int __fastcall IsInlineLengthCmp(DWORD fromAdr) {
         _curPos += _instrLen;
         _curAdr += _instrLen;
         _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-        _dd = *((DWORD *) _disInfo.Mnem);
+        _dd = *((DWord *) _disInfo.Mnem);
         if (_dd == 'zj' || _dd == 'ej') {
             _adr = _disInfo.Immediate;
             _curPos += _instrLen;
@@ -2987,10 +2986,10 @@ int __fastcall IsInlineLengthCmp(DWORD fromAdr) {
 //add reg, (2^k - 1)
 //sar reg, k
 //@1
-int __fastcall IsInlineDiv(DWORD fromAdr, int *div) {
-    BYTE _op;
+int __fastcall IsInlineDiv(DWord fromAdr, int *div) {
+    Byte _op;
     int _curPos = Adr2Pos(fromAdr), _instrLen, _regIdx;
-    DWORD _dd, _adr, _curAdr = fromAdr, _imm;
+    DWord _dd, _adr, _curAdr = fromAdr, _imm;
     DISINFO _disInfo;
 
     _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
@@ -3003,7 +3002,7 @@ int __fastcall IsInlineDiv(DWORD fromAdr, int *div) {
         _curPos += _instrLen;
         _curAdr += _instrLen;
         _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-        _dd = *((DWORD *) _disInfo.Mnem);
+        _dd = *((DWord *) _disInfo.Mnem);
         if (_dd == 'snj') {
             _adr = _disInfo.Immediate;
             _curPos += _instrLen;
@@ -3023,7 +3022,7 @@ int __fastcall IsInlineDiv(DWORD fromAdr, int *div) {
                     _disInfo.OpType[0] == otREG &&
                     _disInfo.OpRegIdx[0] == _regIdx &&
                     _disInfo.OpType[1] == otIMM) {
-                    if (((DWORD) 1 << _disInfo.Immediate) == _imm) {
+                    if (((DWord) 1 << _disInfo.Immediate) == _imm) {
                         *div = _imm;
                         return (_curAdr + _instrLen) - fromAdr;
                     }
@@ -3041,10 +3040,10 @@ int __fastcall IsInlineDiv(DWORD fromAdr, int *div) {
 //or reg, imm
 //inc reg
 //@1
-int __fastcall IsInlineMod(DWORD fromAdr, int *mod) {
-    BYTE _op;
+int __fastcall IsInlineMod(DWord fromAdr, int *mod) {
+    Byte _op;
     int _curPos = Adr2Pos(fromAdr), _instrLen, _regIdx;
-    DWORD _dd, _adr, _curAdr = fromAdr, _imm;
+    DWord _dd, _adr, _curAdr = fromAdr, _imm;
     DISINFO _disInfo;
 
     _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
@@ -3058,7 +3057,7 @@ int __fastcall IsInlineMod(DWORD fromAdr, int *mod) {
         _curPos += _instrLen;
         _curAdr += _instrLen;
         _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-        _dd = *((DWORD *) _disInfo.Mnem);
+        _dd = *((DWord *) _disInfo.Mnem);
         if (_dd == 'snj') {
             _adr = _disInfo.Immediate;
             _curPos += _instrLen;
@@ -3104,10 +3103,10 @@ int __fastcall IsInlineMod(DWORD fromAdr, int *mod) {
 //push reg2
 //jns @2
 //@1:mov reg4, esp
-int __fastcall IsCopyDynArrayToStack(DWORD fromAdr) {
-    BYTE _op;
+int __fastcall IsCopyDynArrayToStack(DWord fromAdr) {
+    Byte _op;
     int _curPos = Adr2Pos(fromAdr), _instrLen, _reg1Idx, _reg2Idx;
-    DWORD _dd, _adr1, _adr2, _curAdr = fromAdr, _imm;
+    DWord _dd, _adr1, _adr2, _curAdr = fromAdr, _imm;
     DISINFO _disInfo;
 
     _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
@@ -3120,7 +3119,7 @@ int __fastcall IsCopyDynArrayToStack(DWORD fromAdr) {
         _curPos += _instrLen;
         _curAdr += _instrLen;
         _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-        _dd = *((DWORD *) _disInfo.Mnem);
+        _dd = *((DWord *) _disInfo.Mnem);
         if (_dd == 'sj') {
             _adr1 = _disInfo.Immediate;
             _curPos += _instrLen;
@@ -3149,7 +3148,7 @@ int __fastcall IsCopyDynArrayToStack(DWORD fromAdr) {
                         _curPos += _instrLen;
                         _curAdr += _instrLen;
                         _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-                        _dd = *((DWORD *) _disInfo.Mnem);
+                        _dd = *((DWord *) _disInfo.Mnem);
                         if (_dd == 'snj' && _disInfo.Immediate == _adr2) {
                             _curPos += _instrLen;
                             _curAdr += _instrLen;
@@ -3217,7 +3216,7 @@ String __fastcall InputDialogExec(String caption, String labelText, String text)
 }
 
 //---------------------------------------------------------------------------
-String __fastcall ManualInput(DWORD procAdr, DWORD curAdr, String caption, String labelText) {
+String __fastcall ManualInput(DWord procAdr, DWord curAdr, String caption, String labelText) {
     String _result = "";
 
     FMain_11011981->ShowCode(procAdr, curAdr, FMain_11011981->lbCXrefs->ItemIndex, -1);
@@ -3232,15 +3231,15 @@ String __fastcall ManualInput(DWORD procAdr, DWORD curAdr, String caption, Strin
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall MatchCode(BYTE *code, MProcInfo *pInfo) {
+bool __fastcall MatchCode(Byte *code, MProcInfo *pInfo) {
     if (!code || !pInfo) return false;
 
-    DWORD _dumpSz = pInfo->DumpSz;
+    DWord _dumpSz = pInfo->DumpSz;
     //ret
     if (_dumpSz < 2) return false;
 
-    BYTE *_dump = pInfo->Dump;
-    BYTE *_relocs = _dump + _dumpSz;
+    Byte *_dump = pInfo->Dump;
+    Byte *_relocs = _dump + _dumpSz;
     //jmp XXXXXXXX
     if (_dumpSz == 5 && _dump[0] == 0xE9 && _relocs[1] == 0xFF) return false;
     //call XXXXXXXX ret
@@ -3308,10 +3307,10 @@ void __fastcall DrawOneItem(String AItem, TCanvas *ACanvas, TRect &ARect, TColor
 //push XXXXXXXX
 //push fs:[reg]
 //mov fs:[reg], esp
-int __fastcall IsTryBegin(DWORD fromAdr, DWORD *endAdr) {
-    BYTE _op;
+int __fastcall IsTryBegin(DWord fromAdr, DWord *endAdr) {
+    Byte _op;
     int _instrLen, n;
-    DWORD _curAdr, _endAdr = 0;
+    DWord _curAdr, _endAdr = 0;
     DISINFO _disInfo;
 
     _curAdr = fromAdr;
@@ -3347,10 +3346,10 @@ int __fastcall IsTryBegin(DWORD fromAdr, DWORD *endAdr) {
 //push XXXXXXXX
 //push fs:[0]
 //mov fs:[0], esp
-int __fastcall IsTryBegin0(DWORD fromAdr, DWORD *endAdr) {
-    BYTE _op;
+int __fastcall IsTryBegin0(DWord fromAdr, DWord *endAdr) {
+    Byte _op;
     int _instrLen, n;
-    DWORD _curAdr, _endAdr = 0;
+    DWord _curAdr, _endAdr = 0;
     DISINFO _disInfo;
 
     _curAdr = fromAdr;
@@ -3385,10 +3384,10 @@ int __fastcall IsTryBegin0(DWORD fromAdr, DWORD *endAdr) {
 //pop reg
 //mov fs:[reg],reg
 //push XXXXXXXX
-int __fastcall IsTryEndPush(DWORD fromAdr, DWORD *endAdr) {
-    BYTE _op;
+int __fastcall IsTryEndPush(DWord fromAdr, DWord *endAdr) {
+    Byte _op;
     int _instrLen, n;
-    DWORD _curAdr;
+    DWord _curAdr;
     DISINFO _disInfo;
 
     _curAdr = fromAdr;
@@ -3422,10 +3421,10 @@ int __fastcall IsTryEndPush(DWORD fromAdr, DWORD *endAdr) {
 //pop reg
 //mov fs:[reg],reg
 //jmp XXXXXXXX
-int __fastcall IsTryEndJump(DWORD fromAdr, DWORD *endAdr) {
-    BYTE _op;
+int __fastcall IsTryEndJump(DWord fromAdr, DWord *endAdr) {
+    Byte _op;
     int _instrLen, n;
-    DWORD _curAdr;
+    DWord _curAdr;
     DISINFO _disInfo;
 
     _curAdr = fromAdr;
@@ -3459,11 +3458,11 @@ int __fastcall IsTryEndJump(DWORD fromAdr, DWORD *endAdr) {
 //jne @1
 //...
 //@1:
-int __fastcall ProcessInt64Equality(DWORD fromAdr, DWORD *maxAdr) {
-    BYTE _op, _b;
+int __fastcall ProcessInt64Equality(DWord fromAdr, DWord *maxAdr) {
+    Byte _op, _b;
     int _instrLen, n, _curPos;
-    DWORD _curAdr, _adr1 = 0, _maxAdr;
-    DWORD _skipAdr1 = 0, _skipAdr2 = 0;
+    DWord _curAdr, _adr1 = 0, _maxAdr;
+    DWord _skipAdr1 = 0, _skipAdr2 = 0;
     DISINFO _disInfo;
 
     _curAdr = fromAdr;
@@ -3512,11 +3511,11 @@ int __fastcall ProcessInt64Equality(DWORD fromAdr, DWORD *maxAdr) {
 //cmp XXX,XXX
 //je @2
 //@1:
-int __fastcall ProcessInt64NotEquality(DWORD fromAdr, DWORD *maxAdr) {
-    BYTE _op, _b;
+int __fastcall ProcessInt64NotEquality(DWord fromAdr, DWord *maxAdr) {
+    Byte _op, _b;
     int _instrLen, n, _curPos;
-    DWORD _curAdr, _adr1 = 0, _adr2, _maxAdr;
-    DWORD _skipAdr1 = 0, _skipAdr2 = 0;
+    DWord _curAdr, _adr1 = 0, _adr2, _maxAdr;
+    DWord _skipAdr1 = 0, _skipAdr2 = 0;
     DISINFO _disInfo;
 
     _curAdr = fromAdr;
@@ -3568,11 +3567,11 @@ int __fastcall ProcessInt64NotEquality(DWORD fromAdr, DWORD *maxAdr) {
 //jxx @@ -> set cfSkip (_skipAdr3 = address of this instruction)
 //jmp @@ set cfSkip (_skipAdr4 = address of this instruction)
 //@1:jxx @@
-int __fastcall ProcessInt64Comparison(DWORD fromAdr, DWORD *maxAdr) {
-    BYTE _op;
+int __fastcall ProcessInt64Comparison(DWord fromAdr, DWord *maxAdr) {
+    Byte _op;
     int _instrLen, n;
-    DWORD _curAdr, _adr, _adr1 = 0, _maxAdr;
-    DWORD _skipAdr1 = 0, _skipAdr2 = 0, _skipAdr3 = 0, _skipAdr4 = 0;
+    DWord _curAdr, _adr, _adr1 = 0, _maxAdr;
+    DWord _skipAdr1 = 0, _skipAdr2 = 0, _skipAdr3 = 0, _skipAdr4 = 0;
     DISINFO _disInfo;
 
     _curAdr = fromAdr;
@@ -3634,11 +3633,11 @@ int __fastcall ProcessInt64Comparison(DWORD fromAdr, DWORD *maxAdr) {
 //@1:pop reg
 //pop reg
 //jxx @2
-int __fastcall ProcessInt64ComparisonViaStack1(DWORD fromAdr, DWORD *maxAdr) {
-    BYTE _op;
+int __fastcall ProcessInt64ComparisonViaStack1(DWord fromAdr, DWord *maxAdr) {
+    Byte _op;
     int _instrLen, n, m, _skip, _pos;
-    DWORD _curAdr, _adr1 = 0, _adr2, _adr3, _maxAdr, _pushAdr;
-    DWORD _skipAdr1 = 0, _skipAdr2 = 0;
+    DWord _curAdr, _adr1 = 0, _adr2, _adr3, _maxAdr, _pushAdr;
+    DWord _skipAdr1 = 0, _skipAdr2 = 0;
     DISINFO _disInfo;
 
     _curAdr = fromAdr;
@@ -3717,11 +3716,11 @@ int __fastcall ProcessInt64ComparisonViaStack1(DWORD fromAdr, DWORD *maxAdr) {
 //pop reg
 //pop reg
 //jxx @2
-int __fastcall ProcessInt64ComparisonViaStack2(DWORD fromAdr, DWORD *maxAdr) {
-    BYTE _op;
+int __fastcall ProcessInt64ComparisonViaStack2(DWord fromAdr, DWord *maxAdr) {
+    Byte _op;
     int _instrLen, n, m, _skip, _pos;
-    DWORD _curAdr, _adr, _adr1 = 0, _adr2, _maxAdr, _pushAdr = 0;
-    DWORD _skipAdr1 = 0, _skipAdr2 = 0, _skipAdr3 = 0, _skipAdr4 = 0, _skipAdr5 = 0, _skipAdr6 = 0;
+    DWord _curAdr, _adr, _adr1 = 0, _adr2, _maxAdr, _pushAdr = 0;
+    DWord _skipAdr1 = 0, _skipAdr2 = 0, _skipAdr3 = 0, _skipAdr4 = 0, _skipAdr5 = 0, _skipAdr6 = 0;
     DISINFO _disInfo;
 
     _curAdr = fromAdr;
@@ -3818,11 +3817,11 @@ int __fastcall ProcessInt64ComparisonViaStack2(DWORD fromAdr, DWORD *maxAdr) {
 //jne @1 -> skip2 up to this instruction, Result = skip2
 //...
 //@1:... -> delete 1 xRef to this instruction (address = _adr1)
-int __fastcall IsInt64Equality(DWORD fromAdr, int *skip1, int *skip2, bool *immVal, __int64 *Val) {
+int __fastcall IsInt64Equality(DWord fromAdr, int *skip1, int *skip2, bool *immVal, __int64 *Val) {
     bool _imm;
-    BYTE _op, _b;
+    Byte _op, _b;
     int _instrLen, n, _curPos, _skip;
-    DWORD _curAdr, _adr1 = 0, _br1Adr;
+    DWord _curAdr, _adr1 = 0, _br1Adr;
     DISINFO _disInfo;
     __int64 _val1 = 0, _val2 = 0;
     //PInfoRec    _recN;
@@ -3881,11 +3880,11 @@ int __fastcall IsInt64Equality(DWORD fromAdr, int *skip1, int *skip2, bool *immV
 //cmp XXX,XXX ->skip1 up to this instruction
 //je @2 -> skip2 up to this instruction, Result = skip2
 //@1:... -> delete 1 xRef to this instruction (address = _adr1)
-int __fastcall IsInt64NotEquality(DWORD fromAdr, int *skip1, int *skip2, bool *immVal, __int64 *Val) {
+int __fastcall IsInt64NotEquality(DWord fromAdr, int *skip1, int *skip2, bool *immVal, __int64 *Val) {
     bool _imm;
-    BYTE _op, _b;
+    Byte _op, _b;
     int _instrLen, n, _curPos, _skip;
-    DWORD _curAdr, _adr1 = 0, _adr2, _br1Adr;
+    DWord _curAdr, _adr1 = 0, _adr2, _br1Adr;
     DISINFO _disInfo;
     __int64 _val1 = 0, _val2 = 0;
     //PInfoRec    _recN;
@@ -3945,12 +3944,12 @@ int __fastcall IsInt64NotEquality(DWORD fromAdr, int *skip1, int *skip2, bool *i
 //jxx @@ (_br3Adr = address of this instruction)
 //jmp @@ (_br2Adr = address of this instruction)
 //@1:jxx @@ (skip2 up to this instruction, Result = skip2)
-int __fastcall IsInt64Comparison(DWORD fromAdr, int *skip1, int *skip2, bool *immVal, __int64 *Val) {
+int __fastcall IsInt64Comparison(DWord fromAdr, int *skip1, int *skip2, bool *immVal, __int64 *Val) {
     bool _imm;
-    BYTE _op;
+    Byte _op;
     int _instrLen, n, m, _skip;
     __int64 _val1 = 0, _val2 = 0;
-    DWORD _curAdr, _adr1 = 0, _br1Adr, _br2Adr, _br3Adr;
+    DWord _curAdr, _adr1 = 0, _br1Adr, _br2Adr, _br3Adr;
     DISINFO _disInfo;
     //PInfoRec    _recN;
 
@@ -4013,10 +4012,10 @@ int __fastcall IsInt64Comparison(DWORD fromAdr, int *skip1, int *skip2, bool *im
 //@1:pop reg
 //pop reg
 //jxx @@ ->Result
-int __fastcall IsInt64ComparisonViaStack1(DWORD fromAdr, int *skip1, DWORD *simEnd) {
-    BYTE _op;
+int __fastcall IsInt64ComparisonViaStack1(DWord fromAdr, int *skip1, DWord *simEnd) {
+    Byte _op;
     int _instrLen, n, m, _pos;
-    DWORD _curAdr = fromAdr, _adr1 = 0, _pushAdr = 0;
+    DWord _curAdr = fromAdr, _adr1 = 0, _pushAdr = 0;
     DISINFO _disInfo;
 
     _curAdr = fromAdr;
@@ -4092,10 +4091,10 @@ int __fastcall IsInt64ComparisonViaStack1(DWORD fromAdr, int *skip1, DWORD *simE
 //pop reg
 //pop reg
 //jxx @@ ->Result
-int __fastcall IsInt64ComparisonViaStack2(DWORD fromAdr, int *skip1, int *skip2, DWORD *simEnd) {
-    BYTE _op;
+int __fastcall IsInt64ComparisonViaStack2(DWord fromAdr, int *skip1, int *skip2, DWord *simEnd) {
+    Byte _op;
     int _instrLen, n, m, _pos;
-    DWORD _curAdr = fromAdr, _adr1 = 0, _pushAdr = 0;
+    DWord _curAdr = fromAdr, _adr1 = 0, _pushAdr = 0;
     DISINFO _disInfo;
 
     _curAdr = fromAdr;
@@ -4170,10 +4169,10 @@ int __fastcall IsInt64ComparisonViaStack2(DWORD fromAdr, int *skip1, int *skip2,
 //Check construction
 //shrd reg1,reg2,N
 //shr reg2,N
-int __fastcall IsInt64Shr(DWORD fromAdr) {
-    BYTE _op;
+int __fastcall IsInt64Shr(DWord fromAdr) {
+    Byte _op;
     int _instrLen, n, _idx = 0, _val = 0;
-    DWORD _curAdr = fromAdr;
+    DWord _curAdr = fromAdr;
     DISINFO _disInfo;
 
     for (n = 1; n <= 2; n++) {
@@ -4199,10 +4198,10 @@ int __fastcall IsInt64Shr(DWORD fromAdr) {
 //Check construction
 //shld reg1,reg2,N
 //shl reg2,N
-int __fastcall IsInt64Shl(DWORD fromAdr) {
-    BYTE _op;
+int __fastcall IsInt64Shl(DWord fromAdr) {
+    Byte _op;
     int _instrLen, n, _idx = 0, _val = 0;
-    DWORD _curAdr = fromAdr;
+    DWord _curAdr = fromAdr;
     DISINFO _disInfo;
 
     for (n = 1; n <= 2; n++) {
@@ -4273,7 +4272,7 @@ String __fastcall SanitizeName(String name) {
 
 //---------------------------------------------------------------------------
 // Shadow name is name like ":1"
-String __fastcall TransformShadowName(String name, BYTE typeKind, DWORD typeAdr) {
+String __fastcall TransformShadowName(String name, Byte typeKind, DWord typeAdr) {
     String prefix;
     switch (typeKind) {
         case ikEnumeration:

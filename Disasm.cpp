@@ -18,14 +18,14 @@
   #define LABEL(x) @##x
 #endif
 
-extern  BYTE *Code;
-extern  int __fastcall Adr2Pos(DWORD Adr);
-extern  TCriticalSection* CrtSection;
+extern Byte *Code;
+extern int __fastcall Adr2Pos(DWord Adr);
+extern TCriticalSection* CrtSection;
 
-DWORD* (__stdcall* PdisNew)(int);
-DWORD (_stdcall* CchFormatInstr)(char*, DWORD);
-DWORD (_stdcall* Dist)();
-DWORD   *DIS;
+DWord *(__stdcall *PdisNew)(int);
+DWord(_stdcall *CchFormatInstr)(char *, DWord);
+DWord(_stdcall *Dist)();
+DWord *DIS;
 const char*   Reg8Tab[8] =
 {
     //0     1     2     3     4     5     6     7
@@ -74,14 +74,14 @@ int __fastcall MDisasm::Init()
 {
     hModule = LoadLibrary("dis.dll");
     if (!hModule) return 0;
-    PdisNew = (DWORD* (__stdcall*)(int))GetProcAddress(hModule, "?PdisNew@DIS@@SGPAV1@W4DIST@1@@Z");
-    CchFormatInstr = (DWORD (_stdcall*)(char*, DWORD))GetProcAddress(hModule, "?CchFormatInstr@DIS@@QBEIPADI@Z");
-    Dist = (DWORD (_stdcall*)())GetProcAddress(hModule, "?Dist@DIS@@QBE?AW4DIST@1@XZ");
     DIS = PdisNew(1);
+        PdisNew = (DWord * (__stdcall *) (int) ) GetProcAddress(hModule, "?PdisNew@DIS@@SGPAV1@W4DIST@1@@Z");
+        CchFormatInstr = (DWord(_stdcall *)(char *, DWord)) GetProcAddress(hModule, "?CchFormatInstr@DIS@@QBEIPADI@Z");
+        Dist = (DWord(_stdcall *)()) GetProcAddress(hModule, "?Dist@DIS@@QBE?AW4DIST@1@XZ");
     return 1;
 }
 //---------------------------------------------------------------------------
-BYTE __fastcall MDisasm::GetOp(char* mnem)
+Byte __fastcall MDisasm::GetOp(char* mnem)
 {
     DWORD   dd = *((DWORD*)mnem);
 
@@ -146,8 +146,7 @@ int __fastcall MDisasm::GetRegister(const char * reg)
     return -1;
 }
 //---------------------------------------------------------------------------
-int __fastcall MDisasm::Disassemble(DWORD fromAdr, PDISINFO pDisInfo, char* disLine)
-{
+int __fastcall MDisasm::Disassemble(DWord fromAdr, PDISINFO pDisInfo, char* disLine) {
     int _res = 0;
 
     CrtSection->Enter();
@@ -162,8 +161,7 @@ int __fastcall MDisasm::Disassemble(DWORD fromAdr, PDISINFO pDisInfo, char* disL
     return _res;
 }
 //---------------------------------------------------------------------------
-int __fastcall MDisasm::Disassemble(BYTE* from, __int64 address, PDISINFO pDisInfo, char* disLine)
-{
+int __fastcall MDisasm::Disassemble(Byte* from, __int64 address, PDISINFO pDisInfo, char* disLine) {
     int  InstrLen, _res;
     char *p, *q;
     char Instr[1024];
@@ -247,10 +245,10 @@ int __fastcall MDisasm::Disassemble(BYTE* from, __int64 address, PDISINFO pDisIn
 //---------------------------------------------------------------------------
 void __fastcall MDisasm::FormatInstr(PDISINFO pDisInfo, char* disLine)
 {
-    BYTE    _repPrefix, p, *ArgInfo;
+    Byte    _repPrefix, p, *ArgInfo;
     const char *OpName;
     int     i, Bytes = 0;
-    DWORD   Cmd, Arg;
+    DWord   Cmd, Arg;
 
     if (disLine) *disLine = 0;
     _repPrefix = GetRepPrefix();
@@ -378,7 +376,7 @@ void __fastcall MDisasm::FormatInstr(PDISINFO pDisInfo, char* disLine)
 //---------------------------------------------------------------------------
 int __fastcall MDisasm::OutputGeneralRegister(char *dst, int reg, int size)
 {
-BYTE        OperandSize;
+Byte        OperandSize;
 
     if (size == 1)
     {
@@ -403,9 +401,9 @@ BYTE        OperandSize;
     return 16;
 }
 //---------------------------------------------------------------------------
-void __fastcall MDisasm::OutputHex(char *dst, DWORD val)
+void __fastcall MDisasm::OutputHex(char *dst, DWord val)
 {
-    BYTE b;
+    Byte b;
     char buf[12];
 
     if (val <= 9)
@@ -419,10 +417,10 @@ void __fastcall MDisasm::OutputHex(char *dst, DWORD val)
     strcat(dst, buf);
 }
 //---------------------------------------------------------------------------
-DWORD __fastcall MDisasm::GetAddress()
+DWord __fastcall MDisasm::GetAddress()
 {
     int   n;
-    DWORD res = 0;
+    DWord res = 0;
 
     asm
     {
@@ -575,7 +573,7 @@ DWORD __fastcall MDisasm::GetAddress()
 //---------------------------------------------------------------------------
 void __fastcall MDisasm::OutputSegPrefix(char* dst, PDISINFO pDisInfo)
 {
-    BYTE    _segPrefix;
+    Byte    _segPrefix;
     const char *sptr = nullptr;
 
     _segPrefix = GetSegPrefix();
@@ -612,8 +610,8 @@ void __fastcall MDisasm::OutputSegPrefix(char* dst, PDISINFO pDisInfo)
 //---------------------------------------------------------------------------
 int __fastcall MDisasm::EvaluateOperandSize()
 {
-    BYTE    OperandSize;
-    DWORD   Ofs;
+    Byte    OperandSize;
+    DWord   Ofs;
     int     OpSize;
 
     OperandSize = GetOperandSize();
@@ -702,12 +700,11 @@ void __fastcall MDisasm::OutputSizePtr(int size, bool mm, PDISINFO pDisInfo, cha
     }
 }
 //---------------------------------------------------------------------------
-void __fastcall MDisasm::OutputMemAdr32(int argno, char* dst, DWORD arg, bool f1, bool f2, PDISINFO pDisInfo, char* disLine)
-{
-    BYTE    PostByte, SegPrefix, mod, *pos, sib, b;
+void __fastcall MDisasm::OutputMemAdr32(int argno, char* dst, DWord arg, bool f1, bool f2, PDISINFO pDisInfo, char* disLine) {
+    Byte    PostByte, SegPrefix, mod, *pos, sib, b;
     bool    ofs, ofs1, ib, mm;
     int     ss = 0, index, base, idxofs, idxval;
-    DWORD   offset32 = 0;
+    DWord   offset32 = 0;
 
     asm
     {
@@ -787,7 +784,7 @@ void __fastcall MDisasm::OutputMemAdr32(int argno, char* dst, DWORD arg, bool f1
     else if ((PostByte & 0xC0) == 0x80) //mod=10
         ofs = true;
 
-    if (ofs) offset32 = *((DWORD*)pos);
+    if (ofs) offset32 = *((DWord*)pos);
 
     mm = (f1 || f2);
     OutputSizePtr(arg, mm, pDisInfo, disLine);
@@ -860,14 +857,14 @@ void __fastcall MDisasm::OutputMemAdr32(int argno, char* dst, DWORD arg, bool f1
     strcat(dst, "]");
 }
 //---------------------------------------------------------------------------
-void __fastcall MDisasm::OutputMemAdr16(int argno, char* dst, DWORD arg, bool f1, bool f2, PDISINFO pDisInfo, char* disLine)
+void __fastcall MDisasm::OutputMemAdr16(int argno, char* dst, DWord arg, bool f1, bool f2, PDISINFO pDisInfo, char* disLine)
 {
-    BYTE    PostByte, SegPrefix, b;
+    Byte    PostByte, SegPrefix, b;
     bool    ofs, mm;
     const char  *regcomb;
     char sign;
     int     idxofs, idxval;
-    DWORD   offset16 = 0, dval;
+    DWord   offset16 = 0, dval;
 
     asm
     {
@@ -985,10 +982,10 @@ void __fastcall MDisasm::OutputMemAdr16(int argno, char* dst, DWORD arg, bool f1
     }
 }
 //---------------------------------------------------------------------------
-void __fastcall MDisasm::FormatArg(int argno, DWORD cmd, DWORD arg, PDISINFO pDisInfo, char* disLine)
+void __fastcall MDisasm::FormatArg(int argno, DWord cmd, DWord arg, PDISINFO pDisInfo, char* disLine)
 {
-    BYTE    AddressSize, OperandSize;
-    DWORD   dval, adr;
+    Byte    AddressSize, OperandSize;
+    DWord   dval, adr;
     int     ival, idxofs, idxval, stno;
     char    Op[64], *p = Op;
 
@@ -1404,9 +1401,9 @@ bool        res;
     return res;
 }
 //---------------------------------------------------------------------------
-BYTE __fastcall MDisasm::GetSegPrefix()
+Byte __fastcall MDisasm::GetSegPrefix()
 {
-BYTE        res;
+Byte        res;
     asm
     {
         // @formatter:off
@@ -1420,9 +1417,9 @@ BYTE        res;
     return res;
 }
 //---------------------------------------------------------------------------
-BYTE __fastcall MDisasm::GetRepPrefix()
+Byte __fastcall MDisasm::GetRepPrefix()
 {
-BYTE        res;
+Byte        res;
 
     asm
     {
@@ -1437,9 +1434,9 @@ BYTE        res;
     return res;
 }
 //---------------------------------------------------------------------------
-BYTE __fastcall MDisasm::GetCop()
+Byte __fastcall MDisasm::GetCop()
 {
-BYTE        res;
+Byte        res;
     asm
     {
         // @formatter:off
@@ -1454,9 +1451,9 @@ BYTE        res;
     return res;
 }
 //---------------------------------------------------------------------------
-BYTE __fastcall MDisasm::GetCop1()
+Byte __fastcall MDisasm::GetCop1()
 {
-BYTE        res;
+Byte        res;
 
     asm
     {
@@ -1472,9 +1469,9 @@ BYTE        res;
     return res;
 }
 //---------------------------------------------------------------------------
-BYTE __fastcall MDisasm::GetPostByte()
+Byte __fastcall MDisasm::GetPostByte()
 {
-BYTE         res;
+Byte         res;
 
     asm
     {
@@ -1490,7 +1487,7 @@ BYTE         res;
     return res;
 }
 //---------------------------------------------------------------------------
-void __fastcall MDisasm::SetPostByte(BYTE b)
+void __fastcall MDisasm::SetPostByte(Byte b)
 {
     asm
     {
@@ -1505,9 +1502,9 @@ void __fastcall MDisasm::SetPostByte(BYTE b)
     }
 }
 //---------------------------------------------------------------------------
-BYTE __fastcall MDisasm::GetPostByteMod()
+Byte __fastcall MDisasm::GetPostByteMod()
 {
-BYTE         res;
+Byte         res;
 
     asm
     {
@@ -1563,9 +1560,9 @@ int         res;
     return res;
 }
 //---------------------------------------------------------------------------
-void __fastcall MDisasm::SetOffset(DWORD ofs)
+void __fastcall MDisasm::SetOffset(DWord ofs)
 {
-    BYTE AddressSize = GetAddressSize();
+    Byte AddressSize = GetAddressSize();
     if (AddressSize)
     {
         asm
@@ -1596,7 +1593,7 @@ void __fastcall MDisasm::SetOffset(DWORD ofs)
     }
 }
 //---------------------------------------------------------------------------
-void __fastcall MDisasm::GetInstrBytes(BYTE* dst)
+void __fastcall MDisasm::GetInstrBytes(Byte* dst)
 {
     asm
     {

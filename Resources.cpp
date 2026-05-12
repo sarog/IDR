@@ -31,11 +31,11 @@
 
 // PfnGetDstSize = Function (MemPtr:Pointer; Len:Integer):Integer; stdcall;
 // PfnDecrypt = Function (SrcPtr:Pointer; SrcLen:Integer; DstPtr:Pointer; DstLen:Integer):Boolean; stdcall;
-int (__stdcall *fnGetDstSize)(BYTE *, int);
-boolean (__stdcall * fnDecrypt)(BYTE *, int, BYTE *, int);
+int (__stdcall *fnGetDstSize)(Byte *, int);
+boolean (__stdcall * fnDecrypt)(Byte *, int, Byte *, int);
 
 extern TResourceInfo *ResInfo;
-extern DWORD CodeBase;
+extern DWord CodeBase;
 extern PInfoRec *Infos;
 
 //---------------------------------------------------------------------------
@@ -331,7 +331,7 @@ int __fastcall AnalyzeSection(TDfm *Dfm, TStringList *FormText, int From, PCompo
 bool __stdcall EnumResNameProcedure(HMODULE hModule, char *Type, char *Name, long Param) {
     TFilerFlags flags;
     String className, vmtName;
-    BYTE signature[4];
+    Byte signature[4];
 
     // -sg: RT_BITMAP is never used
     if (Type == RT_RCDATA || Type == RT_BITMAP) {
@@ -343,26 +343,26 @@ bool __stdcall EnumResNameProcedure(HMODULE hModule, char *Type, char *Name, lon
             ms->LoadFromStream(resStream);
             bool res = true;
             if (ResInfo->hFormPlugin) {
-                fnGetDstSize = (int(__stdcall *)(BYTE *, int)) GetProcAddress(ResInfo->hFormPlugin, "GetDstSize");
-                fnDecrypt = (boolean(__stdcall *)(BYTE *, int, BYTE *, int)) GetProcAddress(ResInfo->hFormPlugin, "Decrypt");
+                fnGetDstSize = (int(__stdcall *)(Byte *, int)) GetProcAddress(ResInfo->hFormPlugin, "GetDstSize");
+                fnDecrypt = (boolean(__stdcall *)(Byte *, int, Byte *, int)) GetProcAddress(ResInfo->hFormPlugin, "Decrypt");
                 res = (fnGetDstSize && fnDecrypt);
                 if (res) {
                     int srcSize = ms->Size;
-                    int dstSize = fnGetDstSize((BYTE *) ms->Memory, srcSize);
+                    int dstSize = fnGetDstSize((Byte *) ms->Memory, srcSize);
                     if (srcSize != dstSize) {
                         TMemoryStream *ds = new TMemoryStream;
                         ds->Size = dstSize;
-                        res = fnDecrypt((BYTE *) ms->Memory, srcSize, (BYTE *) ds->Memory, dstSize);
+                        res = fnDecrypt((Byte *) ms->Memory, srcSize, (Byte *) ds->Memory, dstSize);
                         ms->Size = dstSize;
                         ms->CopyFrom(ds, dstSize);
                         delete ds;
                     } else {
-                        res = fnDecrypt((BYTE *) ms->Memory, srcSize, (BYTE *) ms->Memory, dstSize);
+                        res = fnDecrypt((Byte *) ms->Memory, srcSize, (Byte *) ms->Memory, dstSize);
                     }
                 }
                 if (res) {
-                    BYTE *mp = (BYTE *) ms->Memory;
-                    BYTE len = *(mp + 4);
+                    Byte *mp = (Byte *) ms->Memory;
+                    Byte len = *(mp + 4);
                     res = (len == strlen(Name) && SameText(Name, String(reinterpret_cast<char *>(mp + 5), len)));
                 }
             }
@@ -687,7 +687,7 @@ void __fastcall TResourceInfo::GetEventsList(String FormName, TList *Lst) {
     TDfm *dfm = GetFormIdx(FormName, &n);
     if (!dfm) return;
 
-    DWORD classAdr = GetClassAdr(dfm->ClassName);
+    DWord classAdr = GetClassAdr(dfm->ClassName);
     recN = (IsValidImageAdr(classAdr)) ? Infos[Adr2Pos(classAdr)] : 0;
     //Form
     //Inherited - begin fill list
@@ -958,7 +958,7 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
     TDfm *dfm = ResInfo->GetFormIdx(FormName, &n);
     if (!dfm) return;
 
-    DWORD classAdr = GetClassAdr(dfm->ClassName);
+    DWord classAdr = GetClassAdr(dfm->ClassName);
     PInfoRec recN = (IsValidImageAdr(classAdr)) ? Infos[Adr2Pos(classAdr)] : 0;
 
     // Форма?
@@ -1114,7 +1114,7 @@ void __fastcall IdrDfmForm::ShowMyPopupMenu(String FormName, String ControlName,
 //---------------------------------------------------------------------------
 void __fastcall IdrDfmForm::miPopupClick(TObject *Sender) {
     TMenuItem *mi = (TMenuItem *) Sender;
-    DWORD Adr = mi->Tag;
+    DWord Adr = mi->Tag;
     if (Adr && IsValidImageAdr(Adr)) {
         PInfoRec recN = GetInfoRec(Adr);
         if (recN) {
@@ -1191,7 +1191,7 @@ void __fastcall IdrDfmForm::SetupMenuItem(TMenuItem *mi, String searchName) {
 
                 // Нашли компоненту, которой принадлежит mi
                 if (SameText(cInfo->Name, mi->Name)) {
-                    DWORD classAdr = GetClassAdr(dfm->ClassName);
+                    DWord classAdr = GetClassAdr(dfm->ClassName);
                     PInfoRec recN = (IsValidImageAdr(classAdr)) ? Infos[Adr2Pos(classAdr)] : 0;
 
                     TList *ev = cInfo->Events;
@@ -1294,7 +1294,7 @@ void __fastcall IdrDfmForm::MyFormClose(TObject *Sender, TCloseAction &Action) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmForm::MyFormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift) {
+void __fastcall IdrDfmForm::MyFormKeyDown(TObject *Sender, Word &Key, TShiftState Shift) {
     switch (Key) {
         case VK_ESCAPE:
             Close();

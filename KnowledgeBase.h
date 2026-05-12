@@ -6,16 +6,16 @@
 //---------------------------------------------------------------------------
 // Информация о смещениях имен и данных | Information about name and data offsets
 typedef struct {
-    DWORD Offset;
-    DWORD Size;
+    DWord Offset;
+    DWord Size;
     int ModId; // Modules
     int NamId; // Names
 } OFFSETSINFO, *POFFSETSINFO;
 
 //Fixup info
 typedef struct {
-    BYTE Type; // 'A' - ADR, 'J' - JMP, 'D' - DAT
-    DWORD Ofs; // Смещение относительно начала дампа | Offset relative to the start of the dump
+    Byte Type; // 'A' - ADR, 'J' - JMP, 'D' - DAT
+    DWord Ofs; // Смещение относительно начала дампа | Offset relative to the start of the dump
     char *Name;
 } FIXUPINFO, *PFIXUPINFO;
 
@@ -23,66 +23,66 @@ typedef struct {
 ModuleDataTable
 ---------------
 //Состоит из ModuleCount записей вида
-WORD 	ID;
+Word 	ID;
 PSTR 	ModuleName;
 PSTR	Filename;
-WORD 	UsesNum;
-WORD 	UsesID[UsesNum];	//Массив идентификаторов модулей
+Word 	UsesNum;
+Word 	UsesID[UsesNum];	//Массив идентификаторов модулей
 PSTR	UsesNames[UsesNum];	//Массив имен модулей
 
 ConstDataTable
 --------------
 //Состоит из ModuleCount записей вида
-WORD 	ModuleID;
+Word 	ModuleID;
 PSTR 	ConstName;
-BYTE 	Type; //'C'-ConstDecl, 'P'-PDecl (VMT), 'V'-VarCDecl
+Byte 	Type; //'C'-ConstDecl, 'P'-PDecl (VMT), 'V'-VarCDecl
 PSTR 	TypeDef; //Тип
 PSTR 	Value; //Значение
-DWORD	DumpTotal;	//Общий размер дампа (дамп+релоки+фиксапы)
-DWORD 	DumpSize; //Размер бинарного дампа (RTTI)
-DWORD 	FixupNum; //Количество фиксапов дампа
-BYTE 	Dump[DumpSize]; //Бинарный дамп (RTTI)
-BYTE 	Relocs[DumpSize];
+DWord	DumpTotal;	//Общий размер дампа (дамп+релоки+фиксапы)
+DWord 	DumpSize; //Размер бинарного дампа (RTTI)
+DWord 	FixupNum; //Количество фиксапов дампа
+Byte 	Dump[DumpSize]; //Бинарный дамп (RTTI)
+Byte 	Relocs[DumpSize];
 FIXUPINFO Fixups[FixupNum]; //Массив фиксапов
 
 TypeDataTable
 -------------
 //Состоит из TypeCount записей вида
-DWORD   Size; //Size of Type
-WORD 	ModuleID;
+DWord   Size; //Size of Type
+Word 	ModuleID;
 PSTR 	TypeName;
-BYTE 	Kind; //drArrayDef,...,drVariantDef (см. начало)
-DWORD 	VMCnt; //Количество элементов VMT (начиная с 0)
+Byte 	Kind; //drArrayDef,...,drVariantDef (см. начало)
+DWord 	VMCnt; //Количество элементов VMT (начиная с 0)
 PSTR 	Decl; //Декларация
-DWORD	DumpTotal;	//Общий размер дампа (дамп+релоки+фиксапы)
-DWORD 	DumpSize; //Размер бинарного дампа (RTTI)
-DWORD 	FixupNum; //Количество фиксапов дампа
-BYTE 	Dump[DumpSize]; //Бинарный дамп (RTTI)
-BYTE 	Relocs[DumpSize];
+DWord	DumpTotal;	//Общий размер дампа (дамп+релоки+фиксапы)
+DWord 	DumpSize; //Размер бинарного дампа (RTTI)
+DWord 	FixupNum; //Количество фиксапов дампа
+Byte 	Dump[DumpSize]; //Бинарный дамп (RTTI)
+Byte 	Relocs[DumpSize];
 FIXUPINFO Fixups[FixupNum]; //Фиксапы
-DWORD	FieldsTotal;	//Общий размер данных полей
-WORD 	FieldsNum; //Количество полей (class, interface, record)
+DWord	FieldsTotal;	//Общий размер данных полей
+Word 	FieldsNum; //Количество полей (class, interface, record)
 FIELDINFO Fields[FieldNum]; //Поля
-DWORD	PropsTotal;	//Общий размер данных свойств
-WORD 	PropsNum; //Количество свойств (class, interface)
+DWord	PropsTotal;	//Общий размер данных свойств
+Word 	PropsNum; //Количество свойств (class, interface)
 PROPERTYINFO Props[PropNum]; //Свойства
-DWORD	MethodsTotal;	//Общий размер данных методов
-WORD 	MethodsNum; //Количество методов (class, interface)
+DWord	MethodsTotal;	//Общий размер данных методов
+Word 	MethodsNum; //Количество методов (class, interface)
 METHODINFO Methods[MethodNum]; //Методы
 
 VarDataTable
 ------------
 //Состоит из VarCount записей вида
-WORD 	ModuleID;
+Word 	ModuleID;
 PSTR 	VarName;
-BYTE 	Type; //'V'-Var;'A'-AbsVar;'S'-SpecVar;'T'-ThreadVar
+Byte 	Type; //'V'-Var;'A'-AbsVar;'S'-SpecVar;'T'-ThreadVar
 PSTR 	TypeDef;
 PSTR 	AbsName; //Для ключевого слова absolute
 
 ResStrDataTable
 ---------------
 //Состоит из ResStrCount записей вида
-WORD 	ModuleID;
+Word 	ModuleID;
 PSTR 	ResStrName;
 PSTR 	TypeDef;
 PSTR	Context;
@@ -90,25 +90,25 @@ PSTR	Context;
 ProcDataTable
 -------------
 //Contains ProcCount structures:
-WORD 	ModuleID;
+Word 	ModuleID;
 PSTR 	ProcName;
-BYTE 	Embedded; //Contains embedded procs
-BYTE 	DumpType; //'C' - code, 'D' - data
-BYTE 	MethodKind; //'M'-method,'P'-procedure,'F'-function,'C'-constructor,'D'-destructor
-BYTE 	CallKind; //1-'cdecl', 2-'pascal', 3-'stdcall', 4-'safecall'
+Byte 	Embedded; //Contains embedded procs
+Byte 	DumpType; //'C' - code, 'D' - data
+Byte 	MethodKind; //'M'-method,'P'-procedure,'F'-function,'C'-constructor,'D'-destructor
+Byte 	CallKind; //1-'cdecl', 2-'pascal', 3-'stdcall', 4-'safecall'
 int 	VProc; //Flag for "overload" (if Delphi version > verD3 and VProc&0x1000 != 0)
 PSTR 	TypeDef; //Type of Result for function
-DWORD	DumpTotal;	//Total size of dump (dump+relocs+fixups)
-DWORD 	DumpSz; //Dump size
-DWORD 	FixupNum; //Dump fixups number
-BYTE 	Dump[DumpSz]; //Binary dump
-BYTE 	Relocs[DumpSize];
+DWord	DumpTotal;	//Total size of dump (dump+relocs+fixups)
+DWord 	DumpSz; //Dump size
+DWord 	FixupNum; //Dump fixups number
+Byte 	Dump[DumpSz]; //Binary dump
+Byte 	Relocs[DumpSize];
 FIXUPINFO Fixups[FixupNum]; //Fixups
-DWORD	ArgsTotal;	//Total size of arguments
-WORD 	ArgsNum; //Arguments number
+DWord	ArgsTotal;	//Total size of arguments
+Word 	ArgsNum; //Arguments number
 ARGINFO Args[ArgNum]; //Arguments
-DWORD	LocalsTotal;	//Total size of local vars
-WORD 	LocalsNum; //Local vars number
+DWord	LocalsTotal;	//Total size of local vars
+Word 	LocalsNum; //Local vars number
 LOCALINFO Locals[LocalNum]; //Local vars
 */
 
@@ -117,7 +117,7 @@ LOCALINFO Locals[LocalNum]; //Local vars
 typedef struct FIELDINFO {
     FIELDINFO() : xrefs(0) {}
     ~FIELDINFO();
-    BYTE Scope;   // 9-private, 10-protected, 11-public, 12-published
+    Byte Scope;   // 9-private, 10-protected, 11-public, 12-published
     int Offset;   // Offset in class instance
     int Case;     // Case for record (in other cases 0xFFFFFFFF)
     String Name;  // Field Name
@@ -126,7 +126,7 @@ typedef struct FIELDINFO {
 } FIELDINFO, *PFIELDINFO;
 
 typedef struct {
-    BYTE Scope;        // 9-private, 10-protected, 11-public, 12-published
+    Byte Scope;        // 9-private, 10-protected, 11-public, 12-published
     int Index;         // readonly, writeonly в зависимости от установки бит 1 и 2 | depending on the setting of bits 1 and 2
     int DispID;        // ???
     String Name;       // Имя свойства | Property name
@@ -137,13 +137,13 @@ typedef struct {
 } PROPINFO, *PPROPINFO;
 
 typedef struct {
-    BYTE Scope;       // 9-private, 10-protected, 11-public, 12-published
-    BYTE MethodKind;  // 'M'-method, 'P'-procedure, 'F'-function, 'C'-constructor, 'D'-destructor
+    Byte Scope;       // 9-private, 10-protected, 11-public, 12-published
+    Byte MethodKind;  // 'M'-method, 'P'-procedure, 'F'-function, 'C'-constructor, 'D'-destructor
     String Prototype; // Prototype full name
 } METHODINFO, *PMETHODINFO;
 
 typedef struct {
-    BYTE Tag;       // 0x21-"val", 0x22-"var"
+    Byte Tag;       // 0x21-"val", 0x22-"var"
     bool Register;  // If true - argument is in register, else - in stack
     int Ndx;        // Register number and offset (XX-number, XXXXXX-offset) (0-EAX, 1-ECX, 2-EDX)
     int Size;       // Argument Size
@@ -160,7 +160,7 @@ typedef struct {
 
 typedef struct {
     char type;  // 'C'-call; 'J'-jmp; 'D'-data
-    DWORD adr;  // address of procedure
+    DWord adr;  // address of procedure
     int offset; // offset in procedure
 } XrefRec, *PXrefRec;
 
@@ -179,14 +179,14 @@ public:
     ~MConstInfo();
 
 public:
-    WORD ModuleID;
+    Word ModuleID;
     String ConstName;
-    BYTE Type;      // 'C'-ConstDecl, 'P'-PDecl (VMT), 'V'-VarCDecl
+    Byte Type;      // 'C'-ConstDecl, 'P'-PDecl (VMT), 'V'-VarCDecl
     String TypeDef; // Тип | Type
     String Value;   // Значение
-    DWORD DumpSz;   // Размер бинарного дампа | Binary dump size
-    DWORD FixupNum; // Количество фиксапов дампа | Number of dump fixups
-    BYTE *Dump;     // Бинарный дамп | Binary dump
+    DWord DumpSz;   // Размер бинарного дампа | Binary dump size
+    DWord FixupNum; // Количество фиксапов дампа | Number of dump fixups
+    Byte *Dump;     // Бинарный дамп | Binary dump
 };
 
 // Значения байта Kind информации о типе
@@ -214,21 +214,21 @@ public:
     ~MTypeInfo();
 
 public:
-    DWORD Size;
-    WORD ModuleID;
+    DWord Size;
+    Word ModuleID;
     String TypeName;
-    BYTE Kind;      //drArrayDef,...,drVariantDef
-    WORD VMCnt;     //VMT elements number (from 0)
+    Byte Kind;      //drArrayDef,...,drVariantDef
+    Word VMCnt;     //VMT elements number (from 0)
     String Decl;    //Declaration
-    DWORD DumpSz;   //Binary dump size
-    DWORD FixupNum; //Binary dump fixup number
-    BYTE *Dump;     //Binary dump
-    WORD FieldsNum; //Fields number (class, interface, record)
-    BYTE *Fields;
-    WORD PropsNum; //Properties number (class, interface)
-    BYTE *Props;
-    WORD MethodsNum; //Methods number (class, interface)
-    BYTE *Methods;
+    DWord DumpSz;   //Binary dump size
+    DWord FixupNum; //Binary dump fixup number
+    Byte *Dump;     //Binary dump
+    Word FieldsNum; //Fields number (class, interface, record)
+    Byte *Fields;
+    Word PropsNum; //Properties number (class, interface)
+    Byte *Props;
+    Word MethodsNum; //Methods number (class, interface)
+    Byte *Methods;
 };
 
 //Var Type field
@@ -243,9 +243,9 @@ public:
     ~MVarInfo();
 
 public:
-    WORD ModuleID;
+    Word ModuleID;
     String VarName;
-    BYTE Type; //'V'-Var;'A'-AbsVar;'S'-SpecVar;'T'-ThreadVar
+    Byte Type; //'V'-Var;'A'-AbsVar;'S'-SpecVar;'T'-ThreadVar
     String TypeDef;
     String AbsName; //Для ключевого слова absolute
 };
@@ -256,7 +256,7 @@ public:
     ~MResStrInfo();
 
 public:
-    WORD ModuleID;
+    Word ModuleID;
     String ResStrName;
     String TypeDef;
     //String      Context;
@@ -268,21 +268,21 @@ public:
     ~MProcInfo();
 
 public:
-    WORD ModuleID;
+    Word ModuleID;
     String ProcName;
     bool Embedded;   //true-содержит вложенные процедуры
     char DumpType;   //'C' - код, 'D' - данные
     char MethodKind; //'M'-method,'P'-procedure,'F'-function,'C'-constructor,'D'-destructor
-    BYTE CallKind;   //1-'cdecl', 2-'pascal', 3-'stdcall', 4-'safecall'
+    Byte CallKind;   //1-'cdecl', 2-'pascal', 3-'stdcall', 4-'safecall'
     int VProc;       //флажок для "overload" (если версия Дельфи > verD3 и VProc&0x1000 != 0)
     String TypeDef;  //Тип
-    DWORD DumpSz;    //Размер бинарного дампа
-    DWORD FixupNum;  //Количество фиксапов дампа
-    BYTE *Dump;      //Бинарный дамп (включает в себя собственно дамп, релоки и фиксапы)
-    WORD ArgsNum;    //Количество аргументов процедуры
-    BYTE *Args;      //Список аргументов
-    //WORD 	    LocalsNum;  //Количество локальных переменных процедуры
-    //BYTE        *Locals;    //Список локальных переменных
+    DWord DumpSz;    //Размер бинарного дампа
+    DWord FixupNum;  //Количество фиксапов дампа
+    Byte *Dump;      //Бинарный дамп (включает в себя собственно дамп, релоки и фиксапы)
+    Word ArgsNum;    //Количество аргументов процедуры
+    Byte *Args;      //Список аргументов
+    //Word 	    LocalsNum;  //Количество локальных переменных процедуры
+    //Byte        *Locals;    //Список локальных переменных
 };
 
 //Секции базы знаний
@@ -301,36 +301,36 @@ public:
     bool __fastcall Open(char *filename);
     void __fastcall Close();
 
-    const BYTE * __fastcall GetKBCachePtr(DWORD Offset, DWORD Size);
-    WORD __fastcall GetModuleID(const char *ModuleName);
-    String __fastcall GetModuleName(WORD ModuleID);
+    const Byte * __fastcall GetKBCachePtr(DWord Offset, DWord Size);
+    Word __fastcall GetModuleID(const char *ModuleName);
+    String __fastcall GetModuleName(Word ModuleID);
     void __fastcall GetModuleIdsByProcName(const char *ProcName);
-    int __fastcall GetItemSection(WORD *ModuleIDs, char *ItemName);
-    int __fastcall GetConstIdx(WORD *ModuleID, const char *ConstName);
+    int __fastcall GetItemSection(Word *ModuleIDs, char *ItemName);
+    int __fastcall GetConstIdx(Word *ModuleID, const char *ConstName);
     int __fastcall GetConstIdxs(const char *ConstName, int *ConstIdx);
-    int __fastcall GetTypeIdxByModuleIds(WORD *ModuleIDs, const char *TypeName);
+    int __fastcall GetTypeIdxByModuleIds(Word *ModuleIDs, const char *TypeName);
     int __fastcall GetTypeIdxsByName(const char *TypeName, int *TypeIdx);
-    int __fastcall GetTypeIdxByUID(char *UID);
-    int __fastcall GetVarIdx(WORD *ModuleIDs, const char *VarName);
+    // int __fastcall GetTypeIdxByUID(char *UID); // unused
+    int __fastcall GetVarIdx(Word *ModuleIDs, const char *VarName);
     int __fastcall GetResStrIdx(int from, const char *ResStrContext);
-    int __fastcall GetResStrIdx(WORD ModuleID, const char *ResStrContext);
-    int __fastcall GetResStrIdx(WORD *ModuleIDs, const char *ResStrName);
-    int __fastcall GetProcIdx(WORD ModuleID, const char *ProcName);
-    int __fastcall GetProcIdx(WORD ModuleID, const char *ProcName, BYTE *code);
-    int __fastcall GetProcIdx(WORD *ModuleIDs, const char *ProcName, BYTE *code);
-    bool __fastcall GetProcIdxs(WORD ModuleID, int *FirstProcIdx, int *LastProcIdx);
-    bool __fastcall GetProcIdxs(WORD ModuleID, int *FirstProcIdx, int *LastProcIdx, int *DumpSize);
-    MConstInfo * __fastcall GetConstInfo(int AConstIdx, DWORD AFlags, MConstInfo *cInfo);
-    MProcInfo * __fastcall GetProcInfo(const char *ProcName, DWORD AFlags, MProcInfo *pInfo, int *procIdx);
-    MProcInfo * __fastcall GetProcInfo(int AProcIdx, DWORD AFlags, MProcInfo *pInfo);
-    MTypeInfo * __fastcall GetTypeInfo(int ATypeIdx, DWORD AFlags, MTypeInfo *tInfo);
-    MVarInfo * __fastcall GetVarInfo(int AVarIdx, DWORD AFlags, MVarInfo *vInfo);
-    MResStrInfo * __fastcall GetResStrInfo(int AResStrIdx, DWORD AFlags, MResStrInfo *rsInfo);
-    int __fastcall ScanCode(BYTE *code, DWORD *CodeFlags, DWORD CodeSz, MProcInfo *pInfo);
-    WORD * __fastcall GetModuleUses(WORD ModuleID);
-    int __fastcall GetProcUses(const char *ProcName, WORD *uses);
-    WORD * __fastcall GetTypeUses(const char *TypeName);
-    WORD * __fastcall GetConstUses(const char *ConstName);
+    int __fastcall GetResStrIdx(Word ModuleID, const char *ResStrContext);
+    int __fastcall GetResStrIdx(Word *ModuleIDs, const char *ResStrName);
+    int __fastcall GetProcIdx(Word ModuleID, const char *ProcName);
+    int __fastcall GetProcIdx(Word ModuleID, const char *ProcName, Byte *code);
+    int __fastcall GetProcIdx(Word *ModuleIDs, const char *ProcName, Byte *code);
+    bool __fastcall GetProcIdxs(Word ModuleID, int *FirstProcIdx, int *LastProcIdx);
+    bool __fastcall GetProcIdxs(Word ModuleID, int *FirstProcIdx, int *LastProcIdx, int *DumpSize);
+    MConstInfo * __fastcall GetConstInfo(int AConstIdx, DWord AFlags, MConstInfo *cInfo);
+    MProcInfo * __fastcall GetProcInfo(const char *ProcName, DWord AFlags, MProcInfo *pInfo, int *procIdx);
+    MProcInfo * __fastcall GetProcInfo(int AProcIdx, DWord AFlags, MProcInfo *pInfo);
+    MTypeInfo * __fastcall GetTypeInfo(int ATypeIdx, DWord AFlags, MTypeInfo *tInfo);
+    MVarInfo * __fastcall GetVarInfo(int AVarIdx, DWord AFlags, MVarInfo *vInfo);
+    MResStrInfo * __fastcall GetResStrInfo(int AResStrIdx, DWord AFlags, MResStrInfo *rsInfo);
+    int __fastcall ScanCode(Byte *code, DWord *CodeFlags, DWord CodeSz, MProcInfo *pInfo);
+    Word * __fastcall GetModuleUses(Word ModuleID);
+    int __fastcall GetProcUses(const char *ProcName, Word *uses);
+    Word * __fastcall GetTypeUses(const char *TypeName);
+    Word * __fastcall GetConstUses(const char *ConstName);
     String __fastcall GetProcPrototype(int ProcIdx);
     String __fastcall GetProcPrototype(MProcInfo *pInfo);
     bool __fastcall IsUsedProc(int AIdx);
@@ -339,11 +339,11 @@ public:
     bool __fastcall GetKBTypeInfo(String typeName, MTypeInfo *typeInfo);
     bool __fastcall GetKBPropertyInfo(String className, String propName, MTypeInfo *typeInfo);
     String __fastcall IsPropFunction(String className, String procName);
-    DWORD Version;
+    DWord Version;
     int ModuleCount;
     OFFSETSINFO *ModuleOffsets;
-    WORD *Mods;
-    BYTE *UsedProcs;
+    Word *Mods;
+    Byte *UsedProcs;
     const OFFSETSINFO *ConstOffsets;
     const OFFSETSINFO *TypeOffsets;
     const OFFSETSINFO *VarOffsets;
@@ -375,7 +375,7 @@ private:
     int ProcCount;
 
     //as temp test (global KB file cache in mem)
-    const BYTE *KBCache;
+    const Byte *KBCache;
     long SizeKBFile;
     String NameKBFile;
 };

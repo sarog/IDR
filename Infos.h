@@ -13,7 +13,7 @@ typedef struct {
     bool abstract; //call @AbstractError
     char kind;     //'M' - method; 'V' - virtual; 'D' - dynamic
     int id;        //ID (for virtual methods - offset, for dynamics - MsgId)
-    DWORD address; //Call Address
+    DWord address; //Call Address
     String name;   //Method Name
 } MethodRec, *PMethodRec;
 
@@ -41,9 +41,8 @@ public:
     InfoVmtInfo();
     ~InfoVmtInfo();
     void __fastcall AddInterface(String Value);
-    PFIELDINFO __fastcall AddField(DWORD ProcAdr, int ProcOfs, BYTE Scope, int Offset, int Case, String Name,
-                                   String Type);
-    bool __fastcall AddMethod(bool Abstract, char Kind, int Id, DWORD Address, String Name);
+    PFIELDINFO __fastcall AddField(DWord ProcAdr, int ProcOfs, Byte Scope, int Offset, int Case, String Name, String Type);
+    bool __fastcall AddMethod(bool Abstract, char Kind, int Id, DWord Address, String Name);
     void __fastcall RemoveField(int Offset);
 };
 
@@ -68,9 +67,9 @@ typedef InfoVmtInfo *PInfoVmtInfo;
 
 class InfoProcInfo {
 public:
-    DWORD flags;
-    WORD bpBase; //First argument distance from base ebp
-    WORD retBytes;
+    DWord flags;
+    Word bpBase; //First argument distance from base ebp
+    Word retBytes;
     int procSize;
     int stackSize;
     TList *args;
@@ -80,7 +79,7 @@ public:
     InfoProcInfo();
     ~InfoProcInfo();
     PARGINFO __fastcall AddArg(PARGINFO aInfo);
-    PARGINFO __fastcall AddArg(BYTE Tag, int Ofs, int Size, String Name, String TypeDef);
+    PARGINFO __fastcall AddArg(Byte Tag, int Ofs, int Size, String Name, String TypeDef);
     String __fastcall AddArgsFromDeclaration(char *Decl, int from, int callKind);
     PARGINFO __fastcall GetArg(int n);
     void __fastcall DeleteArg(int n);
@@ -99,10 +98,10 @@ typedef InfoProcInfo *PInfoProcInfo;
 #define		OP_CALL		0x11
 
 typedef struct {
-    BYTE Op; //Operation
+    Byte Op; //Operation
     union {
         int Offset;    //Field offset
-        DWORD Address; //Proc address for OP_CALL
+        DWord Address; //Proc address for OP_CALL
     } Ofs;
 
     String Name; //Type name
@@ -110,8 +109,8 @@ typedef struct {
 
 class InfoRec {
 public:
-    BYTE counter;
-    BYTE kind;
+    Byte counter;
+    Byte kind;
     int kbIdx;
     String type;    //Return value type for function
     PPICODE picode; //Internal code
@@ -124,7 +123,7 @@ private:
     String name;
 
 public:
-    InfoRec(int APos, BYTE AKind);
+    InfoRec(int APos, Byte AKind);
     ~InfoRec();
     bool __fastcall HasName();
     String __fastcall GetName();
@@ -132,14 +131,14 @@ public:
     void __fastcall SetName(String AValue);
     void __fastcall ConcatName(String AValue);
     bool __fastcall SameName(String AValue);
-    void __fastcall AddXref(const char Type, DWORD Adr, int Offset);
-    void __fastcall DeleteXref(DWORD Adr);
-    void __fastcall ScanUpItemAndAddRef(int fromPos, DWORD itemAdr, char refType, DWORD refAdr);
+    void __fastcall AddXref(const char Type, DWord Adr, int Offset);
+    void __fastcall DeleteXref(DWord Adr);
+    void __fastcall ScanUpItemAndAddRef(int fromPos, DWord itemAdr, char refType, DWord refAdr);
     virtual void __fastcall Save(FILE *outs);
     virtual void __fastcall Load(FILE *ins, char *buf);
     //virtual void __fastcall Save(TStream* outs);
     //virtual void __fastcall Load(TStream* ins, char* buf);
-    //virtual void __fastcall Skip(TStream* ins, char* buf, BYTE asKind);
+    //virtual void __fastcall Skip(TStream* ins, char* buf, Byte asKind);
     String __fastcall MakePrototype(int adr, bool showKind, bool showTail, bool multiline, bool fullName, bool allArgs);
     String __fastcall MakeDelphiPrototype(int Adr, PMethodRec recM);
     String __fastcall MakeMultilinePrototype(int Adr, int *ArgsBytes, String MethodType);

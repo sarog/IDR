@@ -14,7 +14,7 @@
 //as: todo: refactor! extern linkage is bad practice (idea: use singleton) 
 extern TResourceInfo *ResInfo;
 extern PInfoRec *Infos;
-extern DWORD CodeBase;
+extern DWord CodeBase;
 //---------------------------------------------------------------------------
 void __fastcall TIdrDfmFormTree_11011981::AddEventsToNode(String compName, TTreeNode *dstNode, TList *evList) {
     const int evCnt = evList->Count;
@@ -178,8 +178,7 @@ bool __fastcall TIdrDfmFormTree_11011981::IsEventNode(TTreeNode *selNode) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TIdrDfmFormTree_11011981::FormKeyDown(TObject *Sender,
-                                                      WORD &Key, TShiftState Shift) {
+void __fastcall TIdrDfmFormTree_11011981::FormKeyDown(TObject *Sender, Word &Key, TShiftState Shift) {
     if (VK_ESCAPE == Key) {
         Key = 0;
         Close();
@@ -249,7 +248,7 @@ void __fastcall TIdrDfmFormTree_11011981::tvFormDblClick(TObject *Sender) {
     if (!selNode) return;
 
     if (IsEventNode(selNode)) {
-        const DWORD Adr = (const DWORD) selNode->Data;
+        const DWord Adr = (const DWord) selNode->Data;
         if (Adr && IsValidCodeAdr(Adr)) {
             PInfoRec recN = GetInfoRec(Adr);
             if (recN) {

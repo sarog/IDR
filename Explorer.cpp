@@ -12,13 +12,13 @@
 #pragma resource "*.dfm"
 
 extern MDisasm Disasm;
-extern DWORD ImageBase;
-extern DWORD ImageSize;
-extern DWORD TotalSize;
-extern DWORD CodeBase;
-extern DWORD CodeSize;
-extern BYTE *Image;
-extern BYTE *Code;
+extern DWord ImageBase;
+extern DWord ImageSize;
+extern DWord TotalSize;
+extern DWord CodeBase;
+extern DWord CodeSize;
+extern Byte *Image;
+extern Byte *Code;
 
 extern char StringBuf[MAXSTRBUFFER];
 extern PInfoRec *Infos;
@@ -36,18 +36,17 @@ __fastcall TFExplorer_11011981::TFExplorer_11011981(TComponent *Owner)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFExplorer_11011981::ShowCode(DWORD fromAdr, int maxBytes) {
-    int pos;
+void __fastcall TFExplorer_11011981::ShowCode(DWord fromAdr, int maxBytes) {
     DISINFO DisInfo;
     char disLine[100];
 
     lbCode->Clear();
 
-    pos = Adr2Pos(fromAdr);
+    int pos = Adr2Pos(fromAdr);
     if (pos == -1) return;
 
     Adr = fromAdr;
-    DWORD curAdr = Adr;
+    DWord curAdr = Adr;
 
     for (int n = 0; n < maxBytes;) {
         int instrLen = Disasm.Disassemble(Code + pos, (__int64) curAdr, &DisInfo, disLine);
@@ -67,9 +66,9 @@ void __fastcall TFExplorer_11011981::ShowCode(DWORD fromAdr, int maxBytes) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFExplorer_11011981::ShowData(DWORD fromAdr, int maxBytes) {
-    BYTE b;
-    int n, k, m, pos;
+void __fastcall TFExplorer_11011981::ShowData(DWord fromAdr, int maxBytes) {
+    Byte b;
+    int n, k, m;
     float singleVal;
     double doubleVal;
     long double extendedVal;
@@ -79,11 +78,11 @@ void __fastcall TFExplorer_11011981::ShowData(DWORD fromAdr, int maxBytes) {
 
     lbData->Clear();
 
-    pos = Adr2Pos(fromAdr);
+    int pos = Adr2Pos(fromAdr);
     if (pos == -1) return;
 
     Adr = fromAdr;
-    DWORD curAdr = Adr;
+    DWord curAdr = Adr;
 
     switch (rgDataViewStyle->ItemIndex) {
         //Hex (default)
@@ -155,9 +154,9 @@ void __fastcall TFExplorer_11011981::ShowData(DWORD fromAdr, int maxBytes) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFExplorer_11011981::ShowString(DWORD fromAdr, int maxBytes) {
+void __fastcall TFExplorer_11011981::ShowString(DWord fromAdr, int maxBytes) {
     int len, size, pos;
-    DWORD adr, resid;
+    DWord adr, resid;
     char *tmpBuf;
     HINSTANCE hInst;
     String str;
@@ -220,17 +219,17 @@ void __fastcall TFExplorer_11011981::ShowString(DWORD fromAdr, int maxBytes) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFExplorer_11011981::ShowArray(DWORD fromAdr) {
+void __fastcall TFExplorer_11011981::ShowArray(DWord fromAdr) {
     /*
     lbArray->Clear();
 
     int pos = Adr2Pos(fromAdr);
-    DWORD curAdr = fromAdr;
+    DWord curAdr = fromAdr;
 
     for (int n = 0; n < 32; n++)
     {
         if (pos > TotalSize) break;
-        DWORD Adr = *((DWORD*)(Image + pos));
+        DWord Adr = *((DWord*)(Image + pos));
         if (!IsValidImageAdr(Adr)) break;
         char* p = Image + Adr2Pos(Adr);
         String s = String(p);
@@ -280,7 +279,7 @@ void __fastcall TFExplorer_11011981::miCopy2ClipboardClick(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFExplorer_11011981::FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift) {
+void __fastcall TFExplorer_11011981::FormKeyDown(TObject *Sender, Word &Key, TShiftState Shift) {
     if (Key == VK_ESCAPE) ModalResult = mrCancel;
 }
 

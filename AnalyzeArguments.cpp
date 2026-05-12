@@ -2,31 +2,31 @@
 #include "Misc.h"
 #include "Disasm.h"
 
-extern BYTE *Code;
-extern DWORD CodeBase;
+extern Byte *Code;
+extern DWord CodeBase;
 extern MDisasm Disasm;
-extern DWORD EP;
-extern DWORD TotalSize;
-extern DWORD *Flags;
+extern DWord EP;
+extern DWord TotalSize;
+extern DWord *Flags;
 
 //---------------------------------------------------------------------------
-String __fastcall TFMain_11011981::AnalyzeArguments(DWORD fromAdr) {
-    BYTE op;
+String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
+    Byte op;
     bool kb;
     bool bpBased;
     bool emb, lastemb = 0;
     bool argA, argD, argC;
     bool inA, inD, inC;
     bool spRestored = false;
-    WORD bpBase, retBytes;
+    Word bpBase, retBytes;
     int num, instrLen, instrLen1, instrLen2, _procSize;
     int firstPopRegIdx = -1, popBytes = 0, procStackSize = 0;
     int fromPos, curPos, Pos, reg1Idx, reg2Idx, sSize;
-    DWORD b, curAdr, Adr, Adr1;
-    DWORD lastAdr = 0, lastCallAdr = 0, lastMovAdr = 0, lastMovImm = 0;
+    DWord b, curAdr, Adr, Adr1;
+    DWord lastAdr = 0, lastCallAdr = 0, lastMovAdr = 0, lastMovImm = 0;
     PInfoRec recN, recN1;
     PARGINFO argInfo;
-    DWORD stack[256];
+    DWord stack[256];
     int sp = -1;
     int macroFrom, macroTo;
     String minClassName, className = "", retType = "";
@@ -101,8 +101,8 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWORD fromAdr) {
             continue;
         }
 
-        BYTE b1 = Code[curPos];
-        BYTE b2 = Code[curPos + 1];
+        Byte b1 = Code[curPos];
+        Byte b2 = Code[curPos + 1];
         if (!b1 && !b2 && !lastAdr) break;
 
         instrLen = Disasm.Disassemble(Code + curPos, (__int64) curAdr, &DisInfo, 0);
@@ -334,16 +334,16 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWORD fromAdr) {
         //near absolute indirect jmp (Case)
         {
             if (!IsValidCodeAdr(DisInfo.Offset)) break;
-            DWORD cTblAdr = 0, jTblAdr = 0;
+            DWord cTblAdr = 0, jTblAdr = 0;
 
             Pos = curPos + instrLen;
             Adr = curAdr + instrLen;
             //Taqble address - last 4 bytes of instruction
-            jTblAdr = *((DWORD *) (Code + Pos - 4));
+            jTblAdr = *((DWord *) (Code + Pos - 4));
             //Analyze gap to find table cTbl
             if (Adr <= lastMovAdr && lastMovAdr < jTblAdr) cTblAdr = lastMovAdr;
             //If cTblAdr exists, skip it
-            BYTE CTab[256];
+            Byte CTab[256];
             if (cTblAdr) {
                 int CNum = jTblAdr - cTblAdr;
                 Pos += CNum;
@@ -353,7 +353,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWORD fromAdr) {
                 //Loc - end of table
                 if (IsFlagSet(cfLoc, Pos)) break;
 
-                Adr1 = *((DWORD *) (Code + Pos));
+                Adr1 = *((DWord *) (Code + Pos));
                 //Validate Adr1
                 if (!IsValidCodeAdr(Adr1) || Adr1 < fromAdr) break;
                 //Set cfLoc
@@ -392,7 +392,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWORD fromAdr) {
         //----------------------------------
         if (b1 == 0x68) //try block (push loc_TryBeg)
         {
-            DWORD NPos = curPos + instrLen;
+            DWord NPos = curPos + instrLen;
             //check that next instruction is push fs:[reg] or retn
             if ((Code[NPos] == 0x64 &&
                  Code[NPos + 1] == 0xFF &&
@@ -461,7 +461,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWORD fromAdr) {
                     recN1 = GetInfoRec(Adr);
                     if (recN1 && recN1->procInfo) {
                         lastemb = (recN1->procInfo->flags & PF_EMBED);
-                        WORD retb;
+                        Word retb;
                         //@XStrCatN
                         if (recN1->SameName("@LStrCatN") ||
                             recN1->SameName("@WStrCatN") ||

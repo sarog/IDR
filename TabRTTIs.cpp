@@ -71,7 +71,7 @@ void __fastcall TFMain_11011981::ShowRTTIs() {
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::lbRTTIsDblClick(TObject *Sender) {
-    DWORD adr;
+    DWord adr;
     char tkName[32], typeName[1024];
 
     sscanf(AnsiString(lbRTTIs->Items->Strings[lbRTTIs->ItemIndex]).c_str(), "%lX%s%s", &adr, tkName, typeName);
@@ -98,8 +98,7 @@ void __fastcall TFMain_11011981::lbRTTIsClick(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::lbRTTIsKeyDown(TObject *Sender, WORD &Key,
-                                                TShiftState Shift) {
+void __fastcall TFMain_11011981::lbRTTIsKeyDown(TObject *Sender, Word &Key, TShiftState Shift) {
     if (Key == VK_RETURN) lbRTTIsDblClick(Sender);
 }
 

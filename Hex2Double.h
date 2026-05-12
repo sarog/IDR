@@ -21,7 +21,7 @@ class TFHex2DoubleDlg_11011981 : public TForm {
 
 private:
     int PrevIdx;
-    BYTE BinData[16];
+    Byte BinData[16];
     void __fastcall Str2Binary(String AStr);
     String __fastcall Binary2Str(int BytesNum);
 

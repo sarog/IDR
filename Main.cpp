@@ -36,7 +36,7 @@
 /*
 //----Highlighting-----------------------------------------------------------
 #include "Highlight.h"
-DWORD       DelphiLbId;
+DWord       DelphiLbId;
 int         DelphiThemesCount;
 //----Highlighting-----------------------------------------------------------
 */
@@ -114,22 +114,22 @@ UINT CodePage;
 String IDPFile;
 int MaxBufLen; // Максимальная длина буфера (для загрузки) | Maximum buffer length (for downloading)
 int DelphiVersion;
-DWORD EP;
-DWORD ImageBase;
-DWORD ImageSize;
-DWORD TotalSize; // Size of sections CODE + DATA
-DWORD CodeBase;
-DWORD CodeSize;
-DWORD CodeStart;
-DWORD DataBase = 0;
-DWORD DataSize = 0;
-DWORD DataStart = 0;
-BYTE *Image = 0;
-DWORD *Flags = 0;          // Flags for used data
+DWord EP;
+DWord ImageBase;
+DWord ImageSize;
+DWord TotalSize; // Size of sections CODE + DATA
+DWord CodeBase;
+DWord CodeSize;
+DWord CodeStart;
+DWord DataBase = 0;
+DWord DataSize = 0;
+DWord DataStart = 0;
+Byte *Image = 0;
+DWord *Flags = 0;          // Flags for used data
 PInfoRec *Infos = 0;       // Array of pointers to store items data
 TStringList *BSSInfos = 0; // Data from BSS
-BYTE *Code = 0;
-BYTE *Data = 0;
+Byte *Code = 0;
+Byte *Data = 0;
 
 TList *ExpFuncList;         // Exported functions list (temporary)
 TList *ImpFuncList;         // Imported functions list (temporary)
@@ -145,16 +145,16 @@ int UnitSortField = 0; //0 - by address, 1 - by initialization order, 2 - by nam
 TList *OwnTypeList = 0;
 int RTTISortField = 0; //0 - by address, 1 - by initialization order, 2 - by name
 
-DWORD CurProcAdr;
+DWord CurProcAdr;
 int CurProcSize;
 String SelectedAsmItem = "";    //Selected item in Asm Listing
 String SelectedSourceItem = ""; //Selected item in Source Code
-DWORD CurUnitAdr;
-DWORD HInstanceVarAdr;
-DWORD LastTls; //Last bust index Tls shows how many ThreadVars in program
+DWord CurUnitAdr;
+DWord HInstanceVarAdr;
+DWord LastTls; //Last bust index Tls shows how many ThreadVars in program
 int Reserved;
 int LastResStrNo = 0; //Last ResourceStringNo
-DWORD CtdRegAdr;      //Procedure CtdRegAdr address
+DWord CtdRegAdr;      //Procedure CtdRegAdr address
 
 int cVmtSelfPtr = 0;
 int cVmtIntfTable = 0;
@@ -181,7 +181,7 @@ int cVmtDestroy = 0;
 
 //as
 //class addresses cache
-typedef std::map<const String, DWORD> TClassAdrMap;
+typedef std::map<const String, DWord> TClassAdrMap;
 TClassAdrMap classAdrMap;
 
 void __fastcall ClearClassAdrMap();
@@ -206,7 +206,7 @@ void __fastcall TFMain_11011981::FormClose(TObject *Sender, TCloseAction &Action
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift) {
+void __fastcall TFMain_11011981::FormKeyDown(TObject *Sender, Word &Key, TShiftState Shift) {
     switch (Key) {
         case 'G':
             GoToAddress();
@@ -506,7 +506,7 @@ void __fastcall TFMain_11011981::Init() {
 }
 
 //---------------------------------------------------------------------------
-PImportNameRec __fastcall TFMain_11011981::GetImportRec(DWORD adr) {
+PImportNameRec __fastcall TFMain_11011981::GetImportRec(DWord adr) {
     for (int n = 0; n < ImpFuncList->Count; n++) {
         PImportNameRec recI = (PImportNameRec) ImpFuncList->Items[n];
         if (adr == recI->address)
@@ -521,7 +521,7 @@ void __fastcall TFMain_11011981::FindExports() {
 
     for (int i = 0; i < ExpFuncList->Count; i++) {
         PExportNameRec recE = (PExportNameRec) ExpFuncList->Items[i];
-        DWORD Adr = recE->address;
+        DWord Adr = recE->address;
         if (IsValidImageAdr(Adr) && (pos = Adr2Pos(Adr)) != -1) {
             PInfoRec recN = new InfoRec(pos, ikRefine);
             recN->SetName(recE->name);
@@ -540,7 +540,7 @@ void __fastcall TFMain_11011981::FindImports() {
 
     for (int i = 0; i < TotalSize - 6; i++) {
         if (Code[i] == 0xFF && Code[i + 1] == 0x25) {
-            DWORD adr = *((DWORD *) (Code + i + 2));
+            DWord adr = *(reinterpret_cast<DWord *>(Code + i + 2));
             PImportNameRec recI = GetImportRec(adr);
             if (recI) {
                 //name = UnmangleName(recI->name);
@@ -594,8 +594,8 @@ void __fastcall TFMain_11011981::StrapVMT(int pos, int ConstId, MConstInfo *Cons
     if (!ConstInfo) return;
 
     //Check dump VMT
-    BYTE *dump = ConstInfo->Dump;
-    BYTE *relocs = ConstInfo->Dump + ConstInfo->DumpSz;
+    Byte *dump = ConstInfo->Dump;
+    Byte *relocs = ConstInfo->Dump + ConstInfo->DumpSz;
     bool match = true;
     for (int n = 0; n < ConstInfo->DumpSz; n++) {
         if (relocs[n] != 0xFF && Code[pos + n] != dump[n]) {
@@ -610,25 +610,25 @@ void __fastcall TFMain_11011981::StrapVMT(int pos, int ConstId, MConstInfo *Cons
     int Idx, Pos, VMTOffset = cVmtSelfPtr + 4;
     //"Strap" fixups
     //Get used modules array
-    WORD *uses = KnowledgeBase.GetModuleUses(ConstInfo->ModuleID);
+    Word *uses = KnowledgeBase.GetModuleUses(ConstInfo->ModuleID);
     //Begin fixups data
-    BYTE *p = ConstInfo->Dump + 2 * (ConstInfo->DumpSz);
+    Byte *p = ConstInfo->Dump + 2 * (ConstInfo->DumpSz);
     FIXUPINFO fixupInfo;
     MProcInfo aInfo;
     MProcInfo *pInfo = &aInfo;
     for (int n = 0; n < ConstInfo->FixupNum; n++) {
         fixupInfo.Type = *p;
         p++;
-        fixupInfo.Ofs = *((DWORD *) p);
+        fixupInfo.Ofs = *reinterpret_cast<DWord *>(p);
         p += 4;
-        WORD Len = *((WORD *) p);
+        Word Len = *reinterpret_cast<Word *>(p);
         p += 2;
         fixupInfo.Name = reinterpret_cast<char *>(p);
         p += Len + 1;
         //Name begins with _D - skip it
         if (fixupInfo.Name[0] == '_' && fixupInfo.Name[1] == 'D') continue;
         //In VMT all fixups has type 'A'
-        DWORD Adr = *((DWORD *) (Code + pos + fixupInfo.Ofs));
+        DWord Adr = *(reinterpret_cast<DWord *>(Code + pos + fixupInfo.Ofs));
 
         VMTOffset = cVmtSelfPtr + 4 + fixupInfo.Ofs;
 
@@ -719,11 +719,11 @@ void __fastcall TFMain_11011981::StrapVMT(int pos, int ConstId, MConstInfo *Cons
                                     }
 
                                     if (pInfo->Args) {
-                                        BYTE callKind = pInfo->CallKind;
+                                        Byte callKind = pInfo->CallKind;
                                         recN->procInfo->flags |= callKind;
 
                                         ARGINFO argInfo;
-                                        BYTE *pp = pInfo->Args;
+                                        Byte *pp = pInfo->Args;
                                         int ss = 8;
                                         for (int k = 0; k < pInfo->ArgsNum; k++) {
                                             FillArgInfo(k, callKind, &argInfo, &pp, &ss);
@@ -783,11 +783,11 @@ void __fastcall TFMain_11011981::StrapVMT(int pos, int ConstId, MConstInfo *Cons
                                     }
 
                                     if (pInfo->Args) {
-                                        BYTE callKind = pInfo->CallKind;
+                                        Byte callKind = pInfo->CallKind;
                                         recN->procInfo->flags |= callKind;
 
                                         ARGINFO argInfo;
-                                        BYTE *pp = pInfo->Args;
+                                        Byte *pp = pInfo->Args;
                                         int ss = 8;
                                         for (int k = 0; k < pInfo->ArgsNum; k++) {
                                             FillArgInfo(k, callKind, &argInfo, &pp, &ss);
@@ -818,9 +818,9 @@ bool __fastcall TFMain_11011981::StrapCheck(int pos, MProcInfo *ProcInfo) {
 
     if (!ProcInfo) return false;
 
-    BYTE *dump = ProcInfo->Dump;
+    Byte *dump = ProcInfo->Dump;
     //Fixup data begin
-    BYTE *p = dump + 2 * (ProcInfo->DumpSz);
+    Byte *p = dump + 2 * (ProcInfo->DumpSz);
     //If procedure is jmp off_XXXXXXXX, return false
     if (*dump == 0xFF && *(dump + 1) == 0x25) return false;
 
@@ -828,9 +828,9 @@ bool __fastcall TFMain_11011981::StrapCheck(int pos, MProcInfo *ProcInfo) {
     for (int n = 0; n < ProcInfo->FixupNum; n++) {
         fixupInfo.Type = *p;
         p++;
-        fixupInfo.Ofs = *((DWORD *) p);
+        fixupInfo.Ofs = *reinterpret_cast<DWord *>(p);
         p += 4;
-        WORD Len = *((WORD *) p);
+        Word Len = *((Word *) p);
         p += 2;
         fixupInfo.Name = reinterpret_cast<char *>(p);
         p += Len + 1;
@@ -856,9 +856,9 @@ bool __fastcall TFMain_11011981::StrapCheck(int pos, MProcInfo *ProcInfo) {
         //Empty fixupname - skip it
         if (fName == "") continue;
 
-        DWORD Adr, Ofs, Val = *((DWORD *) (Code + pos + fixupInfo.Ofs));
+        DWord Adr, Ofs, Val = *(reinterpret_cast<DWord *>(Code + pos + fixupInfo.Ofs));
         if (fixupInfo.Type == 'A' || fixupInfo.Type == 'S') {
-            Ofs = *((DWORD *) (dump + fixupInfo.Ofs));
+            Ofs = *(reinterpret_cast<DWord *>(dump + fixupInfo.Ofs));
             Adr = Val - Ofs;
             if (IsValidImageAdr(Adr)) {
                 _ap = Adr2Pos(Adr);
@@ -919,8 +919,8 @@ void __fastcall TFMain_11011981::StrapProc(int pos, int ProcIdx, MProcInfo *Proc
         if (procSize == 1) return;
         CtdRegAdr = Pos2Adr(pos);
     }
-    DWORD ProcStart = Pos2Adr(pos);
-    DWORD ProcEnd = ProcStart + procSize;
+    DWord ProcStart = Pos2Adr(pos);
+    DWord ProcEnd = ProcStart + procSize;
     //!!!
     if (ProcStart == 0x04061A8)
         pos = pos;
@@ -934,7 +934,7 @@ void __fastcall TFMain_11011981::StrapProc(int pos, int ProcIdx, MProcInfo *Proc
             recU->kb = true;
         }
     }
-    BYTE *p;
+    Byte *p;
     PInfoRec recN;
     if (ProcInfo->DumpType == 'D') {
         SetFlags(cfData, pos, procSize);
@@ -969,7 +969,7 @@ void __fastcall TFMain_11011981::StrapProc(int pos, int ProcIdx, MProcInfo *Proc
         recN->SetName(ProcInfo->ProcName);
         //Get Args
         if (!recN->MakeArgsManually()) {
-            BYTE callKind = ProcInfo->CallKind;
+            Byte callKind = ProcInfo->CallKind;
             recN->procInfo->flags |= callKind;
 
             int aa = 0, ss = 8;
@@ -990,11 +990,11 @@ void __fastcall TFMain_11011981::StrapProc(int pos, int ProcIdx, MProcInfo *Proc
                     p += 4;
 
                     argInfo.Size = 4;
-                    WORD wlen = *((WORD *) p);
+                    Word wlen = *((Word *) p);
                     p += 2;
                     argInfo.Name = String((char *) p, wlen);
                     p += wlen + 1;
-                    wlen = *((WORD *) p);
+                    wlen = *((Word *) p);
                     p += 2;
                     argInfo.TypeDef = TrimTypeName(String((char *) p, wlen));
                     p += wlen + 1;
@@ -1039,7 +1039,7 @@ void __fastcall TFMain_11011981::StrapProc(int pos, int ProcIdx, MProcInfo *Proc
     if (useFixups && ProcInfo->FixupNum) {
         //Get array of used modules
         int Idx, size;
-        WORD *uses = KnowledgeBase.GetModuleUses(ProcInfo->ModuleID);
+        Word *uses = KnowledgeBase.GetModuleUses(ProcInfo->ModuleID);
         //Начало данных по фиксапам
         p = ProcInfo->Dump + 2 * ProcInfo->DumpSz;
         FIXUPINFO fixupInfo;
@@ -1054,16 +1054,16 @@ void __fastcall TFMain_11011981::StrapProc(int pos, int ProcIdx, MProcInfo *Proc
         MResStrInfo *rsInfo = &arsInfo;
         MProcInfo aInfo;
         MProcInfo *pInfo = &aInfo;
-        DWORD Adr = 0, Adr1, Ofs, Val;
-        WORD Len;
+        DWord Adr = 0, Adr1, Ofs, Val;
+        Word Len;
         String fName;
 
         for (int n = 0; n < ProcInfo->FixupNum; n++) {
             fixupInfo.Type = *p;
             p++;
-            fixupInfo.Ofs = *((DWORD *) p);
+            fixupInfo.Ofs = *reinterpret_cast<DWord *>(p);
             p += 4;
-            Len = *((WORD *) p);
+            Len = *reinterpret_cast<Word *>(p);
             p += 2;
             fixupInfo.Name = reinterpret_cast<char *>(p);
             p += Len + 1;
@@ -1087,8 +1087,8 @@ void __fastcall TFMain_11011981::StrapProc(int pos, int ProcIdx, MProcInfo *Proc
             }
             if (fName == "" || fName == ".") continue;
 
-            Val = *((DWORD *) (Code + pos + fixupInfo.Ofs));
-            //FixupName is the same as ProcName
+            Val = *(reinterpret_cast<DWord *>(Code + pos + fixupInfo.Ofs));
+            // FixupName is the same as ProcName
             if (SameText(fName, ProcInfo->ProcName)) {
                 //!!!
                 //Need to use this information:
@@ -1103,8 +1103,8 @@ void __fastcall TFMain_11011981::StrapProc(int pos, int ProcIdx, MProcInfo *Proc
             }
             //Сначала подсчитаем адрес, а потом будем пытаться определять секцию
             if (fixupInfo.Type == 'A' || fixupInfo.Type == 'S' || fixupInfo.Type == '4' || fixupInfo.Type == '8') {
-                //Смотрим, какая величина стоит в дампе в позиции фиксапа
-                Ofs = *((DWORD *) (ProcInfo->Dump + fixupInfo.Ofs));
+                // Смотрим, какая величина стоит в дампе в позиции фиксапа | Let's look at what value is in the dump in the fixup position.
+                Ofs = *(reinterpret_cast<DWord *>(ProcInfo->Dump + fixupInfo.Ofs));
                 Adr = Val - Ofs;
             } else if (fixupInfo.Type == 'J') {
                 Adr = CodeBase + pos + fixupInfo.Ofs + Val + 4;
@@ -1143,7 +1143,7 @@ void __fastcall TFMain_11011981::StrapProc(int pos, int ProcIdx, MProcInfo *Proc
             if (Adr >= ProcStart && Adr < ProcEnd) continue;
 
             if (isHInstance) {
-                Adr1 = *((DWORD *) (Code + Adr2Pos(Adr)));
+                Adr1 = *(reinterpret_cast<DWord *>(Code + Adr2Pos(Adr)));
                 if (IsValidImageAdr(Adr1))
                     HInstanceVarAdr = Adr1;
                 else
@@ -1380,10 +1380,10 @@ void __fastcall TFMain_11011981::StrapProc(int pos, int ProcIdx, MProcInfo *Proc
 int DelphiVersions[] = {2, 3, 4, 5, 6, 7, 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2014, 0};
 
 int __fastcall TFMain_11011981::GetDelphiVersion() {
-    WORD moduleID;
+    Word moduleID;
     int idx, num, pos, version;
-    DWORD unitsTab, iniAdr, finAdr, vmtAdr, adr;
-    DWORD TControlInstSize;
+    DWord unitsTab, iniAdr, finAdr, vmtAdr, adr;
+    DWord TControlInstSize;
     PInfoRec recN;
     String name, KBFileName;
     MKnowledgeBase SysKB;
@@ -1473,32 +1473,32 @@ int __fastcall TFMain_11011981::GetDelphiVersion() {
             Image[n + 4] == 'o' && Image[n + 5] == 'n' &&
             Image[n + 6] == 't' && Image[n + 7] == 'r' &&
             Image[n + 8] == 'o' && Image[n + 9] == 'l') {
-            //После типа должен следовать указатель на таблицу VMT (0)
-            vmtAdr = *((DWORD *) (Image + n + 10));
+            // После типа должен следовать указатель на таблицу VMT (0) | The type must be followed by a pointer to the VMT table (0)
+            vmtAdr = *(reinterpret_cast<DWord *>(Image + n + 10));
             if (IsValidImageAdr(vmtAdr)) {
-                //Проверяем смещение -0x18
-                TControlInstSize = *((DWORD *) (Image + Adr2Pos(vmtAdr) - 0x18));
+                // Проверяем смещение -0x18 | Checking offset -0x18
+                TControlInstSize = *(reinterpret_cast<DWord *>(Image + Adr2Pos(vmtAdr) - 0x18));
                 if (TControlInstSize == 0xA8) return 2;
-                //Проверяем смещение -0x1C
-                TControlInstSize = *((DWORD *) (Image + Adr2Pos(vmtAdr) - 0x1C));
+                // Проверяем смещение -0x1C
+                TControlInstSize = *(reinterpret_cast<DWord *>(Image + Adr2Pos(vmtAdr) - 0x1C));
                 if (TControlInstSize == 0xB0 || TControlInstSize == 0xB4) return 3;
-                //Проверяем смещение -0x28
-                TControlInstSize = *((DWORD *) (Image + Adr2Pos(vmtAdr) - 0x28));
+                // Проверяем смещение -0x28
+                TControlInstSize = *(reinterpret_cast<DWord *>(Image + Adr2Pos(vmtAdr) - 0x28));
                 if (TControlInstSize == 0x114) return 4;
                 if (TControlInstSize == 0x120) return 5;
                 if (TControlInstSize == 0x15C) //6 или 7
                 {
-                    DWORD TFormInstSize = 0;
-                    //Ищем тип TForm (выбор между версией 6 и 7)
+                    DWord TFormInstSize = 0;
+                    // Ищем тип TForm (выбор между версией 6 и 7) | We are looking for the TForm type (choosing between versions 6 and 7)
                     for (int m = 0; m < TotalSize - 11; m += 4) {
                         if (Image[m] == 7 && Image[m + 1] == 5 && Image[m + 2] == 'T' &&
                             Image[m + 3] == 'F' && Image[m + 4] == 'o' &&
                             Image[m + 5] == 'r' && Image[m + 6] == 'm') {
-                            //После типа должен следовать указатель на таблицу VMT (0)
-                            vmtAdr = *((DWORD *) (Image + m + 7));
+                            // После типа должен следовать указатель на таблицу VMT (0) | The type must be followed by a pointer to the VMT table (0)
+                            vmtAdr = *(reinterpret_cast<DWord *>(Image + m + 7));
                             if (IsValidImageAdr(vmtAdr)) {
-                                //Проверяем смещение -0x28
-                                TFormInstSize = *((DWORD *) (Image + Adr2Pos(vmtAdr) - 0x28));
+                                // Проверяем смещение -0x28
+                                TFormInstSize = *(reinterpret_cast<DWord *>(Image + Adr2Pos(vmtAdr) - 0x28));
                                 if (TFormInstSize == 0x2F0) return 6;
                                 if (TFormInstSize == 0x2F8) return 7;
                             }
@@ -1507,9 +1507,9 @@ int __fastcall TFMain_11011981::GetDelphiVersion() {
                     break;
                 }
                 if (TControlInstSize == 0x164) return 2005;
-                if (TControlInstSize == 0x190) break; //2006 или 2007
-                //Проверяем смещение -0x34
-                TControlInstSize = *((DWORD *) (Image + Adr2Pos(vmtAdr) - 0x34));
+                if (TControlInstSize == 0x190) break; // 2006 или 2007
+                // Проверяем смещение -0x34 | Checking offset -0x34
+                TControlInstSize = *(reinterpret_cast<DWord *>(Image + Adr2Pos(vmtAdr) - 0x34));
                 if (TControlInstSize == 0x1A4) return 2009;
                 //if (TControlInstSize == 0x1AC) return 2010;
             }
@@ -1573,60 +1573,60 @@ int __fastcall TFMain_11011981::GetDelphiVersion() {
     //Analyze VMTs (if exists)
     version = -1;
     for (int n = 0; n < CodeSize; n += 4) {
-        vmtAdr = *((DWORD *) (Code + n)); //Points to vmt0 (cVmtSelfPtr)
-        //cVmtSelfPtr
+        vmtAdr = *(reinterpret_cast<DWord *>(Code + n)); // Points to vmt0 (cVmtSelfPtr)
+        // cVmtSelfPtr
         if (IsValidCodeAdr(vmtAdr)) {
             if (Pos2Adr(n) == vmtAdr - 0x34) {
-                //cVmtInitTable
-                adr = *((DWORD *) (Code + n + 4));
+                // cVmtInitTable
+                adr = *reinterpret_cast<DWord *>(Code + n + 4);
                 if (adr && !IsValidCodeAdr(adr)) continue;
-                //cVmtTypeInfo
-                adr = *((DWORD *) (Code + n + 8));
+                // cVmtTypeInfo
+                adr = *(reinterpret_cast<DWord *>(Code + n + 8));
                 if (adr && !IsValidCodeAdr(adr)) continue;
-                //cVmtFieldTable
-                adr = *((DWORD *) (Code + n + 12));
+                // cVmtFieldTable
+                adr = *(reinterpret_cast<DWord *>(Code + n + 12));
                 if (adr && !IsValidCodeAdr(adr)) continue;
-                //cVmtMethodTable
-                adr = *((DWORD *) (Code + n + 16));
+                // cVmtMethodTable
+                adr = *(reinterpret_cast<DWord *>(Code + n + 16));
                 if (adr && !IsValidCodeAdr(adr)) continue;
-                //cVmtDynamicTable
-                adr = *((DWORD *) (Code + n + 20));
+                // cVmtDynamicTable
+                adr = *(reinterpret_cast<DWord *>(Code + n + 20));
                 if (adr && !IsValidCodeAdr(adr)) continue;
-                //cVmtClassName
-                adr = *((DWORD *) (Code + n + 24));
+                // cVmtClassName
+                adr = *(reinterpret_cast<DWord *>(Code + n + 24));
                 if (adr && !IsValidCodeAdr(adr)) continue;
-                //cVmtInstanceSize
-                adr = *((DWORD *) (Code + n + 28));
+                // cVmtInstanceSize
+                adr = *(reinterpret_cast<DWord *>(Code + n + 28));
                 if (!adr || IsValidCodeAdr(adr)) continue;
                 version = Pos2Adr(n) - vmtAdr;
                 break;
             } else if (Pos2Adr(n) == vmtAdr - 0x40 || Pos2Adr(n) == vmtAdr - 0x4C || Pos2Adr(n) == vmtAdr - 0x58) {
-                //cVmtIntfTable
-                adr = *((DWORD *) (Code + n + 4));
+                // cVmtIntfTable
+                adr = *(reinterpret_cast<DWord *>(Code + n + 4));
                 if (adr && !IsValidCodeAdr(adr)) continue;
-                //cVmtAutoTable
-                adr = *((DWORD *) (Code + n + 8));
+                // cVmtAutoTable
+                adr = *(reinterpret_cast<DWord *>(Code + n + 8));
                 if (adr && !IsValidCodeAdr(adr)) continue;
-                //cVmtInitTable
-                adr = *((DWORD *) (Code + n + 12));
+                // cVmtInitTable
+                adr = *(reinterpret_cast<DWord *>(Code + n + 12));
                 if (adr && !IsValidCodeAdr(adr)) continue;
-                //cVmtTypeInfo
-                adr = *((DWORD *) (Code + n + 16));
+                // cVmtTypeInfo
+                adr = *(reinterpret_cast<DWord *>(Code + n + 16));
                 if (adr && !IsValidCodeAdr(adr)) continue;
-                //cVmtFieldTable
-                adr = *((DWORD *) (Code + n + 20));
+                // cVmtFieldTable
+                adr = *(reinterpret_cast<DWord *>(Code + n + 20));
                 if (adr && !IsValidCodeAdr(adr)) continue;
-                //cVmtMethodTable
-                adr = *((DWORD *) (Code + n + 24));
+                // cVmtMethodTable
+                adr = *(reinterpret_cast<DWord *>(Code + n + 24));
                 if (adr && !IsValidCodeAdr(adr)) continue;
-                //cVmtDynamicTable
-                adr = *((DWORD *) (Code + n + 28));
+                // cVmtDynamicTable
+                adr = *(reinterpret_cast<DWord *>(Code + n + 28));
                 if (adr && !IsValidCodeAdr(adr)) continue;
-                //cVmtClassName
-                adr = *((DWORD *) (Code + n + 32));
+                // cVmtClassName
+                adr = *(reinterpret_cast<DWord *>(Code + n + 32));
                 if (adr && !IsValidCodeAdr(adr)) continue;
-                //cVmtInstanceSize
-                adr = *((DWORD *) (Code + n + 36));
+                // cVmtInstanceSize
+                adr = *(reinterpret_cast<DWord *>(Code + n + 36));
                 if (!adr || IsValidCodeAdr(adr)) continue;
                 version = Pos2Adr(n) - vmtAdr;
                 break;
@@ -1638,10 +1638,10 @@ int __fastcall TFMain_11011981::GetDelphiVersion() {
     if (version == -0x58) return 2009;
     /*
     //Check that system is in external rtl
-    num = *((DWORD*)(Code + unitsTab - 8));
+    num = *((DWord*)(Code + unitsTab - 8));
     for (int n = 0; n < num; n++, unitsTab += 8)
     {
-        iniAdr = *((DWORD*)(Code + unitsTab));
+        iniAdr = *((DWord*)(Code + unitsTab));
         if (iniAdr && IsValidImageAdr(iniAdr) && IsFlagSet(cfImport, Adr2Pos(iniAdr)))
         {
             recN = GetInfoRec(iniAdr);
@@ -1652,7 +1652,7 @@ int __fastcall TFMain_11011981::GetDelphiVersion() {
                 if (SameText(name, "rtl120")) return 2009;
             }
         }
-        finAdr = *((DWORD*)(Code + unitsTab + 4));
+        finAdr = *((DWord*)(Code + unitsTab + 4));
         if (finAdr && IsValidImageAdr(finAdr) && IsFlagSet(cfImport, Adr2Pos(finAdr))))
         {
             recN = GetInfoRec(finAdr);
@@ -1752,7 +1752,7 @@ void __fastcall TFMain_11011981::InitSysProcs() {
     MProcInfo aInfo, *pInfo;
 
     SysProcsNum = 0;
-    WORD moduleID = KnowledgeBase.GetModuleID("System");
+    Word moduleID = KnowledgeBase.GetModuleID("System");
     for (int n = 0; SysProcs[n].name; n++) {
         Idx = KnowledgeBase.GetProcIdx(moduleID, SysProcs[n].name);
         if (Idx != -1) {
@@ -1928,11 +1928,9 @@ bool __fastcall TFMain_11011981::IsUnitExist(String Name) {
 }
 
 //---------------------------------------------------------------------------
-PUnitRec __fastcall TFMain_11011981::GetUnit(DWORD Adr) {
-    PUnitRec _res;
-
+PUnitRec __fastcall TFMain_11011981::GetUnit(DWord Adr) {
     CrtSection->Enter();
-    _res = 0;
+    PUnitRec _res = 0;
     for (int n = 0; n < UnitsNum; n++) {
         PUnitRec recU = (PUnitRec) Units->Items[n];
         if (Adr >= recU->fromAdr && Adr < recU->toAdr) _res = recU;
@@ -1953,13 +1951,11 @@ String __fastcall TFMain_11011981::GetUnitName(PUnitRec recU) {
 }
 
 //---------------------------------------------------------------------------
-String __fastcall TFMain_11011981::GetUnitName(DWORD Adr) {
-    int n;
+String __fastcall TFMain_11011981::GetUnitName(DWord Adr) {
     String Result = "";
-
     PUnitRec recU = GetUnit(Adr);
     if (recU) {
-        for (n = 0; n < recU->names->Count; n++) {
+        for (int n = 0; n < recU->names->Count; n++) {
             if (n) Result += ", ";
             Result += recU->names->Strings[n];
         }
@@ -1974,7 +1970,7 @@ void __fastcall TFMain_11011981::SetUnitName(PUnitRec recU, String name) {
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall TFMain_11011981::InOneUnit(DWORD Adr1, DWORD Adr2) {
+bool __fastcall TFMain_11011981::InOneUnit(DWord Adr1, DWord Adr2) {
     for (int n = 0; n < UnitsNum; n++) {
         PUnitRec recU = (PUnitRec) Units->Items[n];
         if (Adr1 >= recU->fromAdr && Adr1 < recU->toAdr &&
@@ -1985,7 +1981,7 @@ bool __fastcall TFMain_11011981::InOneUnit(DWORD Adr1, DWORD Adr2) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TFMain_11011981::GetSegmentNo(DWORD Adr) {
+int __fastcall TFMain_11011981::GetSegmentNo(DWord Adr) {
     for (int n = 0; n < SegmentList->Count; n++) {
         PSegmentInfo segInfo = (PSegmentInfo) SegmentList->Items[n];
         if (segInfo->Start <= Adr && Adr < segInfo->Start + segInfo->Size) return n;
@@ -1994,11 +1990,11 @@ int __fastcall TFMain_11011981::GetSegmentNo(DWORD Adr) {
 }
 
 //---------------------------------------------------------------------------
-DWORD __fastcall FollowInstructions(DWORD fromAdr, DWORD toAdr) {
+DWord __fastcall FollowInstructions(DWord fromAdr, DWord toAdr) {
     int instrLen;
     int fromPos = Adr2Pos(fromAdr);
     int curPos = fromPos;
-    DWORD curAdr = fromAdr;
+    DWord curAdr = fromAdr;
     DISINFO DisInfo;
 
     while (1) {
@@ -2012,14 +2008,14 @@ DWORD __fastcall FollowInstructions(DWORD fromAdr, DWORD toAdr) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TFMain_11011981::EstimateProcSize(DWORD fromAdr) {
-    BYTE op;
+int __fastcall TFMain_11011981::EstimateProcSize(DWord fromAdr) {
+    Byte op;
     int row, num, instrLen, instrLen1, instrLen2, Pos = 0;
     int fromPos = Adr2Pos(fromAdr);
     int curPos = fromPos;
-    DWORD curAdr = fromAdr;
-    DWORD lastAdr = 0;
-    DWORD Adr, Adr1, lastMovAdr = 0;
+    DWord curAdr = fromAdr;
+    DWord lastAdr = 0;
+    DWord Adr, Adr1, lastMovAdr = 0;
     PInfoRec recN;
     DISINFO DisInfo;
 
@@ -2036,8 +2032,8 @@ int __fastcall TFMain_11011981::EstimateProcSize(DWORD fromAdr) {
             continue;
         }
 
-        BYTE b1 = Code[curPos];
-        BYTE b2 = Code[curPos + 1];
+        Byte b1 = Code[curPos];
+        Byte b2 = Code[curPos + 1];
         if (!b1 && !b2 && !lastAdr) break;
 
         instrLen = Disasm.Disassemble(Code + curPos, (__int64) curAdr, &DisInfo, 0);
@@ -2102,16 +2098,16 @@ int __fastcall TFMain_11011981::EstimateProcSize(DWORD fromAdr) {
                 curAdr += instrLen;
                 break;
             }
-            DWORD cTblAdr = 0, jTblAdr = 0;
+            DWord cTblAdr = 0, jTblAdr = 0;
 
             Pos = curPos + instrLen;
             Adr = curAdr + instrLen;
             //Адрес таблицы - последние 4 байта инструкции
-            jTblAdr = *((DWORD *) (Code + Pos - 4));
+            jTblAdr = *(reinterpret_cast<DWord *>(Code + Pos - 4));
             //Анализируем промежуток на предмет таблицы cTbl
             if (Adr <= lastMovAdr && lastMovAdr < jTblAdr) cTblAdr = lastMovAdr;
             //Если есть cTblAdr, пропускаем эту таблицу
-            BYTE CTab[256];
+            Byte CTab[256];
             if (cTblAdr) {
                 int CNum = jTblAdr - cTblAdr;
                 Pos += CNum;
@@ -2121,7 +2117,7 @@ int __fastcall TFMain_11011981::EstimateProcSize(DWORD fromAdr) {
                 //Loc - end of table
                 if (IsFlagSet(cfLoc, Pos)) break;
 
-                Adr1 = *((DWORD *) (Code + Pos));
+                Adr1 = *(reinterpret_cast<DWord *>(Code + Pos));
                 //Validate Adr1
                 if (!IsValidImageAdr(Adr1) || Adr1 < fromAdr) break;
                 //Set cfLoc
@@ -2139,7 +2135,7 @@ int __fastcall TFMain_11011981::EstimateProcSize(DWORD fromAdr) {
 
         if (b1 == 0x68) //try block (push loc_TryBeg)
         {
-            DWORD NPos = curPos + instrLen;
+            DWord NPos = curPos + instrLen;
             //check that next instruction is push fs:[reg] or retn
             if ((Code[NPos] == 0x64 &&
                  Code[NPos + 1] == 0xFF &&
@@ -2169,7 +2165,7 @@ int __fastcall TFMain_11011981::EstimateProcSize(DWORD fromAdr) {
                                     /*
                                     //@2
                                     Adr1 = DisInfo.Immediate - 4;
-                                    Adr = *((DWORD*)(Code + Adr2Pos(Adr1)));
+                                    Adr = *((DWord*)(Code + Adr2Pos(Adr1)));
                                     if (Adr > lastAdr) lastAdr = Adr;
                                     */
                                 } else if (recN->SameName("@HandleAnyException") || recN->SameName(
@@ -2271,9 +2267,9 @@ int __fastcall TFMain_11011981::EstimateProcSize(DWORD fromAdr) {
 //---------------------------------------------------------------------------
 int __fastcall TFMain_11011981::GetUnits2(String dprName) {
     int instrLen, iniProcSize, pos, num, start, n;
-    DWORD iniAdr;
-    DWORD curAdr = EP;
-    DWORD curPos = Adr2Pos(curAdr);
+    DWord iniAdr;
+    DWord curAdr = EP;
+    DWord curPos = Adr2Pos(curAdr);
     PUnitRec recU;
     DISINFO DisInfo;
 
@@ -2355,27 +2351,27 @@ int __fastcall TFMain_11011981::GetUnits2(String dprName) {
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall TFMain_11011981::IsExtendedInitTab(DWORD *unitsTab) {
+bool __fastcall TFMain_11011981::IsExtendedInitTab(DWord *unitsTab) {
     int i, num, pos, n;
-    DWORD adr, initTable, iniAdr, finAdr;
+    DWord adr, initTable, iniAdr, finAdr;
 
     *unitsTab = 0;
     for (i = 0; i < ((TotalSize - 4) & (-4)); i += 4) {
-        initTable = *((DWORD *) (Image + i));
+        initTable = *(reinterpret_cast<DWord *>(Image + i));
         if (initTable == CodeBase + i + 4) {
-            num = *((DWORD *) (Image + i - 4));
+            num = *(reinterpret_cast<DWord *>(Image + i - 4));
             if (num <= 0 || num > 10000) continue;
 
             pos = *unitsTab = i + 4;
             for (n = 0; n < num; n++, pos += 8) {
-                iniAdr = *((DWORD *) (Image + pos));
+                iniAdr = *(reinterpret_cast<DWord *>(Image + pos));
                 if (iniAdr) {
                     if (!IsValidImageAdr(iniAdr)) {
                         *unitsTab = 0;
                         break;
                     }
                 }
-                finAdr = *((DWORD *) (Image + pos + 4));
+                finAdr = *(reinterpret_cast<DWord *>(Image + pos + 4));
                 if (finAdr) {
                     if (!IsValidImageAdr(finAdr)) {
                         *unitsTab = 0;
@@ -2391,21 +2387,21 @@ bool __fastcall TFMain_11011981::IsExtendedInitTab(DWORD *unitsTab) {
     //May be D2010
     *unitsTab = 0;
     for (i = 0; i < ((TotalSize - 20) & (-4)); i += 4) {
-        initTable = *((DWORD *) (Image + i));
+        initTable = *(reinterpret_cast<DWord *>(Image + i));
         if (initTable == CodeBase + i + 20) {
-            num = *((DWORD *) (Image + i - 4));
+            num = *(reinterpret_cast<DWord *>(Image + i - 4));
             if (num <= 0 || num > 10000) continue;
 
             pos = *unitsTab = i + 20;
             for (n = 0; n < num; n++, pos += 8) {
-                iniAdr = *((DWORD *) (Image + pos));
+                iniAdr = *(reinterpret_cast<DWord *>(Image + pos));
                 if (iniAdr) {
                     if (!IsValidImageAdr(iniAdr)) {
                         *unitsTab = 0;
                         break;
                     }
                 }
-                finAdr = *((DWORD *) (Image + pos + 4));
+                finAdr = *(reinterpret_cast<DWord *>(Image + pos + 4));
                 if (finAdr) {
                     if (!IsValidImageAdr(finAdr)) {
                         *unitsTab = 0;
@@ -2422,21 +2418,21 @@ bool __fastcall TFMain_11011981::IsExtendedInitTab(DWORD *unitsTab) {
 }
 
 //---------------------------------------------------------------------------
-DWORD __fastcall TFMain_11011981::EvaluateInitTable(BYTE *Data, DWORD Size, DWORD Base) {
+DWord __fastcall TFMain_11011981::EvaluateInitTable(Byte *Data, DWord Size, DWord Base) {
     int i, num, pos, unitsPos = 0, n;
     int curPos, instrLen;
-    DWORD initTable = 0, result = 0, iniAdr, finAdr, maxAdr = 0;
-    DWORD endAdr, curAdr, dd, modTable;
+    DWord initTable = 0, result = 0, iniAdr, finAdr, maxAdr = 0;
+    DWord endAdr, curAdr, dd, modTable;
     DISINFO disInfo;
 
     for (i = 0; i < ((Size - 4) & (-4)); i += 4) {
-        initTable = result = *((DWORD *) (Data + i));
+        initTable = result = *(reinterpret_cast<DWord *>(Data + i));
         if (initTable == Base + i + 4) {
-            num = *((DWORD *) (Data + i - 4));
+            num = *(reinterpret_cast<DWord *>(Data + i - 4));
             if (num <= 0 || num > 10000) continue;
             pos = unitsPos = i + 4;
             for (n = 0; n < num; n++, pos += 8) {
-                iniAdr = *((DWORD *) (Data + pos));
+                iniAdr = *(reinterpret_cast<DWord *>(Data + pos));
                 if (iniAdr) {
                     if (iniAdr < Base || iniAdr >= Base + Size) //!IsValidImageAdr(iniAdr))
                     {
@@ -2446,7 +2442,7 @@ DWORD __fastcall TFMain_11011981::EvaluateInitTable(BYTE *Data, DWORD Size, DWOR
                         maxAdr = iniAdr;
                     }
                 }
-                finAdr = *((DWORD *) (Data + pos + 4));
+                finAdr = *(reinterpret_cast<DWord *>(Data + pos + 4));
                 if (finAdr) {
                     if (finAdr < Base || finAdr >= Base + Size) //!IsValidImageAdr(finAdr))
                     {
@@ -2468,29 +2464,29 @@ DWORD __fastcall TFMain_11011981::EvaluateInitTable(BYTE *Data, DWORD Size, DWOR
     //May be D2010
     maxAdr = 0;
     for (i = 0; i < ((Size - 20) & (-4)); i += 4) {
-        initTable = result = *((DWORD *) (Data + i));
+        initTable = result = *(reinterpret_cast<DWord *>(Data + i));
         if (initTable == Base + i + 20) {
-            num = *((DWORD *) (Data + i - 4));
+            num = *(reinterpret_cast<DWord *>(Data + i - 4));
             if (num <= 0 || num > 10000) continue;
 
             pos = unitsPos = i + 20;
             for (n = 0; n < num; n++, pos += 8) {
-                iniAdr = *((DWORD *) (Data + pos));
+                iniAdr = *(reinterpret_cast<DWord *>(Data + pos));
                 if (iniAdr) {
                     if (iniAdr < Base || iniAdr >= Base + Size) {
                         unitsPos = 0;
                         break;
                     } else if (iniAdr > maxAdr) {
-                        if (*((DWORD *) (Data + Adr2Pos(iniAdr)))) maxAdr = iniAdr;
+                        if (*(reinterpret_cast<DWord *>(Data + Adr2Pos(iniAdr)))) maxAdr = iniAdr;
                     }
                 }
-                finAdr = *((DWORD *) (Data + pos + 4));
+                finAdr = *(reinterpret_cast<DWord *>(Data + pos + 4));
                 if (finAdr) {
                     if (finAdr < Base || finAdr >= Base + Size) {
                         unitsPos = 0;
                         break;
                     } else if (finAdr > maxAdr) {
-                        if (*((DWORD *) (Data + Adr2Pos(finAdr)))) maxAdr = finAdr;
+                        if (*(reinterpret_cast<DWord *>(Data + Adr2Pos(finAdr)))) maxAdr = finAdr;
                     }
                 }
                 result += 8;
@@ -2506,25 +2502,25 @@ DWORD __fastcall TFMain_11011981::EvaluateInitTable(BYTE *Data, DWORD Size, DWOR
     curAdr = EP;
     curPos = Adr2Pos(curAdr);
     instrLen = Disasm.Disassemble(Code + curPos, (__int64) curAdr, &disInfo, 0);
-    dd = *((DWORD *) disInfo.Mnem);
+    dd = *reinterpret_cast<DWord *>(disInfo.Mnem);
     if (dd == 'pmj') {
         curAdr = disInfo.Immediate;
         curPos = Adr2Pos(curAdr);
         while (1) {
             instrLen = Disasm.Disassemble(Code + curPos, (__int64) curAdr, &disInfo, 0);
-            dd = *((DWORD *) disInfo.Mnem);
+            dd = *reinterpret_cast<DWord *>(disInfo.Mnem);
             if (dd == 'pmj') break;
             if (dd == 'hsup' && disInfo.OpType[0] == otIMM && disInfo.Immediate) {
                 modTable = disInfo.Immediate;
                 if (IsValidImageAdr(modTable)) {
                     pos = unitsPos = Adr2Pos(modTable);
-                    iniAdr = initTable = *((DWORD *) (Image + pos));
+                    iniAdr = initTable = *(reinterpret_cast<DWord *>(Image + pos));
                     if (iniAdr < Base || iniAdr >= Base + Size) unitsPos = 0;
-                    endAdr = *((DWORD *) (Image + pos + 4)); //ini table and
+                    endAdr = *(reinterpret_cast<DWord *>(Image + pos + 4)); //ini table and
                     if (endAdr < Base || endAdr >= Base + Size) unitsPos = 0;
-                    finAdr = *((DWORD *) (Image + pos + 8));
+                    finAdr = *(reinterpret_cast<DWord *>(Image + pos + 8));
                     if (finAdr < Base || finAdr >= Base + Size) unitsPos = 0;
-                    endAdr = *((DWORD *) (Image + pos + 12)); //fin table end
+                    endAdr = *(reinterpret_cast<DWord *>(Image + pos + 12)); //fin table end
                     if (endAdr < Base || endAdr >= Base + Size) unitsPos = 0;
                     break;
                 }
@@ -2542,29 +2538,29 @@ DWORD __fastcall TFMain_11011981::EvaluateInitTable(BYTE *Data, DWORD Size, DWOR
 
 //---------------------------------------------------------------------------
 int __fastcall TFMain_11011981::GetUnits(String dprName) {
-    BYTE len;
+    Byte len;
     char *b, *e;
     int n, i, no, unitsPos = 0, start, spos, pos, iniProcSize, finProcSize, unitsNum = 0;
     int typesNum, units1Num, typesTable, units1Table; //For D2010
-    DWORD initTable = 0, iniAdr, finAdr, unitsTabEnd, toAdr;
+    DWord initTable = 0, iniAdr, finAdr, unitsTabEnd, toAdr;
     PUnitRec recU;
     PInfoRec recN;
 
     if (DelphiVersion >= 2010) {
         for (i = 0; i < ((TotalSize - 20) & (-4)); i += 4) {
-            initTable = *((DWORD *) (Image + i));
+            initTable = *(reinterpret_cast<DWord *>(Image + i));
             if (initTable == CodeBase + i + 20) {
-                unitsNum = *((DWORD *) (Image + i - 4));
+                unitsNum = *(reinterpret_cast<DWord *>(Image + i - 4));
                 if (unitsNum <= 0 || unitsNum > 10000) continue;
 
                 pos = unitsPos = i + 20;
                 for (n = 0; n < unitsNum; n++, pos += 8) {
-                    iniAdr = *((DWORD *) (Image + pos));
+                    iniAdr = *(reinterpret_cast<DWord *>(Image + pos));
                     if (iniAdr && !IsValidImageAdr(iniAdr)) {
                         unitsPos = 0;
                         break;
                     }
-                    finAdr = *((DWORD *) (Image + pos + 4));
+                    finAdr = *(reinterpret_cast<DWord *>(Image + pos + 4));
                     if (finAdr && !IsValidImageAdr(finAdr)) {
                         unitsPos = 0;
                         break;
@@ -2575,19 +2571,19 @@ int __fastcall TFMain_11011981::GetUnits(String dprName) {
         }
     } else {
         for (i = 0; i < ((CodeSize - 4) & (-4)); i += 4) {
-            initTable = *((DWORD *) (Image + i));
+            initTable = *(reinterpret_cast<DWord *>(Image + i));
             if (initTable == CodeBase + i + 4) {
-                unitsNum = *((DWORD *) (Image + i - 4));
+                unitsNum = *(reinterpret_cast<DWord *>(Image + i - 4));
                 if (unitsNum <= 0 || unitsNum > 10000) continue;
 
                 pos = unitsPos = i + 4;
                 for (n = 0; n < unitsNum; n++, pos += 8) {
-                    iniAdr = *((DWORD *) (Image + pos));
+                    iniAdr = *(reinterpret_cast<DWord *>(Image + pos));
                     if (iniAdr && !IsValidImageAdr(iniAdr)) {
                         unitsPos = 0;
                         break;
                     }
-                    finAdr = *((DWORD *) (Image + pos + 4));
+                    finAdr = *(reinterpret_cast<DWord *>(Image + pos + 4));
                     if (finAdr && !IsValidImageAdr(finAdr)) {
                         unitsPos = 0;
                         break;
@@ -2642,13 +2638,13 @@ int __fastcall TFMain_11011981::GetUnits(String dprName) {
     }
 
     for (i = 0, no = 1; i < unitsNum; i++, unitsPos += 8) {
-        iniAdr = *((DWORD *) (Image + unitsPos));
-        finAdr = *((DWORD *) (Image + unitsPos + 4));
+        iniAdr = *(reinterpret_cast<DWord *>(Image + unitsPos));
+        finAdr = *(reinterpret_cast<DWord *>(Image + unitsPos + 4));
 
         if (!iniAdr && !finAdr) continue;
 
-        if (iniAdr && *((DWORD *) (Image + Adr2Pos(iniAdr))) == 0) continue;
-        if (finAdr && *((DWORD *) (Image + Adr2Pos(finAdr))) == 0) continue;
+        if (iniAdr && *(reinterpret_cast<DWord *>(Image + Adr2Pos(iniAdr))) == 0) continue;
+        if (finAdr && *(reinterpret_cast<DWord *>(Image + Adr2Pos(finAdr))) == 0) continue;
 
         //MAY BE REPEATED ADRESSES!!!
         bool found = false;
@@ -2762,7 +2758,7 @@ int __fastcall TFMain_11011981::GetUnits(String dprName) {
 //---------------------------------------------------------------------------
 int __fastcall TFMain_11011981::GetBCBUnits(String dprName) {
     int n, pos, curPos, instrLen, iniNum, finNum, unitsNum, no;
-    DWORD dd, adr, curAdr, modTable, iniTable, iniTableEnd, finTable, finTableEnd, fromAdr, toAdr;
+    DWord dd, adr, curAdr, modTable, iniTable, iniTableEnd, finTable, finTableEnd, fromAdr, toAdr;
     PUnitRec recU;
     PInfoRec recN;
     DISINFO disInfo;
@@ -2771,24 +2767,24 @@ int __fastcall TFMain_11011981::GetBCBUnits(String dprName) {
     curAdr = EP;
     curPos = Adr2Pos(curAdr);
     instrLen = Disasm.Disassemble(Code + curPos, (__int64) curAdr, &disInfo, 0);
-    dd = *((DWORD *) disInfo.Mnem);
+    dd = *reinterpret_cast<DWord *>(disInfo.Mnem);
     if (dd == 'pmj') {
         curAdr = disInfo.Immediate;
         curPos = Adr2Pos(curAdr);
         while (1) {
             instrLen = Disasm.Disassemble(Code + curPos, (__int64) curAdr, &disInfo, 0);
-            dd = *((DWORD *) disInfo.Mnem);
+            dd = *reinterpret_cast<DWord *>(disInfo.Mnem);
             if (dd == 'pmj') break;
             if (dd == 'hsup' && disInfo.OpType[0] == otIMM && disInfo.Immediate) {
                 modTable = disInfo.Immediate;
                 if (IsValidImageAdr(modTable)) {
                     pos = Adr2Pos(modTable);
-                    iniTable = *((DWORD *) (Image + pos));
-                    iniTableEnd = *((DWORD *) (Image + pos + 4));
-                    finTable = *((DWORD *) (Image + pos + 8));
-                    finTableEnd = *((DWORD *) (Image + pos + 12));
+                    iniTable = *(reinterpret_cast<DWord *>(Image + pos));
+                    iniTableEnd = *(reinterpret_cast<DWord *>(Image + pos + 4));
+                    finTable = *(reinterpret_cast<DWord *>(Image + pos + 8));
+                    finTableEnd = *(reinterpret_cast<DWord *>(Image + pos + 12));
                     for (n = 16; n < 32; n += 4) {
-                        adr = *((DWORD *) (Image + pos + n));
+                        adr = *(reinterpret_cast<DWord *>(Image + pos + n));
                         if (IsValidImageAdr(adr)) {
                             pos = Adr2Pos(adr);
                             SetFlag(cfProcStart, pos);
@@ -2810,14 +2806,14 @@ int __fastcall TFMain_11011981::GetBCBUnits(String dprName) {
                     if (iniNum > finNum) {
                         pos = Adr2Pos(iniTable);
                         for (n = 0; n < iniNum; n++) {
-                            adr = *((DWORD *) (Image + pos + 2));
+                            adr = *(reinterpret_cast<DWord *>(Image + pos + 2));
                             pos += 6;
                             list->Add(Val2Str8(adr));
                         }
                     } else {
                         pos = Adr2Pos(finTable);
                         for (n = 0; n < finNum; n++) {
-                            adr = *((DWORD *) (Image + pos + 2));
+                            adr = *(reinterpret_cast<DWord *>(Image + pos + 2));
                             pos += 6;
                             list->Add(Val2Str8(adr));
                         }
@@ -2866,16 +2862,16 @@ int __fastcall TFMain_11011981::GetBCBUnits(String dprName) {
 //-1 - not Code
 //0 - possible Code
 //1 - Code
-int __fastcall TFMain_11011981::IsValidCode(DWORD fromAdr) {
-    BYTE op;
+int __fastcall TFMain_11011981::IsValidCode(DWord fromAdr) {
+    Byte op;
     int firstPushReg, lastPopReg;
     int firstPushPos, lastPopPos;
     int row, num, instrLen, instrLen1, instrLen2;
     int fromPos;
     int curPos;
-    DWORD curAdr;
-    DWORD lastAdr = 0;
-    DWORD Adr, Adr1, Pos, lastMovAdr = 0;
+    DWord curAdr;
+    DWord lastAdr = 0;
+    DWord Adr, Adr1, Pos, lastMovAdr = 0;
     PInfoRec recN;
     DISINFO DisInfo;
 
@@ -2906,8 +2902,8 @@ int __fastcall TFMain_11011981::IsValidCode(DWORD fromAdr) {
             continue;
         }
 
-        BYTE b1 = Code[curPos];
-        BYTE b2 = Code[curPos + 1];
+        Byte b1 = Code[curPos];
+        Byte b2 = Code[curPos + 1];
         //00,00 - Data!
         if (!b1 && !b2 && !lastAdr) return -1;
 
@@ -3003,16 +2999,16 @@ int __fastcall TFMain_11011981::IsValidCode(DWORD fromAdr) {
             //Первая инструкция
             if (curAdr == fromAdr) break;
             */
-            DWORD cTblAdr = 0, jTblAdr = 0;
+            DWord cTblAdr = 0, jTblAdr = 0;
 
             Pos = curPos + instrLen;
             Adr = curAdr + instrLen;
             //Адрес таблицы - последние 4 байта инструкции
-            jTblAdr = *((DWORD *) (Code + Pos - 4));
+            jTblAdr = *(reinterpret_cast<DWord *>(Code + Pos - 4));
             //Анализируем промежуток на предмет таблицы cTbl
             if (Adr <= lastMovAdr && lastMovAdr < jTblAdr) cTblAdr = lastMovAdr;
             //Если есть cTblAdr, пропускаем эту таблицу
-            BYTE CTab[256];
+            Byte CTab[256];
             if (cTblAdr) {
                 int CNum = jTblAdr - cTblAdr;
                 Pos += CNum;
@@ -3022,7 +3018,7 @@ int __fastcall TFMain_11011981::IsValidCode(DWORD fromAdr) {
                 //Loc - end of table
                 if (IsFlagSet(cfLoc, Pos)) break;
 
-                Adr1 = *((DWORD *) (Code + Pos));
+                Adr1 = *(reinterpret_cast<DWord *>(Code + Pos));
                 //Validate Adr1
                 if (!IsValidCodeAdr(Adr1) || Adr1 < fromAdr) break;
                 //Set cfLoc
@@ -3040,7 +3036,7 @@ int __fastcall TFMain_11011981::IsValidCode(DWORD fromAdr) {
 
         if (b1 == 0x68) //try block (push loc_TryBeg)
         {
-            DWORD NPos = curPos + instrLen;
+            DWord NPos = curPos + instrLen;
             //check that next instruction is push fs:[reg] or retn
             if ((Code[NPos] == 0x64 &&
                  Code[NPos + 1] == 0xFF &&
@@ -3070,7 +3066,7 @@ int __fastcall TFMain_11011981::IsValidCode(DWORD fromAdr) {
                                     /*
                                     //@2
                                     Adr1 = DisInfo.Immediate - 4;
-                                    Adr = *((DWORD*)(Code + Adr2Pos(Adr1)));
+                                    Adr = *((DWord*)(Code + Adr2Pos(Adr1)));
                                     if (Adr > lastAdr) lastAdr = Adr;
                                     */
                                 } else if (recN->SameName("@HandleAnyException") || recN->SameName(
@@ -3172,7 +3168,7 @@ void __fastcall TFMain_11011981::FillVmtList() {
 
 //---------------------------------------------------------------------------
 //Return virtual method offset of procedure with address procAdr
-int __fastcall TFMain_11011981::GetMethodOfs(PInfoRec rec, DWORD procAdr) {
+int __fastcall TFMain_11011981::GetMethodOfs(PInfoRec rec, DWord procAdr) {
     if (rec && rec->vmtInfo->methods) {
         for (int m = 0; m < rec->vmtInfo->methods->Count; m++) {
             PMethodRec recM = (PMethodRec) rec->vmtInfo->methods->Items[m];
@@ -3237,15 +3233,15 @@ Interfaces
 
     TObject implements several methods for accessing the interface table. See for the details of the GetInterface, GetInterfaceEntry, and GetInterfaceTable methods.
 */
-void __fastcall TFMain_11011981::ScanIntfTable(DWORD adr) {
+void __fastcall TFMain_11011981::ScanIntfTable(DWord adr) {
     bool vmtProc;
-    WORD _dx, _bx, _si;
+    Word _dx, _bx, _si;
     int n, pos, entryCount, cnt, vmtOfs, vpos, _pos, iOffset;
-    DWORD vmtAdr, intfAdr, vAdr, iAdr, _adr;
+    DWord vmtAdr, intfAdr, vAdr, iAdr, _adr;
     String className, name;
     PInfoRec recN, recN1;
     PMethodRec recM;
-    BYTE GUID[16];
+    Byte GUID[16];
 
     if (!IsValidImageAdr(adr)) return;
 
@@ -3253,7 +3249,7 @@ void __fastcall TFMain_11011981::ScanIntfTable(DWORD adr) {
     recN = GetInfoRec(adr);
     vmtAdr = adr - cVmtSelfPtr;
     pos = Adr2Pos(vmtAdr) + cVmtIntfTable;
-    intfAdr = *((DWORD *) (Code + pos));
+    intfAdr = *(reinterpret_cast<DWord *>(Code + pos));
     if (!intfAdr) return;
 
     pos = Adr2Pos(intfAdr);
@@ -3264,7 +3260,7 @@ void __fastcall TFMain_11011981::ScanIntfTable(DWORD adr) {
         memmove(GUID, Code + pos, 16);
         pos += 16;
         //VTable
-        vAdr = *((DWORD *) (Code + pos));
+        vAdr = *(reinterpret_cast<DWord *>(Code + pos));
         pos += 4;
         if (IsValidCodeAdr(vAdr)) {
             cnt = 0;
@@ -3272,7 +3268,7 @@ void __fastcall TFMain_11011981::ScanIntfTable(DWORD adr) {
             for (int v = 0;; v++) {
                 if (IsFlagSet(cfVTable, vpos)) cnt++;
                 if (cnt == 2) break;
-                iAdr = *((DWORD *) (Code + vpos));
+                iAdr = *(reinterpret_cast<DWord *>(Code + vpos));
                 _adr = iAdr;
                 _pos = Adr2Pos(_adr);
                 DISINFO disInfo;
@@ -3405,12 +3401,12 @@ Automated Methods
       end;
 */
 //Auto function prototype can be recovered from AutoTable!!!
-void __fastcall TFMain_11011981::ScanAutoTable(DWORD Adr) {
+void __fastcall TFMain_11011981::ScanAutoTable(DWord Adr) {
     if (!IsValidImageAdr(Adr)) return;
 
-    DWORD vmtAdr = Adr - cVmtSelfPtr;
-    DWORD pos = Adr2Pos(vmtAdr) + cVmtAutoTable;
-    DWORD autoAdr = *((DWORD *) (Code + pos));
+    DWord vmtAdr = Adr - cVmtSelfPtr;
+    DWord pos = Adr2Pos(vmtAdr) + cVmtAutoTable;
+    DWord autoAdr = *(reinterpret_cast<DWord *>(Code + pos));
     if (!autoAdr) return;
 
     String className = GetClsName(Adr);
@@ -3424,19 +3420,19 @@ void __fastcall TFMain_11011981::ScanAutoTable(DWORD Adr) {
         int dispID = *((int *) (Code + pos));
         pos += 4;
 
-        DWORD nameAdr = *((DWORD *) (Code + pos));
+        DWord nameAdr = *(reinterpret_cast<DWord *>(Code + pos));
         pos += 4;
-        DWORD posn = Adr2Pos(nameAdr);
-        BYTE len = *(Code + posn);
+        DWord posn = Adr2Pos(nameAdr);
+        Byte len = *(Code + posn);
         posn++;
         String name = String((char *) (Code + posn), len);
         String procname = className + ".";
 
         int flags = *((int *) (Code + pos));
         pos += 4;
-        DWORD params = *((int *) (Code + pos));
+        DWord params = *((int *) (Code + pos));
         pos += 4;
-        DWORD address = *((DWORD *) (Code + pos));
+        DWord address = *(reinterpret_cast<DWord *>(Code + pos));
         pos += 4;
 
         //afVirtual
@@ -3447,7 +3443,7 @@ void __fastcall TFMain_11011981::ScanAutoTable(DWORD Adr) {
             if (flags & 4) procname += "Set";
         } else {
             //virtual table function
-            address = *((DWORD *) (Code + Adr2Pos(vmtAdr + address)));
+            address = *(reinterpret_cast<DWord *>(Code + Adr2Pos(vmtAdr + address)));
         }
 
         procname += name;
@@ -3459,12 +3455,12 @@ void __fastcall TFMain_11011981::ScanAutoTable(DWORD Adr) {
         if ((flags & 1) != 0) recN1->procInfo->flags |= PF_METHOD;
         //params
         int ppos = Adr2Pos(params);
-        BYTE typeCode = *(Code + ppos);
+        Byte typeCode = *(Code + ppos);
         ppos++;
-        BYTE paramsNum = *(Code + ppos);
+        Byte paramsNum = *(Code + ppos);
         ppos++;
         for (int m = 0; m < paramsNum; m++) {
-            BYTE argType = *(Code + ppos);
+            Byte argType = *(Code + ppos);
             ppos++;
         }
         recN->vmtInfo->AddMethod(false, 'A', dispID, address, procname);
@@ -3519,33 +3515,33 @@ Initialization and Finalization
         InitRecords: array[1..Count] of TInitRecord;
       end;
 */
-void __fastcall TFMain_11011981::ScanInitTable(DWORD Adr) {
+void __fastcall TFMain_11011981::ScanInitTable(DWord Adr) {
     if (!IsValidImageAdr(Adr)) return;
 
     PInfoRec recN = GetInfoRec(Adr);
-    DWORD vmtAdr = Adr - cVmtSelfPtr;
-    DWORD pos = Adr2Pos(vmtAdr) + cVmtInitTable;
-    DWORD initAdr = *((DWORD *) (Code + pos));
+    DWord vmtAdr = Adr - cVmtSelfPtr;
+    DWord pos = Adr2Pos(vmtAdr) + cVmtInitTable;
+    DWord initAdr = *(reinterpret_cast<DWord *>(Code + pos));
     if (!initAdr) return;
 
     pos = Adr2Pos(initAdr);
     pos++;    //skip 0xE
     pos++;    //unknown
     pos += 4; //unknown
-    DWORD num = *((DWORD *) (Code + pos));
+    DWord num = *(reinterpret_cast<DWord *>(Code + pos));
     pos += 4;
 
     for (int i = 0; i < num; i++) {
-        DWORD typeAdr = *((DWORD *) (Code + pos));
+        DWord typeAdr = *(reinterpret_cast<DWord *>(Code + pos));
         pos += 4;
-        DWORD post = Adr2Pos(typeAdr);
+        DWord post = Adr2Pos(typeAdr);
         if (DelphiVersion != 2) post += 4; //skip SelfPtr
         post++;                            //skip tkKind
-        BYTE len = *(Code + post);
+        Byte len = *(Code + post);
         post++;
         String typeName = String((char *) &Code[post], len);
         if (typeName.Pos(":") > 0) {
-            BYTE typeKind = GetTypeKind(typeAdr);
+            Byte typeKind = GetTypeKind(typeAdr);
             typeName = TransformShadowName(typeName, typeKind, typeAdr); //SHADOW
         }
         int fieldOfs = *((int *) (Code + pos));
@@ -3573,33 +3569,33 @@ void __fastcall TFMain_11011981::ScanInitTable(DWORD Adr) {
 //Offset: Longword;
 //Name: ShortString;
 //AttrData: TAttrData
-void __fastcall TFMain_11011981::ScanFieldTable(DWORD Adr) {
+void __fastcall TFMain_11011981::ScanFieldTable(DWord Adr) {
     if (!IsValidImageAdr(Adr)) return;
 
     PInfoRec recN = GetInfoRec(Adr);
-    DWORD vmtAdr = Adr - cVmtSelfPtr;
-    DWORD pos = Adr2Pos(vmtAdr) + cVmtFieldTable;
-    DWORD fieldAdr = *((DWORD *) (Code + pos));
+    DWord vmtAdr = Adr - cVmtSelfPtr;
+    DWord pos = Adr2Pos(vmtAdr) + cVmtFieldTable;
+    DWord fieldAdr = *(reinterpret_cast<DWord *>(Code + pos));
     if (!fieldAdr) return;
 
     pos = Adr2Pos(fieldAdr);
-    WORD count = *((WORD *) (Code + pos));
+    Word count = *(reinterpret_cast<Word *>(Code + pos));
     pos += 2;
-    DWORD typesTab = *((DWORD *) (Code + pos));
+    DWord typesTab = *(reinterpret_cast<DWord *>(Code + pos));
     pos += 4;
 
     for (int i = 0; i < count; i++) {
         int fieldOfs = *((int *) (Code + pos));
         pos += 4;
-        WORD idx = *((WORD *) (Code + pos));
+        Word idx = *(reinterpret_cast<Word *>(Code + pos));
         pos += 2;
-        BYTE len = Code[pos];
+        Byte len = Code[pos];
         pos++;
         String name = String((char *) (Code + pos), len);
         pos += len;
 
-        DWORD post = Adr2Pos(typesTab) + 2 + 4 * idx;
-        DWORD classAdr = *((DWORD *) (Code + post));
+        DWord post = Adr2Pos(typesTab) + 2 + 4 * idx;
+        DWord classAdr = *(reinterpret_cast<DWord *>(Code + post));
         if (IsFlagSet(cfImport, Adr2Pos(classAdr))) {
             PInfoRec recN1 = GetInfoRec(classAdr);
             recN->vmtInfo->AddField(0, 0, FIELD_PUBLISHED, fieldOfs, -1, name, recN1->GetName());
@@ -3609,20 +3605,20 @@ void __fastcall TFMain_11011981::ScanFieldTable(DWORD Adr) {
         }
     }
     if (DelphiVersion >= 2010) {
-        WORD exCount = *((WORD *) (Code + pos));
+        Word exCount = *(reinterpret_cast<Word *>(Code + pos));
         pos += 2;
         for (int i = 0; i < exCount; i++) {
-            BYTE flags = Code[pos];
+            Byte flags = Code[pos];
             pos++;
-            DWORD typeRef = *((DWORD *) (Code + pos));
+            DWord typeRef = *(reinterpret_cast<DWord *>(Code + pos));
             pos += 4;
             int offset = *((int *) (Code + pos));
             pos += 4;
-            BYTE len = Code[pos];
+            Byte len = Code[pos];
             pos++;
             String name = String((char *) (Code + pos), len);
             pos += len;
-            WORD dw = *((WORD *) (Code + pos));
+            Word dw = *(reinterpret_cast<Word *>(Code + pos));
             pos += dw;
             recN->vmtInfo->AddField(0, 0, FIELD_PUBLISHED, offset, -1, name, GetTypeName(typeRef));
         }
@@ -3630,28 +3626,28 @@ void __fastcall TFMain_11011981::ScanFieldTable(DWORD Adr) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::ScanMethodTable(DWORD adr, String className) {
-    BYTE len;
-    WORD skipNext;
-    DWORD codeAdr;
+void __fastcall TFMain_11011981::ScanMethodTable(DWord adr, String className) {
+    Byte len;
+    Word skipNext;
+    DWord codeAdr;
     int spos, pos;
     String name, methodName;
 
     if (!IsValidImageAdr(adr)) return;
 
-    DWORD vmtAdr = adr - cVmtSelfPtr;
-    DWORD methodAdr = *((DWORD *) (Code + Adr2Pos(vmtAdr) + cVmtMethodTable));
+    DWord vmtAdr = adr - cVmtSelfPtr;
+    DWord methodAdr = *(reinterpret_cast<DWord *>(Code + Adr2Pos(vmtAdr) + cVmtMethodTable));
     if (!methodAdr) return;
 
     pos = Adr2Pos(methodAdr);
-    WORD count = *((WORD *) (Code + pos));
+    Word count = *(reinterpret_cast<Word *>(Code + pos));
     pos += 2;
 
     for (int n = 0; n < count; n++) {
         spos = pos;
-        skipNext = *((WORD *) (Code + pos));
+        skipNext = *(reinterpret_cast<Word *>(Code + pos));
         pos += 2;
-        codeAdr = *((DWORD *) (Code + pos));
+        codeAdr = *(reinterpret_cast<DWord *>(Code + pos));
         pos += 4;
         len = Code[pos];
         pos++;
@@ -3660,7 +3656,7 @@ void __fastcall TFMain_11011981::ScanMethodTable(DWORD adr, String className) {
 
         //as added   why this code was removed?
         methodName = className + "." + name;
-        DWORD pos1 = Adr2Pos(codeAdr);
+        DWord pos1 = Adr2Pos(codeAdr);
         PInfoRec recN1 = GetInfoRec(codeAdr);
         if (!recN1) {
             recN1 = new InfoRec(pos1, ikRefine);
@@ -3672,11 +3668,11 @@ void __fastcall TFMain_11011981::ScanMethodTable(DWORD adr, String className) {
         pos = spos + skipNext;
     }
     if (DelphiVersion >= 2010) {
-        WORD exCount = *((WORD *) (Code + pos));
+        Word exCount = *(reinterpret_cast<Word *>(Code + pos));
         pos += 2;
         for (int n = 0; n < exCount; n++) {
             //Entry
-            DWORD entry = *((DWORD *) (Code + pos));
+            DWord entry = *(reinterpret_cast<DWord *>(Code + pos));
             pos += 4;
             //Flags
             pos += 2;
@@ -3685,9 +3681,9 @@ void __fastcall TFMain_11011981::ScanMethodTable(DWORD adr, String className) {
             spos = pos;
             //Entry
             pos = Adr2Pos(entry);
-            skipNext = *((WORD *) (Code + pos));
+            skipNext = *(reinterpret_cast<Word *>(Code + pos));
             pos += 2;
-            codeAdr = *((DWORD *) (Code + pos));
+            codeAdr = *(reinterpret_cast<DWord *>(Code + pos));
             pos += 4;
             len = Code[pos];
             pos++;
@@ -3993,7 +3989,7 @@ MsgInfo VCLControlsMsgTab[] =
     {0, "", ""}
 };
 
-PMsgMInfo __fastcall GetMsgInfo(WORD msg) {
+PMsgMInfo __fastcall GetMsgInfo(Word msg) {
     //WindowsMsgTab
     if (msg < 0x400) {
         for (int m = 0;; m++) {
@@ -4012,7 +4008,7 @@ PMsgMInfo __fastcall GetMsgInfo(WORD msg) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::ScanDynamicTable(DWORD adr) {
+void __fastcall TFMain_11011981::ScanDynamicTable(DWord adr) {
     PInfoRec recN, recN1, recN2;
 
     if (!IsValidImageAdr(adr)) return;
@@ -4021,22 +4017,22 @@ void __fastcall TFMain_11011981::ScanDynamicTable(DWORD adr) {
 
     if (!recN) return;
 
-    DWORD vmtAdr = adr - cVmtSelfPtr;
-    DWORD pos = Adr2Pos(vmtAdr) + cVmtDynamicTable;
-    DWORD dynamicAdr = *((DWORD *) (Code + pos));
+    DWord vmtAdr = adr - cVmtSelfPtr;
+    DWord pos = Adr2Pos(vmtAdr) + cVmtDynamicTable;
+    DWord dynamicAdr = *(reinterpret_cast<DWord *>(Code + pos));
     if (!dynamicAdr) return;
 
     String className = GetClsName(adr);
 
     pos = Adr2Pos(dynamicAdr);
-    WORD num = *((WORD *) (Code + pos));
+    Word num = *(reinterpret_cast<Word *>(Code + pos));
     pos += 2;
-    DWORD post = pos + 2 * num;
+    DWord post = pos + 2 * num;
     //First fill wellknown names
     for (int i = 0; i < num; i++) {
-        WORD msg = *((WORD *) (Code + pos));
+        Word msg = *(reinterpret_cast<Word *>(Code + pos));
         pos += 2;
-        DWORD procAdr = *((DWORD *) (Code + post));
+        DWord procAdr = *(reinterpret_cast<DWord *>(Code + post));
         post += 4;
         MethodRec recM;
         recM.abstract = false;
@@ -4059,23 +4055,23 @@ void __fastcall TFMain_11011981::ScanDynamicTable(DWORD adr) {
                 }
             }
             if (recM.name == "") {
-                DWORD parentAdr = GetParentAdr(adr);
+                DWord parentAdr = GetParentAdr(adr);
                 while (parentAdr) {
                     recN2 = GetInfoRec(parentAdr);
                     if (recN2) {
-                        DWORD vmtAdr1 = parentAdr - cVmtSelfPtr;
-                        DWORD pos1 = Adr2Pos(vmtAdr1) + cVmtDynamicTable;
-                        dynamicAdr = *((DWORD *) (Code + pos1));
+                        DWord vmtAdr1 = parentAdr - cVmtSelfPtr;
+                        DWord pos1 = Adr2Pos(vmtAdr1) + cVmtDynamicTable;
+                        dynamicAdr = *(reinterpret_cast<DWord *>(Code + pos1));
                         if (dynamicAdr) {
                             pos1 = Adr2Pos(dynamicAdr);
-                            WORD num1 = *((WORD *) (Code + pos1));
+                            Word num1 = *(reinterpret_cast<Word *>(Code + pos1));
                             pos1 += 2;
-                            DWORD post1 = pos1 + 2 * num1;
+                            DWord post1 = pos1 + 2 * num1;
 
                             for (int j = 0; j < num1; j++) {
-                                WORD msg1 = *((WORD *) (Code + pos1));
+                                Word msg1 = *(reinterpret_cast<Word *>(Code + pos1));
                                 pos1 += 2;
-                                DWORD procAdr1 = *((DWORD *) (Code + post1));
+                                DWord procAdr1 = *(reinterpret_cast<DWord *>(Code + post1));
                                 post1 += 4;
                                 if (msg1 == msg) {
                                     recN2 = GetInfoRec(procAdr1);
@@ -4108,10 +4104,10 @@ void __fastcall TFMain_11011981::ScanDynamicTable(DWORD adr) {
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall IsOwnVirtualMethod(DWORD vmtAdr, DWORD procAdr) {
-    DWORD parentAdr = GetParentAdr(vmtAdr);
+bool __fastcall IsOwnVirtualMethod(DWord vmtAdr, DWord procAdr) {
+    DWord parentAdr = GetParentAdr(vmtAdr);
     if (!parentAdr) return true;
-    DWORD stopAt = GetStopAt(parentAdr - cVmtSelfPtr);
+    DWord stopAt = GetStopAt(parentAdr - cVmtSelfPtr);
     if (vmtAdr == stopAt) return false;
 
     int pos = Adr2Pos(parentAdr) + cVmtParent + 4;
@@ -4119,16 +4115,16 @@ bool __fastcall IsOwnVirtualMethod(DWORD vmtAdr, DWORD procAdr) {
     for (int m = cVmtParent + 4;; m += 4, pos += 4) {
         if (Pos2Adr(pos) == stopAt) break;
 
-        if (*((DWORD *) (Code + pos)) == procAdr) return false;
+        if (*(reinterpret_cast<DWord *>(Code + pos)) == procAdr) return false;
     }
     return true;
 }
 
 //---------------------------------------------------------------------------
 //Create recN->methods list
-void __fastcall TFMain_11011981::ScanVirtualTable(DWORD adr) {
+void __fastcall TFMain_11011981::ScanVirtualTable(DWord adr) {
     int m, pos, idx = 0;
-    DWORD vmtAdr, stopAt;
+    DWord vmtAdr, stopAt;
     String clsName;
     PInfoRec recN, recN1;
     MethodRec recM;
@@ -4148,7 +4144,7 @@ void __fastcall TFMain_11011981::ScanVirtualTable(DWORD adr) {
         if (Pos2Adr(pos) == stopAt) break;
 
         recM.abstract = false;
-        recM.address = *((DWORD *) (Code + pos));
+        recM.address = *(reinterpret_cast<DWord *>(Code + pos));
 
         recN1 = GetInfoRec(recM.address);
         if (recN1 && recN1->HasName()) {
@@ -4197,7 +4193,7 @@ void __fastcall TFMain_11011981::ScanVirtualTable(DWORD adr) {
 
 //---------------------------------------------------------------------------
 //Возвращает "высоту" класса (число родительских классов до 0)
-int __fastcall TFMain_11011981::GetClassHeight(DWORD adr) {
+int __fastcall TFMain_11011981::GetClassHeight(DWord adr) {
     int level = 0;
     while (1) {
         adr = GetParentAdr(adr);
@@ -4209,24 +4205,24 @@ int __fastcall TFMain_11011981::GetClassHeight(DWORD adr) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::PropagateVMTNames(DWORD adr) {
+void __fastcall TFMain_11011981::PropagateVMTNames(DWord adr) {
     String className = GetClsName(adr);
     PInfoRec recN = GetInfoRec(adr);
 
-    DWORD vmtAdr = adr - cVmtSelfPtr;
-    DWORD stopAt = GetStopAt(vmtAdr);
+    DWord vmtAdr = adr - cVmtSelfPtr;
+    DWord stopAt = GetStopAt(vmtAdr);
     if (vmtAdr == stopAt) return;
 
     int pos = Adr2Pos(vmtAdr) + cVmtParent + 4;
     for (int m = cVmtParent + 4;; m += 4, pos += 4) {
         if (Pos2Adr(pos) == stopAt) break;
 
-        DWORD procAdr = *((DWORD *) (Code + pos));
+        DWord procAdr = *(reinterpret_cast<DWord *>(Code + pos));
         PInfoRec recN1 = GetInfoRec(procAdr);
         if (!recN1) recN1 = new InfoRec(Adr2Pos(procAdr), ikRefine);
 
         if (!recN1->HasName()) {
-            DWORD classAdr = adr;
+            DWord classAdr = adr;
             while (classAdr) {
                 PMethodRec recM = GetMethodInfo(classAdr, 'V', m);
                 if (recM) {
@@ -4266,7 +4262,7 @@ void __fastcall TFMain_11011981::PropagateVMTNames(DWORD adr) {
 }
 
 //---------------------------------------------------------------------------
-PMethodRec __fastcall TFMain_11011981::GetMethodInfo(DWORD adr, char kind, int methodOfs) {
+PMethodRec __fastcall TFMain_11011981::GetMethodInfo(DWord adr, char kind, int methodOfs) {
     if (!IsValidCodeAdr(adr)) return 0;
 
     PInfoRec recN = GetInfoRec(adr);
@@ -4285,7 +4281,7 @@ void __fastcall ClearClassAdrMap() {
 }
 
 //---------------------------------------------------------------------------
-DWORD __fastcall FindClassAdrByName(const String &AName) {
+DWord __fastcall FindClassAdrByName(const String &AName) {
     TClassAdrMap::const_iterator it = classAdrMap.find(AName);
     if (it != classAdrMap.end()) return it->second;
 
@@ -4293,7 +4289,7 @@ DWORD __fastcall FindClassAdrByName(const String &AName) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall AddClassAdr(DWORD Adr, const String &AName) {
+void __fastcall AddClassAdr(DWord Adr, const String &AName) {
     classAdrMap[AName] = Adr;
 }
 
@@ -4302,13 +4298,13 @@ void __fastcall AddClassAdr(DWORD Adr, const String &AName) {
 String __fastcall TFMain_11011981::GetCommonType(String Name1, String Name2) {
     if (SameText(Name1, Name2)) return Name1;
 
-    DWORD adr1 = GetClassAdr(Name1);
-    DWORD adr2 = GetClassAdr(Name2);
+    DWord adr1 = GetClassAdr(Name1);
+    DWord adr2 = GetClassAdr(Name2);
     //Synonims
     if (!adr1 || !adr2) {
-        //dword and ClassName -> ClassName
-        if (SameText(Name1, "Dword") && IsValidImageAdr(GetClassAdr(Name2))) return Name2;
-        if (SameText(Name2, "Dword") && IsValidImageAdr(GetClassAdr(Name1))) return Name1;
+        //DWord and ClassName -> ClassName
+        if (SameText(Name1, "DWord") && IsValidImageAdr(GetClassAdr(Name2))) return Name2;
+        if (SameText(Name2, "DWord") && IsValidImageAdr(GetClassAdr(Name1))) return Name1;
         if (DelphiVersion >= 2009) {
             //UString - UnicodeString
             if ((SameText(Name1, "UString") && SameText(Name2, "UnicodeString")) ||
@@ -4425,7 +4421,7 @@ void __fastcall TFMain_11011981::FormCreate(TObject *Sender) {
             for (n = 0; n < DelphiThemesCount; n++)
             {
                 mi = new TMenuItem(pmCode->Items);
-                GetThemeName(ID_DELPHI, (DWORD)n,(LPCSTR)buf, 256);
+                GetThemeName(ID_DELPHI, (DWord)n,(LPCSTR)buf, 256);
                 mi->Caption = String((char *)buf);
                 mi->Tag = n;
                 mi->OnClick = ChangeDelphiHighlightTheme;
@@ -4581,7 +4577,7 @@ void __fastcall TFMain_11011981::ScanImports()
 
             if (totcnt)
             {
-                int num = 0; WORD id;
+                int num = 0; Word id;
                 for (int k = 0; k < KnowledgeBase.ModuleCount; k++)
                 {
                     if (cnt[k] == totcnt)
@@ -4590,7 +4586,7 @@ void __fastcall TFMain_11011981::ScanImports()
                         num++;
                     }
                 }
-                DWORD iniadr; PInfoRec recN;
+                DWord iniadr; PInfoRec recN;
                 //Если все импорты нашлись только в одном юните, значит это он и есть
                 if (num == 1)
                 {
@@ -4650,7 +4646,7 @@ void __fastcall TFMain_11011981::ScanImports()
 //---------------------------------------------------------------------------
 String __fastcall TFMain_11011981::MakeComment(PPICODE Picode) {
     bool vmt;
-    DWORD vmtAdr;
+    DWord vmtAdr;
     String comment = "";
 
     if (Picode->Op == OP_CALL || Picode->Op == OP_COMMENT) {
@@ -4679,7 +4675,7 @@ String __fastcall TFMain_11011981::MakeComment(PPICODE Picode) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::RedrawCode() {
-    DWORD adr = CurProcAdr;
+    DWord adr = CurProcAdr;
     CurProcAdr = 0;
     ShowCode(adr, lbCode->ItemIndex, lbCXrefs->ItemIndex, lbCode->TopIndex);
 }
@@ -4689,7 +4685,7 @@ void __fastcall TFMain_11011981::RedrawCode() {
 //M:<,>,=
 //XXXXXXXX - adr
 //F - flags
-int __fastcall TFMain_11011981::AddAsmLine(DWORD Adr, String text, BYTE Flags) {
+int __fastcall TFMain_11011981::AddAsmLine(DWord Adr, String text, Byte Flags) {
     String _line = " " + Val2Str8(Adr) + "        " + text + " ";
     if (Flags & 1) _line[1] = '>';
     if (Flags & 8) _line[10] = '>';
@@ -4702,16 +4698,16 @@ int __fastcall TFMain_11011981::AddAsmLine(DWORD Adr, String text, BYTE Flags) {
 }
 
 //Argument SelectedIdx can be address (for selection) and index of list
-void __fastcall TFMain_11011981::ShowCode(DWORD fromAdr, int SelectedIdx, int XrefIdx, int topIdx) {
-    BYTE op, flags;
+void __fastcall TFMain_11011981::ShowCode(DWord fromAdr, int SelectedIdx, int XrefIdx, int topIdx) {
+    Byte op, flags;
     int row = 0, wid, maxwid = 0, _pos, _idx, _ap;
     TCanvas *canvas = lbCode->Canvas;
     int num, instrLen = 0, instrLen1, instrLen2, _procSize;
-    DWORD Adr, Adr1, Pos, lastMovAdr = 0;
+    DWord Adr, Adr1, Pos, lastMovAdr = 0;
     int fromPos;
     int curPos;
-    DWORD curAdr;
-    DWORD lastAdr = 0;
+    DWord curAdr;
+    DWord lastAdr = 0;
     String line, line1;
     PInfoRec recN;
     DISINFO DisInfo, DisInfo1;
@@ -4824,7 +4820,7 @@ void __fastcall TFMain_11011981::ShowCode(DWORD fromAdr, int SelectedIdx, int Xr
 
             for (int k = 0; k < num; k++) {
                 //dd offset ExceptionInfo
-                Adr = *((DWORD *) (Code + curPos));
+                Adr = *(reinterpret_cast<DWord *>(Code + curPos));
                 line1 = "dd          " + Val2Str8(Adr);
                 //Name of Exception
                 if (IsValidCodeAdr(Adr)) {
@@ -4838,7 +4834,7 @@ void __fastcall TFMain_11011981::ShowCode(DWORD fromAdr, int SelectedIdx, int Xr
                 //dd offset ExceptionProc
                 curPos += 4;
                 curAdr += 4;
-                Adr = *((DWORD *) (Code + curPos));
+                Adr = *(reinterpret_cast<DWord *>(Code + curPos));
                 wid = AddAsmLine(curAdr, "dd          " + Val2Str8(Adr), flags);
                 row++;
                 if (wid > maxwid) maxwid = wid;
@@ -4849,8 +4845,8 @@ void __fastcall TFMain_11011981::ShowCode(DWORD fromAdr, int SelectedIdx, int Xr
             continue;
         }
 
-        BYTE b1 = Code[curPos];
-        BYTE b2 = Code[curPos + 1];
+        Byte b1 = Code[curPos];
+        Byte b2 = Code[curPos + 1];
         if (!b1 && !b2 && !lastAdr) break;
 
         instrLen = Disasm.Disassemble(Code + curPos, (__int64) curAdr, &DisInfo, disLine);
@@ -4866,7 +4862,7 @@ void __fastcall TFMain_11011981::ShowCode(DWORD fromAdr, int SelectedIdx, int Xr
 
         //Check inside instruction Fixup or ThreadVar
         bool NameInside = false;
-        DWORD NameInsideAdr = 0;
+        DWord NameInsideAdr = 0;
         for (int k = 1; k < instrLen; k++) {
             if (Infos[curPos + k]) {
                 NameInside = true;
@@ -4969,20 +4965,20 @@ void __fastcall TFMain_11011981::ShowCode(DWORD fromAdr, int SelectedIdx, int Xr
             //First instruction
             if (curAdr == fromAdr) break;
             */
-            DWORD cTblAdr = 0, jTblAdr = 0;
+            DWord cTblAdr = 0, jTblAdr = 0;
 
             Pos = curPos + instrLen;
             Adr = curAdr + instrLen;
             //Table address - last 4 bytes of instruction
-            jTblAdr = *((DWORD *) (Code + Pos - 4));
+            jTblAdr = *(reinterpret_cast<DWord *>(Code + Pos - 4));
             //Analyze address range to find table cTbl
             if (Adr <= lastMovAdr && lastMovAdr < jTblAdr) cTblAdr = lastMovAdr;
             //If exist cTblAdr, skip this table
-            BYTE CTab[256];
+            Byte CTab[256];
             if (cTblAdr) {
                 int CNum = jTblAdr - cTblAdr;
                 for (int k = 0; k < CNum; k++) {
-                    BYTE db = Code[Pos];
+                    Byte db = Code[Pos];
                     CTab[k] = db;
                     wid = AddAsmLine(Adr, "db          " + String(db), 0x22);
                     row++;
@@ -4993,14 +4989,14 @@ void __fastcall TFMain_11011981::ShowCode(DWORD fromAdr, int SelectedIdx, int Xr
             }
             //Check transitions by negative register values (in Delphi 2009)
             //bool neg = false;
-            //Adr1 = *((DWORD*)(Code + Pos - 4));
+            //Adr1 = *((DWord*)(Code + Pos - 4));
             //if (IsValidCodeAdr(Adr1) && IsFlagSet(cfLoc, Adr2Pos(Adr1))) neg = true;
 
             for (int k = 0; k < 4096; k++) {
                 //Loc - end of table
                 if (IsFlagSet(cfLoc, Pos)) break;
 
-                Adr1 = *((DWORD *) (Code + Pos));
+                Adr1 = *(reinterpret_cast<DWord *>(Code + Pos));
                 //Validate Adr1
                 if (!IsValidCodeAdr(Adr1) || Adr1 < fromAdr) break;
 
@@ -5044,7 +5040,7 @@ void __fastcall TFMain_11011981::ShowCode(DWORD fromAdr, int SelectedIdx, int Xr
         //----------------------------------
         if (b1 == 0x68) //try block	(push loc_TryBeg)
         {
-            DWORD NPos = curPos + instrLen;
+            DWord NPos = curPos + instrLen;
             //check that next instruction is push fs:[reg] or retn
             if ((Code[NPos] == 0x64 &&
                  Code[NPos + 1] == 0xFF &&
@@ -5073,7 +5069,7 @@ void __fastcall TFMain_11011981::ShowCode(DWORD fromAdr, int SelectedIdx, int Xr
                                     /*
                                     //@2
                                     Adr1 = DisInfo.Immediate - 4;
-                                    Adr = *((DWORD*)(Code + Adr2Pos(Adr1)));
+                                    Adr = *((DWord*)(Code + Adr2Pos(Adr1)));
                                     if (IsValidCodeAdr(Adr) && Adr > lastAdr) lastAdr = Adr;
                                     */
                                 } else if (recN->SameName("@HandleAnyException") || recN->SameName(
@@ -5129,7 +5125,7 @@ void __fastcall TFMain_11011981::ShowCode(DWORD fromAdr, int SelectedIdx, int Xr
         recN = GetInfoRec(curAdr);
         if (recN && recN->picode) comment = MakeComment(recN->picode);
 
-        DWORD targetAdr = 0;
+        DWord targetAdr = 0;
         if (IsValidImageAdr(DisInfo.Immediate)) {
             if (!IsValidImageAdr(DisInfo.Offset)) targetAdr = DisInfo.Immediate;
         } else if (IsValidImageAdr(DisInfo.Offset))
@@ -5158,7 +5154,7 @@ void __fastcall TFMain_11011981::ShowCode(DWORD fromAdr, int SelectedIdx, int Xr
                         name = recN->GetName();
                     }
                 }
-                Adr = *((DWORD *) (Code + _pos));
+                Adr = *(reinterpret_cast<DWord *>(Code + _pos));
                 if (IsValidImageAdr(Adr)) {
                     recN = GetInfoRec(Adr);
                     if (recN) {
@@ -5231,26 +5227,26 @@ void __fastcall TFMain_11011981::ShowCode(DWORD fromAdr, int SelectedIdx, int Xr
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::AnalyzeMethodTable(int Pass, DWORD Adr, const volatile bool *Terminated) {
-    BYTE sLen, paramFlags, paramCount, cc;
-    WORD skipNext, dw, parOfs;
+void __fastcall TFMain_11011981::AnalyzeMethodTable(int Pass, DWord Adr, const volatile bool *Terminated) {
+    Byte sLen, paramFlags, paramCount, cc;
+    Word skipNext, dw, parOfs;
     int procPos;
-    DWORD procAdr, paramType, resultType;
+    DWord procAdr, paramType, resultType;
     PInfoRec recN;
     String paramName, methodName;
-    DWORD vmtAdr = Adr - cVmtSelfPtr;
-    DWORD methodAdr = *((DWORD *) (Code + Adr2Pos(vmtAdr) + cVmtMethodTable));
+    DWord vmtAdr = Adr - cVmtSelfPtr;
+    DWord methodAdr = *(reinterpret_cast<DWord *>(Code + Adr2Pos(vmtAdr) + cVmtMethodTable));
 
     if (!methodAdr) return;
 
     String className = GetClsName(Adr);
     int pos = Adr2Pos(methodAdr);
-    WORD count = *((WORD *) (Code + pos));
+    Word count = *(reinterpret_cast<Word *>(Code + pos));
     pos += 2;
 
     for (int n = 0; n < count && !*Terminated; n++) {
-        skipNext = *((WORD *) (Code + pos));
-        procAdr = *((DWORD *) (Code + pos + 2));
+        skipNext = *(reinterpret_cast<Word *>(Code + pos));
+        procAdr = *(reinterpret_cast<DWord *>(Code + pos + 2));
         procPos = Adr2Pos(procAdr);
         sLen = Code[pos + 6];
         methodName = String((char *) (Code + pos + 7), sLen);
@@ -5269,21 +5265,21 @@ void __fastcall TFMain_11011981::AnalyzeMethodTable(int Pass, DWORD Adr, const v
         pos += skipNext;
     }
     if (DelphiVersion >= 2010) {
-        WORD exCount = *((WORD *) (Code + pos));
+        Word exCount = *(reinterpret_cast<Word *>(Code + pos));
         pos += 2;
         for (int n = 0; n < exCount && !*Terminated; n++) {
-            DWORD methodEntry = *((DWORD *) (Code + pos));
+            DWord methodEntry = *(reinterpret_cast<DWord *>(Code + pos));
             pos += 4;
-            WORD flags = *((WORD *) (Code + pos));
+            Word flags = *(reinterpret_cast<Word *>(Code + pos));
             pos += 2;
-            WORD vIndex = *((WORD *) (Code + pos));
+            Word vIndex = *(reinterpret_cast<Word *>(Code + pos));
             pos += 2;
             int spos = pos;
             pos = Adr2Pos(methodEntry);
             //Length
-            skipNext = *((WORD *) (Code + pos));
+            skipNext = *(reinterpret_cast<Word *>(Code + pos));
             pos += 2;
-            procAdr = *((DWORD *) (Code + pos));
+            procAdr = *(reinterpret_cast<DWord *>(Code + pos));
             pos += 4;
             procPos = Adr2Pos(procAdr);
             sLen = Code[pos];
@@ -5316,7 +5312,7 @@ void __fastcall TFMain_11011981::AnalyzeMethodTable(int Pass, DWORD Adr, const v
                 pos++;
                 cc = Code[pos];
                 pos++;
-                resultType = *((DWORD *) (Code + pos));
+                resultType = *(reinterpret_cast<DWord *>(Code + pos));
                 pos += 4;
                 //ParOff
                 pos += 2;
@@ -5342,16 +5338,16 @@ void __fastcall TFMain_11011981::AnalyzeMethodTable(int Pass, DWORD Adr, const v
                 for (int m = 0; m < paramCount && !*Terminated; m++) {
                     paramFlags = Code[pos];
                     pos++;
-                    paramType = *((DWORD *) (Code + pos));
+                    paramType = *(reinterpret_cast<DWord *>(Code + pos));
                     pos += 4;
                     //ParOff
-                    parOfs = *((WORD *) (Code + pos));
+                    parOfs = *(reinterpret_cast<Word *>(Code + pos));
                     pos += 2;
                     sLen = Code[pos];
-                    paramName = String((char *) (Code + pos + 1), sLen);
+                    paramName = String(reinterpret_cast<char *>(Code + pos + 1), sLen);
                     pos += sLen + 1;
                     //AttrData
-                    dw = *((WORD *) (Code + pos));
+                    dw = *(reinterpret_cast<Word *>(Code + pos));
                     pos += dw;                       //ATR!!
                     if (paramFlags & 0x40) continue; //Result
                     if (Pass == 1) {
@@ -5373,21 +5369,21 @@ void __fastcall TFMain_11011981::AnalyzeMethodTable(int Pass, DWORD Adr, const v
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::AnalyzeDynamicTable(int Pass, DWORD Adr, const volatile bool *Terminated) {
-    DWORD vmtAdr = Adr - cVmtSelfPtr;
-    DWORD DynamicAdr = *((DWORD *) (Code + Adr2Pos(vmtAdr) + cVmtDynamicTable));
+void __fastcall TFMain_11011981::AnalyzeDynamicTable(int Pass, DWord Adr, const volatile bool *Terminated) {
+    DWord vmtAdr = Adr - cVmtSelfPtr;
+    DWord DynamicAdr = *reinterpret_cast<DWord *>(Code + Adr2Pos(vmtAdr) + cVmtDynamicTable);
     if (!DynamicAdr) return;
 
     String clsName = GetClsName(Adr);
-    DWORD pos = Adr2Pos(DynamicAdr);
-    WORD Num = *((WORD *) (Code + pos));
+    DWord pos = Adr2Pos(DynamicAdr);
+    Word Num = *reinterpret_cast<Word *>(Code + pos);
     pos += 2;
-    DWORD post = pos + 2 * Num;
+    DWord post = pos + 2 * Num;
 
     for (int i = 0; i < Num && !*Terminated; i++, post += 4) {
-        //WORD Msg
+        //Word Msg
         pos += 2;
-        DWORD procAdr = *((DWORD *) (Code + post));
+        DWord procAdr = *reinterpret_cast<DWord *>(Code + post);
         int procPos = Adr2Pos(procAdr);
         if (!procPos) continue; //Something wrong!
         bool skip = (*(Code + procPos) == 0 && *(Code + procPos + 1) == 0);
@@ -5406,16 +5402,16 @@ void __fastcall TFMain_11011981::AnalyzeDynamicTable(int Pass, DWORD Adr, const 
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::AnalyzeVirtualTable(int Pass, DWORD Adr, const volatile bool *Terminated) {
-    DWORD parentAdr = GetParentAdr(Adr);
-    DWORD vmtAdr = Adr - cVmtSelfPtr;
-    DWORD stopAt = GetStopAt(vmtAdr);
+void __fastcall TFMain_11011981::AnalyzeVirtualTable(int Pass, DWord Adr, const volatile bool *Terminated) {
+    DWord parentAdr = GetParentAdr(Adr);
+    DWord vmtAdr = Adr - cVmtSelfPtr;
+    DWord stopAt = GetStopAt(vmtAdr);
     if (vmtAdr == stopAt) return;
 
     int pos = Adr2Pos(vmtAdr) + cVmtParent + 4;
     for (int n = cVmtParent + 4; !*Terminated; n += 4, pos += 4) {
         if (Pos2Adr(pos) == stopAt) break;
-        DWORD procAdr = *((DWORD *) (Code + pos));
+        DWord procAdr = *(reinterpret_cast<DWord *>(Code + pos));
         int procPos = Adr2Pos(procAdr);
         bool skip = (*(Code + procPos) == 0 && *(Code + procPos + 1) == 0);
         if (!skip) AnalyzeProc(Pass, procAdr);
@@ -5427,7 +5423,7 @@ void __fastcall TFMain_11011981::AnalyzeVirtualTable(int Pass, DWORD Adr, const 
                 recN->AddXref('D', Adr, 0);
             }
 
-            DWORD pAdr = parentAdr;
+            DWord pAdr = parentAdr;
             while (pAdr && !*Terminated) {
                 PInfoRec recN1 = GetInfoRec(pAdr);
                 //Look at parent class methods
@@ -5450,7 +5446,7 @@ void __fastcall TFMain_11011981::AnalyzeVirtualTable(int Pass, DWORD Adr, const 
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::AnalyzeProc(int pass, DWORD procAdr) {
+void __fastcall TFMain_11011981::AnalyzeProc(int pass, DWord procAdr) {
     switch (pass) {
         case 0:
             AnalyzeProcInitial(procAdr);
@@ -5466,14 +5462,14 @@ void __fastcall TFMain_11011981::AnalyzeProc(int pass, DWORD procAdr) {
 
 //---------------------------------------------------------------------------
 //Scan proc calls
-DWORD __fastcall TFMain_11011981::AnalyzeProcInitial(DWORD fromAdr) {
-    BYTE op, b1, b2;
+DWord __fastcall TFMain_11011981::AnalyzeProcInitial(DWord fromAdr) {
+    Byte op, b1, b2;
     int num, instrLen, instrLen1, instrLen2, _procSize;
     int fromPos;
     int curPos;
-    DWORD curAdr;
-    DWORD lastAdr = 0;
-    DWORD Adr, Adr1, Pos, lastMovAdr = 0;
+    DWord curAdr;
+    DWord lastAdr = 0;
+    DWord Adr, Adr1, Pos, lastMovAdr = 0;
     PInfoRec recN;
     DISINFO DisInfo, DisInfo1;
 
@@ -5542,16 +5538,16 @@ DWORD __fastcall TFMain_11011981::AnalyzeProcInitial(DWORD fromAdr) {
             //First instruction
             if (curAdr == fromAdr) break;
             */
-            DWORD cTblAdr = 0, jTblAdr = 0;
+            DWord cTblAdr = 0, jTblAdr = 0;
 
             Pos = curPos + instrLen;
             Adr = curAdr + instrLen;
             //Table address - last 4 bytes of instruction
-            jTblAdr = *((DWORD *) (Code + Pos - 4));
+            jTblAdr = *(reinterpret_cast<DWord *>(Code + Pos - 4));
             //Scan gap to find table cTbl
             if (Adr <= lastMovAdr && lastMovAdr < jTblAdr) cTblAdr = lastMovAdr;
             //If exists cTblAdr skip it
-            BYTE CTab[256];
+            Byte CTab[256];
             if (cTblAdr) {
                 int CNum = jTblAdr - cTblAdr;
                 Pos += CNum;
@@ -5561,7 +5557,7 @@ DWORD __fastcall TFMain_11011981::AnalyzeProcInitial(DWORD fromAdr) {
                 //Loc - end of table
                 if (IsFlagSet(cfLoc, Pos)) break;
 
-                Adr1 = *((DWORD *) (Code + Pos));
+                Adr1 = *(reinterpret_cast<DWord *>(Code + Pos));
                 //Validate Adr1
                 if (!IsValidCodeAdr(Adr1) || Adr1 < fromAdr) break;
                 //Set cfLoc
@@ -5578,7 +5574,7 @@ DWORD __fastcall TFMain_11011981::AnalyzeProcInitial(DWORD fromAdr) {
         }
         if (b1 == 0x68) //try block	(push loc_TryBeg)
         {
-            DWORD NPos = curPos + instrLen;
+            DWord NPos = curPos + instrLen;
             //Check that next instruction is push fs:[reg] or retn
             if ((Code[NPos] == 0x64 &&
                  Code[NPos + 1] == 0xFF &&
@@ -5608,7 +5604,7 @@ DWORD __fastcall TFMain_11011981::AnalyzeProcInitial(DWORD fromAdr) {
                                     /*
                                     //@2
                                     Adr1 = DisInfo.Immediate - 4;
-                                    Adr = *((DWORD*)(Code + Adr2Pos(Adr1)));
+                                    Adr = *((DWord*)(Code + Adr2Pos(Adr1)));
                                     if (Adr > lastAdr) lastAdr = Adr;
                                     */
                                 } else if (recN->SameName("@HandleAnyException") || recN->SameName(
@@ -5696,16 +5692,16 @@ DWORD __fastcall TFMain_11011981::AnalyzeProcInitial(DWORD fromAdr) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TFMain_11011981::CodeGetTargetAdr(String Line, DWORD *trgAdr) {
-    char *s, *p, c;
-    int n, wid, instrlen;
-    DWORD adr, targetAdr = 0;
+int __fastcall TFMain_11011981::CodeGetTargetAdr(String line, DWord *trgAdr) {
+    char *p, c;
+    int n, wid;
+    DWord adr, targetAdr = 0;
     TPoint cursorPos;
     TCanvas *canvas = lbCode->Canvas;
     DISINFO DisInfo;
 
     *trgAdr = 0;
-    s = AnsiString(Line).c_str() + 1;
+    char *s = AnsiString(line).c_str() + 1;
 
     //If db - no address
     if (strstr(s, " db ")) return 0;
@@ -5715,7 +5711,7 @@ int __fastcall TFMain_11011981::CodeGetTargetAdr(String Line, DWORD *trgAdr) {
 
     if (!IsValidImageAdr(targetAdr)) {
         sscanf(s, "%lX", &adr);
-        instrlen = Disasm.Disassemble(Code + Adr2Pos(adr), (__int64) adr, &DisInfo, 0);
+        int instrlen = Disasm.Disassemble(Code + Adr2Pos(adr), (__int64) adr, &DisInfo, 0);
         if (!instrlen) return 0;
 
         if (IsValidImageAdr(DisInfo.Immediate)) {
@@ -5749,7 +5745,7 @@ int __fastcall TFMain_11011981::CodeGetTargetAdr(String Line, DWORD *trgAdr) {
 
 //---------------------------------------------------------------------------
 //May be Plugin!!!
-String __fastcall sub_004AFB28(BYTE *AStr) {
+String __fastcall sub_004AFB28(Byte *AStr) {
     Integer _n, _num;
     Byte _b, _b1, _b2, _m;
     String _result;
@@ -5788,9 +5784,9 @@ String __fastcall sub_004AFB28(BYTE *AStr) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall sub_004AF80C(BYTE *AStr1, BYTE *AStr2) {
-    BYTE *_p;
-    BYTE _b, _n;
+void __fastcall sub_004AF80C(Byte *AStr1, Byte *AStr2) {
+    Byte *_p;
+    Byte _b, _n;
     int _num;
 
     _n = *(AStr1 + 7);
@@ -5811,7 +5807,7 @@ void __fastcall sub_004AF80C(BYTE *AStr1, BYTE *AStr2) {
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::lbCodeDblClick(TObject *Sender) {
     int pos, bytes, size;
-    DWORD adr, adr1, targetAdr;
+    DWord adr, adr1, targetAdr;
     PInfoRec recN;
     PROCHISTORYREC rec;
     String text;
@@ -5862,7 +5858,7 @@ void __fastcall TFMain_11011981::lbCodeDblClick(TObject *Sender) {
                 return;
             }
             if (recN->HasName()) {
-                WORD *uses = KnowledgeBase.GetTypeUses(AnsiString(recN->GetName()).c_str());
+                Word *uses = KnowledgeBase.GetTypeUses(AnsiString(recN->GetName()).c_str());
                 int idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(recN->GetName()).c_str());
                 if (uses) delete[] uses;
 
@@ -5878,7 +5874,7 @@ void __fastcall TFMain_11011981::lbCodeDblClick(TObject *Sender) {
             }
         }
         //may be ->
-        adr = *((DWORD *) (Code + pos));
+        adr = *(reinterpret_cast<DWord *>(Code + pos));
         if (IsValidImageAdr(adr)) {
             recN = GetInfoRec(adr);
             if (recN) {
@@ -5978,7 +5974,7 @@ void __fastcall TFMain_11011981::bEPClick(TObject *Sender) {
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::GoToAddress() {
     int pos;
-    DWORD gotoAdr;
+    DWord gotoAdr;
     String sAdr;
     PROCHISTORYREC rec;
 
@@ -6022,7 +6018,7 @@ void __fastcall TFMain_11011981::miGoToClick(TObject *Sender) {
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::miExploreAdrClick(TObject *Sender) {
     int size;
-    DWORD viewAdr;
+    DWord viewAdr;
     String text = "", sAdr;
     PInfoRec recN;
 
@@ -6085,7 +6081,7 @@ void __fastcall TFMain_11011981::miExploreAdrClick(TObject *Sender) {
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::NamePosition() {
     int pos, _idx, size;
-    DWORD adr, nameAdr = 0;
+    DWord adr, nameAdr = 0;
     PInfoRec recN;
     String line, text = "", sNameType, newName, newType;
 
@@ -6102,7 +6098,7 @@ void __fastcall TFMain_11011981::NamePosition() {
 
         //if (size == 4)
         //{
-        adr = *((DWORD *) (Code + pos));
+        adr = *(reinterpret_cast<DWord *>(Code + pos));
         if (IsValidImageAdr(adr)) nameAdr = adr;
         //}
     } else {
@@ -6198,12 +6194,12 @@ void __fastcall TFMain_11011981::AddTreeNodeWithName(TTreeNode *node, const Stri
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::ShowClassViewer(DWORD VmtAdr) {
+void __fastcall TFMain_11011981::ShowClassViewer(DWord VmtAdr) {
     bool vmtProc;
-    WORD _dx, _bx, _si;
+    Word _dx, _bx, _si;
     int cnt, vmtOfs, _pos;
-    DWORD parentAdr, adr = VmtAdr, vAdr, iAdr;
-    DWORD vmtAdresses[1024];
+    DWord parentAdr, adr = VmtAdr, vAdr, iAdr;
+    DWord vmtAdresses[1024];
     String SelName = GetClsName(VmtAdr), line, name;
     TTreeNode *selNode = 0;
     TTreeNode *node = 0;
@@ -6266,8 +6262,8 @@ void __fastcall TFMain_11011981::ShowClassViewer(DWORD VmtAdr) {
                             for (int v = 0;; v += 4) {
                                 if (IsFlagSet(cfVTable, pos)) cnt++;
                                 if (cnt == 2) break;
-                                iAdr = *((DWORD *) (Code + pos));
-                                DWORD _adr = iAdr;
+                                iAdr = *(reinterpret_cast<DWord *>(Code + pos));
+                                DWord _adr = iAdr;
                                 _pos = Adr2Pos(_adr);
                                 vmtProc = false;
                                 vmtOfs = 0;
@@ -6311,14 +6307,14 @@ void __fastcall TFMain_11011981::ShowClassViewer(DWORD VmtAdr) {
                                             iAdr = disInfo.Immediate;
                                         } else {
                                             vmtProc = true;
-                                            iAdr = *((DWORD *) (Code + Adr2Pos(VmtAdr - cVmtSelfPtr + vmtOfs)));
+                                            iAdr = *(reinterpret_cast<DWord *>(Code + Adr2Pos(VmtAdr - cVmtSelfPtr + vmtOfs)));
                                             recM = GetMethodInfo(VmtAdr, 'V', vmtOfs);
                                             if (recM) name = recM->name;
                                         }
                                         break;
                                     } else if (disInfo.Ret) {
                                         vmtProc = true;
-                                        iAdr = *((DWORD *) (Code + Adr2Pos(VmtAdr - cVmtSelfPtr + vmtOfs)));
+                                        iAdr = *(reinterpret_cast<DWord *>(Code + Adr2Pos(VmtAdr - cVmtSelfPtr + vmtOfs)));
                                         recM = GetMethodInfo(VmtAdr, 'V', vmtOfs);
                                         if (recM) name = recM->name;
                                         break;
@@ -6421,7 +6417,7 @@ void __fastcall TFMain_11011981::ShowClassViewer(DWORD VmtAdr) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TFMain_11011981::LoadIntfTable(DWORD adr, TStringList *dstList) {
+int __fastcall TFMain_11011981::LoadIntfTable(DWord adr, TStringList *dstList) {
     dstList->Clear();
     PInfoRec recN = GetInfoRec(adr);
     if (recN && recN->vmtInfo && recN->vmtInfo->interfaces) {
@@ -6434,7 +6430,7 @@ int __fastcall TFMain_11011981::LoadIntfTable(DWORD adr, TStringList *dstList) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TFMain_11011981::LoadAutoTable(DWORD adr, TStringList *dstList) {
+int __fastcall TFMain_11011981::LoadAutoTable(DWord adr, TStringList *dstList) {
     dstList->Clear();
     PInfoRec recN = GetInfoRec(adr);
     if (recN && recN->vmtInfo && recN->vmtInfo->methods) {
@@ -6451,9 +6447,9 @@ int __fastcall TFMain_11011981::LoadAutoTable(DWORD adr, TStringList *dstList) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TFMain_11011981::LoadFieldTable(DWORD adr, TList *dstList) {
+int __fastcall TFMain_11011981::LoadFieldTable(DWord adr, TList *dstList) {
     dstList->Clear();
-    DWORD parentSize = GetParentSize(adr);
+    DWord parentSize = GetParentSize(adr);
     PInfoRec recN = GetInfoRec(adr);
     if (recN && recN->vmtInfo && recN->vmtInfo->fields) {
         for (int n = 0; n < recN->vmtInfo->fields->Count; n++) {
@@ -6475,8 +6471,8 @@ int __fastcall TFMain_11011981::LoadFieldTable(DWORD adr, TList *dstList) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TFMain_11011981::LoadAllFields(DWORD adr, TList *dstList) {
-    while (1) {
+int __fastcall TFMain_11011981::LoadAllFields(DWord adr, TList *dstList) {
+    while(true) {
         PInfoRec recN = GetInfoRec(adr);
         if (recN && recN->vmtInfo && recN->vmtInfo->fields) {
             for (int n = 0; n < recN->vmtInfo->fields->Count; n++) {
@@ -6499,7 +6495,7 @@ int __fastcall TFMain_11011981::LoadAllFields(DWORD adr, TList *dstList) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TFMain_11011981::LoadMethodTable(DWORD adr, TList *dstList) {
+int __fastcall TFMain_11011981::LoadMethodTable(DWord adr, TList *dstList) {
     dstList->Clear();
     PInfoRec recN = GetInfoRec(adr);
     if (recN && recN->vmtInfo && recN->vmtInfo->methods) {
@@ -6515,7 +6511,7 @@ int __fastcall TFMain_11011981::LoadMethodTable(DWORD adr, TList *dstList) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TFMain_11011981::LoadMethodTable(DWORD adr, TStringList *dstList) {
+int __fastcall TFMain_11011981::LoadMethodTable(DWord adr, TStringList *dstList) {
     dstList->Clear();
     PInfoRec recN = GetInfoRec(adr);
     if (recN && recN->vmtInfo && recN->vmtInfo->methods) {
@@ -6531,7 +6527,7 @@ int __fastcall TFMain_11011981::LoadMethodTable(DWORD adr, TStringList *dstList)
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TFMain_11011981::LoadDynamicTable(DWORD adr, TList *dstList) {
+int __fastcall TFMain_11011981::LoadDynamicTable(DWord adr, TList *dstList) {
     dstList->Clear();
     PInfoRec recN = GetInfoRec(adr);
     if (recN && recN->vmtInfo && recN->vmtInfo->methods) {
@@ -6547,7 +6543,7 @@ int __fastcall TFMain_11011981::LoadDynamicTable(DWORD adr, TList *dstList) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TFMain_11011981::LoadDynamicTable(DWORD adr, TStringList *dstList) {
+int __fastcall TFMain_11011981::LoadDynamicTable(DWord adr, TStringList *dstList) {
     dstList->Clear();
     PInfoRec recN = GetInfoRec(adr);
     if (recN && recN->vmtInfo && recN->vmtInfo->methods) {
@@ -6564,7 +6560,7 @@ int __fastcall TFMain_11011981::LoadDynamicTable(DWORD adr, TStringList *dstList
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TFMain_11011981::LoadVirtualTable(DWORD adr, TList *dstList) {
+int __fastcall TFMain_11011981::LoadVirtualTable(DWord adr, TList *dstList) {
     dstList->Clear();
     PInfoRec recN = GetInfoRec(adr);
     if (recN && recN->vmtInfo && recN->vmtInfo->methods) {
@@ -6582,7 +6578,7 @@ int __fastcall TFMain_11011981::LoadVirtualTable(DWORD adr, TList *dstList) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TFMain_11011981::LoadVirtualTable(DWORD adr, TStringList *dstList) {
+int __fastcall TFMain_11011981::LoadVirtualTable(DWord adr, TStringList *dstList) {
     dstList->Clear();
     PInfoRec recN = GetInfoRec(adr);
     if (recN && recN->vmtInfo && recN->vmtInfo->methods) {
@@ -6623,7 +6619,7 @@ int __fastcall TFMain_11011981::LoadVirtualTable(DWORD adr, TStringList *dstList
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::miViewProtoClick(TObject *Sender) {
     int Idx;
-    DWORD Adr;
+    DWord Adr;
     PInfoRec recN;
     MProcInfo pInfo;
     String item;
@@ -6746,7 +6742,7 @@ void __fastcall TFMain_11011981::tvClassesDblClick(TObject *Sender) {
 
     TTreeNode *node = tv->Selected;
     if (node) {
-        DWORD adr;
+        DWord adr;
         String line = node->Text;
         int pos = line.Pos("#");
         //Given address
@@ -6782,7 +6778,7 @@ void __fastcall TFMain_11011981::tvClassesDblClick(TObject *Sender) {
             if (IsValidImageAdr(adr)) {
                 ShowClassViewer(adr);
             } else {
-                WORD *uses = KnowledgeBase.GetTypeUses(AnsiString(typeName).c_str());
+                Word *uses = KnowledgeBase.GetTypeUses(AnsiString(typeName).c_str());
                 int Idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(typeName).c_str());
                 if (Idx != -1) {
                     Idx = KnowledgeBase.TypeOffsets[Idx].NamId;
@@ -6800,7 +6796,7 @@ void __fastcall TFMain_11011981::tvClassesDblClick(TObject *Sender) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::tvClassesShortKeyDown(TObject *Sender,
-                                                       WORD &Key, TShiftState Shift) {
+                                                       Word &Key, TShiftState Shift) {
     if (Key == VK_RETURN) tvClassesDblClick(Sender);
 }
 
@@ -6884,7 +6880,7 @@ void __fastcall TFMain_11011981::miEditClassClick(TObject *Sender) {
                 int pos = node->Text.Pos("#");
                 //Указан адрес
                 if (pos && node->Text.Pos("Sz=")) {
-                    DWORD vmtAdr;
+                    DWord vmtAdr;
                     sscanf(AnsiString(node->Text).c_str() + pos, "%lX", &vmtAdr);
                     if (IsValidImageAdr(vmtAdr)) {
                         FEditFieldsDlg_11011981->VmtAdr = vmtAdr;
@@ -6963,14 +6959,14 @@ void __fastcall TFMain_11011981::ShowDfm(TDfm *dfm) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::lbFormsKeyDown(TObject *Sender, WORD &Key,
+void __fastcall TFMain_11011981::lbFormsKeyDown(TObject *Sender, Word &Key,
                                                 TShiftState Shift) {
     if (lbForms->ItemIndex >= 0 && Key == VK_RETURN) lbFormsDblClick(Sender);
 }
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::lbCodeKeyDown(TObject *Sender,
-                                               WORD &Key, TShiftState Shift) {
+                                               Word &Key, TShiftState Shift) {
     switch (Key) {
         case VK_RETURN:
             lbCodeDblClick(Sender);
@@ -7696,7 +7692,6 @@ void __fastcall TFMain_11011981::DoOpenDelphiFile(int version, String FileName, 
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::LoadDelphiFile1(String FileName, int version, bool loadExp, bool loadImp) {
-    int pos, ver;
     String dprName, KBFileName, msg;
 
     SourceFile = FileName;
@@ -7778,7 +7773,7 @@ void __fastcall TFMain_11011981::LoadDelphiFile1(String FileName, int version, b
     InitSysProcs();
 
     dprName = ExtractFileName(FileName);
-    pos = dprName.Pos(".");
+    int pos = dprName.Pos(".");
     if (pos) dprName.SetLength(pos - 1);
 
     if (BCB) {
@@ -7872,10 +7867,10 @@ void __fastcall TFMain_11011981::AnalyzeThreadDone(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall TFMain_11011981::ImportsValid(DWORD ImpRVA, DWORD ImpSize) {
+bool __fastcall TFMain_11011981::ImportsValid(DWord ImpRVA, DWord ImpSize) {
     if (ImpRVA || ImpSize) {
-        DWORD EntryRVA = ImpRVA;
-        DWORD EndRVA = ImpRVA + ImpSize;
+        DWord EntryRVA = ImpRVA;
+        DWord EndRVA = ImpRVA + ImpSize;
         IMAGE_IMPORT_DESCRIPTOR ImportDescriptor;
 
         while (1) {
@@ -7902,8 +7897,8 @@ bool __fastcall TFMain_11011981::ImportsValid(DWORD ImpRVA, DWORD ImpSize) {
 
 //---------------------------------------------------------------------------
 int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp, bool loadImp) {
-    int i, n, m, bytes, pos, SectionsNum, ExpNum, NameLength;
-    DWORD DataEnd, Items;
+    int SectionsNum, ExpNum, NameLength;
+    // DWord DataEnd, Items;
     String moduleName, modName, sEP;
     String impFuncName;
     IMAGE_DOS_HEADER DosHeader;
@@ -7955,10 +7950,10 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
     EP = NTHeaders.OptionalHeader.AddressOfEntryPoint;
 
     TotalSize = 0;
-    DWORD rsrcVA = NTHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_RESOURCE].VirtualAddress;
-    DWORD relocVA = NTHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].VirtualAddress;
+    DWord rsrcVA = NTHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_RESOURCE].VirtualAddress;
+    DWord relocVA = NTHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].VirtualAddress;
     //Fill SegmentList
-    for (i = 0; i < SectionsNum; i++) {
+    for (int i = 0; i < SectionsNum; i++) {
         PSegmentInfo segInfo = new SegmentInfo;
         segInfo->Start = SectionHeaders[i].VirtualAddress + ImageBase;
         segInfo->Flags = SectionHeaders[i].Characteristics;
@@ -7984,20 +7979,20 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
         segInfo->Name = String(segname);
         SegmentList->Add(static_cast<void *>(segInfo));
     }
-    //DataEnd = TotalSize;
+    //DWord DataEnd = TotalSize;
 
     //Load Image into memory
-    Image = new BYTE[TotalSize];
+    Image = new Byte[TotalSize];
     memset(static_cast<void *>(Image), 0, TotalSize);
     int num;
-    BYTE *p = Image;
-    for (i = 0; i < SectionsNum; i++) {
+    Byte *p = Image;
+    for (int i = 0; i < SectionsNum; i++) {
         if (SectionHeaders[i].VirtualAddress == rsrcVA || SectionHeaders[i].VirtualAddress == relocVA) continue;
-        BYTE *sp = p;
+        Byte *sp = p;
         fseek(f, SectionHeaders[i].PointerToRawData, SEEK_SET);
-        DWORD Items = SectionHeaders[i].SizeOfRawData;
+        DWord Items = SectionHeaders[i].SizeOfRawData;
         if (Items) {
-            for (n = 0; Items >= MAX_ITEMS; n++) {
+            for (int n = 0; Items >= MAX_ITEMS; n++) {
                 fread(p, 1, MAX_ITEMS, f);
                 Items -= MAX_ITEMS;
                 p += MAX_ITEMS;
@@ -8020,7 +8015,7 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
     BCB = false;
 
     if (version != 2) {
-        DWORD evalInitTable = EvaluateInitTable(Image, TotalSize, CodeBase);
+        DWord evalInitTable = EvaluateInitTable(Image, TotalSize, CodeBase);
         if (!evalInitTable) {
             ShowMessage("Cannot find initialization table");
             delete[] SectionHeaders;
@@ -8029,10 +8024,10 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
             return 0;
         }
 
-        DWORD evalEP = 0;
+        DWord evalEP = 0;
         //Find instruction mov eax,offset InitTable
-        for (n = 0; n < TotalSize - 5; n++) {
-            if (Image[n] == 0xB8 && *reinterpret_cast<DWORD *>(Image + n + 1) == evalInitTable) {
+        for (int n = 0; n < TotalSize - 5; n++) {
+            if (Image[n] == 0xB8 && *reinterpret_cast<DWord *>(Image + n + 1) == evalInitTable) {
                 evalEP = n;
                 break;
             }
@@ -8077,9 +8072,9 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
         }
     }
     //Find DataStart
-    //DWORD _codeEnd = DataEnd;
+    //DWord _codeEnd = DataEnd;
     //DataStart = CodeStart;
-    //for (i = 0; i < SectionsNum; i++)
+    //for (int i = 0; i < SectionsNum; i++)
     //{
     //    if (SectionHeaders[i].VirtualAddress + ImageBase > EP)
     //    {
@@ -8094,8 +8089,8 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
     //DataSize = DataEnd - DataStart;
     //DataBase = ImageBase + DataStart;
 
-    Flags = new DWORD[TotalSize];
-    memset(Flags, cfUndef, sizeof(DWORD) * TotalSize);
+    Flags = new DWord[TotalSize];
+    memset(Flags, cfUndef, sizeof(DWord) * TotalSize);
     Infos = new PInfoRec[TotalSize];
     memset(Infos, 0, sizeof(PInfoRec) * TotalSize);
     BSSInfos = new TStringList;
@@ -8103,26 +8098,26 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
 
     if (loadExp) {
         //Load Exports
-        DWORD ExpRVA = NTHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
-        //DWORD ExpSize = NTHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].Size;
+        DWord ExpRVA = NTHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
+        //DWord ExpSize = NTHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].Size;
 
         if (ExpRVA) {
             IMAGE_EXPORT_DIRECTORY ExportDescriptor;
             memmove(&ExportDescriptor, (Image + Adr2Pos(ExpRVA + ImageBase)), sizeof(IMAGE_EXPORT_DIRECTORY));
             ExpNum = ExportDescriptor.NumberOfFunctions;
-            DWORD ExpFuncNamPos = ExportDescriptor.AddressOfNames;
-            DWORD ExpFuncAdrPos = ExportDescriptor.AddressOfFunctions;
-            DWORD ExpFuncOrdPos = ExportDescriptor.AddressOfNameOrdinals;
+            DWord ExpFuncNamPos = ExportDescriptor.AddressOfNames;
+            DWord ExpFuncAdrPos = ExportDescriptor.AddressOfFunctions;
+            DWord ExpFuncOrdPos = ExportDescriptor.AddressOfNameOrdinals;
 
-            for (i = 0; i < ExpNum; i++) {
+            for (int i = 0; i < ExpNum; i++) {
                 PExportNameRec recE = new ExportNameRec;
 
-                DWORD dp = *reinterpret_cast<DWORD *>(Image + Adr2Pos(ExpFuncNamPos + ImageBase));
+                DWord dp = *reinterpret_cast<DWord *>(Image + Adr2Pos(ExpFuncNamPos + ImageBase));
                 NameLength = strlen(reinterpret_cast<char *>(Image + Adr2Pos(dp + ImageBase)));
                 recE->name = String(reinterpret_cast<char *>(Image + Adr2Pos(dp + ImageBase)), NameLength);
 
-                WORD dw = *reinterpret_cast<WORD *>(Image + Adr2Pos(ExpFuncOrdPos + ImageBase));
-                recE->address = *reinterpret_cast<DWORD *>(Image + Adr2Pos(ExpFuncAdrPos + 4 * dw + ImageBase)) + ImageBase;
+                Word dw = *reinterpret_cast<Word *>(Image + Adr2Pos(ExpFuncOrdPos + ImageBase));
+                recE->address = *reinterpret_cast<DWord *>(Image + Adr2Pos(ExpFuncAdrPos + 4 * dw + ImageBase)) + ImageBase;
                 recE->ord = dw + ExportDescriptor.Base;
                 ExpFuncList->Add(static_cast<void *>(recE));
 
@@ -8133,24 +8128,24 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
         }
     }
 
-    DWORD ImpRVA = NTHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress;
-    DWORD ImpSize = NTHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size;
+    DWord ImpRVA = NTHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress;
+    DWord ImpSize = NTHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size;
 
     if (loadImp && (ImpRVA || ImpSize)) {
         if (!ImportsValid(ImpRVA, ImpSize)) {
             ShowMessage("Imports not valid, will skip!");
         } else {
             //Load Imports
-            DWORD EntryRVA;   //Next import decriptor RVA
-            DWORD EndRVA;     //End of imports
-            DWORD ThunkRVA;   //RVA of next thunk (from FirstThunk)
-            DWORD LookupRVA;  //RVA of next thunk (from OriginalFirstTunk or FirstThunk)
-            DWORD ThunkValue; //Value of next thunk (from OriginalFirstTunk or FirstThunk)
-            WORD Hint;        //Ordinal or hint of imported symbol
+            DWord EntryRVA;   //Next import decriptor RVA
+            DWord EndRVA;     //End of imports
+            DWord ThunkRVA;   //RVA of next thunk (from FirstThunk)
+            DWord LookupRVA;  //RVA of next thunk (from OriginalFirstTunk or FirstThunk)
+            DWord ThunkValue; //Value of next thunk (from OriginalFirstTunk or FirstThunk)
+            Word Hint;        //Ordinal or hint of imported symbol
 
             IMAGE_IMPORT_DESCRIPTOR ImportDescriptor;
 
-            //DWORD fnProc = 0;
+            //DWord fnProc = 0;
 
             //First import descriptor
             EntryRVA = ImpRVA;
@@ -8191,7 +8186,7 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
                 //Get Imported Functions
                 while (1) {
                     //Names or ordinals get from LookupTable (this table can be inside OriginalFirstThunk or FirstThunk)
-                    ThunkValue = *reinterpret_cast<DWORD *>(Image + Adr2Pos(LookupRVA + ImageBase));
+                    ThunkValue = *reinterpret_cast<DWord *>(Image + Adr2Pos(LookupRVA + ImageBase));
                     if (!ThunkValue) break;
 
                     //fnProc = 0;
@@ -8199,23 +8194,23 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
 
                     if (ThunkValue & 0x80000000) {
                         //By ordinal
-                        Hint = (WORD)(ThunkValue & 0xFFFF);
+                        Hint = (Word)(ThunkValue & 0xFFFF);
 
-                        //if (hLib) fnProc = (DWORD)GetProcAddress(hLib, (char*)Hint);
+                        //if (hLib) fnProc = (DWord)GetProcAddress(hLib, (char*)Hint);
 
                         //Addresse get from FirstThunk only
                         //recI->name = modName + "." + String(Hint);
                         recI->name = String(Hint);
                     } else {
                         // by name
-                        Hint = *reinterpret_cast<WORD *>(Image + Adr2Pos(ThunkValue + ImageBase));
+                        Hint = *reinterpret_cast<Word *>(Image + Adr2Pos(ThunkValue + ImageBase));
                         NameLength = lstrlen(reinterpret_cast<char *>(Image + Adr2Pos(ThunkValue + 2 + ImageBase)));
                         impFuncName = String(reinterpret_cast<char *>(Image + Adr2Pos(ThunkValue + 2 + ImageBase)), NameLength);
 
                         //if (hLib)
                         //{
-                        //    fnProc = (DWORD)GetProcAddress(hLib, impFuncName.c_str());
-                        //    memmove((void*)(Image + ThunkRVA), (void*)&fnProc, sizeof(DWORD));
+                        //    fnProc = (DWord)GetProcAddress(hLib, impFuncName.c_str());
+                        //    memmove((void*)(Image + ThunkRVA), (void*)&fnProc, sizeof(DWord));
                         //}
 
                         recI->name = impFuncName;
@@ -8253,13 +8248,6 @@ void __fastcall TFMain_11011981::miOpenProjectClick(TObject *Sender) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::DoOpenProjectFile(String FileName) {
-    char *buf;
-    int n, m, num, len, size, pos;
-    PInfoRec recN;
-    PUnitRec recU;
-    PTypeRec recT;
-    PFIELDINFO fInfo;
-
     if (ProjectModified) {
         int res = Application->MessageBox(L"Save active Project?", L"Confirmation", MB_YESNOCANCEL);
         if (res == IDCANCEL) return;
@@ -8374,7 +8362,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
 
     Update();
 
-    char *buf = reinterpret_cast<char *>(new BYTE[MaxBufLen]);
+    char *buf = reinterpret_cast<char *>(new Byte[MaxBufLen]);
     FILE *fIn = fopen(AnsiString(IDPFile).c_str(), "rb");
     if (fIn) {
         //TMemoryStream* inStream = new TMemoryStream();
@@ -8413,11 +8401,11 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
             SegmentList->Add(static_cast<void *>(segInfo));
         }
 
-        Image = new BYTE[TotalSize];
+        Image = new Byte[TotalSize];
         Code = Image + CodeStart;
         Data = Image + DataStart;
-        DWORD Items = TotalSize;
-        BYTE *pImage = Image;
+        DWord Items = TotalSize;
+        Byte *pImage = Image;
 
         while (Items >= MAX_ITEMS) {
             fread(pImage, MAX_ITEMS, 1, fIn); //inStream->Read(pImage, MAX_ITEMS);
@@ -8426,22 +8414,22 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
         }
         if (Items) fread(pImage, Items, 1, fIn); //inStream->Read(pImage, Items);
 
-        Flags = new DWORD[TotalSize];
+        Flags = new DWord[TotalSize];
         Items = TotalSize;
-        DWORD *pFlags = Flags;
+        DWord *pFlags = Flags;
 
         while (Items >= MAX_ITEMS) {
-            fread(pFlags, sizeof(DWORD) * MAX_ITEMS, 1, fIn); //inStream->Read(pFlags, sizeof(DWORD)*MAX_ITEMS);
+            fread(pFlags, sizeof(DWord) * MAX_ITEMS, 1, fIn); //inStream->Read(pFlags, sizeof(DWord)*MAX_ITEMS);
             pFlags += MAX_ITEMS;
             Items -= MAX_ITEMS;
         }
-        if (Items) fread(pFlags, sizeof(DWORD) * Items, 1, fIn); //inStream->Read(pFlags, sizeof(DWORD)*Items);
+        if (Items) fread(pFlags, sizeof(DWord) * Items, 1, fIn); //inStream->Read(pFlags, sizeof(DWord)*Items);
 
         Infos = new PInfoRec[TotalSize];
         memset(static_cast<void *>(Infos), 0, sizeof(PInfoRec) * TotalSize);
 
         fread(&infosCnt, sizeof(infosCnt), 1, fIn); //inStream->Read(&infosCnt, sizeof(infosCnt));
-        BYTE kind;
+        Byte kind;
         for (n = 0; n < TotalSize; n++) {
             fread(&pos, sizeof(pos), 1, fIn); //inStream->Read(&pos, sizeof(pos));
             if (pos == -1) break;
@@ -8725,7 +8713,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
         miExploreAdr->Enabled = true;
         miSwitchFlag->Enabled = cbMultipleSelection->Checked;
         bEP->Enabled = true;
-        DWORD adr = CurProcAdr;
+        DWord adr = CurProcAdr;
         CurProcAdr = 0;
         ShowCode(adr, 0, -1, topIdxC);
         // UpdateStrings
@@ -8936,7 +8924,7 @@ void __fastcall TFMain_11011981::WriteNode(FILE *f, TTreeNode *node) {
 void __fastcall TFMain_11011981::SaveProject(String FileName) {
     int n, m, k, len, num, cnum, evnum, size, pos, res, infosCnt, topIdx, itemIdx;
     FILE *outF; // TMemoryStream* outStream = 0;
-    BYTE buf[4096];
+    Byte buf[4096];
 
     if (FileExists(FileName)) {
         if (Application->MessageBox(L"File already exists. Overwrite?", L"Warning", MB_YESNO) == IDNO) return;
@@ -8984,8 +8972,8 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
                 fwrite(AnsiString(segInfo->Name).c_str(), len, 1, outF); //outStream->Write(segInfo->Name.c_str(), len);
             }
 
-            DWORD Items = TotalSize;
-            BYTE *pImage = Image;
+            DWord Items = TotalSize;
+            Byte *pImage = Image;
             FProgressBar->StartProgress("Writing Image...", "", (Items + MAX_ITEMS - 1) / MAX_ITEMS);
             while (Items >= MAX_ITEMS) {
                 FProgressBar->pb->StepIt();
@@ -8996,15 +8984,15 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
             if (Items) fwrite(pImage, Items, 1, outF); //outStream->Write(pImage, Items);
 
             Items = TotalSize;
-            DWORD *pFlags = Flags;
+            DWord *pFlags = Flags;
             FProgressBar->StartProgress("Writing Flags...", "", (Items + MAX_ITEMS - 1) / MAX_ITEMS);
             while (Items >= MAX_ITEMS) {
                 FProgressBar->pb->StepIt();
-                fwrite(pFlags, sizeof(DWORD), MAX_ITEMS, outF); //outStream->Write(pFlags, sizeof(DWORD)*MAX_ITEMS);
+                fwrite(pFlags, sizeof(DWord), MAX_ITEMS, outF); //outStream->Write(pFlags, sizeof(DWord)*MAX_ITEMS);
                 pFlags += MAX_ITEMS;
                 Items -= MAX_ITEMS;
             }
-            if (Items) fwrite(pFlags, sizeof(DWORD), Items, outF); //outStream->Write(pFlags, sizeof(DWORD)*Items);
+            if (Items) fwrite(pFlags, sizeof(DWord), Items, outF); //outStream->Write(pFlags, sizeof(DWord)*Items);
 
             infosCnt = 0;
             for (n = 0; n < TotalSize; n++) {
@@ -9015,7 +9003,7 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
 
             FProgressBar->StartProgress("Writing Infos Objects (number = " + String(infosCnt) + ")...", "", TotalSize / 4096);
             MaxBufLen = 0;
-            BYTE kind;
+            Byte kind;
             try {
                 for (n = 0; n < TotalSize; n++) {
                     if ((n & 4095) == 0) {
@@ -9314,14 +9302,14 @@ void __fastcall TFMain_11011981::SaveProject(String FileName) {
  * @param FileName Path to filename
  */
 void __fastcall TFMain_11011981::AddExe2MRF(String FileName) {
-    int n, m;
+    int n;
     for (n = 0; n < 8; n++) {
         TMenuItem *item = miMRF->Items[n];
         if (SameText(FileName, item->Caption)) break;
     }
     if (n == 8) n--;
 
-    for (m = n; m >= 1; m--) {
+    for (int m = n; m >= 1; m--) {
         miMRF->Items[m]->Caption = miMRF->Items[m - 1]->Caption;
         miMRF->Items[m]->Tag = miMRF->Items[m - 1]->Tag;
         miMRF->Items[m]->Visible = (miMRF->Items[m]->Caption != "");
@@ -9337,14 +9325,14 @@ void __fastcall TFMain_11011981::AddExe2MRF(String FileName) {
  * @param FileName Path to filename
  */
 void __fastcall TFMain_11011981::AddIdp2MRF(String FileName) {
-    int n, m;
+    int n;
     for (n = 9; n < 17; n++) {
         TMenuItem *item = miMRF->Items[n];
         if (SameText(FileName, item->Caption)) break;
     }
     if (n == 17) n--;
 
-    for (m = n; m >= 10; m--) {
+    for (int m = n; m >= 10; m--) {
         miMRF->Items[m]->Caption = miMRF->Items[m - 1]->Caption;
         miMRF->Items[m]->Visible = (miMRF->Items[m]->Caption != "");
     }
@@ -9393,13 +9381,12 @@ void __fastcall TFMain_11011981::FormResize(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::EditFunction(DWORD Adr) {
-    BYTE tag, callKind;
-    DWORD adr, rootAdr;
-    int n, m, a, cnt, size, ofs, offset, dotpos;
+void __fastcall TFMain_11011981::EditFunction(DWord Adr) {
+    Byte tag, callKind;
+    DWord adr, rootAdr;
+    int cnt, size, ofs, offset, dotpos;
     char *p;
-    PUnitRec recU;
-    PInfoRec recN, recN1;
+    PInfoRec recN1;
     PXrefRec recX;
     PVmtListRec recV;
     PMethodRec recM;
@@ -9409,11 +9396,11 @@ void __fastcall TFMain_11011981::EditFunction(DWORD Adr) {
 
     //if (Adr == EP) return;
 
-    recU = GetUnit(Adr);
+    PUnitRec recU = GetUnit(Adr);
     if (!recU) return;
     if (Adr == recU->iniadr || Adr == recU->finadr) return;
 
-    recN = GetInfoRec(Adr);
+    PInfoRec recN = GetInfoRec(Adr);
     if (recN) {
         FEditFunctionDlg_11011981->Adr = Adr;
 
@@ -9423,7 +9410,7 @@ void __fastcall TFMain_11011981::EditFunction(DWORD Adr) {
             {
                 cnt = FEditFunctionDlg_11011981->lbVars->Count;
                 recN->procInfo->DeleteLocals();
-                for (n = 0; n < cnt; n++) {
+                for (int n = 0; n < cnt; n++) {
                     line = FEditFunctionDlg_11011981->lbVars->Items->Strings[n];
                     //'-' - deleted line
                     strcpy(buf, AnsiString(line).c_str());
@@ -9458,7 +9445,7 @@ void __fastcall TFMain_11011981::EditFunction(DWORD Adr) {
             procName = ExtractProcName(recN->GetName());
             if (recN->procInfo->flags & PF_VIRTUAL) {
                 cnt = recN->xrefs->Count;
-                for (n = 0; n < cnt; n++) {
+                for (int n = 0; n < cnt; n++) {
                     recX = (PXrefRec) recN->xrefs->Items[n];
                     if (recX->type == 'D') {
                         recN1 = GetInfoRec(recX->adr);
@@ -9473,7 +9460,7 @@ void __fastcall TFMain_11011981::EditFunction(DWORD Adr) {
                                 adr = GetParentAdr(adr);
                             }
                             //Up (all classes that inherits rootAdr)
-                            for (m = 0; m < VmtList->Count; m++) {
+                            for (int m = 0; m < VmtList->Count; m++) {
                                 recV = (PVmtListRec) VmtList->Items[m];
                                 if (IsInheritsByAdr(recV->vmtAdr, rootAdr)) {
                                     recM = GetMethodInfo(recV->vmtAdr, 'V', ofs);
@@ -9494,7 +9481,7 @@ void __fastcall TFMain_11011981::EditFunction(DWORD Adr) {
                                             recN1->procInfo->flags |= PF_VIRTUAL;
                                             recN1->procInfo->DeleteArgs();
                                             recN1->procInfo->AddArg(0x21, 0, 4, "Self", className);
-                                            for (a = 1; a < recN->procInfo->args->Count; a++) {
+                                            for (int a = 1; a < recN->procInfo->args->Count; a++) {
                                                 argInfo = (PARGINFO) recN->procInfo->args->Items[a];
                                                 recN1->procInfo->AddArg(argInfo);
                                             }
@@ -9507,7 +9494,7 @@ void __fastcall TFMain_11011981::EditFunction(DWORD Adr) {
                 }
             }
 
-            //DWORD adr = CurProcAdr;
+            //DWord adr = CurProcAdr;
 
             //Edit current proc
             if (Adr == CurProcAdr) {
@@ -9633,7 +9620,7 @@ void __fastcall TFMain_11011981::miCommentsGeneratorClick(TObject *Sender) {
         PUnitRec recU = (PUnitRec) Units->Items[n];
         if (recU->kb || recU->trivial) continue;
 
-        for (DWORD adr = recU->fromAdr; adr < recU->toAdr; adr++) {
+        for (DWord adr = recU->fromAdr; adr < recU->toAdr; adr++) {
             if (adr == recU->finadr) {
                 if (!recU->trivialFin) OutputCode(lstF, adr, "", true);
                 continue;
@@ -9647,7 +9634,7 @@ void __fastcall TFMain_11011981::miCommentsGeneratorClick(TObject *Sender) {
             PInfoRec recN = GetInfoRec(adr);
             if (!recN) continue;
 
-            BYTE kind = recN->kind;
+            Byte kind = recN->kind;
 
             if (kind == ikProc ||
                 kind == ikFunc ||
@@ -9712,9 +9699,9 @@ void __fastcall TFMain_11011981::miIDCGeneratorClick(TObject *Sender) {
 
     idcGen->OutputHeaderFull();
 
-    int pos, curSize;
+    // int pos, curSize;
 
-    for (pos = 0, curSize = 0; pos < TotalSize; pos++) {
+    for (int pos = 0; pos < TotalSize; pos++) {
         PInfoRec recN = GetInfoRec(Pos2Adr(pos));
         if (!recN) continue;
 
@@ -9727,8 +9714,8 @@ void __fastcall TFMain_11011981::miIDCGeneratorClick(TObject *Sender) {
             idcGen->OutputHeaderShort();
         }
 
-        BYTE kind = recN->kind;
-        BYTE len;
+        Byte kind = recN->kind;
+        Byte len;
 
         if (IsFlagSet(cfRTTI, pos)) {
             PUnitRec recU = GetUnit(Pos2Adr(pos));
@@ -9857,7 +9844,7 @@ void __fastcall TFMain_11011981::pmUnitsPopup(TObject *Sender) {
     if (lbUnits->ItemIndex < 0) return;
 
     String item = lbUnits->Items->Strings[lbUnits->ItemIndex];
-    DWORD adr;
+    DWord adr;
     sscanf(AnsiString(item).c_str() + 1, "%lX", &adr);
     PUnitRec recU = GetUnit(adr);
     miRenameUnit->Enabled = (!recU->kb && recU->names->Count <= 1);
@@ -9870,10 +9857,10 @@ void __fastcall TFMain_11011981::pmUnitsPopup(TObject *Sender) {
 void __fastcall TFMain_11011981::lbCodeDrawItem(TWinControl *Control,
                                                 int Index, TRect &Rect, TOwnerDrawState State) {
     bool ib;
-    BYTE _f, _db;
-    int n, flags, _instrlen, _textLen, _len, _sWid, _cPos, _offset, _ap;
+    Byte _f, _db;
+    int flags, _textLen, _len, _sWid, _cPos, _offset, _ap;
     int _dbPos, _ddPos;
-    DWORD _adr, _val, _dd;
+    DWord _adr, _val, _dd;
     TColor _color;
     TListBox *lb;
     TCanvas *canvas;
@@ -9946,12 +9933,12 @@ void __fastcall TFMain_11011981::lbCodeDrawItem(TWinControl *Control,
                 //Spaces after db
                 Rect.Right += (ASMMAXCOPLEN - 2) * _sWid;
                 _db = *(Code + Adr2Pos(_adr));
-                DrawOneItem(Val2Str0((DWORD) _db), canvas, Rect, TColor(0xFF8080), flags);
+                DrawOneItem(Val2Str0((DWord) _db), canvas, Rect, TColor(0xFF8080), flags);
             } else if (_ddPos) {
                 DrawOneItem("dd", canvas, Rect, TColor(0), flags);
                 //Spaces after dd
                 Rect.Right += (ASMMAXCOPLEN - 2) * _sWid;
-                _dd = *((DWORD *) (Code + Adr2Pos(_adr)));
+                _dd = *(reinterpret_cast<DWord *>(Code + Adr2Pos(_adr)));
                 DrawOneItem(Val2Str8(_dd), canvas, Rect, TColor(0xFF8080), flags);
             }
             //Comment (light gray)
@@ -9988,7 +9975,7 @@ void __fastcall TFMain_11011981::lbCodeDrawItem(TWinControl *Control,
             //Operands
             if (_disInfo.OpNum) {
                 Rect.Right += (ASMMAXCOPLEN - _len) * _sWid;
-                for (n = 0; n < _disInfo.OpNum; n++) {
+                for (int n = 0; n < _disInfo.OpNum; n++) {
                     if (n) DrawOneItem(",", canvas, Rect, TColor(0), flags);
 
                     ib = (_disInfo.BaseReg != -1 || _disInfo.IndxReg != -1);
@@ -10126,7 +10113,7 @@ void __fastcall TFMain_11011981::miListerClick(TObject *Sender) {
         if (recU->names->Count) fprintf(lstF, " (%s)", AnsiString(recU->names->Strings[0]).c_str());
         fprintf(lstF, "\n");
 
-        for (DWORD adr = recU->fromAdr; adr < recU->toAdr; adr++) {
+        for (DWord adr = recU->fromAdr; adr < recU->toAdr; adr++) {
             if (adr == recU->finadr) {
                 if (!recU->trivialFin) {
                     OutputCode(lstF, adr, "procedure Finalization;", false);
@@ -10145,7 +10132,7 @@ void __fastcall TFMain_11011981::miListerClick(TObject *Sender) {
             if (!recN) continue;
 
             imp = emb = false;
-            BYTE kind = recN->kind;
+            Byte kind = recN->kind;
             if (IsFlagSet(cfProcStart, pos)) {
                 imp = IsFlagSet(cfImport, pos);
                 emb = (recN->procInfo->flags & PF_EMBED);
@@ -10235,7 +10222,7 @@ void __fastcall TFMain_11011981::miListerClick(TObject *Sender) {
  * @param Adr Address
  * @param Content String output content
  */
-void __fastcall TFMain_11011981::OutputLine(FILE *OutF, BYTE flags, DWORD Adr, String Content) {
+void __fastcall TFMain_11011981::OutputLine(FILE *OutF, Byte flags, DWord Adr, String Content) {
     // Output comments
     if (flags & 0x10) {
         char *p = strchr(AnsiString(Content).c_str(), ';');
@@ -10267,14 +10254,14 @@ void __fastcall TFMain_11011981::OutputLine(FILE *OutF, BYTE flags, DWORD Adr, S
  * @param prototype Prototype name
  * @param onlyComments Only include comments
  */
-void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWORD fromAdr, String prototype, bool onlyComments) {
-    BYTE op, flags;
+void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWord fromAdr, String prototype, bool onlyComments) {
+    Byte op, flags;
     int row = 0, num, instrLen, instrLen1, instrLen2;
-    DWORD Adr, Adr1, Pos, lastMovAdr = 0;
+    DWord Adr, Adr1, Pos, lastMovAdr = 0;
     int fromPos, curPos, _procSize, _ap, _pos, _idx;
-    DWORD curAdr;
-    DWORD lastAdr = 0;
-    PInfoRec recN, recN1;
+    DWord curAdr;
+    DWord lastAdr = 0;
+    PInfoRec recN;
     String line;
     DISINFO DisInfo, DisInfo1;
     char disLine[100];
@@ -10315,8 +10302,8 @@ void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWORD fromAdr, String pr
             curAdr += 4;
 
             for (int k = 0; k < num; k++) {
-                //dd offset ExceptionInfo
-                Adr = *((DWORD *) (Code + curPos));
+                // dd offset ExceptionInfo
+                Adr = *(reinterpret_cast<DWord *>(Code + curPos));
                 line = "dd          " + Val2Str8(Adr);
                 //Name of Exception
                 if (IsValidCodeAdr(Adr)) {
@@ -10329,7 +10316,7 @@ void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWORD fromAdr, String pr
                 //dd offset ExceptionProc
                 curPos += 4;
                 curAdr += 4;
-                Adr = *((DWORD *) (Code + curPos));
+                Adr = *(reinterpret_cast<DWord *>(Code + curPos));
                 OutputLine(outF, flags, curAdr, "dd          " + Val2Str8(Adr));
                 row++;
 
@@ -10339,8 +10326,8 @@ void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWORD fromAdr, String pr
             continue;
         }
 
-        BYTE b1 = Code[curPos];
-        BYTE b2 = Code[curPos + 1];
+        Byte b1 = Code[curPos];
+        Byte b2 = Code[curPos + 1];
 
         instrLen = Disasm.Disassemble(Code + curPos, (__int64) curAdr, &DisInfo, disLine);
         if (!instrLen) {
@@ -10354,7 +10341,7 @@ void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWORD fromAdr, String pr
 
         //Check inside instruction Fixup or ThreadVar
         bool NameInside = false;
-        DWORD NameInsideAdr = 0;
+        DWord NameInsideAdr = 0;
         for (int k = 1; k < instrLen; k++) {
             if (Infos[curPos + k]) {
                 NameInside = true;
@@ -10451,20 +10438,20 @@ void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWORD fromAdr, String pr
             //First instruction
             if (curAdr == fromAdr) break;
             */
-            DWORD cTblAdr = 0, jTblAdr = 0;
+            DWord cTblAdr = 0, jTblAdr = 0;
 
             Pos = curPos + instrLen;
             Adr = curAdr + instrLen;
             //Table address - last 4 bytes of instruction
-            jTblAdr = *((DWORD *) (Code + Pos - 4));
+            jTblAdr = *(reinterpret_cast<DWord *>(Code + Pos - 4));
             //Analyze address range to find table cTbl
             if (Adr <= lastMovAdr && lastMovAdr < jTblAdr) cTblAdr = lastMovAdr;
             //If exist cTblAdr, skip this table
-            BYTE CTab[256];
+            Byte CTab[256];
             if (cTblAdr) {
                 int CNum = jTblAdr - cTblAdr;
                 for (int k = 0; k < CNum; k++) {
-                    BYTE db = Code[Pos];
+                    Byte db = Code[Pos];
                     CTab[k] = db;
                     OutputLine(outF, flags, curAdr, "db          " + String(db));
                     row++;
@@ -10474,14 +10461,14 @@ void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWORD fromAdr, String pr
             }
             //Check transitions by negative register values (in Delphi 2009)
             //bool neg = false;
-            //Adr1 = *((DWORD*)(Code + Pos - 4));
+            //Adr1 = *((DWord*)(Code + Pos - 4));
             //if (IsValidCodeAdr(Adr1) && IsFlagSet(cfLoc, Adr2Pos(Adr1))) neg = true;
 
             for (int k = 0; k < 4096; k++) {
                 //Loc - end of table
                 if (IsFlagSet(cfLoc, Pos)) break;
 
-                Adr1 = *((DWORD *) (Code + Pos));
+                Adr1 = *(reinterpret_cast<DWord *>(Code + Pos));
                 //Validate Adr1
                 if (!IsValidCodeAdr(Adr1) || Adr1 < fromAdr) break;
 
@@ -10524,7 +10511,7 @@ void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWORD fromAdr, String pr
         //----------------------------------
         if (b1 == 0x68) //try block	(push loc_TryBeg)
         {
-            DWORD NPos = curPos + instrLen;
+            DWord NPos = curPos + instrLen;
             //check that next instruction is push fs:[reg] or retn
             if ((Code[NPos] == 0x64 &&
                  Code[NPos + 1] == 0xFF &&
@@ -10553,7 +10540,7 @@ void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWORD fromAdr, String pr
                                     /*
                                     //@2
                                     Adr1 = DisInfo.Immediate - 4;
-                                    Adr = *((DWORD*)(Code + Adr2Pos(Adr1)));
+                                    Adr = *((DWord*)(Code + Adr2Pos(Adr1)));
                                     if (IsValidCodeAdr(Adr) && Adr > lastAdr) lastAdr = Adr;
                                     */
                                 } else if (recN->SameName("@HandleAnyException") || recN->SameName(
@@ -10608,7 +10595,7 @@ void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWORD fromAdr, String pr
         recN = GetInfoRec(curAdr);
         if (recN && recN->picode) comment = MakeComment(recN->picode);
 
-        DWORD targetAdr = 0;
+        DWord targetAdr = 0;
         if (IsValidImageAdr(DisInfo.Immediate)) {
             if (!IsValidImageAdr(DisInfo.Offset)) targetAdr = DisInfo.Immediate;
         } else if (IsValidImageAdr(DisInfo.Offset))
@@ -10637,7 +10624,7 @@ void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWORD fromAdr, String pr
                         name = recN->GetName();
                     }
                 }
-                Adr = *((DWORD *) (Code + _pos));
+                Adr = *(reinterpret_cast<DWord *>(Code + _pos));
                 if (IsValidImageAdr(Adr)) {
                     recN = GetInfoRec(Adr);
                     if (recN) {
@@ -10779,11 +10766,9 @@ void __fastcall TFMain_11011981::FormCloseQuery(TObject *Sender, bool &CanClose)
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::miCtdPasswordClick(TObject *Sender) {
-    BYTE op;
-    DWORD curPos, curAdr;
-    int instrLen, pwdlen = 0, beg;
+    Byte op;
     String pwds = "";
-    BYTE pwd[256];
+    Byte pwd[256];
     DISINFO DisInfo;
 
     PInfoRec recN = GetInfoRec(CtdRegAdr);
@@ -10795,14 +10780,14 @@ void __fastcall TFMain_11011981::miCtdPasswordClick(TObject *Sender) {
         if (IsFlagSet(cfPush, Adr2Pos(recX->adr) + ofs)) break;
     }
     /*
-    curPos = Adr2Pos(recX->adr) + ofs;
-    curAdr = Pos2Adr(curPos);
+    DWord curPos = Adr2Pos(recX->adr) + ofs;
+    DWord curAdr = Pos2Adr(curPos);
     //pwdlen
-    instrLen = Disasm.Disassemble(Code + curPos, (__int64)curAdr, &DisInfo);
-    pwdlen = DisInfo.Immediate + 1;
+    int instrLen = Disasm.Disassemble(Code + curPos, (__int64)curAdr, &DisInfo);
+    int pwdlen = DisInfo.Immediate + 1;
     curPos += instrLen; curAdr += instrLen;
     //pwd
-    beg = 128;
+    int beg = 128;
     for (int n = 0; n < pwdlen;)
     {
         instrLen = Disasm.Disassemble(Code + curPos, (__int64)curAdr, &DisInfo);
@@ -10844,11 +10829,11 @@ void __fastcall TFMain_11011981::miEmptyHistoryClick(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-PFIELDINFO __fastcall TFMain_11011981::GetField(String TypeName, int Offset, bool *vmt, DWORD *vmtAdr, String prefix) {
-    int n, idx, kind, size, Ofs, Ofs1, Ofs2, pos1, pos2;
-    DWORD classAdr;
-    BYTE *p, *ps;
-    WORD *uses, Len;
+PFIELDINFO __fastcall TFMain_11011981::GetField(String TypeName, int Offset, bool *vmt, DWord *vmtAdr, String prefix) {
+    int idx, kind, size, Ofs, Ofs1, Ofs2, pos1, pos2;
+    DWord classAdr;
+    Byte *p, *ps;
+    Word *uses, Len;
     MTypeInfo atInfo;
     MTypeInfo *tInfo = &atInfo;
     PFIELDINFO fInfo, fInfo1, fInfo2;
@@ -10859,7 +10844,7 @@ PFIELDINFO __fastcall TFMain_11011981::GetField(String TypeName, int Offset, boo
     if (IsValidImageAdr(classAdr)) {
         *vmt = true;
         *vmtAdr = classAdr;
-        DWORD prevClassAdr = 0;
+        DWord prevClassAdr = 0;
         while (classAdr && Offset < GetClassSize(classAdr)) {
             prevClassAdr = classAdr;
             classAdr = GetParentAdr(classAdr);
@@ -10922,15 +10907,15 @@ PFIELDINFO __fastcall TFMain_11011981::GetField(String TypeName, int Offset, boo
         if (KnowledgeBase.GetTypeInfo(idx, INFO_FIELDS, tInfo))
             if (tInfo->Fields) {
                 p = tInfo->Fields;
-                for (n = 0; n < tInfo->FieldsNum; n++) {
+                for (int n = 0; n < tInfo->FieldsNum; n++) {
                     ps = p;
                     p++; //scope
                     Ofs1 = *((int *) p);
                     p += 4; //offset
                     p += 4; //case
-                    Len = *((WORD *) p);
+                    Len = *((Word *) p);
                     p += Len + 3; //name
-                    Len = *((WORD *) p);
+                    Len = *((Word *) p);
                     p += Len + 3; //type
                     if (n == tInfo->FieldsNum - 1) {
                         Ofs2 = 0;
@@ -10948,11 +10933,11 @@ PFIELDINFO __fastcall TFMain_11011981::GetField(String TypeName, int Offset, boo
                         fInfo->Case = *((int *) p);
                         p += 4;
                         fInfo->xrefs = 0;
-                        Len = *((WORD *) p);
+                        Len = *((Word *) p);
                         p += 2;
                         fInfo->Name = String((char *) p, Len);
                         p += Len + 1;
-                        Len = *((WORD *) p);
+                        Len = *((Word *) p);
                         p += 2;
                         fInfo->Type = TrimTypeName(String((char *) p, Len));
                         return fInfo;
@@ -10965,13 +10950,13 @@ PFIELDINFO __fastcall TFMain_11011981::GetField(String TypeName, int Offset, boo
 }
 
 //---------------------------------------------------------------------------
-PFIELDINFO __fastcall TFMain_11011981::AddField(DWORD ProcAdr, int ProcOfs, String TypeName, BYTE Scope, int Offset,
+PFIELDINFO __fastcall TFMain_11011981::AddField(DWord ProcAdr, int ProcOfs, String TypeName, Byte Scope, int Offset,
                                                 int Case, String Name, String Type) {
-    DWORD classAdr = GetClassAdr(TypeName);
+    DWord classAdr = GetClassAdr(TypeName);
     if (IsValidImageAdr(classAdr)) {
         if (Offset < 4) return 0;
 
-        DWORD prevClassAdr = 0;
+        DWord prevClassAdr = 0;
         while (classAdr && Offset < GetClassSize(classAdr)) {
             prevClassAdr = classAdr;
             classAdr = GetParentAdr(classAdr);
@@ -11155,7 +11140,7 @@ void __fastcall TFMain_11011981::miCopyListClick(TObject *Sender) {
     FILE *outFile;
     TStringList *tmpList;
     String moduleName, importName;
-    WORD uses[128];
+    Word uses[128];
 
     SaveDlg->InitialDir = WrkDir;
     SaveDlg->FileName = "units.lst";
@@ -11232,7 +11217,7 @@ void __fastcall TFMain_11011981::wm_updAnalysisStatus(TMessage &msg) {
     } else if (taUpdateCode == msg.WParam) {
         tsCodeView->Enabled = true;
         bEP->Enabled = true;
-        DWORD adr = CurProcAdr;
+        DWord adr = CurProcAdr;
         CurProcAdr = 0;
         ShowCode(adr, lbCode->ItemIndex, -1, lbCode->TopIndex);
     } else if (taUpdateXrefs == msg.WParam) {
@@ -11288,9 +11273,9 @@ void __fastcall TFMain_11011981::wm_dfmClosed(TMessage &msg) {}
 //Fill ClassViewerTree for 1 class
 void __fastcall TFMain_11011981::FillClassViewerOne(int n, TStringList *tmpList, const volatile bool *Terminated) {
     bool vmtProc = false;
-    WORD _dx, _bx, _si;
+    Word _dx, _bx, _si;
     int m, size, sizeParent, pos, cnt, vmtOfs, _pos;
-    DWORD vmtAdr, vmtAdrParent, vAdr, iAdr;
+    DWord vmtAdr, vmtAdrParent, vAdr, iAdr;
     TTreeNode *rootNode, *node;
     String className, nodeTextParent, nodeText, line, name;
     PInfoRec recN;
@@ -11332,8 +11317,8 @@ void __fastcall TFMain_11011981::FillClassViewerOne(int n, TStringList *tmpList,
                     for (int v = 0;; v += 4) {
                         if (IsFlagSet(cfVTable, pos)) cnt++;
                         if (cnt == 2) break;
-                        iAdr = *((DWORD *) (Code + pos));
-                        DWORD _adr = iAdr;
+                        iAdr = *(reinterpret_cast<DWord *>(Code + pos));
+                        DWord _adr = iAdr;
                         _pos = Adr2Pos(_adr);
                         vmtProc = false;
                         vmtOfs = 0;
@@ -11377,14 +11362,14 @@ void __fastcall TFMain_11011981::FillClassViewerOne(int n, TStringList *tmpList,
                                     iAdr = disInfo.Immediate;
                                 } else {
                                     vmtProc = true;
-                                    iAdr = *((DWORD *) (Code + Adr2Pos(vmtAdr - cVmtSelfPtr + vmtOfs)));
+                                    iAdr = *(reinterpret_cast<DWord *>(Code + Adr2Pos(vmtAdr - cVmtSelfPtr + vmtOfs)));
                                     recM = GetMethodInfo(vmtAdr, 'V', vmtOfs);
                                     if (recM) name = recM->name;
                                 }
                                 break;
                             } else if (disInfo.Ret) {
                                 vmtProc = true;
-                                iAdr = *((DWORD *) (Code + Adr2Pos(vmtAdr - cVmtSelfPtr + vmtOfs)));
+                                iAdr = *(reinterpret_cast<DWord *>(Code + Adr2Pos(vmtAdr - cVmtSelfPtr + vmtOfs)));
                                 recM = GetMethodInfo(vmtAdr, 'V', vmtOfs);
                                 if (recM) name = recM->name;
                                 break;
@@ -11502,9 +11487,9 @@ TTreeNode * __fastcall TFMain_11011981::AddClassTreeNode(TTreeNode *node, String
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::miSaveDelphiProjectClick(TObject *Sender) {
     bool typePresent, _isForm, comment;
-    BYTE kind;
+    Byte kind;
     int n, m, k, num, dotpos, len, minValue, maxValue;
-    DWORD adr, adr1, parentAdr;
+    DWord adr, adr1, parentAdr;
     FILE *f;
     TList *tmpList;
     TStringList *intBodyLines;
@@ -12008,7 +11993,7 @@ void __fastcall TFMain_11011981::miCopySource2ClipboardClick(TObject *Sender) {
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::pmCodePopup(TObject *Sender) {
     int _ap;
-    DWORD _adr;
+    DWord _adr;
     DISINFO _disInfo;
 
     miXRefs->Enabled = false;
@@ -12016,7 +12001,7 @@ void __fastcall TFMain_11011981::pmCodePopup(TObject *Sender) {
 
     if (ActiveControl == lbCode) {
         if (lbCode->ItemIndex <= 0) return;
-        DWORD adr;
+        DWord adr;
         sscanf(AnsiString(lbCode->Items->Strings[lbCode->ItemIndex]).c_str() + 2, "%lX", &adr);
         if (adr != CurProcAdr && IsFlagSet(cfLoc, Adr2Pos(adr))) {
             PInfoRec recN = GetInfoRec(adr);
@@ -12042,7 +12027,7 @@ void __fastcall TFMain_11011981::pmCodePopup(TObject *Sender) {
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::GoToXRef(TObject *Sender) {
     TMenuItem *mi = (TMenuItem *) Sender;
-    DWORD Adr = mi->Tag;
+    DWord Adr = mi->Tag;
     if (Adr && IsValidCodeAdr(Adr)) {
         PROCHISTORYREC rec;
 
@@ -12231,7 +12216,7 @@ void __fastcall TFMain_11011981::lbSourceCodeDrawItem(TWinControl *Control,
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::miSwitchSkipFlagClick(TObject *Sender) {
-    DWORD _adr;
+    DWord _adr;
 
     if (lbCode->SelCount > 0) {
         for (int n = 0; n < lbCode->Count; n++) {
@@ -12247,7 +12232,7 @@ void __fastcall TFMain_11011981::miSwitchSkipFlagClick(TObject *Sender) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::miSwitchFrameFlagClick(TObject *Sender) {
-    DWORD _adr;
+    DWord _adr;
 
     if (lbCode->SelCount > 0) {
         for (int n = 0; n < lbCode->Count; n++) {
@@ -12263,7 +12248,7 @@ void __fastcall TFMain_11011981::miSwitchFrameFlagClick(TObject *Sender) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::cfTry1Click(TObject *Sender) {
-    DWORD _adr;
+    DWord _adr;
 
     if (lbCode->SelCount > 0) {
         for (int n = 0; n < lbCode->Count; n++) {
@@ -12509,8 +12494,8 @@ CPPvsDELPHIdecl ForwardDeclarations[] = {
     {"int", "NativeInt"},
     {"int", "LongInt"},
     {"int", "FixedInt"},
-    {"unsigned", "Dword"},
-    {"unsigned", "dword"},
+    {"unsigned", "DWord"},
+    {"unsigned", "DWord"},
     {"unsigned", "LongBool"},
     {"unsigned", "Cardinal"},
     {"unsigned int", "NativeUInt"},
@@ -12574,11 +12559,11 @@ void __fastcall TFMain_11011981::OutputForwardDeclarationsHeader(FILE *hF) {
     // Variant
     fprintf(hF, "struct TVarData\n");
     fprintf(hF, "{\n");
-    fprintf(hF, "WORD VType;\n");
-    fprintf(hF, "WORD Reserved1;\n");
-    fprintf(hF, "WORD Reserved2;\n");
-    fprintf(hF, "WORD Reserved3;\n");
-    fprintf(hF, "BYTE Data[8];\n");
+    fprintf(hF, "Word VType;\n");
+    fprintf(hF, "Word Reserved1;\n");
+    fprintf(hF, "Word Reserved2;\n");
+    fprintf(hF, "Word Reserved3;\n");
+    fprintf(hF, "Byte Data[8];\n");
     fprintf(hF, "};\n");
     fprintf(hF, "typedef TVarData Variant;\n\n");
     fprintf(hF, "struct TVarRec\n");
@@ -12589,9 +12574,9 @@ void __fastcall TFMain_11011981::OutputForwardDeclarationsHeader(FILE *hF) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::OutputForwardDeclarationsOfKind(FILE *hF, BYTE kind) {
+void __fastcall TFMain_11011981::OutputForwardDeclarationsOfKind(FILE *hF, Byte kind) {
     int n, size, typeKind;
-    DWORD adr;
+    DWord adr;
     PTypeRec recT;
     String str, RTTIName;
 
@@ -12618,9 +12603,9 @@ void __fastcall TFMain_11011981::OutputForwardDeclarationsOfKind(FILE *hF, BYTE 
                     str = FTypeInfo_11011981->GetCppTypeInfo(adr, &size, 0);
                     fprintf(hF, "enum %s : ", AnsiString(RTTIName).c_str());
                     if (size <= 255)
-                        fprintf(hF, "BYTE");
+                        fprintf(hF, "Byte");
                     else
-                        fprintf(hF, "WORD");
+                        fprintf(hF, "Word");
                     fprintf(hF, "\n{\n%s\n};\n\n", AnsiString(str).c_str());
                     break;
                 case ikString:
@@ -12644,11 +12629,11 @@ void __fastcall TFMain_11011981::OutputForwardDeclarationsOfKind(FILE *hF, BYTE 
                     if (str != "") {
                         fprintf(hF, "enum %s : ", AnsiString(RTTIName).c_str());
                         if (size <= 8)
-                            fprintf(hF, "BYTE");
+                            fprintf(hF, "Byte");
                         else if (size <= 16)
-                            fprintf(hF, "WORD");
+                            fprintf(hF, "Word");
                         else if (size <= 32)
-                            fprintf(hF, "DWORD");
+                            fprintf(hF, "DWord");
                         else if (size <= 64)
                             fprintf(hF, "QWORD");
                         else if (size <= 128)
@@ -12666,7 +12651,7 @@ void __fastcall TFMain_11011981::OutputForwardDeclarationsOfKind(FILE *hF, BYTE 
                     fprintf(hF, "struct %s\n", AnsiString(RTTIName).c_str());
                     fprintf(hF, "{\n");
                     fprintf(hF, "void* p;\n");
-                    fprintf(hF, "DWORD m;\n");
+                    fprintf(hF, "DWord m;\n");
                     fprintf(hF, "};\n\n");
                     break;
                 case ikPointer:
@@ -12696,13 +12681,13 @@ void __fastcall TFMain_11011981::OutputForwardDeclarationsOfKind(FILE *hF, BYTE 
 
 //---------------------------------------------------------------------------
 typedef struct _VMT_PROC {
-    DWORD Adr;
+    DWord Adr;
     int CurIdx;
-    BYTE Multiple;
+    Byte Multiple;
 } VMT_PROC, *PVMT_PROC;
 
 //---------------------------------------------------------------------------
-PVMT_PROC __fastcall GetProcFromVmtList(TList *list, DWORD procAdr) {
+PVMT_PROC __fastcall GetProcFromVmtList(TList *list, DWord procAdr) {
     PVMT_PROC Result = 0;
 
     for (int n = 0; n < list->Count; n++) {
@@ -12721,9 +12706,9 @@ PVMT_PROC __fastcall GetProcFromVmtList(TList *list, DWORD procAdr) {
  * @param hF Output file
  */
 void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
-    BYTE len, RTTIKind;
+    Byte len, RTTIKind;
     int n, m, k, id, adr, kind, pos, size, sort, virtNum, idx, intfNum, curOfs, nxtOfs, iAdr;
-    DWORD *intfOfsets;
+    DWord *intfOfsets;
     PUnitRec recU;
     PInfoRec recN;
     String unitName, RTTIName, str, name, item;
@@ -12827,7 +12812,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                     fprintf(hF, "struct %s\n", AnsiString(RTTIName).c_str());
                     fprintf(hF, "{\n");
                     fprintf(hF, "P%s p;\n", AnsiString(RTTIName).c_str());
-                    fprintf(hF, "DWORD m;\n");
+                    fprintf(hF, "DWord m;\n");
                     fprintf(hF, "};\n\n");
                     break;
                 case ikArray:
@@ -12912,7 +12897,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                                 str = recN->MakeCppPrototype(recM->address, RTTIName + "_m" + Val2Str0(id));
                                 fprintf(hF, "%s", AnsiString(str).c_str());
                             } else {
-                                fprintf(hF, "DWORD (__usercall *P%s_m%d)@<eax>", AnsiString(RTTIName).c_str(), id);
+                                fprintf(hF, "DWord (__usercall *P%s_m%d)@<eax>", AnsiString(RTTIName).c_str(), id);
                             }
                             fprintf(hF, ";\n");
                             id += 4;
@@ -12970,7 +12955,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                     intfList = new TStringList;
                     intfNum = FMain_11011981->LoadIntfTable(adr, intfList);
                     if (intfNum > 0) {
-                        intfOfsets = new DWORD[intfNum];
+                        intfOfsets = new DWord[intfNum];
                         for (m = 0; m < intfNum; m++) {
                             item = intfList->Strings[m];
                             item = item.SubString(1, item.Pos(' ') - 1);
@@ -12993,7 +12978,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                                 fprintf(hF, "{\n");
 
                                 for (k = curOfs; k < nxtOfs; k += 4) {
-                                    iAdr = *reinterpret_cast<DWORD *>(Code + Adr2Pos(k));
+                                    iAdr = *reinterpret_cast<DWord *>(Code + Adr2Pos(k));
                                     fprintf(hF, "void* sub_%08lX;\n", iAdr);
                                 }
 
@@ -13010,7 +12995,7 @@ void __fastcall TFMain_11011981::CreateCppHeaderFile(FILE *hF) {
                         fprintf(hF, "{\n");
 
                         for (k = curOfs;; k += 4) {
-                            iAdr = *reinterpret_cast<DWORD *>(Code + Adr2Pos(k));
+                            iAdr = *reinterpret_cast<DWord *>(Code + Adr2Pos(k));
                             if (!IsValidCodeAdr(iAdr))
                                 break;
 

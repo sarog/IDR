@@ -27,8 +27,7 @@ class TIdrDfmFormTree_11011981 : public TForm {
     void __fastcall Collapse1Click(TObject *Sender);
     void __fastcall Find1Click(TObject *Sender);
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
-    void __fastcall FormKeyDown(TObject *Sender, WORD &Key,
-                                TShiftState Shift);
+    void __fastcall FormKeyDown(TObject *Sender, Word &Key, TShiftState Shift);
     void __fastcall FormCreate(TObject *Sender);
 
 private: // User declarations

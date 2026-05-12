@@ -26,13 +26,12 @@ void __fastcall TFHex2DoubleDlg_11011981::edtValueEnter(TObject *Sender) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFHex2DoubleDlg_11011981::Str2Binary(String AStr) {
-    BYTE c;
-    int val, pos, n;
-    char *src;
+    Byte c;
+    int val, pos;
 
-    src = AnsiString(AStr).c_str();
+    char *src = AnsiString(AStr).c_str();
     memset(BinData, 0, 16);
-    n = 0;
+    int n = 0;
 
     while (1) {
         c = *src;

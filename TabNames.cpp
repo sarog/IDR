@@ -1,14 +1,14 @@
 ﻿#include "Main.h"
 #include "Misc.h"
 
-extern BYTE *Code;
-extern DWORD CodeBase;
-extern DWORD CodeSize;
+extern Byte *Code;
+extern DWord CodeBase;
+extern DWord CodeSize;
 extern MDisasm Disasm;
-extern DWORD TotalSize;
-extern DWORD *Flags;
+extern DWord TotalSize;
+extern DWord *Flags;
 extern PInfoRec *Infos;
-extern DWORD CurUnitAdr;
+extern DWord CurUnitAdr;
 extern TStringList *BSSInfos;
 extern int cVmtSelfPtr;
 extern int LastResStrNo;
@@ -48,7 +48,7 @@ void __fastcall TFMain_11011981::ShowNames(int idx) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::ShowNameXrefs(DWORD Adr, int selIdx) {
+void __fastcall TFMain_11011981::ShowNameXrefs(DWord Adr, int selIdx) {
     PInfoRec recN;
 
     lbNXrefs->Clear();
@@ -57,7 +57,7 @@ void __fastcall TFMain_11011981::ShowNameXrefs(DWORD Adr, int selIdx) {
     if (recN && recN->xrefs) {
         int wid, maxwid = 0;
         TCanvas *canvas = lbNXrefs->Canvas;
-        DWORD pAdr = 0;
+        DWord pAdr = 0;
         char f = 2;
 
         lbNXrefs->Items->BeginUpdate();
@@ -86,7 +86,7 @@ void __fastcall TFMain_11011981::lbNamesClick(TObject *Sender) {
     //WhereSearch = SEARCH_NAMES;
 
     if (lbNames->ItemIndex >= 0) {
-        DWORD adr;
+        DWord adr;
         String line = lbNames->Items->Strings[lbNames->ItemIndex];
         sscanf(AnsiString(line).c_str() + 1, "%lX", &adr);
         ShowNameXrefs(adr, -1);

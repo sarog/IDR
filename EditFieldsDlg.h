@@ -48,10 +48,10 @@ private:
     void __fastcall ShowFields();
 
 public:
-    BYTE Op;
+    Byte Op;
     int SelIndex;
     int FieldOffset;
-    DWORD VmtAdr;
+    DWord VmtAdr;
     TList *fieldsList;
     virtual __fastcall TFEditFieldsDlg_11011981(TComponent *Owner);
     virtual __fastcall ~TFEditFieldsDlg_11011981();

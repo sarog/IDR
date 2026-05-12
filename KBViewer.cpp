@@ -12,11 +12,11 @@
 #include "Main.h"
 #include "Misc.h"
 
-extern DWORD CodeBase;
-extern DWORD CurProcAdr;
-extern DWORD CurUnitAdr;
+extern DWord CodeBase;
+extern DWord CurProcAdr;
+extern DWord CurUnitAdr;
 extern MDisasm Disasm;
-extern BYTE *Code;
+extern Byte *Code;
 extern PInfoRec *Infos;
 extern MKnowledgeBase KnowledgeBase;
 extern TList *VmtList;
@@ -41,11 +41,11 @@ void __fastcall TFKBViewer_11011981::FormCreate(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFKBViewer_11011981::ShowCode(DWORD adr, int idx) {
+void __fastcall TFKBViewer_11011981::ShowCode(DWord adr, int idx) {
     bool outfixup;
     int n, m, wid, maxwid, row;
     int _firstProcIdx, _lastProcIdx;
-    DWORD Val, Adr;
+    DWord Val, Adr;
     TCanvas *canvas;
     String line;
     DISINFO DisInfo;
@@ -94,7 +94,7 @@ void __fastcall TFKBViewer_11011981::ShowCode(DWORD adr, int idx) {
         if (wid > maxwid) maxwid = wid;
 
         int instrLen, pos = 0;
-        DWORD curAdr = adr;
+        DWord curAdr = adr;
 
         if (pInfo->FixupNum) {
             char *p = reinterpret_cast<char *>(pInfo->Dump + 2 * pInfo->DumpSz);
@@ -102,9 +102,9 @@ void __fastcall TFKBViewer_11011981::ShowCode(DWORD adr, int idx) {
             for (n = 0; n < pInfo->FixupNum; n++) {
                 char fixupType = *p;
                 p++;
-                int fixupOfs = *((DWORD *) p);
+                int fixupOfs = *reinterpret_cast<DWord *>(p);
                 p += 4;
-                WORD len = *((WORD *) p);
+                Word len = *reinterpret_cast<Word *>(p);
                 p += 2;
                 String fixupName = String(AnsiString(reinterpret_cast<const char *>(p), len));
                 p += len + 1;
@@ -120,7 +120,7 @@ void __fastcall TFKBViewer_11011981::ShowCode(DWORD adr, int idx) {
                         continue;
                     }
 
-                    BYTE op = Disasm.GetOp(DisInfo.Mnem);
+                    Byte op = Disasm.GetOp(DisInfo.Mnem);
                     line = Val2Str8(curAdr) + "      " + disLine;
                     outfixup = false;
                     if (pos + instrLen > fixupOfs) {
@@ -134,7 +134,7 @@ void __fastcall TFKBViewer_11011981::ShowCode(DWORD adr, int idx) {
                         if (!SameText(fixupName, pInfo->ProcName)) {
                             line += fixupName;
                         } else {
-                            Val = *((DWORD *) (Code + Adr2Pos(CurrAdr) + fixupOfs));
+                            Val = *reinterpret_cast<DWord *>(Code + Adr2Pos(CurrAdr) + fixupOfs);
                             if (fixupType == 'J')
                                 Adr = CurrAdr + fixupOfs + Val + 4;
                             else
@@ -189,7 +189,7 @@ void __fastcall TFKBViewer_11011981::bNextClick(TObject *Sender) {
 //---------------------------------------------------------------------------
 void __fastcall TFKBViewer_11011981::btnOkClick(TObject *Sender) {
     int m, k1, k2, ap, pos, pos1, pos2, Idx, val;
-    DWORD adr;
+    DWord adr;
     MProcInfo aInfo;
     MProcInfo *pInfo = &aInfo;
     PInfoRec recN;
@@ -239,7 +239,7 @@ void __fastcall TFKBViewer_11011981::btnOkClick(TObject *Sender) {
                             recN = GetInfoRec(adr);
                             recN->procInfo->DeleteArgs();
 
-                            WORD *uses = KnowledgeBase.GetModuleUses(
+                            Word *uses = KnowledgeBase.GetModuleUses(
                                 KnowledgeBase.GetModuleID(AnsiString(cbUnits->Text).c_str()));
                             Idx = KnowledgeBase.GetProcIdx(uses, AnsiString(kbName).c_str(), Code + ap);
                             if (Idx != -1) {
@@ -287,7 +287,7 @@ void __fastcall TFKBViewer_11011981::edtCurrIdxChange(TObject *Sender) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFKBViewer_11011981::cbUnitsChange(TObject *Sender) {
-    WORD _moduleID;
+    Word _moduleID;
     int k, _firstProcIdx = 0, _lastProcIdx = 0, _idx;
     MProcInfo _aInfo;
     MProcInfo *_pInfo = &_aInfo;
@@ -323,7 +323,7 @@ void __fastcall TFKBViewer_11011981::FormShow(TObject *Sender) {
     if (!UnitsNum) {
         for (int n = 0; n < KnowledgeBase.ModuleCount; n++) {
             int ID = KnowledgeBase.ModuleOffsets[n].NamId;
-            const BYTE *p = KnowledgeBase.GetKBCachePtr(KnowledgeBase.ModuleOffsets[ID].Offset,
+            const Byte *p = KnowledgeBase.GetKBCachePtr(KnowledgeBase.ModuleOffsets[ID].Offset,
                                                         KnowledgeBase.ModuleOffsets[ID].Size);
             cbUnits->Items->Add(String((char *) (p + 4)));
             UnitsNum++;

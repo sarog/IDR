@@ -17,7 +17,7 @@ typedef struct {
     char Op1[64];
     //char    Op2[64];
     //char    Op3[64];
-    //BYTE    InstrType;
+    //Byte    InstrType;
     bool Float;
     bool Call;
     bool Branch;
@@ -29,20 +29,20 @@ typedef struct {
     int BaseReg;
     int IndxReg;
     int Scale;
-    DWORD Offset;
+    DWord Offset;
     //
     //bool    ImmPresent;
-    DWORD Immediate;
-    BYTE OpSize; //Operand size
-    //BYTE    ImmSize;//size of immediate operand
+    DWord Immediate;
+    Byte OpSize; //Operand size
+    //Byte    ImmSize;//size of immediate operand
     char sSize[32];
     int RepPrefix;
     int SegPrefix;
-    BYTE OpNum;
-    BYTE OpType[3];
-    //BYTE	Op1Type;
-    //BYTE	Op2Type;
-    //BYTE	Op3Type;
+    Byte OpNum;
+    Byte OpType[3];
+    //Byte	Op1Type;
+    //Byte	Op2Type;
+    //Byte	Op3Type;
 } DISINFO, *PDISINFO;
 
 #define     otUND 0
@@ -95,38 +95,38 @@ public:
     MDisasm();
     ~MDisasm();
     int __fastcall Init();
-    int __fastcall Disassemble(DWORD fromAdr, PDISINFO pDisInfo, char *disLine);
-    int __fastcall Disassemble(BYTE *from, __int64 address, PDISINFO pDisInfo, char *disLine);
+    int __fastcall Disassemble(DWord fromAdr, PDISINFO pDisInfo, char *disLine);
+    int __fastcall Disassemble(Byte *from, __int64 address, PDISINFO pDisInfo, char *disLine);
     int __fastcall GetRegister(const char *reg);
     HINSTANCE hModule;
-    BYTE __fastcall GetOp(char *mnem);
-    BYTE __fastcall GetCop();
-    BYTE __fastcall GetCop1();
-    BYTE __fastcall GetPostByte();
-    void __fastcall SetPostByte(BYTE b);
-    void __fastcall SetOffset(DWORD ofs);
-    void __fastcall GetInstrBytes(BYTE *dst);
+    Byte __fastcall GetOp(char *mnem);
+    Byte __fastcall GetCop();
+    Byte __fastcall GetCop1();
+    Byte __fastcall GetPostByte();
+    void __fastcall SetPostByte(Byte b);
+    void __fastcall SetOffset(DWord ofs);
+    void __fastcall GetInstrBytes(Byte *dst);
     char * __fastcall GetSizeString(int size);
 
 private:
     bool __fastcall GetAddressSize();
     bool __fastcall GetOperandSize();
-    BYTE __fastcall GetSegPrefix();
-    BYTE __fastcall GetRepPrefix();
-    BYTE __fastcall GetPostByteMod();
+    Byte __fastcall GetSegPrefix();
+    Byte __fastcall GetRepPrefix();
+    Byte __fastcall GetPostByteMod();
     int __fastcall GetPostByteReg();
     int __fastcall GetPostByteRm();
     int __fastcall GetOpType(char *Op);
     void __fastcall FormatInstr(PDISINFO pDisInfo, char *disLine);
-    void __fastcall FormatArg(int argno, DWORD cmd, DWORD arg, PDISINFO pDisInfo, char *disLine);
+    void __fastcall FormatArg(int argno, DWord cmd, DWord arg, PDISINFO pDisInfo, char *disLine);
     int __fastcall OutputGeneralRegister(char *dst, int reg, int size);
-    void __fastcall OutputHex(char *dst, DWORD val);
-    DWORD __fastcall GetAddress();
+    void __fastcall OutputHex(char *dst, DWord val);
+    DWord __fastcall GetAddress();
     void __fastcall OutputSegPrefix(char *dst, PDISINFO pDisInfo);
     int __fastcall EvaluateOperandSize();
     void __fastcall OutputSizePtr(int size, bool mm, PDISINFO pDisInfo, char *disLine);
-    void __fastcall OutputMemAdr16(int argno, char *dst, DWORD arg, bool f1, bool f2, PDISINFO pDisInfo, char *disLine);
-    void __fastcall OutputMemAdr32(int argno, char *dst, DWORD arg, bool f1, bool f2, PDISINFO pDisInfo, char *disLine);
+    void __fastcall OutputMemAdr16(int argno, char *dst, DWord arg, bool f1, bool f2, PDISINFO pDisInfo, char *disLine);
+    void __fastcall OutputMemAdr32(int argno, char *dst, DWord arg, bool f1, bool f2, PDISINFO pDisInfo, char *disLine);
 };
 
 //---------------------------------------------------------------------------

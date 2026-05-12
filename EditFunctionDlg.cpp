@@ -8,9 +8,9 @@
 #pragma resource "*.dfm"
 
 extern bool ProjectModified;
-extern DWORD CodeBase;
+extern DWord CodeBase;
 extern PInfoRec *Infos;
-extern DWORD *Flags;
+extern DWord *Flags;
 extern TList *VmtList;
 extern char StringBuf[MAXSTRBUFFER];
 extern MKnowledgeBase KnowledgeBase;
@@ -28,8 +28,7 @@ void __fastcall TFEditFunctionDlg_11011981::bOkClick(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFEditFunctionDlg_11011981::FormKeyDown(TObject *Sender,
-                                                        WORD &Key, TShiftState Shift) {
+void __fastcall TFEditFunctionDlg_11011981::FormKeyDown(TObject *Sender, Word &Key, TShiftState Shift) {
     if (Key == VK_ESCAPE) ModalResult = mrCancel;
 }
 
@@ -157,7 +156,7 @@ void __fastcall TFEditFunctionDlg_11011981::bApplyTypeClick(TObject *Sender) {
         return;
     }
 
-    DWORD newEndAdr;
+    DWord newEndAdr;
     int tempInt;
     if (lEndAdr->Text == "" || !TryStrToInt(String("$") + lEndAdr->Text, tempInt)) {
         ShowMessage("End address is not valid");
@@ -377,7 +376,7 @@ void __fastcall TFEditFunctionDlg_11011981::bApplyVarClick(TObject *Sender) {
         while (1)
         {
             //KB
-            WORD* uses = KnowledgeBase.GetTypeUses(AnsiString(ftype).c_str());
+            Word* uses = KnowledgeBase.GetTypeUses(AnsiString(ftype).c_str());
             int idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, ftype.c_str());
             if (uses) delete[] uses;
 
@@ -397,10 +396,10 @@ void __fastcall TFEditFunctionDlg_11011981::bApplyVarClick(TObject *Sender) {
                         int elofs = *((int*)p); p += 4;
                         p += 4;//case
                         //Name
-                        int len = *((WORD*)p); p += 2;
+                        int len = *((Word*)p); p += 2;
                         name = String((char*)p, len); p += len + 1;
                         //Type
-                        len = *((WORD*)p); p += 2;
+                        len = *((Word*)p); p += 2;
                         type = TrimTypeName(String((char*)p, len)); p += len + 1;
                         recN->procInfo->AddLocal(recofs + elofs, 1, fname + "." + name, type);
                     }
@@ -476,14 +475,11 @@ void __fastcall TFEditFunctionDlg_11011981::FillVMTCandidates() {
 
 //---------------------------------------------------------------------------
 void __fastcall TFEditFunctionDlg_11011981::FillType() {
-    BYTE callKind;
     int argsBytes;
-    DWORD flags;
-    PInfoRec recN;
     String line;
 
     mType->Clear();
-    recN = GetInfoRec(Adr);
+    PInfoRec recN = GetInfoRec(Adr);
 
     switch (recN->kind) {
         case ikConstructor:
@@ -499,8 +495,8 @@ void __fastcall TFEditFunctionDlg_11011981::FillType() {
             rgFunctionKind->ItemIndex = 3;
             break;
     }
-    flags = recN->procInfo->flags;
-    callKind = flags & 7;
+    DWord flags = recN->procInfo->flags;
+    Byte callKind = flags & 7;
     rgCallKind->ItemIndex = callKind;
     cbEmbedded->Checked = (flags & PF_EMBED);
 
@@ -536,7 +532,7 @@ void __fastcall TFEditFunctionDlg_11011981::FillType() {
 
 //---------------------------------------------------------------------------
 void __fastcall TFEditFunctionDlg_11011981::FillArgs() {
-    BYTE callKind;
+    Byte callKind;
     int n, cnt, wid, maxwid, offset;
     TCanvas *canvas;
     PInfoRec recN;

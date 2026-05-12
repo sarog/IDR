@@ -24,7 +24,7 @@ struct ThreadAnalysisData {
 
 typedef struct {
     int height;
-    DWORD vmtAdr;
+    DWord vmtAdr;
 } CVPair, *PCVPair;
 
 //---------------------------------------------------------------------------
@@ -41,7 +41,7 @@ private:
     void __fastcall StopProgress();
     void __fastcall UpdateStatusBar(int adr);
     void __fastcall UpdateStatusBar(const String &sbText);
-    void __fastcall UpdateAddrInStatusBar(DWORD adr);
+    void __fastcall UpdateAddrInStatusBar(DWord adr);
     void __fastcall UpdateUnits();
     void __fastcall UpdateRTTIs();
     void __fastcall UpdateVmtList();
@@ -56,7 +56,7 @@ private:
     void __fastcall FindVMTs2(); //Для версии Дельфи2 (другая структура!)
     void __fastcall FindVMTs();
     void __fastcall FindTypeFields();
-    String __fastcall FindEvent(DWORD VmtAdr, String Name);
+    String __fastcall FindEvent(DWord VmtAdr, String Name);
     void __fastcall FindPrototypes();
     void __fastcall StrapVMTs();
     void __fastcall ScanCode();

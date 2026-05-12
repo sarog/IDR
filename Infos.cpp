@@ -11,10 +11,10 @@
 //---------------------------------------------------------------------------
 extern MDisasm Disasm;
 extern int MaxBufLen;
-extern DWORD CodeBase;
-extern DWORD *Flags;
+extern DWord CodeBase;
+extern DWord *Flags;
 extern PInfoRec *Infos;
-extern BYTE *Code;
+extern Byte *Code;
 extern TCriticalSection *CrtSection;
 extern MKnowledgeBase KnowledgeBase;
 extern char StringBuf[MAXSTRBUFFER];
@@ -41,7 +41,7 @@ void __fastcall InfoVmtInfo::AddInterface(String Value) {
 }
 
 //---------------------------------------------------------------------------
-PFIELDINFO __fastcall InfoVmtInfo::AddField(DWORD ProcAdr, int ProcOfs, BYTE Scope, int Offset, int Case, String Name,
+PFIELDINFO __fastcall InfoVmtInfo::AddField(DWord ProcAdr, int ProcOfs, Byte Scope, int Offset, int Case, String Name,
                                             String Type) {
     PFIELDINFO fInfo = 0;
 
@@ -107,7 +107,7 @@ void __fastcall InfoVmtInfo::RemoveField(int Offset) {
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall InfoVmtInfo::AddMethod(bool Abstract, char Kind, int Id, DWORD Address, String Name) {
+bool __fastcall InfoVmtInfo::AddMethod(bool Abstract, char Kind, int Id, DWord Address, String Name) {
     PMethodRec recM;
 
     if (!methods) methods = new TList;
@@ -160,7 +160,7 @@ PARGINFO __fastcall InfoProcInfo::AddArg(PARGINFO aInfo) {
 }
 
 //---------------------------------------------------------------------------
-PARGINFO __fastcall InfoProcInfo::AddArg(BYTE Tag, int Ofs, int Size, String Name, String TypeDef) {
+PARGINFO __fastcall InfoProcInfo::AddArg(Byte Tag, int Ofs, int Size, String Name, String TypeDef) {
     PARGINFO argInfo;
     if (!args) args = new TList;
     if (!args->Count) {
@@ -514,7 +514,7 @@ void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef) {
             }
             while (1) {
                 //KB
-                WORD *uses = KnowledgeBase.GetTypeUses(AnsiString(TypeDef).c_str());
+                Word *uses = KnowledgeBase.GetTypeUses(AnsiString(TypeDef).c_str());
                 int idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(TypeDef).c_str());
                 if (uses) delete[] uses;
 
@@ -532,12 +532,12 @@ void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef) {
                             p += 4;
                             p += 4; //case
                             //Name
-                            int len = *((WORD *) p);
+                            int len = *((Word *) p);
                             p += 2;
                             String name = String((char *) p, len);
                             p += len + 1;
                             //Type
-                            len = *((WORD *) p);
+                            len = *((Word *) p);
                             p += 2;
                             String type = TrimTypeName(String((char *) p, len));
                             p += len + 1;
@@ -555,7 +555,7 @@ void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef) {
 }
 
 //---------------------------------------------------------------------------
-InfoRec::InfoRec(int APos, BYTE AKind) {
+InfoRec::InfoRec(int APos, Byte AKind) {
     counter = 0;
     kind = AKind;
     kbIdx = -1;
@@ -635,7 +635,7 @@ bool __fastcall InfoRec::SameName(String AValue) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall InfoRec::AddXref(const char Type, DWORD Adr, int Offset) {
+void __fastcall InfoRec::AddXref(const char Type, DWord Adr, int Offset) {
     PXrefRec recX;
 
     if (!xrefs) xrefs = new TList;
@@ -687,7 +687,7 @@ void __fastcall InfoRec::AddXref(const char Type, DWORD Adr, int Offset) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall InfoRec::DeleteXref(DWORD Adr) {
+void __fastcall InfoRec::DeleteXref(DWord Adr) {
     for (int n = 0; n < xrefs->Count; n++) {
         PXrefRec recX = static_cast<PXrefRec>(xrefs->Items[n]);
         if (Adr == recX->adr + recX->offset) {
@@ -698,7 +698,7 @@ void __fastcall InfoRec::DeleteXref(DWORD Adr) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall InfoRec::ScanUpItemAndAddRef(int fromPos, DWORD itemAdr, char refType, DWORD refAdr) {
+void __fastcall InfoRec::ScanUpItemAndAddRef(int fromPos, DWord itemAdr, char refType, DWord refAdr) {
     while (fromPos >= 0) {
         fromPos--;
         if (IsFlagSet(cfProcStart, fromPos))
@@ -1421,9 +1421,9 @@ void __fastcall InfoRec::Load(TStream* ins, char* buf)
 
 //---------------------------------------------------------------------------
 /*
-void __fastcall InfoRec::Skip(TStream* ins, char* buf, BYTE asKind)
+void __fastcall InfoRec::Skip(TStream* ins, char* buf, Byte asKind)
 {
-    DWORD       dummy;
+    DWord       dummy;
     int         m, xm, len, num, xnum;
     PICODE      picode;
     XrefRec     recX;
@@ -1571,10 +1571,8 @@ void __fastcall InfoRec::Skip(TStream* ins, char* buf, BYTE asKind)
 }
 */
 //---------------------------------------------------------------------------
-String __fastcall InfoRec::MakePrototype(int adr, bool showKind, bool showTail, bool multiline, bool fullName,
-                                         bool allArgs) {
-    BYTE callKind;
-    int n, num, argsNum, firstArg;
+String __fastcall InfoRec::MakePrototype(int adr, bool showKind, bool showTail, bool multiline, bool fullName, bool allArgs) {
+    int argsNum;
     PARGINFO argInfo;
     String result = "";
 
@@ -1599,8 +1597,8 @@ String __fastcall InfoRec::MakePrototype(int adr, bool showKind, bool showTail, 
     } else
         result += GetDefaultProcName(adr);
 
-    num = argsNum = (procInfo->args) ? procInfo->args->Count : 0;
-    firstArg = 0;
+    int num = argsNum = (procInfo->args) ? procInfo->args->Count : 0;
+    int firstArg = 0;
 
     if (num && !allArgs) {
         if (kind == ikConstructor || kind == ikDestructor) {
@@ -1615,7 +1613,7 @@ String __fastcall InfoRec::MakePrototype(int adr, bool showKind, bool showTail, 
         result += "(";
         if (multiline) result += "\r\n";
 
-        for (n = firstArg; n < argsNum; n++) {
+        for (int n = firstArg; n < argsNum; n++) {
             if (n != firstArg) {
                 result += ";";
                 if (multiline)
@@ -1652,7 +1650,7 @@ String __fastcall InfoRec::MakePrototype(int adr, bool showKind, bool showTail, 
             result += "?";
     }
     result += ";";
-    callKind = procInfo->flags & 7;
+    Byte callKind = procInfo->flags & 7;
     switch (callKind) {
         case 1:
             result += " cdecl;";
@@ -1671,7 +1669,7 @@ String __fastcall InfoRec::MakePrototype(int adr, bool showKind, bool showTail, 
     //fastcall
     if (!callKind) //(!IsFlagSet(cfImport, Adr2Pos(Adr)))
     {
-        for (n = 0; n < argsNum; n++) {
+        for (int n = 0; n < argsNum; n++) {
             argInfo = static_cast<PARGINFO>(procInfo->args->Items[n]);
             if (argInfo->Ndx == 0)
                 argres += "A";
@@ -1698,8 +1696,8 @@ String __fastcall InfoRec::MakePrototype(int adr, bool showKind, bool showTail, 
 //---------------------------------------------------------------------------
 String __fastcall InfoRec::MakeDelphiPrototype(int Adr, PMethodRec recM) {
     bool abstract = false;
-    BYTE callKind = 0;
-    int n, num, argsNum, firstArg, len = 0;
+    Byte callKind = 0;
+    int argsNum, len = 0;
     PARGINFO argInfo;
 
     if (kind == ikConstructor)
@@ -1725,8 +1723,8 @@ String __fastcall InfoRec::MakeDelphiPrototype(int Adr, PMethodRec recM) {
     } else
         len += sprintf(StringBuf + len, "v%X", recM->id);
 
-    num = argsNum = (procInfo->args) ? procInfo->args->Count : 0;
-    firstArg = 0;
+    int num = argsNum = (procInfo->args) ? procInfo->args->Count : 0;
+    int firstArg = 0;
 
     if (num) {
         if (procInfo->flags & PF_ALLMETHODS) {
@@ -1741,7 +1739,7 @@ String __fastcall InfoRec::MakeDelphiPrototype(int Adr, PMethodRec recM) {
             len += sprintf(StringBuf + len, "(");
 
             callKind = procInfo->flags & 7;
-            for (n = firstArg; n < argsNum; n++) {
+            for (int n = firstArg; n < argsNum; n++) {
                 if (n != firstArg) len += sprintf(StringBuf + len, "; ");
 
                 argInfo = static_cast<PARGINFO>(procInfo->args->Items[n]);
@@ -1795,8 +1793,7 @@ String __fastcall InfoRec::MakeDelphiPrototype(int Adr, PMethodRec recM) {
 
 //---------------------------------------------------------------------------
 String __fastcall InfoRec::MakeMultilinePrototype(int Adr, int *ArgsBytes, String MethodType) {
-    BYTE callKind;
-    int n, num, argsNum, firstArg, argsBytes = 0;
+    int argsNum, argsBytes = 0;
     PARGINFO argInfo;
     String result;
 
@@ -1805,8 +1802,8 @@ String __fastcall InfoRec::MakeMultilinePrototype(int Adr, int *ArgsBytes, Strin
     else
         result = GetDefaultProcName(Adr);
 
-    num = argsNum = (procInfo->args) ? procInfo->args->Count : 0;
-    firstArg = 0;
+    int num = argsNum = (procInfo->args) ? procInfo->args->Count : 0;
+    int firstArg = 0;
 
     if (kind == ikConstructor || kind == ikDestructor) {
         firstArg = 2;
@@ -1833,8 +1830,8 @@ String __fastcall InfoRec::MakeMultilinePrototype(int Adr, int *ArgsBytes, Strin
     }
 
     if (num > 0) result += "(\r\n";
-    callKind = procInfo->flags & 7;
-    for (n = firstArg; n < argsNum; n++) {
+    Byte callKind = procInfo->flags & 7;
+    for (int n = firstArg; n < argsNum; n++) {
         if (n != firstArg) result += ";\r\n";
 
         argInfo = static_cast<PARGINFO>(procInfo->args->Items[n]);
@@ -1875,7 +1872,7 @@ String __fastcall InfoRec::MakeMultilinePrototype(int Adr, int *ArgsBytes, Strin
 
 //---------------------------------------------------------------------------
 String __fastcall InfoRec::MakeCppPrototype(int Adr, String FType) {
-    int n, argsNum, typeKind, size;
+    int argsNum, typeKind, size;
     PARGINFO argInfo;
     String argType, result = "";
 
@@ -1886,7 +1883,7 @@ String __fastcall InfoRec::MakeCppPrototype(int Adr, String FType) {
             if (typeKind == ikRecord || typeKind == ikVMT)
                 result = "struct " + result + "*";
         } else
-            result = "DWORD";
+            result = "DWord";
     } else
         result = "void";
 
@@ -1900,7 +1897,7 @@ String __fastcall InfoRec::MakeCppPrototype(int Adr, String FType) {
     result += "(";
 
     argsNum = (procInfo->args) ? procInfo->args->Count : 0;
-    for (n = 0; n < argsNum; n++) {
+    for (int n = 0; n < argsNum; n++) {
         if (n) result += ", ";
         argInfo = static_cast<PARGINFO>(procInfo->args->Items[n]);
         argType = argInfo->TypeDef;
@@ -1912,7 +1909,7 @@ String __fastcall InfoRec::MakeCppPrototype(int Adr, String FType) {
             if (typeKind == ikVMT)
                 result += "*";
         } else {
-            result += "DWORD";
+            result += "DWord";
         }
         if (argInfo->Tag == 0x22) result += "*";
         if (n == 0)

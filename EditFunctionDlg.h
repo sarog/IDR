@@ -50,8 +50,7 @@ class TFEditFunctionDlg_11011981 : public TForm {
     TLabeledEdit *lEndAdr;
     TLabeledEdit *lStackSize;
     TButton *bRemoveAll;
-    void __fastcall FormKeyDown(TObject *Sender, WORD &Key,
-                                TShiftState Shift);
+    void __fastcall FormKeyDown(TObject *Sender, Word &Key, TShiftState Shift);
     void __fastcall bEditClick(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall pcChange(TObject *Sender);
@@ -74,7 +73,7 @@ private:
     int ArgEdited;
     int VmtCandidatesNum;
     int StackSize;
-    DWORD SFlags;
+    DWord SFlags;
     String SName;
     void __fastcall FillVMTCandidates();
     void __fastcall FillType();
@@ -82,8 +81,8 @@ private:
     void __fastcall FillVars();
 
 public:
-    DWORD Adr;
-    DWORD EndAdr;
+    DWord Adr;
+    DWord EndAdr;
     virtual __fastcall TFEditFunctionDlg_11011981(TComponent *AOwner);
 };
 

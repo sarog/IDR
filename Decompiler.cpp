@@ -12,20 +12,20 @@
 //---------------------------------------------------------------------------
 extern int DelphiVersion;
 extern MDisasm Disasm;
-extern DWORD CodeBase;
-extern DWORD CurProcAdr;
-extern DWORD EP;
-extern DWORD ImageBase;
-extern BYTE *Image;
-extern BYTE *Code;
+extern DWord CodeBase;
+extern DWord CurProcAdr;
+extern DWord EP;
+extern DWord ImageBase;
+extern Byte *Image;
+extern Byte *Code;
 extern PInfoRec *Infos;
 extern TStringList *BSSInfos;
-extern DWORD *Flags;
+extern DWord *Flags;
 extern int cVmtSelfPtr;
 extern char StringBuf[MAXSTRBUFFER];
 extern MKnowledgeBase KnowledgeBase;
 //---------------------------------------------------------------------------
-String __fastcall GetString(PITEM item, BYTE precedence) {
+String __fastcall GetString(PITEM item, Byte precedence) {
     String _val = item->Value;
 
     if (_val == "") {
@@ -51,7 +51,7 @@ String __fastcall GetArgName(PARGINFO argInfo) {
 }
 
 //---------------------------------------------------------------------------
-String __fastcall GetGvarName(DWORD adr) {
+String __fastcall GetGvarName(DWord adr) {
     if (!IsValidImageAdr(adr)) return "?";
     PInfoRec recN = GetInfoRec(adr);
     if (recN && recN->HasName()) return recN->GetName();
@@ -146,8 +146,8 @@ String __fastcall TNamer::MakeName(String shablon) {
 }
 
 //---------------------------------------------------------------------------
-TForInfo::TForInfo(bool ANoVar, bool ADown, int AStopAdr, String AFrom, String ATo, BYTE AVarType,
-                              int AVarIdx, BYTE ACntType, int ACntIdx) {
+TForInfo::TForInfo(bool ANoVar, bool ADown, int AStopAdr, String AFrom, String ATo, Byte AVarType,
+                              int AVarIdx, Byte ACntType, int ACntIdx) {
     NoVar = ANoVar;
     Down = ADown;
     StopAdr = AStopAdr;
@@ -165,7 +165,7 @@ TWhileInfo::TWhileInfo(bool ANoCond) {
 }
 
 //---------------------------------------------------------------------------
-TLoopInfo::TLoopInfo(BYTE AKind, DWORD AContAdr, DWORD ABreakAdr, DWORD ALastAdr) {
+TLoopInfo::TLoopInfo(Byte AKind, DWord AContAdr, DWord ABreakAdr, DWord ALastAdr) {
     Kind = AKind;
     ContAdr = AContAdr;
     BreakAdr = ABreakAdr;
@@ -177,7 +177,7 @@ TLoopInfo::TLoopInfo(BYTE AKind, DWORD AContAdr, DWORD ABreakAdr, DWORD ALastAdr
 //---------------------------------------------------------------------------
 TLoopInfo::~TLoopInfo() {}
 //---------------------------------------------------------------------------
-TDecompileEnv::TDecompileEnv(DWORD AStartAdr, int ASize, PInfoRec recN) {
+TDecompileEnv::TDecompileEnv(DWord AStartAdr, int ASize, PInfoRec recN) {
     StartAdr = AStartAdr;
     Size = ASize;
 
@@ -235,7 +235,7 @@ String __fastcall TDecompileEnv::GetLvarName(int Ofs, String Type) {
 }
 
 //---------------------------------------------------------------------------
-PDCONTEXT __fastcall TDecompileEnv::GetContext(DWORD Adr) {
+PDCONTEXT __fastcall TDecompileEnv::GetContext(DWord Adr) {
     int n;
     PDCONTEXT ctx;
 
@@ -247,7 +247,7 @@ PDCONTEXT __fastcall TDecompileEnv::GetContext(DWORD Adr) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TDecompileEnv::SaveContext(DWORD Adr) {
+void __fastcall TDecompileEnv::SaveContext(DWord Adr) {
     int n;
     PDCONTEXT ctx;
 
@@ -264,7 +264,7 @@ void __fastcall TDecompileEnv::SaveContext(DWORD Adr) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TDecompileEnv::RestoreContext(DWORD Adr) {
+void __fastcall TDecompileEnv::RestoreContext(DWord Adr) {
     int n;
     PDCONTEXT ctx;
 
@@ -282,7 +282,7 @@ TDecompiler::TDecompiler(TDecompileEnv *AEnv) {
     WasRet = false;
     Env = AEnv;
     Stack = 0;
-    DeFlags = new BYTE[AEnv->Size + 1];
+    DeFlags = new Byte[AEnv->Size + 1];
 }
 
 //---------------------------------------------------------------------------
@@ -292,12 +292,12 @@ TDecompiler::~TDecompiler() {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TDecompiler::SetDeFlags(BYTE *ASrc) {
+void __fastcall TDecompiler::SetDeFlags(Byte *ASrc) {
     memmove(DeFlags, ASrc, Env->Size + 1);
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TDecompiler::SetStop(DWORD Adr) {
+void __fastcall TDecompiler::SetStop(DWord Adr) {
     DeFlags[Adr - Env->StartAdr] = 1;
 }
 
@@ -315,7 +315,7 @@ void __fastcall TDecompiler::InitFlags() {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TDecompiler::ClearStop(DWORD Adr) {
+void __fastcall TDecompiler::ClearStop(DWord Adr) {
     DeFlags[Adr - Env->StartAdr] = 0;
 }
 
@@ -495,11 +495,10 @@ PITEM __fastcall TDecompiler::FPop() {
 
 //---------------------------------------------------------------------------
 bool __fastcall TDecompiler::CheckPrototype(PInfoRec ARec) {
-    int n, _argsNum;
     PARGINFO _argInfo;
 
-    _argsNum = (ARec->procInfo->args) ? ARec->procInfo->args->Count : 0;
-    for (n = 0; n < _argsNum; n++) {
+    int _argsNum = (ARec->procInfo->args) ? ARec->procInfo->args->Count : 0;
+    for (int n = 0; n < _argsNum; n++) {
         _argInfo = (PARGINFO) ARec->procInfo->args->Items[n];
         if (_argInfo->TypeDef == "") return false;
     }
@@ -508,27 +507,26 @@ bool __fastcall TDecompiler::CheckPrototype(PInfoRec ARec) {
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall TDecompiler::Init(DWORD fromAdr) {
-    BYTE _kind, _retKind = 0, _callKind;
-    int n, _pos, _argsNum, _ndx, _rn, _size;
-    int _fromPos;
-    PInfoRec _recN, _recN1;
+bool __fastcall TDecompiler::Init(DWord fromAdr) {
+    Byte _kind, _retKind = 0;
+    int _pos, _ndx, _rn, _size;
+    PInfoRec _recN1;
     PARGINFO _argInfo;
     ITEM _item;
     String _retType, _typeDef;
 
-    _fromPos = Adr2Pos(fromAdr);
+    int _fromPos = Adr2Pos(fromAdr);
     assert(_fromPos >= 0);
     //Imports not decompile
     if (IsFlagSet(cfImport, _fromPos)) return true;
-    _recN = GetInfoRec(fromAdr);
+    PInfoRec _recN = GetInfoRec(fromAdr);
     if (!CheckPrototype(_recN)) return false;
     _retType = _recN->type;
     //Check that function return type is given
     if (_recN->kind == ikFunc) _retKind = GetTypeKind(_retType, &_size);
     //Init registers
     InitItem(&_item);
-    for (n = 16; n < 24; n++) {
+    for (int n = 16; n < 24; n++) {
         SetRegItem(n, &_item);
     }
 
@@ -536,18 +534,18 @@ bool __fastcall TDecompiler::Init(DWORD fromAdr) {
     _ESP_ = Env->StackSize;
     //Init floating registers stack
     _TOP_ = 0;
-    for (n = 0; n < 8; n++) {
+    for (int n = 0; n < 8; n++) {
         FSet(n, &_item);
     }
 
-    _callKind = _recN->procInfo->flags & 7;
+    Byte _callKind = _recN->procInfo->flags & 7;
 
     //Arguments
-    _argsNum = (_recN->procInfo->args) ? _recN->procInfo->args->Count : 0;
+    int _argsNum = (_recN->procInfo->args) ? _recN->procInfo->args->Count : 0;
     if (_callKind == 0) //fastcall
     {
         _ndx = 0;
-        for (n = 0; n < _argsNum; n++) {
+        for (int n = 0; n < _argsNum; n++) {
             _argInfo = (PARGINFO) _recN->procInfo->args->Items[n];
             InitItem(&_item);
             _item.Flags = IF_ARG;
@@ -600,7 +598,7 @@ bool __fastcall TDecompiler::Init(DWORD fromAdr) {
     } else if (_callKind == 3 || _callKind == 1) //stdcall, cdecl
     {
         //Arguments in reverse order
-        for (n = _argsNum - 1; n >= 0; n--) {
+        for (int n = _argsNum - 1; n >= 0; n--) {
             _argInfo = (PARGINFO) _recN->procInfo->args->Items[n];
             InitItem(&_item);
             _item.Flags = IF_ARG;
@@ -612,7 +610,7 @@ bool __fastcall TDecompiler::Init(DWORD fromAdr) {
         }
     } else if (_callKind == 2) //pascal
     {
-        for (n = 0; n < _argsNum; n++) {
+        for (int n = 0; n < _argsNum; n++) {
             _argInfo = (PARGINFO) _recN->procInfo->args->Items[n];
             InitItem(&_item);
             _item.Flags = IF_ARG;
@@ -739,11 +737,11 @@ void __fastcall TDecompileEnv::DecompileProc() {
 
 //---------------------------------------------------------------------------
 //BJL
-bool __fastcall TDecompileEnv::GetBJLRange(DWORD fromAdr, DWORD *bodyBegAdr, DWORD *bodyEndAdr, DWORD *jmpAdr,
+bool __fastcall TDecompileEnv::GetBJLRange(DWord fromAdr, DWord *bodyBegAdr, DWord *bodyEndAdr, DWord *jmpAdr,
                                            PLoopInfo loopInfo) {
-    BYTE _op;
+    Byte _op;
     int _curPos, _instrLen, _brType;
-    DWORD _curAdr, _jmpAdr;
+    DWord _curAdr, _jmpAdr;
     DISINFO _disInfo;
 
     *bodyEndAdr = 0;
@@ -792,11 +790,11 @@ bool __fastcall TDecompileEnv::GetBJLRange(DWORD fromAdr, DWORD *bodyBegAdr, DWO
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TDecompileEnv::CreateBJLSequence(DWORD fromAdr, DWORD bodyBegAdr, DWORD bodyEndAdr) {
+void __fastcall TDecompileEnv::CreateBJLSequence(DWord fromAdr, DWord bodyBegAdr, DWord bodyEndAdr) {
     bool found;
-    BYTE _b;
+    Byte _b;
     int i, j, m, _curPos, _instrLen;
-    DWORD _curAdr, _adr;
+    DWord _curAdr, _adr;
     PInfoRec _recN;
     TBJL *_bjl, *_bjl1, *_bjl2;
     TBJLInfo *_bjlInfo, *_bjlInfo1, *_bjlInfo2;
@@ -1377,11 +1375,11 @@ String __fastcall TDecompileEnv::PrintBJL() {
  * @param loopInfo Loop info
  * @return
  */
-DWORD __fastcall TDecompiler::Decompile(DWORD fromAdr, DWORD flags, PLoopInfo loopInfo) {
+DWord __fastcall TDecompiler::Decompile(DWord fromAdr, DWord flags, PLoopInfo loopInfo) {
     bool _cmp, _immInt64Val, _fullSim;
-    BYTE _op;
-    DWORD _dd, _curAdr, _branchAdr, _sAdr = 0, _jmpAdr, _endAdr, _adr;
-    DWORD _begAdr;
+    Byte _op;
+    DWord _dd, _curAdr, _branchAdr, _sAdr = 0, _jmpAdr, _endAdr, _adr;
+    DWord _begAdr;
     int n, _kind, _skip1, _skip2, _size, _elSize, _procSize;
     int _fromPos, _curPos, _endPos, _instrLen, _instrLen1, _num, _regIdx, _pos, _sPos;
     int _decPos, _cmpRes, _varidx, _brType, _mod, _div;
@@ -1641,7 +1639,7 @@ DWORD __fastcall TDecompiler::Decompile(DWORD fromAdr, DWORD flags, PLoopInfo lo
             _curAdr += _instrLen;
             continue;
         }
-        _dd = *((DWORD *) DisInfo.Mnem);
+        _dd = *((DWord *) DisInfo.Mnem);
         //skip wait, sahf
         if (_dd == 'tiaw' || _dd == 'fhas') {
             _curPos += _instrLen;
@@ -2773,20 +2771,20 @@ DWORD __fastcall TDecompiler::Decompile(DWORD fromAdr, DWORD flags, PLoopInfo lo
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TDecompiler::SimulateInherited(DWORD procAdr) {
+void __fastcall TDecompiler::SimulateInherited(DWord procAdr) {
     PInfoRec _recN = GetInfoRec(procAdr);
     _ESP_ += _recN->procInfo->retBytes;
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall TDecompiler::SimulateCall(DWORD curAdr, DWORD callAdr, int instrLen, PMethodRec recM, DWORD AClassAdr) {
+bool __fastcall TDecompiler::SimulateCall(DWord curAdr, DWord callAdr, int instrLen, PMethodRec recM, DWord AClassAdr) {
     bool _sep, _fromKB, _vmt;
-    BYTE _kind, _callKind, _retKind = 0, _methodKind = 0, *p, *pp;
+    Byte _kind, _callKind, _retKind = 0, _methodKind = 0, *p, *pp;
     int _res = 0;
     int _argsNum, _retBytes, _retBytesCalc, _len, _val, _esp = 0;
     int _idx = -1, _rn, _ndx, ss, _pos, _size, _recsize;
-    WORD *_uses;
-    DWORD _classAdr, _adr, _dynAdr;
+    Word *_uses;
+    DWord _classAdr, _adr, _dynAdr;
     char *tmpBuf;
     ITEM _item, _item1;
     ARGINFO _aInfo, *_argInfo = &_aInfo;
@@ -2865,7 +2863,7 @@ bool __fastcall TDecompiler::SimulateCall(DWORD curAdr, DWORD callAdr, int instr
                             MB_YESNO) == IDYES) {
                         Env->AddToBody("//BEGIN_EMBEDDED_" + _embAdr);
                         Env->AddToBody(_recN->MakePrototype(callAdr, true, false, false, true, false));
-                        DWORD _savedStartAdr = Env->StartAdr;
+                        DWord _savedStartAdr = Env->StartAdr;
                         bool _savedBpBased = Env->BpBased;
                         int _savedLocBase = Env->LocBase;
                         int _savedSize = Env->Size;
@@ -3233,7 +3231,7 @@ bool __fastcall TDecompiler::SimulateCall(DWORD curAdr, DWORD callAdr, int instr
                             if (IsValidImageAdr(_item.IntValue))
                                 _line += GetSetString(_argInfo->TypeDef, Code + Adr2Pos(_item.IntValue));
                             else
-                                _line += GetSetString(_argInfo->TypeDef, (BYTE *) &_item.IntValue);
+                                _line += GetSetString(_argInfo->TypeDef, (Byte *) &_item.IntValue);
                         } else
                             _line += _item.Value;
                         continue;
@@ -3472,10 +3470,10 @@ bool __fastcall TDecompiler::SimulateCall(DWORD curAdr, DWORD callAdr, int instr
             //Method
             _recM = FMain_11011981->GetMethodInfo(_classAdr, 'V', DisInfo.Offset);
             if (_recM) {
-                callAdr = *((DWORD *) (Code + Adr2Pos(_classAdr) - cVmtSelfPtr + DisInfo.Offset));
+                callAdr = *((DWord *) (Code + Adr2Pos(_classAdr) - cVmtSelfPtr + DisInfo.Offset));
                 if (_recM->abstract) {
                     _classAdr = GetChildAdr(_classAdr);
-                    callAdr = *((DWORD *) (Code + Adr2Pos(_classAdr) - cVmtSelfPtr + DisInfo.Offset));
+                    callAdr = *((DWord *) (Code + Adr2Pos(_classAdr) - cVmtSelfPtr + DisInfo.Offset));
                 }
                 if (_recM->name != "")
                     return SimulateCall(curAdr, callAdr, instrLen, _recM, _classAdr);
@@ -3495,10 +3493,10 @@ bool __fastcall TDecompiler::SimulateCall(DWORD curAdr, DWORD callAdr, int instr
                     _classAdr = GetClassAdr(_typeName);
                     _recM = FMain_11011981->GetMethodInfo(_classAdr, 'V', DisInfo.Offset);
                 }
-                callAdr = *((DWORD *) (Code + Adr2Pos(_classAdr) - cVmtSelfPtr + DisInfo.Offset));
+                callAdr = *((DWord *) (Code + Adr2Pos(_classAdr) - cVmtSelfPtr + DisInfo.Offset));
                 if (_recM->abstract) {
                     _classAdr = GetChildAdr(_classAdr);
-                    callAdr = *((DWORD *) (Code + Adr2Pos(_classAdr) - cVmtSelfPtr + DisInfo.Offset));
+                    callAdr = *((DWord *) (Code + Adr2Pos(_classAdr) - cVmtSelfPtr + DisInfo.Offset));
                 }
                 if (_recM->name != "")
                     return SimulateCall(curAdr, callAdr, instrLen, _recM, _classAdr);
@@ -3579,10 +3577,10 @@ bool __fastcall TDecompiler::SimulateCall(DWORD curAdr, DWORD callAdr, int instr
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TDecompiler::GetCmpInfo(DWORD fromAdr) {
-    BYTE _b, _op;
+int __fastcall TDecompiler::GetCmpInfo(DWord fromAdr) {
+    Byte _b, _op;
     int _curPos;
-    DWORD _curAdr = fromAdr;
+    DWord _curAdr = fromAdr;
     DISINFO _disInfo;
 
     _curPos = Adr2Pos(_curAdr);
@@ -3625,9 +3623,9 @@ PLoopInfo __fastcall TDecompiler::GetLoopInfo(int fromAdr) {
     bool noVar = true;
     bool down = false;
     bool bWhile = false;
-    BYTE _op;
+    Byte _op;
     int instrLen, pos, pos1, fromPos, num, intTo, idx, idxVal = 0;
-    DWORD maxAdr = 0, brkAdr = 0, lastAdr = 0, stopAdr, _dd, _dd1;
+    DWord maxAdr = 0, brkAdr = 0, lastAdr = 0, stopAdr, _dd, _dd1;
     PInfoRec recN;
     PLoopInfo res;
     DISINFO _disInfo;
@@ -3638,7 +3636,7 @@ PLoopInfo __fastcall TDecompiler::GetLoopInfo(int fromAdr) {
     fromPos = Adr2Pos(fromAdr);
     pos1 = GetNearestUpInstruction(fromPos);
     Disasm.Disassemble(Code + pos1, (__int64) Pos2Adr(pos1), &_disInfo, 0);
-    _dd = *((DWORD *) _disInfo.Mnem);
+    _dd = *((DWord *) _disInfo.Mnem);
     if (_dd == 'pmj') bWhile = true;
 
     recN = GetInfoRec(fromAdr);
@@ -3656,7 +3654,7 @@ PLoopInfo __fastcall TDecompiler::GetLoopInfo(int fromAdr) {
             res = new TLoopInfo('W', fromAdr, brkAdr, lastAdr); //while
             return res;
         }
-        _dd = *((DWORD *) _disInfo.Mnem);
+        _dd = *((DWord *) _disInfo.Mnem);
         if (_dd == 'pmj') {
             res = new TLoopInfo('T', fromAdr, brkAdr, lastAdr); //while true
             res->whileInfo = new TWhileInfo(true);
@@ -3665,7 +3663,7 @@ PLoopInfo __fastcall TDecompiler::GetLoopInfo(int fromAdr) {
         //First instruction before maxAdr
         pos1 = GetNearestUpInstruction(Adr2Pos(maxAdr), fromPos);
         Disasm.Disassemble(Code + pos1, (__int64) Pos2Adr(pos1), &_disInfo, 0);
-        _dd1 = *((DWORD *) _disInfo.Mnem);
+        _dd1 = *((DWord *) _disInfo.Mnem);
         //cmp reg/mem, imm
         if (_dd1 == 'pmc' && _disInfo.OpType[1] == otIMM) {
             noVar = false;
@@ -3824,7 +3822,7 @@ PLoopInfo __fastcall TDecompiler::GetLoopInfo(int fromAdr) {
             while (1) {
                 pos = GetNearestUpInstruction(pos);
                 Disasm.Disassemble(Code + pos, (__int64) Pos2Adr(pos), &_disInfo, 0);
-                _dd = *((DWORD *) _disInfo.Mnem);
+                _dd = *((DWord *) _disInfo.Mnem);
                 if (_dd == 'cni' || _dd == 'ced' || _dd == 'dda' || _dd == 'bus') {
                     if (_disInfo.OpType[0] == otREG) {
                         GetRegItem(_disInfo.OpRegIdx[0], &item);
@@ -4027,7 +4025,7 @@ PLoopInfo __fastcall TDecompiler::GetLoopInfo(int fromAdr) {
             while (1) {
                 pos = GetNearestUpInstruction(pos);
                 Disasm.Disassemble(Code + pos, (__int64) Pos2Adr(pos), &_disInfo, 0);
-                _dd = *((DWORD *) _disInfo.Mnem);
+                _dd = *((DWord *) _disInfo.Mnem);
                 if (_dd == 'cni' || _dd == 'ced' || _dd == 'dda' || _dd == 'bus') {
                     if (_disInfo.OpType[0] == otREG) {
                         GetRegItem(_disInfo.OpRegIdx[0], &item);
@@ -4156,10 +4154,10 @@ PLoopInfo __fastcall TDecompiler::GetLoopInfo(int fromAdr) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TDecompiler::SimulatePush(DWORD curAdr, bool bShowComment) {
+void __fastcall TDecompiler::SimulatePush(DWord curAdr, bool bShowComment) {
     bool _vmt;
     int _offset, _idx;
-    BYTE *_pdi, _b;
+    Byte *_pdi, _b;
     ITEM _item, _item1;
     PInfoRec _recN;
     String _name, _type, _typeName, _value, _regname;
@@ -4180,7 +4178,7 @@ void __fastcall TDecompiler::SimulatePush(DWORD curAdr, bool bShowComment) {
         InitItem(&_item);
         _item.Flags = IF_INTVAL;
         /*
-        _pdi = (BYTE*)&DisInfo.Immediate; _b = *_pdi;
+        _pdi = (Byte*)&DisInfo.Immediate; _b = *_pdi;
         if (DisInfo.ImmSize == 1)//byte
         {
             if (_b & 0x80)
@@ -4331,7 +4329,7 @@ void __fastcall TDecompiler::SimulatePush(DWORD curAdr, bool bShowComment) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TDecompiler::SimulatePop(DWORD curAdr) {
+void __fastcall TDecompiler::SimulatePop(DWord curAdr) {
     String _regname;
     PITEM _item;
 
@@ -4361,7 +4359,7 @@ void __fastcall TDecompiler::SimulatePop(DWORD curAdr) {
 
 //---------------------------------------------------------------------------
 //Simulate instruction with 1 operand
-void __fastcall TDecompiler::SimulateInstr1(DWORD curAdr, BYTE Op) {
+void __fastcall TDecompiler::SimulateInstr1(DWord curAdr, Byte Op) {
     int _regIdx, _offset;
     ITEM _item, _item1, _item2, _itemBase, _itemSrc;
     String _name, _value, _line, _comment;
@@ -4535,13 +4533,13 @@ void __fastcall TDecompiler::SimulateInstr1(DWORD curAdr, BYTE Op) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TDecompiler::SimulateInstr2RegImm(DWORD curAdr, BYTE Op) {
+void __fastcall TDecompiler::SimulateInstr2RegImm(DWord curAdr, Byte Op) {
     bool _vmt, _ptr;
-    BYTE _kind, _kind1, _kind2;
+    Byte _kind, _kind1, _kind2;
     char *_tmpBuf;
     int _reg1Idx, _reg2Idx, _offset, _foffset, _pow2, _mod, _size;
     int _idx, _classSize, _dotpos, _len, _ap;
-    DWORD _adr;
+    DWord _adr;
     ITEM _itemSrc, _itemDst, _itemBase, _itemIndx;
     ITEM _item, _item1, _item2;
     PInfoRec _recN, _recN1;
@@ -4670,7 +4668,7 @@ void __fastcall TDecompiler::SimulateInstr2RegImm(DWORD curAdr, BYTE Op) {
         GetRegItem(_reg1Idx, &_item);
         _kind = GetTypeKind(_item.Type, &_size);
         if (_kind == ikSet) {
-            CmpInfo.L = GetSetString(_item.Type, (BYTE *) &DisInfo.Immediate);
+            CmpInfo.L = GetSetString(_item.Type, (Byte *) &DisInfo.Immediate);
             CmpInfo.O = CmpOp + 12; //look GetDirectCondition (in)
             CmpInfo.R = GetDecompilerRegisterName(_reg1Idx);
             return;
@@ -4894,11 +4892,11 @@ void __fastcall TDecompiler::SimulateInstr2RegImm(DWORD curAdr, BYTE Op) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TDecompiler::SimulateInstr2RegReg(DWORD curAdr, BYTE Op) {
+void __fastcall TDecompiler::SimulateInstr2RegReg(DWord curAdr, Byte Op) {
     bool _vmt;
-    BYTE _kind;
+    Byte _kind;
     int _reg1Idx, _reg2Idx, _offset, _foffset, _pow2, _mod, _size, _idx, _classSize, _dotpos;
-    DWORD _adr;
+    DWord _adr;
     ITEM _itemSrc, _itemDst, _itemBase, _itemIndx;
     ITEM _item, _item1, _item2;
     PInfoRec _recN, _recN1;
@@ -5071,11 +5069,11 @@ void __fastcall TDecompiler::SimulateInstr2RegReg(DWORD curAdr, BYTE Op) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TDecompiler::SimulateInstr2RegMem(DWORD curAdr, BYTE Op) {
+void __fastcall TDecompiler::SimulateInstr2RegMem(DWord curAdr, Byte Op) {
     bool _vmt;
-    BYTE _kind, _kind1, _kind2;
+    Byte _kind, _kind1, _kind2;
     int _reg1Idx, _reg2Idx, _offset, _foffset, _pow2, _mod, _size, _idx, _idx1, _classSize, _ap;
-    DWORD _adr;
+    DWord _adr;
     ITEM _itemSrc, _itemDst, _itemBase, _itemIndx;
     ITEM _item, _item1, _item2;
     PInfoRec _recN, _recN1;
@@ -5243,7 +5241,7 @@ void __fastcall TDecompiler::SimulateInstr2RegMem(DWORD curAdr, BYTE Op) {
                 _type = _recN->type;
 
                 if (_ap >= 0) {
-                    _adr = *(DWORD *) (Code + _ap);
+                    _adr = *(DWord *) (Code + _ap);
                     //May be pointer to var
                     if (IsValidImageAdr(_adr)) {
                         _recN1 = GetInfoRec(_adr);
@@ -5386,7 +5384,7 @@ void __fastcall TDecompiler::SimulateInstr2RegMem(DWORD curAdr, BYTE Op) {
             if (IsValidImageAdr(_item2.IntValue))
                 _line += GetSetString(_item1.Type, Code + Adr2Pos(_item2.IntValue));
             else
-                _line += GetSetString(_item1.Type, (BYTE *) &_item2.IntValue);
+                _line += GetSetString(_item1.Type, (Byte *) &_item2.IntValue);
         } else
             _line += _item2.Value;
         _line += ";";
@@ -5403,11 +5401,11 @@ void __fastcall TDecompiler::SimulateInstr2RegMem(DWORD curAdr, BYTE Op) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TDecompiler::SimulateInstr2MemImm(DWORD curAdr, BYTE Op) {
+void __fastcall TDecompiler::SimulateInstr2MemImm(DWord curAdr, Byte Op) {
     bool _vmt;
-    BYTE _kind, _kind1, _kind2;
+    Byte _kind, _kind1, _kind2;
     int _reg1Idx, _reg2Idx, _offset, _foffset, _pow2, _mod, _size, _idx, _idx1, _classSize, _ap;
-    DWORD _adr;
+    DWord _adr;
     ITEM _itemSrc, _itemDst, _itemBase, _itemIndx;
     ITEM _item, _item1, _item2;
     PInfoRec _recN, _recN1;
@@ -5441,7 +5439,7 @@ void __fastcall TDecompiler::SimulateInstr2MemImm(DWORD curAdr, BYTE Op) {
             _typeName = TrimTypeName(Env->Stack[_itemDst.IntValue].Type);
             _kind = GetTypeKind(_typeName, &_size);
             if (_kind == ikSet) {
-                CmpInfo.L = GetSetString(_typeName, (BYTE *) &DisInfo.Immediate);
+                CmpInfo.L = GetSetString(_typeName, (Byte *) &DisInfo.Immediate);
                 CmpInfo.O = CmpOp + 12;
                 CmpInfo.R = _name;
                 return;
@@ -5599,7 +5597,7 @@ void __fastcall TDecompiler::SimulateInstr2MemImm(DWORD curAdr, BYTE Op) {
     }
     if (Op == OP_TEST) {
         if (_kind == ikSet) {
-            CmpInfo.L = GetSetString(_typeName, (BYTE *) &DisInfo.Immediate);
+            CmpInfo.L = GetSetString(_typeName, (Byte *) &DisInfo.Immediate);
             CmpInfo.O = CmpOp + 12;
             CmpInfo.R = _name;
             return;
@@ -5645,11 +5643,11 @@ void __fastcall TDecompiler::SimulateInstr2MemImm(DWORD curAdr, BYTE Op) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TDecompiler::SimulateInstr2MemReg(DWORD curAdr, BYTE Op) {
+void __fastcall TDecompiler::SimulateInstr2MemReg(DWord curAdr, Byte Op) {
     bool _vmt;
-    BYTE _kind, _kind1, _kind2;
+    Byte _kind, _kind1, _kind2;
     int _reg2Idx, _offset, _foffset, _pow2, _mod, _size, _idx, _idx1, _classSize, _ap;
-    DWORD _adr;
+    DWord _adr;
     ITEM _itemSrc, _itemDst, _itemBase, _itemIndx;
     ITEM _item, _item1, _item2;
     PInfoRec _recN, _recN1;
@@ -5728,7 +5726,7 @@ void __fastcall TDecompiler::SimulateInstr2MemReg(DWORD curAdr, BYTE Op) {
         _recN = GetInfoRec(_offset);
         if (_recN) MakeGvar(_recN, _offset, curAdr);
         if (_ap >= 0) {
-            _adr = *(DWORD *) (Code + _ap);
+            _adr = *(DWord *) (Code + _ap);
             //May be pointer to var
             if (IsValidImageAdr(_adr)) {
                 _recN = GetInfoRec(_adr);
@@ -5748,7 +5746,7 @@ void __fastcall TDecompiler::SimulateInstr2MemReg(DWORD curAdr, BYTE Op) {
                     _ap = Adr2Pos(_offset); _recN = GetInfoRec(_offset);
                     if (_ap >= 0)
                     {
-                        _adr = *(DWORD*)(Code + _ap);
+                        _adr = *(DWord*)(Code + _ap);
                         //May be pointer to var
                         if (IsValidImageAdr(_adr))
                         {
@@ -5782,7 +5780,7 @@ void __fastcall TDecompiler::SimulateInstr2MemReg(DWORD curAdr, BYTE Op) {
         if (_typeName != "") {
             _kind = GetTypeKind(_typeName, &_size);
             if (_kind == ikSet) {
-                _line += GetSetString(_typeName, (BYTE *) &_itemSrc.IntValue) + ";";
+                _line += GetSetString(_typeName, (Byte *) &_itemSrc.IntValue) + ";";
                 Env->AddToBody(_line);
                 return;
             }
@@ -5832,7 +5830,7 @@ void __fastcall TDecompiler::SimulateInstr2MemReg(DWORD curAdr, BYTE Op) {
 
 //---------------------------------------------------------------------------
 //Simulate instruction with 2 operands
-void __fastcall TDecompiler::SimulateInstr2(DWORD curAdr, BYTE Op) {
+void __fastcall TDecompiler::SimulateInstr2(DWord curAdr, Byte Op) {
     if (DisInfo.OpType[0] == otREG) {
         if (DisInfo.OpType[1] == otIMM) {
             SimulateInstr2RegImm(curAdr, Op);
@@ -5861,7 +5859,7 @@ void __fastcall TDecompiler::SimulateInstr2(DWORD curAdr, BYTE Op) {
 
 //---------------------------------------------------------------------------
 //Simulate instruction with 3 operands
-void __fastcall TDecompiler::SimulateInstr3(DWORD curAdr, BYTE Op) {
+void __fastcall TDecompiler::SimulateInstr3(DWord curAdr, Byte Op) {
     int _reg1Idx, _reg2Idx, _imm;
     ITEM _itemDst, _itemSrc;
     String _value, _line, _comment;
@@ -5904,10 +5902,10 @@ void __fastcall TDecompiler::SimulateInstr3(DWORD curAdr, BYTE Op) {
 }
 
 //---------------------------------------------------------------------------
-DWORD __fastcall TDecompiler::DecompileTry(DWORD fromAdr, DWORD flags, PLoopInfo loopInfo) {
-    BYTE op;
+DWord __fastcall TDecompiler::DecompileTry(DWord fromAdr, DWord flags, PLoopInfo loopInfo) {
+    Byte op;
     int pos, tpos, pos1, instrLen, skipNum;
-    DWORD startTryAdr, endTryAdr = 0, startFinallyAdr, endFinallyAdr, endExceptAdr, adr, endAdr, hAdr;
+    DWord startTryAdr, endTryAdr = 0, startFinallyAdr, endFinallyAdr, endExceptAdr, adr, endAdr, hAdr;
     PInfoRec recN;
     ITEM item;
     TDecompiler *de;
@@ -5999,12 +5997,12 @@ DWORD __fastcall TDecompiler::DecompileTry(DWORD fromAdr, DWORD flags, PLoopInfo
         //on except
         if (IsFlagSet(cfETable, pos)) {
             Env->AddToBody("except");
-            int num = *((DWORD *) (Code + pos));
+            int num = *((DWord *) (Code + pos));
             pos += 4;
             //Table pos
             tpos = pos;
             for (int n = 0; n < num; n++) {
-                adr = *((DWORD *) (Code + pos));
+                adr = *((DWord *) (Code + pos));
                 pos += 4;
                 if (IsValidCodeAdr(adr)) {
                     recN = GetInfoRec(adr);
@@ -6016,7 +6014,7 @@ DWORD __fastcall TDecompiler::DecompileTry(DWORD fromAdr, DWORD flags, PLoopInfo
                 } else {
                     Env->AddToBody("else");
                 }
-                hAdr = *((DWORD *) (Code + pos));
+                hAdr = *((DWord *) (Code + pos));
                 pos += 4;
                 if (IsValidCodeAdr(hAdr)) {
                     de = new TDecompiler(Env);
@@ -6025,7 +6023,7 @@ DWORD __fastcall TDecompiler::DecompileTry(DWORD fromAdr, DWORD flags, PLoopInfo
                     pos1 = tpos;
                     for (int m = 0; m < num; m++) {
                         pos1 += 4;
-                        adr = *((DWORD *) (Code + pos1));
+                        adr = *((DWord *) (Code + pos1));
                         pos1 += 4;
                         de->SetStop(adr);
                     }
@@ -6065,9 +6063,9 @@ DWORD __fastcall TDecompiler::DecompileTry(DWORD fromAdr, DWORD flags, PLoopInfo
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TDecompiler::MarkCaseEnum(DWORD fromAdr) {
-    BYTE b;
-    DWORD adr = fromAdr, jAdr;
+void __fastcall TDecompiler::MarkCaseEnum(DWord fromAdr) {
+    Byte b;
+    DWord adr = fromAdr, jAdr;
     int n, pos = Adr2Pos(fromAdr), cTblPos, jTblPos;
 
     //cmp reg, Imm
@@ -6078,14 +6076,14 @@ void __fastcall TDecompiler::MarkCaseEnum(DWORD fromAdr) {
     adr += instrLen;
     //ja EndOfCaseAdr
     instrLen = Disasm.Disassemble(Code + pos, (__int64) adr, &DisInfo, 0);
-    DWORD endOfCaseAdr = DisInfo.Immediate;
+    DWord endOfCaseAdr = DisInfo.Immediate;
 
     pos += instrLen;
     adr += instrLen;
     //mov???
     instrLen = Disasm.Disassemble(Code + pos, (__int64) adr, &DisInfo, 0);
-    BYTE op = Disasm.GetOp(DisInfo.Mnem);
-    DWORD cTblAdr = 0, jTblAdr = 0;
+    Byte op = Disasm.GetOp(DisInfo.Mnem);
+    DWord cTblAdr = 0, jTblAdr = 0;
     if (op == OP_MOV) {
         cTblAdr = DisInfo.Offset;
         pos += instrLen;
@@ -6104,7 +6102,7 @@ void __fastcall TDecompiler::MarkCaseEnum(DWORD fromAdr) {
         }
         jTblPos = Adr2Pos(jTblAdr);
         for (n = 0; n <= maxN; n++) {
-            jAdr = *((DWORD *) (Code + jTblPos));
+            jAdr = *((DWord *) (Code + jTblPos));
             SetStop(jAdr);
             jTblPos += 4;
         }
@@ -6112,7 +6110,7 @@ void __fastcall TDecompiler::MarkCaseEnum(DWORD fromAdr) {
         jTblPos = Adr2Pos(jTblAdr);
         for (n = 0; n < caseNum; n++) {
             if (IsFlagSet(cfCode | cfLoc, jTblPos)) break;
-            jAdr = *((DWORD *) (Code + jTblPos));
+            jAdr = *((DWord *) (Code + jTblPos));
             SetStop(jAdr);
             jTblPos += 4;
         }
@@ -6120,10 +6118,10 @@ void __fastcall TDecompiler::MarkCaseEnum(DWORD fromAdr) {
 }
 
 //---------------------------------------------------------------------------
-DWORD __fastcall TDecompiler::DecompileCaseEnum(DWORD fromAdr, int N, PLoopInfo loopInfo) {
+DWord __fastcall TDecompiler::DecompileCaseEnum(DWord fromAdr, int N, PLoopInfo loopInfo) {
     bool skip;
-    BYTE b;
-    DWORD adr = fromAdr, jAdr = 0, jAdr1, _adr, _endAdr = 0;
+    Byte b;
+    DWord adr = fromAdr, jAdr = 0, jAdr1, _adr, _endAdr = 0;
     int n, m, pos = Adr2Pos(fromAdr), cTblPos, cTblPos1, jTblPos, jTblPos1;
     ITEM item, item1;
     String line = "";
@@ -6137,14 +6135,14 @@ DWORD __fastcall TDecompiler::DecompileCaseEnum(DWORD fromAdr, int N, PLoopInfo 
     adr += instrLen;
     //ja EndOfCaseAdr
     instrLen = Disasm.Disassemble(Code + pos, (__int64) adr, &DisInfo, 0);
-    DWORD endOfCaseAdr = DisInfo.Immediate;
+    DWord endOfCaseAdr = DisInfo.Immediate;
 
     pos += instrLen;
     adr += instrLen;
     //mov???
     instrLen = Disasm.Disassemble(Code + pos, (__int64) adr, &DisInfo, 0);
-    BYTE op = Disasm.GetOp(DisInfo.Mnem);
-    DWORD cTblAdr = 0, jTblAdr = 0;
+    Byte op = Disasm.GetOp(DisInfo.Mnem);
+    DWord cTblAdr = 0, jTblAdr = 0;
     if (op == OP_MOV) {
         cTblAdr = DisInfo.Offset;
         pos += instrLen;
@@ -6168,7 +6166,7 @@ DWORD __fastcall TDecompiler::DecompileCaseEnum(DWORD fromAdr, int N, PLoopInfo 
             cTblPos = Adr2Pos(cTblAdr);
             for (n = 0; n < cNum; n++) {
                 b = *(Code + cTblPos);
-                jAdr = *((DWORD *) (Code + jTblPos));
+                jAdr = *((DWord *) (Code + jTblPos));
                 if (b == m) {
                     if (jAdr == endOfCaseAdr) {
                         skip = true;
@@ -6208,13 +6206,13 @@ DWORD __fastcall TDecompiler::DecompileCaseEnum(DWORD fromAdr, int N, PLoopInfo 
     jTblPos = Adr2Pos(jTblAdr);
     for (n = 0; n < caseNum; n++) {
         if (IsFlagSet(cfCode | cfLoc, jTblPos)) break;
-        jAdr = *((DWORD *) (Code + jTblPos));
+        jAdr = *((DWord *) (Code + jTblPos));
         if (jAdr != endOfCaseAdr) {
             skip = false;
             //If case already decompiled?
             jTblPos1 = Adr2Pos(jTblAdr);
             for (m = 0; m < n; m++) {
-                jAdr1 = *((DWORD *) (Code + jTblPos1));
+                jAdr1 = *((DWord *) (Code + jTblPos1));
                 if (jAdr1 == jAdr) {
                     skip = true;
                     break;
@@ -6227,7 +6225,7 @@ DWORD __fastcall TDecompiler::DecompileCaseEnum(DWORD fromAdr, int N, PLoopInfo 
                 jTblPos1 = Adr2Pos(jTblAdr);
                 for (m = 0; m < caseNum; m++) {
                     if (IsFlagSet(cfCode | cfLoc, jTblPos1)) break;
-                    jAdr1 = *((DWORD *) (Code + jTblPos1));
+                    jAdr1 = *((DWord *) (Code + jTblPos1));
                     if (jAdr1 == jAdr) {
                         if (line != "") line += ",";
                         line += String(m + N);
@@ -6322,9 +6320,9 @@ String __fastcall TDecompiler::GetSysCallAlias(String AName) {
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall TDecompiler::SimulateSysCall(String name, DWORD procAdr, int instrLen) {
+bool __fastcall TDecompiler::SimulateSysCall(String name, DWord procAdr, int instrLen) {
     int _cnt, _esp, _cmpRes, _size;
-    DWORD _adr;
+    DWord _adr;
     ITEM _item, _item1, _item2, _item3, _item4;
     PInfoRec _recN;
     String _line, _value, _value1, _value2, _typeName, _varName1, _varName2, _op;
@@ -7412,7 +7410,7 @@ bool __fastcall TDecompiler::SimulateSysCall(String name, DWORD procAdr, int ins
 
 //---------------------------------------------------------------------------
 void __fastcall TDecompiler::SimulateFormatCall() {
-    int n, _num = 0, _ofs, _esp;
+    int _num = 0, _ofs, _esp;
     String _line = "Format(";
     ITEM _item;
 
@@ -7428,7 +7426,7 @@ void __fastcall TDecompiler::SimulateFormatCall() {
     GetRegItem(17, &_item);
     _num = _item.IntValue + 1;
 
-    for (n = 0; n < _num; n++) {
+    for (int n = 0; n < _num; n++) {
         if (n) _line += ", ";
         _line += Env->Stack[_ofs].Value;
         _ofs += 5;
@@ -7445,11 +7443,11 @@ void __fastcall TDecompiler::SimulateFormatCall() {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TDecompiler::SimulateFloatInstruction(DWORD curAdr) {
+void __fastcall TDecompiler::SimulateFloatInstruction(DWord curAdr) {
     bool _vmt, _r, _p, _pp;
     int _reg1Idx, _reg2Idx, _offset, _cmpRes, _ea, _sz, _ofs;
     char *_pos;
-    DWORD _dd;
+    DWord _dd;
     ITEM _item, _itemBase, _itemSrc;
     PInfoRec _recN;
     PFIELDINFO _fInfo;
@@ -7458,7 +7456,7 @@ void __fastcall TDecompiler::SimulateFloatInstruction(DWORD curAdr) {
     _r = false;
     _p = false;
     _pp = false;
-    _dd = *((DWORD *) (DisInfo.Mnem + 1));
+    _dd = *((DWord *) (DisInfo.Mnem + 1));
     //fild, fld
     if (_dd == 'dli' || _dd == 'dl') {
         //op Mem
@@ -8144,11 +8142,11 @@ String __fastcall TDecompiler::GetCycleTo() {
 }
 
 //---------------------------------------------------------------------------
-DWORD __fastcall TDecompiler::DecompileGeneralCase(DWORD fromAdr, DWORD markAdr, PLoopInfo loopInfo, int N) {
-    //bool        _changed = false;
+DWord __fastcall TDecompiler::DecompileGeneralCase(DWord fromAdr, DWord markAdr, PLoopInfo loopInfo, int N) {
+    //bool _changed = false;
     int _N, _N1 = N, _N2;
-    DWORD _dd;
-    DWORD _curAdr = fromAdr, _adr, _endAdr = 0, _begAdr;
+    DWord _dd;
+    DWord _curAdr = fromAdr, _adr, _endAdr = 0, _begAdr;
     int _curPos = Adr2Pos(fromAdr);
     int _len, _instrLen;
     TDecompiler *de;
@@ -8156,7 +8154,7 @@ DWORD __fastcall TDecompiler::DecompileGeneralCase(DWORD fromAdr, DWORD markAdr,
 
     while (1) {
         _len = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-        _dd = *((DWORD *) _disInfo.Mnem);
+        _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
         //Switch at current address
         if (IsFlagSet(cfSwitch, _curPos)) {
             de = new TDecompiler(Env);
@@ -8206,7 +8204,7 @@ DWORD __fastcall TDecompiler::DecompileGeneralCase(DWORD fromAdr, DWORD markAdr,
         if (_dd == 'pmc' && _disInfo.OpType[0] == otREG && _disInfo.OpType[1] == otIMM) {
             _N = _disInfo.Immediate;
             _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-            _dd = *((DWORD *) _disInfo.Mnem);
+            _dd = *((DWord *) _disInfo.Mnem);
             if (_dd == 'bj' || _dd == 'gj' || _dd == 'egj') {
                 _adr = DecompileGeneralCase(_disInfo.Immediate, markAdr, loopInfo, _N1);
                 if (_adr > _endAdr) _endAdr = _adr;
@@ -8215,7 +8213,7 @@ DWORD __fastcall TDecompiler::DecompileGeneralCase(DWORD fromAdr, DWORD markAdr,
                 _curPos += _len;
 
                 _len = Disasm.Disassemble(Code + _curPos, (__int64)(_curAdr), &_disInfo, 0);
-                _dd = *((DWORD *) _disInfo.Mnem);
+                _dd = *((DWord *) _disInfo.Mnem);
                 if (_dd == 'zj' || _dd == 'ej') {
                     Env->AddToBody(String(_N) + ":");
                     _begAdr = _disInfo.Immediate;
@@ -8260,7 +8258,7 @@ DWORD __fastcall TDecompiler::DecompileGeneralCase(DWORD fromAdr, DWORD markAdr,
             _curPos += _len;
 
             _len = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-            _dd = *((DWORD *) _disInfo.Mnem);
+            _dd = *((DWord *) _disInfo.Mnem);
             if (_dd == 'bj') {
                 Env->AddToBody(String(_N1 - _N2) + ".." + String(_N1 - 1) + ":");
                 _begAdr = _disInfo.Immediate;
@@ -8285,7 +8283,7 @@ DWORD __fastcall TDecompiler::DecompileGeneralCase(DWORD fromAdr, DWORD markAdr,
                 _curAdr += _len;
                 _curPos += _len;
                 _len = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-                _dd = *((DWORD *) _disInfo.Mnem);
+                _dd = *((DWord *) _disInfo.Mnem);
                 if (_dd == 'zj' || _dd == 'ej') {
                     Env->AddToBody(String(_N1) + ":");
                     _begAdr = _disInfo.Immediate;
@@ -8376,7 +8374,7 @@ DWORD __fastcall TDecompiler::DecompileGeneralCase(DWORD fromAdr, DWORD markAdr,
             _curPos += _len;
 
             _len = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-            _dd = *((DWORD *) _disInfo.Mnem);
+            _dd = *((DWord *) _disInfo.Mnem);
             if (_dd == 'zj' || _dd == 'ej') {
                 Env->AddToBody(String(_N1) + ":");
                 _begAdr = _disInfo.Immediate;
@@ -8409,16 +8407,16 @@ DWORD __fastcall TDecompiler::DecompileGeneralCase(DWORD fromAdr, DWORD markAdr,
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TDecompiler::MarkGeneralCase(DWORD fromAdr) {
-    DWORD _dd;
-    DWORD _curAdr = fromAdr;
+void __fastcall TDecompiler::MarkGeneralCase(DWord fromAdr) {
+    DWord _dd;
+    DWord _curAdr = fromAdr;
     int _curPos = Adr2Pos(fromAdr);
     int _len, _instrLen;
     DISINFO _disInfo;
 
     while (1) {
         _len = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-        _dd = *((DWORD *) _disInfo.Mnem);
+        _dd = *((DWord *) _disInfo.Mnem);
         //Switch at current address
         if (IsFlagSet(cfSwitch, _curPos)) {
             //Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);//ja
@@ -8437,7 +8435,7 @@ void __fastcall TDecompiler::MarkGeneralCase(DWORD fromAdr) {
         //cmp reg, imm
         if (_dd == 'pmc' && _disInfo.OpType[0] == otREG && _disInfo.OpType[1] == otIMM) {
             _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-            _dd = *((DWORD *) _disInfo.Mnem);
+            _dd = *((DWord *) _disInfo.Mnem);
             if (_dd == 'bj' || _dd == 'gj' || _dd == 'egj') {
                 MarkGeneralCase(_disInfo.Immediate);
 
@@ -8445,7 +8443,7 @@ void __fastcall TDecompiler::MarkGeneralCase(DWORD fromAdr) {
                 _curPos += _len;
 
                 _len = Disasm.Disassemble(Code + _curPos, (__int64)(_curAdr), &_disInfo, 0);
-                _dd = *((DWORD *) _disInfo.Mnem);
+                _dd = *((DWord *) _disInfo.Mnem);
                 if (_dd == 'zj' || _dd == 'ej') {
                     SetStop(_disInfo.Immediate);
                     _curAdr += _len;
@@ -8458,17 +8456,17 @@ void __fastcall TDecompiler::MarkGeneralCase(DWORD fromAdr) {
         if ((_dd == 'bus' && _disInfo.OpType[0] == otREG && _disInfo.OpType[1] == otIMM) || (
                 _dd == 'ced' && _disInfo.OpType[0] == otREG)) {
             _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-            _dd = *((DWORD *) _disInfo.Mnem);
+            _dd = *((DWord *) _disInfo.Mnem);
             if (_dd == 'bus') {
                 _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-                _dd = *((DWORD *) _disInfo.Mnem);
+                _dd = *((DWord *) _disInfo.Mnem);
             }
             if (_dd == 'bj') {
                 SetStop(_disInfo.Immediate);
                 _curAdr += _len;
                 _curPos += _len;
                 _len = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-                _dd = *((DWORD *) _disInfo.Mnem);
+                _dd = *((DWord *) _disInfo.Mnem);
                 if (_dd == 'zj' || _dd == 'ej') {
                     SetStop(_disInfo.Immediate);
                     _curAdr += _len;
@@ -8489,10 +8487,10 @@ void __fastcall TDecompiler::MarkGeneralCase(DWORD fromAdr) {
         if ((_dd == 'dda' && _disInfo.OpType[0] == otREG && _disInfo.OpType[1] == otIMM) || (
                 _dd == 'cni' && _disInfo.OpType[0] == otREG)) {
             _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-            _dd = *((DWORD *) _disInfo.Mnem);
+            _dd = *((DWord *) _disInfo.Mnem);
             if (_dd == 'bus') {
                 _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-                _dd = *((DWORD *) _disInfo.Mnem);
+                _dd = *((DWord *) _disInfo.Mnem);
                 if (_dd == 'bj') {
                     SetStop(_disInfo.Immediate);
                     _curAdr += _len;
@@ -8544,7 +8542,7 @@ TDecompiler::GetArrayFieldOffset(String ATypeName, int AFromOfs, int AScale, Str
 
 //---------------------------------------------------------------------------
 void __fastcall TDecompiler::GetInt64ItemFromStack(int Esp, PITEM Dst) {
-    BYTE _binData[8];
+    Byte _binData[8];
     __int64 _int64Val;
     ITEM _item;
 
@@ -8561,7 +8559,7 @@ void __fastcall TDecompiler::GetInt64ItemFromStack(int Esp, PITEM Dst) {
 
 //---------------------------------------------------------------------------
 void __fastcall TDecompiler::GetFloatItemFromStack(int Esp, PITEM Dst, int FloatType) {
-    BYTE _binData[16];
+    Byte _binData[16];
     float _singleVal;
     double _doubleVal;
     long double _extendedVal;
@@ -8626,11 +8624,11 @@ void __fastcall TDecompiler::GetFloatItemFromStack(int Esp, PITEM Dst, int Float
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TDecompiler::GetMemItem(int CurAdr, PITEM Dst, BYTE Op) {
+void __fastcall TDecompiler::GetMemItem(int CurAdr, PITEM Dst, Byte Op) {
     bool _vmt;
-    BYTE _kind;
+    Byte _kind;
     int _offset, _foffset, _pos, _size, _idx, _idx1, _mod, _fofs;
-    DWORD _adr;
+    DWord _adr;
     PInfoRec _recN, _recN1;
     ITEM _item, _itemBase, _itemIndx;
     String _fname, _name, _type, _typeName, _iname, _value, _text, _lvarName;
@@ -9373,7 +9371,7 @@ void __fastcall TDecompiler::GetMemItem(int CurAdr, PITEM Dst, BYTE Op) {
 //---------------------------------------------------------------------------
 String __fastcall TDecompiler::GetStringArgument(PITEM item) {
     int _idx, _ap, _len, _size;
-    DWORD _adr;
+    DWord _adr;
     PInfoRec _recN = nullptr;
     String _key;
 
@@ -9422,10 +9420,10 @@ String __fastcall TDecompiler::GetStringArgument(PITEM item) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TDecompiler::AnalyzeConditions(int brType, DWORD curAdr, DWORD sAdr, DWORD jAdr, PLoopInfo loopInfo,
+int __fastcall TDecompiler::AnalyzeConditions(int brType, DWord curAdr, DWord sAdr, DWord jAdr, PLoopInfo loopInfo,
                                               BOOL bFloat) {
-    DWORD _curAdr = curAdr;
-    DWORD _begAdr, _bodyBegAdr, _bodyEndAdr, _jmpAdr = jAdr;
+    DWord _curAdr = curAdr;
+    DWord _begAdr, _bodyBegAdr, _bodyEndAdr, _jmpAdr = jAdr;
     TDecompiler *de;
     String _line;
 

@@ -26,8 +26,7 @@ class TFLegend_11011981 : public TForm {
     TLabel *lblFin;
     TLabel *lblUnk;
     TButton *btnOK;
-    void __fastcall FormKeyDown(TObject *Sender, WORD &Key,
-                                TShiftState Shift);
+    void __fastcall FormKeyDown(TObject *Sender, Word &Key, TShiftState Shift);
     void __fastcall FormCreate(TObject *Sender);
 
 private: // User declarations

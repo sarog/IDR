@@ -5,19 +5,19 @@
 #include "StringInfo.h"
 #include "TypeInfo2.h"
 
-extern BYTE *Code;
-extern DWORD CodeBase;
+extern Byte *Code;
+extern DWord CodeBase;
 extern MDisasm Disasm;
-extern DWORD TotalSize;
-extern DWORD *Flags;
+extern DWord TotalSize;
+extern DWord *Flags;
 extern PInfoRec *Infos;
-extern DWORD CurUnitAdr;
+extern DWord CurUnitAdr;
 extern int UnitSortField;
 extern int UnitsNum;
 extern bool ProjectModified;
 extern char StringBuf[MAXSTRBUFFER];
-extern DWORD EP;
-extern DWORD CurProcAdr;
+extern DWord EP;
+extern DWord CurProcAdr;
 extern TList *Units;
 
 // extern WideString __fastcall UnicodeEncode(String Str, int CodePage);
@@ -57,13 +57,13 @@ bool __fastcall TFMain_11011981::ContainsUnexplored(PUnitRec recU) {
     if (!recU) return false;
 
     bool unk = false;
-    for (DWORD adr = recU->fromAdr; adr < recU->toAdr; adr++) {
+    for (DWord adr = recU->fromAdr; adr < recU->toAdr; adr++) {
         int n = Adr2Pos(adr);
         if (!Flags[n]) {
-            BYTE b0 = *(Code + n);
+            Byte b0 = *(Code + n);
             if (!unk) {
-                BYTE b1 = *(Code + n + 1);
-                BYTE b2 = *(Code + n + 2);
+                Byte b1 = *(Code + n + 1);
+                Byte b2 = *(Code + n + 2);
                 if ((adr & 3) == 3 && (b0 == 0 || b0 == 0x90))
                     continue;
                 if ((adr & 3) == 2 && ((b0 == 0 && b1 == 0) || (b0 == 0x8B && b1 == 0xC0))) {
@@ -91,7 +91,7 @@ bool __fastcall TFMain_11011981::ContainsUnexplored(PUnitRec recU) {
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::ShowUnits(bool showUnk) {
     int oldItemIdx = lbUnits->ItemIndex;
-    DWORD selAdr = 0;
+    DWord selAdr = 0;
     if (oldItemIdx != -1) {
         String item = lbUnits->Items->Strings[oldItemIdx];
         sscanf(AnsiString(item).c_str() + 1, "%lX", &selAdr);
@@ -191,7 +191,7 @@ void __fastcall TFMain_11011981::lbUnitsClick(TObject *Sender) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::lbUnitsDblClick(TObject *Sender) {
-    DWORD adr;
+    DWord adr;
 
     String item = lbUnits->Items->Strings[lbUnits->ItemIndex];
     sscanf(AnsiString(item).c_str() + 1, "%lX", &adr);
@@ -208,7 +208,7 @@ void __fastcall TFMain_11011981::lbUnitsDblClick(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::lbUnitsKeyDown(TObject *Sender, WORD &Key, TShiftState Shift) {
+void __fastcall TFMain_11011981::lbUnitsKeyDown(TObject *Sender, Word &Key, TShiftState Shift) {
     if (Key == VK_RETURN) lbUnitsDblClick(Sender);
 }
 
@@ -306,7 +306,7 @@ void __fastcall TFMain_11011981::miRenameUnitClick(TObject *Sender) {
     if (lbUnits->ItemIndex == -1) return;
 
     String item = lbUnits->Items->Strings[lbUnits->ItemIndex];
-    DWORD adr;
+    DWord adr;
     sscanf(AnsiString(item).c_str() + 1, "%lX", &adr);
     PUnitRec recU = GetUnit(adr);
 
@@ -342,14 +342,14 @@ void __fastcall TFMain_11011981::ShowUnitItems(PUnitRec recU, int topIdx, int it
     lbUnitItems->Clear();
     lbUnitItems->Items->BeginUpdate();
 
-    for (DWORD adr = recU->fromAdr; adr < recU->toAdr; adr++) {
+    for (DWord adr = recU->fromAdr; adr < recU->toAdr; adr++) {
         int unknum = 0, pos = Adr2Pos(adr);
         if (!IsFlagSet(~cfLoc, pos)) {
-            BYTE b0 = *(Code + pos);
+            Byte b0 = *(Code + pos);
             if (!unk) {
                 unknum = 0;
-                BYTE b1 = *(Code + pos + 1);
-                BYTE b2 = *(Code + pos + 2);
+                Byte b1 = *(Code + pos + 1);
+                Byte b2 = *(Code + pos + 2);
                 if ((adr & 3) == 3 && (b0 == 0 || b0 == 0x90))
                     continue;
                 if ((adr & 3) == 2 && ((b0 == 0 && b1 == 0) || (b0 == 0x8B && b1 == 0xC0) || (
@@ -401,7 +401,7 @@ void __fastcall TFMain_11011981::ShowUnitItems(PUnitRec recU, int topIdx, int it
         PInfoRec recN = GetInfoRec(adr);
         if (!recN) continue;
 
-        BYTE kind = recN->kind;
+        Byte kind = recN->kind;
         //Skip calls, that are in the body of some asm-procs (for example, FloatToText from SysUtils)
         //if (kind >= ikRefine && kind <= ikFunc && recN->procInfo && IsFlagSet(cfImport, pos)) continue;
 
@@ -613,8 +613,8 @@ void __fastcall TFMain_11011981::ShowUnitItems(PUnitRec recU, int topIdx, int it
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::lbUnitItemsDblClick(TObject *Sender) {
     int idx = -1, len, size, refCnt, pos, bytes = 1024;
-    WORD *uses;
-    DWORD adr;
+    Word *uses;
+    DWord adr;
     char *tmpBuf;
     PInfoRec recN;
     MTypeInfo tInfo;
@@ -635,7 +635,7 @@ void __fastcall TFMain_11011981::lbUnitItemsDblClick(TObject *Sender) {
     if (SameText(name, "????")) {
         //Find end of unexplored Data
         //Get first byte (use later for filtering code?data)
-        BYTE db = *(Code + pos);
+        Byte db = *(Code + pos);
 
         FExplorer_11011981->tsCode->TabVisible = true;
         FExplorer_11011981->ShowCode(adr, bytes);
@@ -793,8 +793,7 @@ void __fastcall TFMain_11011981::lbUnitItemsDblClick(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::lbUnitItemsKeyDown(TObject *Sender,
-                                                    WORD &Key, TShiftState Shift) {
+void __fastcall TFMain_11011981::lbUnitItemsKeyDown(TObject *Sender, Word &Key, TShiftState Shift) {
     if (Key == VK_RETURN) lbUnitItemsDblClick(Sender);
 }
 
@@ -895,7 +894,7 @@ void __fastcall TFMain_11011981::miSearchItemClick(
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::miEditFunctionIClick(TObject *Sender) {
     int refCnt;
-    DWORD adr;
+    DWord adr;
     char tkName[32];
 
     if (lbUnitItems->ItemIndex < 0) return;

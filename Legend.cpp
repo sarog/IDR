@@ -18,9 +18,9 @@ __fastcall TFLegend_11011981::TFLegend_11011981(TComponent *Owner)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFLegend_11011981::FormKeyDown(TObject *Sender, WORD &Key,
-                                               TShiftState Shift) {
-    if (VK_ESCAPE == Key) Close();
+void __fastcall TFLegend_11011981::FormKeyDown(TObject *Sender, Word &Key, TShiftState Shift) {
+    if (VK_ESCAPE == Key)
+        Close();
 }
 
 //---------------------------------------------------------------------------

@@ -2,27 +2,27 @@
 #include "Misc.h"
 #include "Disasm.h"
 
-extern BYTE *Code;
-extern DWORD CodeBase;
+extern Byte *Code;
+extern DWord CodeBase;
 extern MDisasm Disasm;
-extern DWORD TotalSize;
-extern DWORD *Flags;
+extern DWord TotalSize;
+extern DWord *Flags;
 extern PInfoRec *Infos;
-extern DWORD EP;
+extern DWord EP;
 
 //---------------------------------------------------------------------------
 //Create XRefs
 //Scan procedure calls (include constructors and destructors)
 //Calculate size of stack for arguments
-void __fastcall TFMain_11011981::AnalyzeProc1(DWORD fromAdr, char xrefType, DWORD xrefAdr, int xrefOfs, bool maybeEmb) {
-    BYTE op, b1, b2;
+void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWord xrefAdr, int xrefOfs, bool maybeEmb) {
+    Byte op, b1, b2;
     bool bpBased = false;
-    WORD bpBase = 4;
+    Word bpBase = 4;
     int num, skipNum, instrLen, instrLen1, instrLen2, procSize;
-    DWORD b;
+    DWord b;
     int fromPos, curPos, Pos, Pos1, Pos2;
-    DWORD curAdr, Adr, Adr1, finallyAdr, endAdr, maxAdr;
-    DWORD lastMovTarget = 0, lastCmpPos = 0, lastAdr = 0;
+    DWord curAdr, Adr, Adr1, finallyAdr, endAdr, maxAdr;
+    DWord lastMovTarget = 0, lastCmpPos = 0, lastAdr = 0;
     PInfoRec recN, recN1;
     PXrefRec recX;
     DISINFO DisInfo;
@@ -255,7 +255,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWORD fromAdr, char xrefType, DWOR
                         SetFlags(cfSkip, Pos, 4);
                         Pos += 4;
                         //dd offset ExceptionProc
-                        DWORD procAdr = *((DWORD *) (Code + Pos));
+                        DWord procAdr = *((DWord *) (Code + Pos));
                         if (IsValidCodeAdr(procAdr)) SetFlag(cfLoc, Adr2Pos(procAdr));
                         SetFlags(cfSkip, Pos, 4);
                         Pos += 4;
@@ -459,18 +459,18 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWORD fromAdr, char xrefType, DWOR
                 recN->procInfo->procSize = curAdr - fromAdr + instrLen;
                 break;
             }
-            DWORD cTblAdr = 0, jTblAdr = 0;
+            DWord cTblAdr = 0, jTblAdr = 0;
             SetFlag(cfSwitch, lastCmpPos);
             SetFlag(cfSwitch, curPos);
 
             Pos = curPos + instrLen;
             Adr = curAdr + instrLen;
             //Table address  - last 4 bytes of instruction
-            jTblAdr = *((DWORD *) (Code + Pos - 4));
+            jTblAdr = *((DWord *) (Code + Pos - 4));
             //Scan gap to find table cTbl
             if (Adr <= lastMovTarget && lastMovTarget < jTblAdr) cTblAdr = lastMovTarget;
             //If exists cTblAdr, skip it
-            BYTE CTab[256];
+            Byte CTab[256];
             if (cTblAdr) {
                 int CNum = jTblAdr - cTblAdr;
                 SetFlags(cfSkip, Pos, CNum);
@@ -481,7 +481,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWORD fromAdr, char xrefType, DWOR
                 //Loc - end of table
                 if (IsFlagSet(cfLoc, Pos)) break;
 
-                Adr1 = *((DWORD *) (Code + Pos));
+                Adr1 = *((DWord *) (Code + Pos));
                 //Validate Adr1
                 if (!IsValidCodeAdr(Adr1) || Adr1 < fromAdr) break;
                 //Set cfLoc
@@ -498,7 +498,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWORD fromAdr, char xrefType, DWOR
         }
         if (b1 == 0x68) //try block (push loc_TryBeg)
         {
-            DWORD NPos = curPos + instrLen;
+            DWord NPos = curPos + instrLen;
             //Check that next instruction is push fs:[reg] or retn
             if ((Code[NPos] == 0x64 &&
                  Code[NPos + 1] == 0xFF &&
@@ -614,7 +614,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWORD fromAdr, char xrefType, DWOR
                                         SetFlags(cfSkip, Pos, 4);
                                         Pos += 4;
                                         //dd offset ExceptionProc
-                                        DWORD procAdr = *((DWORD *) (Code + Pos));
+                                        DWord procAdr = *((DWord *) (Code + Pos));
                                         if (IsValidCodeAdr(procAdr)) SetFlag(cfLoc, Adr2Pos(procAdr));
                                         SetFlags(cfSkip, Pos, 4);
                                         Pos += 4;

@@ -9,7 +9,7 @@
 #include <Vcl.StdCtrls.hpp>
 #include "KnowledgeBase.h"
 //---------------------------------------------------------------------------
-String __fastcall Guid2String(BYTE * Guid);
+String __fastcall Guid2String(Byte * Guid);
 
 //---------------------------------------------------------------------------
 class TFTypeInfo_11011981 : public TForm {
@@ -17,22 +17,21 @@ class TFTypeInfo_11011981 : public TForm {
     TMemo * memDescription;
     TPanel *Panel1;
     TButton *bSave;
-    void __fastcall FormKeyDown(TObject *Sender, WORD &Key,
-                                TShiftState Shift);
+    void __fastcall FormKeyDown(TObject *Sender, Word &Key, TShiftState Shift);
     void __fastcall bSaveClick(TObject *Sender);
     void __fastcall FormCreate(TObject *Sender);
 
 private: // User declarations
     int RTTIKind;
-    DWORD RTTIAdr;
+    DWord RTTIAdr;
     String RTTIName;
 
 public: // User declarations
     __fastcall TFTypeInfo_11011981(TComponent *Owner);
     void __fastcall ShowKbInfo(MTypeInfo *tInfo);
-    String __fastcall GetRTTI(DWORD adr);
-    String __fastcall GetCppTypeInfo(DWORD adr, int *size, int action);
-    void __fastcall ShowRTTI(DWORD adr);
+    String __fastcall GetRTTI(DWord adr);
+    String __fastcall GetCppTypeInfo(DWord adr, int *size, int action);
+    void __fastcall ShowRTTI(DWord adr);
 };
 
 //---------------------------------------------------------------------------

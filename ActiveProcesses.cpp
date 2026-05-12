@@ -101,7 +101,7 @@ void TFActiveProcesses::ShowProcesses() {
 
 //---------------------------------------------------------------------------
 void TFActiveProcesses::ShowProcessesNT() {
-    int n, _len, _pos;
+    int _len, _pos;
     String _moduleName;
     TListItem *_li;
     HANDLE _hProcess;
@@ -113,7 +113,7 @@ void TFActiveProcesses::ShowProcessesNT() {
 
     lvProcesses->Items->BeginUpdate();
     lvProcesses->Clear();
-    for (n = 0; n < ProcessesNum; n++) {
+    for (int n = 0; n < ProcessesNum; n++) {
         if (ProcessIds[n]) {
             _hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, ProcessIds[n]);
             if (_hProcess) {
@@ -158,11 +158,8 @@ void __fastcall TFActiveProcesses::lvProcessesClick(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFActiveProcesses::EnumSections(HANDLE HProcess, BYTE *PProcessBase, IMAGE_SECTION_HEADER *Buffer,
-                                                DWORD *Secnum) {
-    int i;
-    BYTE *_pBuf, *_pSection;
-    DWORD _peHdrOffset, _sz;
+void __fastcall TFActiveProcesses::EnumSections(HANDLE HProcess, Byte *PProcessBase, IMAGE_SECTION_HEADER *Buffer, DWord *Secnum) {
+    DWord _peHdrOffset, _sz;
     IMAGE_NT_HEADERS _ntHdr;
     IMAGE_SECTION_HEADER _section;
 
@@ -171,12 +168,12 @@ void __fastcall TFActiveProcesses::EnumSections(HANDLE HProcess, BYTE *PProcessB
     //Read IMAGE_NT_HEADERS.OptionalHeader.BaseOfCode
     if (!ReadProcessMemory(HProcess, PProcessBase + _peHdrOffset, &_ntHdr, sizeof(_ntHdr), &_sz)) return;
 
-    _pSection = PProcessBase + _peHdrOffset + 4 + sizeof(_ntHdr.FileHeader) + _ntHdr.FileHeader.SizeOfOptionalHeader;
-    memset((BYTE *) &_section, 0, sizeof(_section));
+    Byte *_pSection = PProcessBase + _peHdrOffset + 4 + sizeof(_ntHdr.FileHeader) + _ntHdr.FileHeader.SizeOfOptionalHeader;
+    memset((Byte *) &_section, 0, sizeof(_section));
 
     *Secnum = _ntHdr.FileHeader.NumberOfSections;
-    _pBuf = (BYTE *) Buffer;
-    for (i = 0; i < _ntHdr.FileHeader.NumberOfSections && i < 64; i++) {
+    Byte *_pBuf = (Byte *) Buffer;
+    for (int i = 0; i < _ntHdr.FileHeader.NumberOfSections && i < 64; i++) {
         if (!ReadProcessMemory(HProcess, _pSection + i * sizeof(_section), &_section, sizeof(_section), &_sz)) return;
         memmove(_pBuf, &_section, sizeof(_section));
         _pBuf += sizeof(_section);
@@ -184,12 +181,12 @@ void __fastcall TFActiveProcesses::EnumSections(HANDLE HProcess, BYTE *PProcessB
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFActiveProcesses::DumpProcess(DWORD PID, TMemoryStream *MemStream, DWORD *BoC, DWORD *PoC, DWORD *ImB) {
-    WORD _secNum;
-    DWORD _peHdrOffset, _sz, _sizeOfCode = 0;
-    DWORD _resPhys = 0, _dd;
-    BYTE *_buf;
-    BYTE _b[8];
+void __fastcall TFActiveProcesses::DumpProcess(DWord PID, TMemoryStream *MemStream, DWord *BoC, DWord *PoC, DWord *ImB) {
+    Word _secNum;
+    DWord _peHdrOffset, _sz, _sizeOfCode = 0;
+    DWord _resPhys = 0, _dd;
+    Byte *_buf;
+    Byte _b[8];
     HANDLE _hProcess, _hSnapshot;
     MODULEINFO _moduleInfo = {0};
     IMAGE_NT_HEADERS _ntHdr;
@@ -212,7 +209,7 @@ void __fastcall TFActiveProcesses::DumpProcess(DWORD PID, TMemoryStream *MemStre
                     lpModule32Next(_hSnapshot, &_pme);
                     if (_ppe.th32ProcessID == PID) {
                         _moduleInfo.lpBaseOfDll = _pme.modBaseAddr;
-                        _moduleInfo.lpBaseOfDll = (BYTE *) 0x400000;
+                        _moduleInfo.lpBaseOfDll = (Byte *) 0x400000;
                     }
                 }
                 CloseHandle(_hSnapshot);
@@ -226,13 +223,13 @@ void __fastcall TFActiveProcesses::DumpProcess(DWORD PID, TMemoryStream *MemStre
         if (!_moduleInfo.lpBaseOfDll) {
             throw Exception("Invalid process, PID: " + String(PID));
         }
-        ReadProcessMemory(_hProcess, (BYTE *) _moduleInfo.lpBaseOfDll + 0x3C, &_peHdrOffset, sizeof(_peHdrOffset), &_sz);
-        ReadProcessMemory(_hProcess, (BYTE *) _moduleInfo.lpBaseOfDll + _peHdrOffset, &_ntHdr, sizeof(_ntHdr), &_sz);
-        EnumSections(_hProcess, (BYTE *) _moduleInfo.lpBaseOfDll, _sections, &_sz);
+        ReadProcessMemory(_hProcess, (Byte *) _moduleInfo.lpBaseOfDll + 0x3C, &_peHdrOffset, sizeof(_peHdrOffset), &_sz);
+        ReadProcessMemory(_hProcess, (Byte *) _moduleInfo.lpBaseOfDll + _peHdrOffset, &_ntHdr, sizeof(_ntHdr), &_sz);
+        EnumSections(_hProcess, (Byte *) _moduleInfo.lpBaseOfDll, _sections, &_sz);
         MemStream->Clear();
         //Dump Header
-        _buf = new BYTE[_ntHdr.OptionalHeader.SizeOfHeaders];
-        ReadProcessMemory(_hProcess, (BYTE *) _moduleInfo.lpBaseOfDll, _buf, _ntHdr.OptionalHeader.SizeOfHeaders, &_sz);
+        _buf = new Byte[_ntHdr.OptionalHeader.SizeOfHeaders];
+        ReadProcessMemory(_hProcess, (Byte *) _moduleInfo.lpBaseOfDll, _buf, _ntHdr.OptionalHeader.SizeOfHeaders, &_sz);
         MemStream->WriteBuffer(_buf, _ntHdr.OptionalHeader.SizeOfHeaders);
         delete[] _buf;
         if (_sizeOfCode < _sections[1].Misc.VirtualSize)
@@ -241,22 +238,22 @@ void __fastcall TFActiveProcesses::DumpProcess(DWORD PID, TMemoryStream *MemStre
             _sizeOfCode = _ntHdr.OptionalHeader.SizeOfCode;
         //!!!
         MemStream->Clear();
-        _buf = new BYTE[_ntHdr.OptionalHeader.SizeOfImage];
-        ReadProcessMemory(_hProcess, (BYTE *) _moduleInfo.lpBaseOfDll, _buf, _ntHdr.OptionalHeader.SizeOfImage, &_sz);
+        _buf = new Byte[_ntHdr.OptionalHeader.SizeOfImage];
+        ReadProcessMemory(_hProcess, (Byte *) _moduleInfo.lpBaseOfDll, _buf, _ntHdr.OptionalHeader.SizeOfImage, &_sz);
         MemStream->WriteBuffer(_buf, _ntHdr.OptionalHeader.SizeOfImage);
         delete[] _buf;
         //!!!
         /*
         //Dump Code
-        _buf = new BYTE[_sizeOfCode];
-        ReadProcessMemory(_hProcess, (BYTE*)_moduleInfo.lpBaseOfDll + _ntHdr.OptionalHeader.BaseOfCode, _buf, _sizeOfCode, &_sz);
+        _buf = new Byte[_sizeOfCode];
+        ReadProcessMemory(_hProcess, (Byte*)_moduleInfo.lpBaseOfDll + _ntHdr.OptionalHeader.BaseOfCode, _buf, _sizeOfCode, &_sz);
         MemStream->WriteBuffer(_buf, _sizeOfCode);
         delete[] _buf;
         //Find EP
         //Dump Resources
         MemStream->Seek(0, soFromEnd);
-        _buf = new BYTE[_ntHdr.OptionalHeader.DataDirectory[2].Size];
-        ReadProcessMemory(_hProcess, (BYTE*)_moduleInfo.lpBaseOfDll + _ntHdr.OptionalHeader.DataDirectory[2].VirtualAddress, _buf, _ntHdr.OptionalHeader.DataDirectory[2].Size, &_sz);
+        _buf = new Byte[_ntHdr.OptionalHeader.DataDirectory[2].Size];
+        ReadProcessMemory(_hProcess, (Byte*)_moduleInfo.lpBaseOfDll + _ntHdr.OptionalHeader.DataDirectory[2].VirtualAddress, _buf, _ntHdr.OptionalHeader.DataDirectory[2].Size, &_sz);
         _resPhys = MemStream->Size;
         MemStream->WriteBuffer(_buf, _ntHdr.OptionalHeader.DataDirectory[2].Size);
         delete[] _buf;
@@ -409,7 +406,7 @@ void __fastcall TFActiveProcesses::DumpProcess(DWORD PID, TMemoryStream *MemStre
         _dd = _ntHdr.OptionalHeader.DataDirectory[2].Size;
         MemStream->WriteBuffer(&_dd, 4);//VIRTUAL_SIZE
         */
-        FMain_11011981->EvaluateInitTable((BYTE *) MemStream->Memory, MemStream->Size,
+        FMain_11011981->EvaluateInitTable((Byte *) MemStream->Memory, MemStream->Size,
                                           _ntHdr.OptionalHeader.ImageBase + _ntHdr.OptionalHeader.SizeOfHeaders);
 
         CloseHandle(_hProcess);
@@ -418,17 +415,15 @@ void __fastcall TFActiveProcesses::DumpProcess(DWORD PID, TMemoryStream *MemStre
 
 //---------------------------------------------------------------------------
 void __fastcall TFActiveProcesses::btnDumpClick(TObject *Sender) {
-    DWORD _pid, _boc, _poc, _imb;
-    TListItem *_li;
-    TMemoryStream *_stream;
+    DWord _boc, _poc, _imb;
     TMemoryStream *_stream1;
     String _item;
 
     if (lvProcesses->Selected) {
         try {
-            _li = lvProcesses->Selected;
-            _pid = StrToInt("0x" + _li->Caption);
-            _stream = new TMemoryStream;
+            TListItem *_li = lvProcesses->Selected;
+            DWord _pid = StrToInt("0x" + _li->Caption);
+            TMemoryStream *_stream = new TMemoryStream;
             DumpProcess(_pid, _stream, &_boc, &_poc, &_imb);
             if (!_stream->Size) {
                 delete _stream;

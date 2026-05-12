@@ -1,15 +1,15 @@
 #include "Main.h"
 #include "Misc.h"
 
-extern DWORD CurProcAdr;
 
-void __fastcall TFMain_11011981::ShowCodeXrefs(DWORD Adr, int selIdx) {
+extern DWord CurProcAdr;
+void __fastcall TFMain_11011981::ShowCodeXrefs(DWord Adr, int selIdx) {
     lbCXrefs->Clear();
     PInfoRec recN = GetInfoRec(Adr);
     if (recN && recN->xrefs) {
         int wid, maxwid = 0;
         TCanvas *canvas = lbCXrefs->Canvas;
-        DWORD pAdr = 0;
+        DWord pAdr = 0;
         char f = 2;
 
         lbCXrefs->Items->BeginUpdate();
@@ -43,7 +43,7 @@ void __fastcall TFMain_11011981::lbXrefsMouseMove(TObject *Sender,
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::lbXrefsDblClick(TObject *Sender) {
     char type[2];
-    DWORD adr;
+    DWord adr;
     PROCHISTORYREC rec;
 
     TListBox *lb = (TListBox *) Sender;
@@ -98,26 +98,21 @@ void __fastcall TFMain_11011981::lbXrefsDblClick(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::lbXrefsKeyDown(TObject *Sender, WORD &Key,
-                                                TShiftState Shift) {
+void __fastcall TFMain_11011981::lbXrefsKeyDown(TObject *Sender, Word &Key, TShiftState Shift) {
     if (Key == VK_RETURN) lbXrefsDblClick(Sender);
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::lbXrefsDrawItem(TWinControl *Control,
-                                                 int Index, TRect &Rect, TOwnerDrawState State) {
-    int flags;
+void __fastcall TFMain_11011981::lbXrefsDrawItem(TWinControl *Control, int Index, TRect &Rect, TOwnerDrawState State) {
     TColor _color;
-    TListBox *lb;
-    TCanvas *canvas;
     String text, str;
 
-    lb = (TListBox *) Control;
-    canvas = lb->Canvas;
+    TListBox *lb = (TListBox *) Control;
+    TCanvas *canvas = lb->Canvas;
     SaveCanvas(canvas);
 
     if (Index < lb->Count) {
-        flags = Control->DrawTextBiDiModeFlags(DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
+        int flags = Control->DrawTextBiDiModeFlags(DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
         if (!Control->UseRightToLeftAlignment())
             Rect.Left += 2;
         else

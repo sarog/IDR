@@ -39,8 +39,8 @@ class TDfm {
 public:
     TDfm();
     ~TDfm();
-    BYTE Open;                //2 - form opened; 1 - form closed but loader not destroyed; 0 - form closed
-    BYTE Flags;               //Form flags (see FF_...)
+    Byte Open;                //2 - form opened; 1 - form closed but loader not destroyed; 0 - form closed
+    Byte Flags;               //Form flags (see FF_...)
     String ResName;           //Resource name (ABOUTDIALOG)
     String Name;              //Form name (AboutDialog)
     String ClassName;         //Form class (TAboutDialog)
@@ -143,7 +143,7 @@ private:
     void __fastcall CMDialogKey(TCMDialogKey &Message);
     void __fastcall MyFormShow(TObject *Sender);
     void __fastcall MyFormClose(TObject *Sender, TCloseAction &Action);
-    void __fastcall MyFormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift);
+    void __fastcall MyFormKeyDown(TObject *Sender, Word &Key, TShiftState Shift);
     void __fastcall MyShortCutEvent(Messages::TWMKey &Msg, bool &Handled);
     void __fastcall ShowMyPopupMenu(String FormName, String ControlName, bool show);
 };

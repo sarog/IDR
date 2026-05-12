@@ -7,8 +7,8 @@
 #include "Main.h"
 #include "Misc.h"
 //---------------------------------------------------------------------------
-extern DWORD CodeBase;
-extern BYTE *Code;
+extern DWord CodeBase;
+extern Byte *Code;
 String __fastcall TrimTypeName(const String &TypeName);
 //---------------------------------------------------------------------------
 #define cfCode          0x00000001  //Байт относится к коду
@@ -128,8 +128,8 @@ MKnowledgeBase::~MKnowledgeBase() {
 bool __fastcall MKnowledgeBase::CheckKBFile() {
     bool _isMSIL;
     int _delphiVer;
-    DWORD _crc;
-    DWORD _kbVer;
+    DWord _crc;
+    DWord _kbVer;
     char _signature[24];
     char _description[256];
 
@@ -183,8 +183,8 @@ bool __fastcall MKnowledgeBase::Open(char *filename) {
 
     //Read section Modules
     fread(&ModuleCount, sizeof(ModuleCount), 1, Handle);
-    Mods = new WORD[ModuleCount + 1];
-    memset(Mods, 0xFF, (ModuleCount + 1) * sizeof(WORD));
+    Mods = new Word[ModuleCount + 1];
+    memset(Mods, 0xFF, (ModuleCount + 1) * sizeof(Word));
     fread(&MaxModuleDataSize, sizeof(MaxModuleDataSize), 1, Handle);
     ModuleOffsets = new OFFSETSINFO[ModuleCount];
     fread(ModuleOffsets, sizeof(OFFSETSINFO), ModuleCount, Handle);
@@ -192,38 +192,38 @@ bool __fastcall MKnowledgeBase::Open(char *filename) {
     fread(&ConstCount, sizeof(ConstCount), 1, Handle);
     fread(&MaxConstDataSize, sizeof(MaxConstDataSize), 1, Handle);
     ConstOffsets = new OFFSETSINFO[ConstCount];
-    fread((BYTE *) ConstOffsets, sizeof(OFFSETSINFO), ConstCount, Handle);
+    fread((Byte *) ConstOffsets, sizeof(OFFSETSINFO), ConstCount, Handle);
     //Read section Types
     fread(&TypeCount, sizeof(TypeCount), 1, Handle);
     fread(&MaxTypeDataSize, sizeof(MaxTypeDataSize), 1, Handle);
     TypeOffsets = new OFFSETSINFO[TypeCount];
-    fread((BYTE *) TypeOffsets, sizeof(OFFSETSINFO), TypeCount, Handle);
+    fread((Byte *) TypeOffsets, sizeof(OFFSETSINFO), TypeCount, Handle);
     //Read section Vars
     fread(&VarCount, sizeof(VarCount), 1, Handle);
     fread(&MaxVarDataSize, sizeof(MaxVarDataSize), 1, Handle);
     VarOffsets = new OFFSETSINFO[VarCount];
-    fread((BYTE *) VarOffsets, sizeof(OFFSETSINFO), VarCount, Handle);
+    fread((Byte *) VarOffsets, sizeof(OFFSETSINFO), VarCount, Handle);
     //Read section ResStr
     fread(&ResStrCount, sizeof(ResStrCount), 1, Handle);
     fread(&MaxResStrDataSize, sizeof(MaxResStrDataSize), 1, Handle);
     ResStrOffsets = new OFFSETSINFO[ResStrCount];
-    fread((BYTE *) ResStrOffsets, sizeof(OFFSETSINFO), ResStrCount, Handle);
+    fread((Byte *) ResStrOffsets, sizeof(OFFSETSINFO), ResStrCount, Handle);
     //Read section Procs
     fread(&ProcCount, sizeof(ProcCount), 1, Handle);
     fread(&MaxProcDataSize, sizeof(MaxProcDataSize), 1, Handle);
     ProcOffsets = new OFFSETSINFO[ProcCount];
-    fread((BYTE *) ProcOffsets, sizeof(OFFSETSINFO), ProcCount, Handle);
-    UsedProcs = new BYTE[ProcCount];
+    fread((Byte *) ProcOffsets, sizeof(OFFSETSINFO), ProcCount, Handle);
+    UsedProcs = new Byte[ProcCount];
     memset(UsedProcs, 0, ProcCount);
 
     //as global KB file cache in RAM (speed up 3..4 times!)
     fseek(Handle, 0L, SEEK_END);
     SizeKBFile = ftell(Handle);
     if (SizeKBFile > 0) {
-        KBCache = new BYTE[SizeKBFile];
+        KBCache = new Byte[SizeKBFile];
         if (KBCache) {
             fseek(Handle, 0L, SEEK_SET);
-            fread((BYTE *) KBCache, 1, SizeKBFile, Handle);
+            fread((Byte *) KBCache, 1, SizeKBFile, Handle);
         }
     }
     fclose(Handle);
@@ -253,13 +253,13 @@ void __fastcall MKnowledgeBase::Close() {
 }
 
 //---------------------------------------------------------------------------
-WORD __fastcall MKnowledgeBase::GetModuleID(const char *ModuleName) {
+Word __fastcall MKnowledgeBase::GetModuleID(const char *ModuleName) {
     if (!Inited) return 0xFFFF;
 
     if (!ModuleName || !*ModuleName || !ModuleCount) return 0xFFFF;
 
     int ID, F = 0, L = ModuleCount - 1;
-    const BYTE *p;
+    const Byte *p;
     while (F < L) {
         int M = (F + L) / 2;
         ID = ModuleOffsets[M].NamId;
@@ -271,24 +271,24 @@ WORD __fastcall MKnowledgeBase::GetModuleID(const char *ModuleName) {
     }
     ID = ModuleOffsets[L].NamId;
     p = GetKBCachePtr(ModuleOffsets[ID].Offset, ModuleOffsets[ID].Size);
-    if (!stricmp(ModuleName, reinterpret_cast<const char *>(p + 4))) return *((WORD *) p);
+    if (!stricmp(ModuleName, reinterpret_cast<const char *>(p + 4))) return *((Word *) p);
     return 0xFFFF;
 }
 
 //---------------------------------------------------------------------------
-String __fastcall MKnowledgeBase::GetModuleName(WORD ModuleID) {
+String __fastcall MKnowledgeBase::GetModuleName(Word ModuleID) {
     if (!Inited) return "";
 
     if (ModuleID == 0xFFFF || !ModuleCount) return "";
 
     int ID, F = 0, L = ModuleCount - 1;
-    const BYTE *p;
-    WORD ModID;
+    const Byte *p;
+    Word ModID;
     while (F < L) {
         int M = (F + L) / 2;
         ID = ModuleOffsets[M].ModId;
         p = GetKBCachePtr(ModuleOffsets[ID].Offset, ModuleOffsets[ID].Size);
-        ModID = *((WORD *) p);
+        ModID = *((Word *) p);
         if (ModuleID <= ModID)
             L = M;
         else
@@ -296,7 +296,7 @@ String __fastcall MKnowledgeBase::GetModuleName(WORD ModuleID) {
     }
     ID = ModuleOffsets[L].ModId;
     p = GetKBCachePtr(ModuleOffsets[ID].Offset, ModuleOffsets[ID].Size);
-    ModID = *((WORD *) p);
+    ModID = *((Word *) p);
     if (ModuleID == ModID) return String(reinterpret_cast<const char *>(p + 4));
     return "";
 }
@@ -314,7 +314,7 @@ void __fastcall MKnowledgeBase::GetModuleIdsByProcName(const char *AProcName) {
     while (1) {
         int M = (L + R) / 2;
         int ID = ProcOffsets[M].NamId;
-        const BYTE *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
+        const Byte *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
         int res = stricmp(AProcName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
@@ -341,7 +341,7 @@ void __fastcall MKnowledgeBase::GetModuleIdsByProcName(const char *AProcName) {
             for (int N = LN + 1; N < RN; N++) {
                 ID = ProcOffsets[N].NamId;
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                Mods[n] = *((WORD *) p);
+                Mods[n] = *((Word *) p);
                 n++;
             }
             Mods[n] = 0xFFFF;
@@ -353,14 +353,14 @@ void __fastcall MKnowledgeBase::GetModuleIdsByProcName(const char *AProcName) {
 
 //---------------------------------------------------------------------------
 //Return sections containing given ItemName
-int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
+int __fastcall MKnowledgeBase::GetItemSection(Word *ModuleIDs, char *ItemName) {
     bool found;
     int L, R, M, ID, N, LN, RN, Result = KB_NO_SECTION;
 
     if (!Inited) return Result;
 
     if (!ItemName || *ItemName == 0) return Result;
-    WORD ModuleID, ModID;
+    Word ModuleID, ModID;
     //CONST
     if (ConstCount) {
         L = 0;
@@ -368,7 +368,7 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
         while (1) {
             M = (L + R) / 2;
             ID = ConstOffsets[M].NamId;
-            const BYTE *p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
+            const Byte *p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
             int res = stricmp(ItemName, reinterpret_cast<const char *>(p + 4));
             if (res < 0)
                 R = M - 1;
@@ -393,7 +393,7 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
                 for (N = LN + 1; N < RN; N++) {
                     ID = ConstOffsets[N].NamId;
                     p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
-                    ModID = *((WORD *) p);
+                    ModID = *((Word *) p);
                     for (int n = 0;; n++) {
                         ModuleID = ModuleIDs[n];
                         if (ModuleID == 0xFFFF) break;
@@ -417,7 +417,7 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
         while (1) {
             M = (L + R) / 2;
             ID = TypeOffsets[M].NamId;
-            const BYTE *p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
+            const Byte *p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
             if (Version >= 2) p += 4;                                                    //Add by ZGL
             int res = stricmp(ItemName, reinterpret_cast<const char *>(p + 4));
             if (res < 0)
@@ -446,7 +446,7 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
                     ID = TypeOffsets[N].NamId;
                     p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
                     if (Version >= 2) p += 4;                                        //Add by ZGL
-                    ModID = *((WORD *) p);
+                    ModID = *((Word *) p);
                     for (int n = 0;; n++) {
                         ModuleID = ModuleIDs[n];
                         if (ModuleID == 0xFFFF) break;
@@ -470,7 +470,7 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
         while (1) {
             M = (L + R) / 2;
             ID = VarOffsets[M].NamId;
-            const BYTE *p = GetKBCachePtr(VarOffsets[ID].Offset, VarOffsets[ID].Size);
+            const Byte *p = GetKBCachePtr(VarOffsets[ID].Offset, VarOffsets[ID].Size);
             int res = stricmp(ItemName, reinterpret_cast<const char *>(p + 4));
             if (res < 0)
                 R = M - 1;
@@ -495,7 +495,7 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
                 for (N = LN + 1; N < RN; N++) {
                     ID = VarOffsets[N].NamId;
                     p = GetKBCachePtr(VarOffsets[ID].Offset, VarOffsets[ID].Size);
-                    ModID = *((WORD *) p);
+                    ModID = *((Word *) p);
                     for (int n = 0;; n++) {
                         ModuleID = ModuleIDs[n];
                         if (ModuleID == 0xFFFF) break;
@@ -519,7 +519,7 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
         while (1) {
             M = (L + R) / 2;
             ID = ResStrOffsets[M].NamId;
-            const BYTE *p = GetKBCachePtr(ResStrOffsets[ID].Offset, ResStrOffsets[ID].Size);
+            const Byte *p = GetKBCachePtr(ResStrOffsets[ID].Offset, ResStrOffsets[ID].Size);
             int res = stricmp(ItemName, reinterpret_cast<const char *>(p + 4));
             if (res < 0)
                 R = M - 1;
@@ -544,7 +544,7 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
                 for (N = LN + 1; N < RN; N++) {
                     ID = ResStrOffsets[N].NamId;
                     p = GetKBCachePtr(ResStrOffsets[ID].Offset, ResStrOffsets[ID].Size);
-                    ModID = *((WORD *) p);
+                    ModID = *((Word *) p);
                     for (int n = 0;; n++) {
                         ModuleID = ModuleIDs[n];
                         if (ModuleID == 0xFFFF) break;
@@ -568,7 +568,7 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
         while (1) {
             M = (L + R) / 2;
             ID = ProcOffsets[M].NamId;
-            const BYTE *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
+            const Byte *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
             int res = stricmp(ItemName, reinterpret_cast<const char *>(p + 4));
             if (res < 0)
                 R = M - 1;
@@ -593,7 +593,7 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
                 for (N = LN + 1; N < RN; N++) {
                     ID = ProcOffsets[N].NamId;
                     p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                    ModID = *((WORD *) p);
+                    ModID = *((Word *) p);
                     for (int n = 0;; n++) {
                         ModuleID = ModuleIDs[n];
                         if (ModuleID == 0xFFFF) break;
@@ -615,17 +615,17 @@ int __fastcall MKnowledgeBase::GetItemSection(WORD *ModuleIDs, char *ItemName) {
 
 //---------------------------------------------------------------------------
 //Return constant index by name in given ModuleID
-int __fastcall MKnowledgeBase::GetConstIdx(WORD *ModuleIDs, const char *ConstName) {
+int __fastcall MKnowledgeBase::GetConstIdx(Word *ModuleIDs, const char *ConstName) {
     if (!Inited) return -1;
 
     if (!ModuleIDs || !ConstName || !*ConstName || !ConstCount) return -1;
 
-    WORD ModuleID, ModID;
+    Word ModuleID, ModID;
     int n, L = 0, R = ConstCount - 1;
     while (1) {
         int M = (L + R) / 2;
         int ID = ConstOffsets[M].NamId;
-        const BYTE *p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
+        const Byte *p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
         int res = stricmp(ConstName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
@@ -650,7 +650,7 @@ int __fastcall MKnowledgeBase::GetConstIdx(WORD *ModuleIDs, const char *ConstNam
             for (int N = LN + 1; N < RN; N++) {
                 ID = ConstOffsets[N].NamId;
                 p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
-                ModID = *((WORD *) p);
+                ModID = *((Word *) p);
 
                 for (n = 0;; n++) {
                     ModuleID = ModuleIDs[n];
@@ -677,7 +677,7 @@ int __fastcall MKnowledgeBase::GetConstIdxs(const char *ConstName, int *ConstIdx
     while (1) {
         int M = (L + R) / 2;
         int ID = ConstOffsets[M].NamId;
-        const BYTE *p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
+        const Byte *p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
         int res = stricmp(ConstName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
@@ -708,17 +708,17 @@ int __fastcall MKnowledgeBase::GetConstIdxs(const char *ConstName, int *ConstIdx
 }
 
 //---------------------------------------------------------------------------
-int __fastcall MKnowledgeBase::GetTypeIdxByModuleIds(WORD *ModuleIDs, const char *TypeName) {
+int __fastcall MKnowledgeBase::GetTypeIdxByModuleIds(Word *ModuleIDs, const char *TypeName) {
     if (!Inited) return -1;
 
     if (!ModuleIDs || !TypeName || !*TypeName || !TypeCount) return -1;
 
-    WORD ModuleID, ModID;
+    Word ModuleID, ModID;
     int n, L = 0, R = TypeCount - 1;
     while (1) {
         int M = (L + R) / 2;
         int ID = TypeOffsets[M].NamId;
-        const BYTE *p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
+        const Byte *p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
         if (Version >= 2) p += 4;                                                    //Add by ZGL
         int res = stricmp(TypeName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
@@ -747,7 +747,7 @@ int __fastcall MKnowledgeBase::GetTypeIdxByModuleIds(WORD *ModuleIDs, const char
                 ID = TypeOffsets[N].NamId;
                 p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
                 if (Version >= 2) p += 4;                                        //Add by ZGL
-                ModID = *((WORD *) p);
+                ModID = *((Word *) p);
 
                 for (n = 0;; n++) {
                     ModuleID = ModuleIDs[n];
@@ -774,7 +774,7 @@ int __fastcall MKnowledgeBase::GetTypeIdxsByName(const char *TypeName, int *Type
     while (1) {
         int M = (L + R) / 2;
         int ID = TypeOffsets[M].NamId;
-        const BYTE *p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
+        const Byte *p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
         if (Version >= 2) p += 4;                                                    //Add by ZGL
         int res = stricmp(TypeName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
@@ -810,17 +810,17 @@ int __fastcall MKnowledgeBase::GetTypeIdxsByName(const char *TypeName, int *Type
 //---------------------------------------------------------------------------
 int __fastcall MKnowledgeBase::GetTypeIdxByUID(char *UID) {}
 //---------------------------------------------------------------------------
-int __fastcall MKnowledgeBase::GetVarIdx(WORD *ModuleIDs, const char *VarName) {
+int __fastcall MKnowledgeBase::GetVarIdx(Word *ModuleIDs, const char *VarName) {
     if (!Inited) return -1;
 
     if (!ModuleIDs || !VarName || !*VarName || !VarCount) return -1;
 
-    WORD ModuleID, ModID, len;
-    int n, L = 0, R = VarCount - 1;
-    while (1) {
+    Word ModuleID, ModID, len;
+    int L = 0, R = VarCount - 1;
+    while(true) {
         int M = (L + R) / 2;
         int ID = VarOffsets[M].NamId;
-        const BYTE *p = GetKBCachePtr(VarOffsets[ID].Offset, VarOffsets[ID].Size);
+        const Byte *p = GetKBCachePtr(VarOffsets[ID].Offset, VarOffsets[ID].Size);
         int res = stricmp(VarName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
@@ -845,8 +845,8 @@ int __fastcall MKnowledgeBase::GetVarIdx(WORD *ModuleIDs, const char *VarName) {
             for (int N = LN + 1; N < RN; N++) {
                 ID = VarOffsets[N].NamId;
                 p = GetKBCachePtr(VarOffsets[ID].Offset, VarOffsets[ID].Size);
-                ModID = *((WORD *) p);
-                for (n = 0;; n++) {
+                ModID = *(Word *)(p);
+                for (int n = 0;; n++) {
                     ModuleID = ModuleIDs[n];
                     if (ModuleID == 0xFFFF) break;
                     if (ModuleID == ModID) return N;
@@ -865,17 +865,17 @@ int __fastcall MKnowledgeBase::GetResStrIdx(int from, const char *ResStrContext)
 
     if (!ResStrContext || !*ResStrContext || !ResStrCount) return -1;
 
-    int n, ID;
-    for (n = from; n < ResStrCount; n++) {
+    int ID;
+    for (int n = from; n < ResStrCount; n++) {
         ID = ResStrOffsets[n].NamId;
-        const BYTE *p = GetKBCachePtr(ResStrOffsets[ID].Offset, ResStrOffsets[ID].Size);
+        const Byte *p = GetKBCachePtr(ResStrOffsets[ID].Offset, ResStrOffsets[ID].Size);
         //ModuleID
         p += 2;
         //ResStrName
-        WORD len = *((WORD *) p);
+        Word len = *(Word *)(p);
         p += len + 3;
         //TypeDef
-        len = *((WORD *) p);
+        len = *(Word *)(p);
         p += len + 5;
         //Context
         if (!stricmp(ResStrContext, reinterpret_cast<const char *>(p))) {
@@ -886,25 +886,25 @@ int __fastcall MKnowledgeBase::GetResStrIdx(int from, const char *ResStrContext)
 }
 
 //---------------------------------------------------------------------------
-int __fastcall MKnowledgeBase::GetResStrIdx(WORD ModuleID, const char *ResStrContext) {
+int __fastcall MKnowledgeBase::GetResStrIdx(Word ModuleID, const char *ResStrContext) {
     if (!Inited) return -1;
 
     if (!ResStrContext || !*ResStrContext || !ResStrCount) return -1;
 
-    WORD ModID, len;
-    int n, ID;
+    Word ModID, len;
+    int ID;
 
-    for (n = 0; n < ResStrCount; n++) {
+    for (int n = 0; n < ResStrCount; n++) {
         ID = ResStrOffsets[n].NamId;
-        const BYTE *p = GetKBCachePtr(ResStrOffsets[ID].Offset, ResStrOffsets[ID].Size);
+        const Byte *p = GetKBCachePtr(ResStrOffsets[ID].Offset, ResStrOffsets[ID].Size);
         //ModuleID
-        ModID = *((WORD *) p);
+        ModID = *(Word *)(p);
         p += 2;
         //ResStrName
-        len = *((WORD *) p);
+        len = *(Word *)(p);
         p += len + 3;
         //TypeDef
-        len = *((WORD *) p);
+        len = *(Word *)(p);
         p += len + 5;
         //Context
         if (ModuleID == ModID && !stricmp(ResStrContext, reinterpret_cast<const char *>(p))) {
@@ -915,18 +915,18 @@ int __fastcall MKnowledgeBase::GetResStrIdx(WORD ModuleID, const char *ResStrCon
 }
 
 //---------------------------------------------------------------------------
-int __fastcall MKnowledgeBase::GetResStrIdx(WORD *ModuleIDs, const char *ResStrName) {
+int __fastcall MKnowledgeBase::GetResStrIdx(Word *ModuleIDs, const char *ResStrName) {
     if (!Inited) return -1;
 
     if (!ModuleIDs || !ResStrName || !*ResStrName || !ResStrCount) return -1;
 
-    WORD ModuleID, ModID, len;
-    int n, L = 0, R = ResStrCount - 1, M, ID, res, LN, RN, N;
+    Word ModuleID, ModID, len;
+    int L = 0, R = ResStrCount - 1, M, ID, res, LN, RN;
 
     while (1) {
         M = (L + R) / 2;
         ID = ResStrOffsets[M].NamId;
-        const BYTE *p = GetKBCachePtr(ResStrOffsets[ID].Offset, ResStrOffsets[ID].Size);
+        const Byte *p = GetKBCachePtr(ResStrOffsets[ID].Offset, ResStrOffsets[ID].Size);
         res = stricmp(ResStrName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
@@ -947,11 +947,11 @@ int __fastcall MKnowledgeBase::GetResStrIdx(WORD *ModuleIDs, const char *ResStrN
                 res = stricmp(ResStrName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
             }
-            for (N = LN + 1; N < RN; N++) {
+            for (int N = LN + 1; N < RN; N++) {
                 ID = ResStrOffsets[N].NamId;
                 p = GetKBCachePtr(ResStrOffsets[ID].Offset, ResStrOffsets[ID].Size);
-                ModID = *((WORD *) p);
-                for (n = 0;; n++) {
+                ModID = *(Word *)(p);
+                for (int n = 0;; n++) {
                     ModuleID = ModuleIDs[n];
                     if (ModuleID == 0xFFFF) break;
                     if (ModuleID == ModID) return N;
@@ -966,17 +966,17 @@ int __fastcall MKnowledgeBase::GetResStrIdx(WORD *ModuleIDs, const char *ResStrN
 
 //---------------------------------------------------------------------------
 //Return proc index by name in given ModuleID
-int __fastcall MKnowledgeBase::GetProcIdx(WORD ModuleID, const char *ProcName) {
+int __fastcall MKnowledgeBase::GetProcIdx(Word ModuleID, const char *ProcName) {
     if (!Inited) return -1;
 
     if (ModuleID == 0xFFFF || !ProcName || !*ProcName || !ProcCount) return -1;
 
-    WORD ModID;
+    Word ModID;
     int L = 0, R = ProcCount - 1;
     while (1) {
         int M = (L + R) / 2;
         int ID = ProcOffsets[M].NamId;
-        const BYTE *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
+        const Byte *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
         int res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
@@ -1001,7 +1001,7 @@ int __fastcall MKnowledgeBase::GetProcIdx(WORD ModuleID, const char *ProcName) {
             for (int N = LN + 1; N < RN; N++) {
                 ID = ProcOffsets[N].NamId;
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                ModID = *((WORD *) p);
+                ModID = *(Word *)(p);
                 if (ModuleID == ModID) return N;
             }
             //Nothing found - exit
@@ -1014,19 +1014,19 @@ int __fastcall MKnowledgeBase::GetProcIdx(WORD ModuleID, const char *ProcName) {
 //---------------------------------------------------------------------------
 //Return proc index by name in given ModuleID
 //Code used for selection required proc (if there are exist several procs with the same name)
-int __fastcall MKnowledgeBase::GetProcIdx(WORD ModuleID, const char *ProcName, BYTE *code) {
+int __fastcall MKnowledgeBase::GetProcIdx(Word ModuleID, const char *ProcName, Byte *code) {
     if (!Inited) return -1;
 
     if (ModuleID == 0xFFFF || !ProcName || !*ProcName || !ProcCount) return -1;
 
     MProcInfo aInfo;
     MProcInfo * pInfo;
-    WORD ModID;
+    Word ModID;
     int L = 0, R = ProcCount - 1;
     while (1) {
         int M = (L + R) / 2;
         int ID = ProcOffsets[M].NamId;
-        const BYTE *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
+        const Byte *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
         int res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
@@ -1063,19 +1063,19 @@ int __fastcall MKnowledgeBase::GetProcIdx(WORD ModuleID, const char *ProcName, B
 
 //---------------------------------------------------------------------------
 //Return proc index by name in given array of ModuleID
-int __fastcall MKnowledgeBase::GetProcIdx(WORD *ModuleIDs, const char *ProcName, BYTE *code) {
+int __fastcall MKnowledgeBase::GetProcIdx(Word *ModuleIDs, const char *ProcName, Byte *code) {
     if (!Inited) return -1;
 
     if (!ModuleIDs || !ProcName || !*ProcName || !ProcCount) return -1;
 
     MProcInfo aInfo;
     MProcInfo * pInfo;
-    WORD ModuleID, ModID;
+    Word ModuleID, ModID;
     int n, L = 0, R = ProcCount - 1;
     while (1) {
         int M = (L + R) / 2;
         int ID = ProcOffsets[M].NamId;
-        const BYTE *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
+        const Byte *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
         int res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
@@ -1126,20 +1126,20 @@ int __fastcall MKnowledgeBase::GetProcIdx(WORD *ModuleIDs, const char *ProcName,
 
 //---------------------------------------------------------------------------
 //Seek first ans last proc ID in given module
-bool __fastcall MKnowledgeBase::GetProcIdxs(WORD ModuleID, int *FirstProcIdx, int *LastProcIdx) {
+bool __fastcall MKnowledgeBase::GetProcIdxs(Word ModuleID, int *FirstProcIdx, int *LastProcIdx) {
     if (!Inited) return false;
 
     if (ModuleID == 0xFFFF || !ProcCount || !FirstProcIdx || !LastProcIdx) return false;
 
     *FirstProcIdx = -1;
     *LastProcIdx = -1;
-    WORD ModID;
+    Word ModID;
     int L = 0, R = ProcCount - 1;
     while (1) {
         int M = (L + R) / 2;
         int ID = ProcOffsets[M].ModId;
-        const BYTE *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-        ModID = *((WORD *) p);
+        const Byte *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
+        ModID = *((Word *) p);
 
         if (ModuleID < ModID)
             R = M - 1;
@@ -1153,7 +1153,7 @@ bool __fastcall MKnowledgeBase::GetProcIdxs(WORD ModuleID, int *FirstProcIdx, in
             for (LN = M - 1; LN >= 0; LN--) {
                 ID = ProcOffsets[LN].ModId;
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                ModID = *((WORD *) p);
+                ModID = *((Word *) p);
                 if (ModID != ModuleID) break;
                 *FirstProcIdx = LN;
             }
@@ -1161,7 +1161,7 @@ bool __fastcall MKnowledgeBase::GetProcIdxs(WORD ModuleID, int *FirstProcIdx, in
             for (RN = M + 1; RN < ProcCount; RN++) {
                 ID = ProcOffsets[RN].ModId;
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                ModID = *((WORD *) p);
+                ModID = *((Word *) p);
                 if (ModID != ModuleID) break;
                 *LastProcIdx = RN;
             }
@@ -1172,19 +1172,19 @@ bool __fastcall MKnowledgeBase::GetProcIdxs(WORD ModuleID, int *FirstProcIdx, in
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall MKnowledgeBase::GetProcIdxs(WORD ModuleID, int *FirstProcIdx, int *LastProcIdx, int *DumpSize) {
+bool __fastcall MKnowledgeBase::GetProcIdxs(Word ModuleID, int *FirstProcIdx, int *LastProcIdx, int *DumpSize) {
     if (!Inited || ModuleID == 0xFFFF || !ProcCount) return false;
 
     *FirstProcIdx = -1;
     *LastProcIdx = -1;
     *DumpSize = 0;
-    WORD ModID;
+    Word ModID;
     int L = 0, R = ProcCount - 1;
     while (1) {
         int M = (L + R) / 2;
         int ID = ProcOffsets[M].ModId;
-        const BYTE *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-        ModID = *((WORD *) p);
+        const Byte *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
+        ModID = *((Word *) p);
 
         if (ModuleID < ModID)
             R = M - 1;
@@ -1198,7 +1198,7 @@ bool __fastcall MKnowledgeBase::GetProcIdxs(WORD ModuleID, int *FirstProcIdx, in
             for (LN = M - 1; LN >= 0; LN--) {
                 ID = ProcOffsets[LN].ModId;
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                ModID = *((WORD *) p);
+                ModID = *((Word *) p);
                 if (ModID != ModuleID) break;
                 *FirstProcIdx = LN;
             }
@@ -1206,7 +1206,7 @@ bool __fastcall MKnowledgeBase::GetProcIdxs(WORD ModuleID, int *FirstProcIdx, in
             for (RN = M + 1; RN < ProcCount; RN++) {
                 ID = ProcOffsets[RN].ModId;
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
-                ModID = *((WORD *) p);
+                ModID = *((Word *) p);
                 if (ModID != ModuleID) break;
                 *LastProcIdx = RN;
             }
@@ -1215,7 +1215,7 @@ bool __fastcall MKnowledgeBase::GetProcIdxs(WORD ModuleID, int *FirstProcIdx, in
                 //ModuleID
                 p += 2;
                 //ProcName
-                WORD Len = *((WORD *) p);
+                Word Len = *((Word *) p);
                 p += Len + 3;
                 //Embedded
                 p++;
@@ -1228,12 +1228,12 @@ bool __fastcall MKnowledgeBase::GetProcIdxs(WORD ModuleID, int *FirstProcIdx, in
                 //VProc
                 p += 4;
                 //TypeDef
-                Len = *((WORD *) p);
+                Len = *((Word *) p);
                 p += Len + 3;
                 //DumpTotal
                 p += 4;
                 //DumpSz
-                int size = *((DWORD *) p);
+                int size = *((DWord *) p);
                 *DumpSize += (size + 3) & (-4);
             }
             return true;
@@ -1244,55 +1244,55 @@ bool __fastcall MKnowledgeBase::GetProcIdxs(WORD ModuleID, int *FirstProcIdx, in
 
 //---------------------------------------------------------------------------
 //ConstIdx was given by const name
-MConstInfo * __fastcall MKnowledgeBase::GetConstInfo(int AConstIdx, DWORD AFlags, MConstInfo *cInfo) {
+MConstInfo * __fastcall MKnowledgeBase::GetConstInfo(int AConstIdx, DWord AFlags, MConstInfo *cInfo) {
     if (!Inited) return 0;
 
     if (AConstIdx == -1) return 0;
 
-    const BYTE *p = GetKBCachePtr(ConstOffsets[AConstIdx].Offset, ConstOffsets[AConstIdx].Size);
-    cInfo->ModuleID = *((WORD *) p);
+    const Byte *p = GetKBCachePtr(ConstOffsets[AConstIdx].Offset, ConstOffsets[AConstIdx].Size);
+    cInfo->ModuleID = *((Word *) p);
     p += 2;
-    WORD Len = *((WORD *) p);
+    Word Len = *((Word *) p);
     p += 2;
     cInfo->ConstName = String((char *) p);
     p += Len + 1;
     cInfo->Type = *p;
     p++;
-    Len = *((WORD *) p);
+    Len = *((Word *) p);
     p += 2;
     cInfo->TypeDef = String((char *) p);
     p += Len + 1;
-    Len = *((WORD *) p);
+    Len = *((Word *) p);
     p += 2;
     cInfo->Value = String((char *) p);
     p += Len + 1;
 
-    DWORD DumpTotal = *((DWORD *) p);
+    DWord DumpTotal = *((DWord *) p);
     p += 4;
-    cInfo->DumpSz = *((DWORD *) p);
+    cInfo->DumpSz = *((DWord *) p);
     p += 4;
-    cInfo->FixupNum = *((DWORD *) p);
+    cInfo->FixupNum = *((DWord *) p);
     p += 4;
     cInfo->Dump = 0;
 
     if (AFlags & INFO_DUMP) {
-        if (cInfo->DumpSz) cInfo->Dump = (BYTE *) p;
+        if (cInfo->DumpSz) cInfo->Dump = (Byte *) p;
     }
     return cInfo;
 }
 
 //---------------------------------------------------------------------------
-MProcInfo * __fastcall MKnowledgeBase::GetProcInfo(const char *ProcName, DWORD AFlags, MProcInfo *pInfo, int *procIdx) {
+MProcInfo * __fastcall MKnowledgeBase::GetProcInfo(const char *ProcName, DWord AFlags, MProcInfo *pInfo, int *procIdx) {
     if (!Inited) return 0;
 
     if (!ProcName || !*ProcName || !ProcCount) return 0;
 
-    WORD ModID;
+    Word ModID;
     int L = 0, R = ProcCount - 1;
     while (1) {
         int M = (L + R) / 2;
         int ID = ProcOffsets[M].NamId;
-        const BYTE *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
+        const Byte *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
         int res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
             R = M - 1;
@@ -1319,9 +1319,9 @@ MProcInfo * __fastcall MKnowledgeBase::GetProcInfo(const char *ProcName, DWORD A
                 *procIdx = ID;
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
 
-                pInfo->ModuleID = *((WORD *) p);
+                pInfo->ModuleID = *(Word *)(p);
                 p += 2;
-                WORD Len = *((WORD *) p);
+                Word Len = *((Word *) p);
                 p += 2;
                 pInfo->ProcName = String((char *) p);
                 p += Len + 1;
@@ -1335,44 +1335,44 @@ MProcInfo * __fastcall MKnowledgeBase::GetProcInfo(const char *ProcName, DWORD A
                 p++;
                 pInfo->VProc = *((int *) p);
                 p += 4;
-                Len = *((WORD *) p);
+                Len = *((Word *) p);
                 p += 2;
                 pInfo->TypeDef = TrimTypeName(String((char *) p));
                 p += Len + 1;
 
-                DWORD DumpTotal = *((DWORD *) p);
+                DWord DumpTotal = *((DWord *) p);
                 p += 4;
-                const BYTE *p1 = p;
-                pInfo->DumpSz = *((DWORD *) p);
+                const Byte *p1 = p;
+                pInfo->DumpSz = *((DWord *) p);
                 p += 4;
-                pInfo->FixupNum = *((DWORD *) p);
+                pInfo->FixupNum = *((DWord *) p);
                 p += 4;
                 pInfo->Dump = 0;
 
                 if (AFlags & INFO_DUMP) {
-                    if (pInfo->DumpSz) pInfo->Dump = (BYTE *) p;
+                    if (pInfo->DumpSz) pInfo->Dump = (Byte *) p;
                 }
                 p = p1 + DumpTotal;
 
-                DWORD ArgsTotal = *((DWORD *) p);
+                DWord ArgsTotal = *((DWord *) p);
                 p += 4;
                 p1 = p;
-                pInfo->ArgsNum = *((WORD *) p);
+                pInfo->ArgsNum = *((Word *) p);
                 p += 2;
                 pInfo->Args = 0;
 
                 if (AFlags & INFO_ARGS) {
-                    if (pInfo->ArgsNum) pInfo->Args = (BYTE *) p;
+                    if (pInfo->ArgsNum) pInfo->Args = (Byte *) p;
                 }
                 p = p1 + ArgsTotal;
                 /*
-                DWORD LocalsTotal = *((DWORD*)p); p += 4;
-                pInfo->LocalsNum = *((WORD*)p); p += 2;
+                DWord LocalsTotal = *((DWord*)p); p += 4;
+                pInfo->LocalsNum = *((Word*)p); p += 2;
                 pInfo->Locals = 0;
 
                 if (AFlags & INFO_LOCALS)
                 {
-                    if (pInfo->LocalsNum) pInfo->Locals = (BYTE*)p;
+                    if (pInfo->LocalsNum) pInfo->Locals = (Byte*)p;
                 }
                 */
                 return pInfo;
@@ -1384,37 +1384,37 @@ MProcInfo * __fastcall MKnowledgeBase::GetProcInfo(const char *ProcName, DWORD A
                 ID = ProcOffsets[nnn].NamId;
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
 
-                pInfo->ModuleID = *((WORD*)p); p += 2;
-                WORD Len = *((WORD*)p); p += 2;
+                pInfo->ModuleID = *((Word*)p); p += 2;
+                Word Len = *((Word*)p); p += 2;
                 pInfo->ProcName = String((char*)p); p += Len + 1;
                 pInfo->Embedded = *p; p++;
                 pInfo->DumpType = *p; p++;
                 pInfo->MethodKind = *p; p++;
                 pInfo->CallKind = *p; p++;
                 pInfo->VProc = *((int*)p); p += 4;
-                Len = *((WORD*)p); p += 2;
+                Len = *((Word*)p); p += 2;
                 pInfo->TypeDef = TrimTypeName(String((char*)p)); p += Len + 1;
 
-                DWORD DumpTotal = *((DWORD*)p); p += 4;
-                const BYTE *p1 = p;
-                pInfo->DumpSz = *((DWORD*)p); p += 4;
-                pInfo->FixupNum = *((DWORD*)p); p += 4;
+                DWord DumpTotal = *((DWord*)p); p += 4;
+                const Byte *p1 = p;
+                pInfo->DumpSz = *((DWord*)p); p += 4;
+                pInfo->FixupNum = *((DWord*)p); p += 4;
                 pInfo->Dump = 0;
 
                 if (AFlags & INFO_DUMP)
                 {
-                    if (pInfo->DumpSz) pInfo->Dump = (BYTE*)p;
+                    if (pInfo->DumpSz) pInfo->Dump = (Byte*)p;
                 }
                 p = p1 + DumpTotal;
 
-                DWORD ArgsTotal = *((DWORD*)p); p += 4;
+                DWord ArgsTotal = *((DWord*)p); p += 4;
                 p1 = p;
-                pInfo->ArgsNum = *((WORD*)p); p += 2;
+                pInfo->ArgsNum = *((Word*)p); p += 2;
                 pInfo->Args = 0;
 
                 if (AFlags & INFO_ARGS)
                 {
-                    if (pInfo->ArgsNum) pInfo->Args = (BYTE*)p;
+                    if (pInfo->ArgsNum) pInfo->Args = (Byte*)p;
                 }
             }
             */
@@ -1425,16 +1425,16 @@ MProcInfo * __fastcall MKnowledgeBase::GetProcInfo(const char *ProcName, DWORD A
 }
 
 //---------------------------------------------------------------------------
-MProcInfo * __fastcall MKnowledgeBase::GetProcInfo(int AProcIdx, DWORD AFlags, MProcInfo *pInfo) {
+MProcInfo * __fastcall MKnowledgeBase::GetProcInfo(int AProcIdx, DWord AFlags, MProcInfo *pInfo) {
     if (!Inited) return 0;
 
     if (AProcIdx == -1) return 0;
 
-    const BYTE *p = GetKBCachePtr(ProcOffsets[AProcIdx].Offset, ProcOffsets[AProcIdx].Size);
+    const Byte *p = GetKBCachePtr(ProcOffsets[AProcIdx].Offset, ProcOffsets[AProcIdx].Size);
 
-    pInfo->ModuleID = *((WORD *) p);
+    pInfo->ModuleID = *((Word *) p);
     p += 2;
-    WORD Len = *((WORD *) p);
+    Word Len = *((Word *) p);
     p += 2;
     pInfo->ProcName = String((char *) p);
     p += Len + 1;
@@ -1448,152 +1448,152 @@ MProcInfo * __fastcall MKnowledgeBase::GetProcInfo(int AProcIdx, DWORD AFlags, M
     p++;
     pInfo->VProc = *((int *) p);
     p += 4;
-    Len = *((WORD *) p);
+    Len = *((Word *) p);
     p += 2;
     pInfo->TypeDef = TrimTypeName(String((char *) p));
     p += Len + 1;
 
-    DWORD DumpTotal = *((DWORD *) p);
+    DWord DumpTotal = *((DWord *) p);
     p += 4;
-    const BYTE *p1 = p;
-    pInfo->DumpSz = *((DWORD *) p);
+    const Byte *p1 = p;
+    pInfo->DumpSz = *((DWord *) p);
     p += 4;
-    pInfo->FixupNum = *((DWORD *) p);
+    pInfo->FixupNum = *((DWord *) p);
     p += 4;
     pInfo->Dump = 0;
 
     if (AFlags & INFO_DUMP) {
-        if (pInfo->DumpSz) pInfo->Dump = (BYTE *) p;
+        if (pInfo->DumpSz) pInfo->Dump = (Byte *) p;
     }
     p = p1 + DumpTotal;
 
-    DWORD ArgsTotal = *((DWORD *) p);
+    DWord ArgsTotal = *((DWord *) p);
     p += 4;
     p1 = p;
-    pInfo->ArgsNum = *((WORD *) p);
+    pInfo->ArgsNum = *((Word *) p);
     p += 2;
     pInfo->Args = 0;
 
     if (AFlags & INFO_ARGS) {
-        if (pInfo->ArgsNum) pInfo->Args = (BYTE *) p;
+        if (pInfo->ArgsNum) pInfo->Args = (Byte *) p;
     }
     p = p1 + ArgsTotal;
     /*
-    DWORD LocalsTotal = *((DWORD*)p); p += 4;
-    pInfo->LocalsNum = *((WORD*)p); p += 2;
+    DWord LocalsTotal = *((DWord*)p); p += 4;
+    pInfo->LocalsNum = *((Word*)p); p += 2;
     pInfo->Locals = 0;
 
     if (AFlags & INFO_LOCALS)
     {
-        if (pInfo->LocalsNum) pInfo->Locals = (BYTE*)p;
+        if (pInfo->LocalsNum) pInfo->Locals = (Byte*)p;
     }
     */
     return pInfo;
 }
 
 //---------------------------------------------------------------------------
-MTypeInfo * __fastcall MKnowledgeBase::GetTypeInfo(int ATypeIdx, DWORD AFlags, MTypeInfo *tInfo) {
+MTypeInfo * __fastcall MKnowledgeBase::GetTypeInfo(int ATypeIdx, DWord AFlags, MTypeInfo *tInfo) {
     if (!Inited) return 0;
 
     if (ATypeIdx == -1) return 0;
 
-    const BYTE *p = GetKBCachePtr(TypeOffsets[ATypeIdx].Offset, TypeOffsets[ATypeIdx].Size);
+    const Byte *p = GetKBCachePtr(TypeOffsets[ATypeIdx].Offset, TypeOffsets[ATypeIdx].Size);
 
     //Modified by ZGL
     if (Version == 1)
         tInfo->Size = TypeOffsets[ATypeIdx].Size;
     else
-        tInfo->Size = *((DWORD *) p);
+        tInfo->Size = *((DWord *) p);
     p += 4;
 
-    tInfo->ModuleID = *((WORD *) p);
+    tInfo->ModuleID = *((Word *) p);
     p += 2;
-    WORD Len = *((WORD *) p);
+    Word Len = *((Word *) p);
     p += 2;
     tInfo->TypeName = String((char *) p);
     p += Len + 1;
     tInfo->Kind = *p;
     p++;
-    tInfo->VMCnt = *((WORD *) p);
+    tInfo->VMCnt = *((Word *) p);
     p += 2;
-    Len = *((WORD *) p);
+    Len = *((Word *) p);
     p += 2;
     tInfo->Decl = String((char *) p);
     p += Len + 1;
 
-    DWORD DumpTotal = *((DWORD *) p);
+    DWord DumpTotal = *((DWord *) p);
     p += 4;
-    BYTE *p1 = (BYTE *) p;
-    tInfo->DumpSz = *((DWORD *) p);
+    Byte *p1 = (Byte *) p;
+    tInfo->DumpSz = *((DWord *) p);
     p += 4;
-    tInfo->FixupNum = *((DWORD *) p);
+    tInfo->FixupNum = *((DWord *) p);
     p += 4;
     tInfo->Dump = 0;
 
     if (AFlags & INFO_DUMP) {
-        if (tInfo->DumpSz) tInfo->Dump = (BYTE *) p;
+        if (tInfo->DumpSz) tInfo->Dump = (Byte *) p;
     }
     p = p1 + DumpTotal;
 
-    DWORD FieldsTotal = *((DWORD *) p);
+    DWord FieldsTotal = *((DWord *) p);
     p += 4;
-    p1 = (BYTE *) p;
-    tInfo->FieldsNum = *((WORD *) p);
+    p1 = (Byte *) p;
+    tInfo->FieldsNum = *((Word *) p);
     p += 2;
     tInfo->Fields = 0;
 
     if (AFlags & INFO_FIELDS) {
-        if (tInfo->FieldsNum) tInfo->Fields = (BYTE *) p;
+        if (tInfo->FieldsNum) tInfo->Fields = (Byte *) p;
     }
     p = p1 + FieldsTotal;
 
-    DWORD PropsTotal = *((DWORD *) p);
+    DWord PropsTotal = *((DWord *) p);
     p += 4;
-    p1 = (BYTE *) p;
-    tInfo->PropsNum = *((WORD *) p);
+    p1 = (Byte *) p;
+    tInfo->PropsNum = *((Word *) p);
     p += 2;
     tInfo->Props = 0;
 
     if (AFlags & INFO_PROPS) {
-        if (tInfo->PropsNum) tInfo->Props = (BYTE *) p;
+        if (tInfo->PropsNum) tInfo->Props = (Byte *) p;
     }
     p = p1 + PropsTotal;
 
-    DWORD MethodsTotal = *((DWORD *) p);
+    DWord MethodsTotal = *((DWord *) p);
     p += 4;
-    tInfo->MethodsNum = *((WORD *) p);
+    tInfo->MethodsNum = *((Word *) p);
     p += 2;
     tInfo->Methods = 0;
 
     if (AFlags & INFO_METHODS) {
-        if (tInfo->MethodsNum) tInfo->Methods = (BYTE *) p;
+        if (tInfo->MethodsNum) tInfo->Methods = (Byte *) p;
     }
     return tInfo;
 }
 
 //---------------------------------------------------------------------------
-MVarInfo * __fastcall MKnowledgeBase::GetVarInfo(int AVarIdx, DWORD AFlags, MVarInfo *vInfo) {
+MVarInfo * __fastcall MKnowledgeBase::GetVarInfo(int AVarIdx, DWord AFlags, MVarInfo *vInfo) {
     if (!Inited) return 0;
 
     if (AVarIdx == -1) return 0;
 
-    const BYTE *p = GetKBCachePtr(VarOffsets[AVarIdx].Offset, VarOffsets[AVarIdx].Size);
+    const Byte *p = GetKBCachePtr(VarOffsets[AVarIdx].Offset, VarOffsets[AVarIdx].Size);
 
-    vInfo->ModuleID = *((WORD *) p);
+    vInfo->ModuleID = *((Word *) p);
     p += 2;
-    WORD Len = *((WORD *) p);
+    Word Len = *((Word *) p);
     p += 2;
     vInfo->VarName = String((char *) p);
     p += Len + 1;
     vInfo->Type = *p;
     p++;
-    Len = *((WORD *) p);
+    Len = *((Word *) p);
     p += 2;
     vInfo->TypeDef = String((char *) p);
     p += Len + 1;
 
     if (AFlags & INFO_ABSNAME) {
-        Len = *((WORD *) p);
+        Len = *((Word *) p);
         p += 2;
         vInfo->AbsName = String((char *) p);
     }
@@ -1602,26 +1602,26 @@ MVarInfo * __fastcall MKnowledgeBase::GetVarInfo(int AVarIdx, DWORD AFlags, MVar
 }
 
 //---------------------------------------------------------------------------
-MResStrInfo * __fastcall MKnowledgeBase::GetResStrInfo(int AResStrIdx, DWORD AFlags, MResStrInfo *rsInfo) {
+MResStrInfo * __fastcall MKnowledgeBase::GetResStrInfo(int AResStrIdx, DWord AFlags, MResStrInfo *rsInfo) {
     if (!Inited) return 0;
 
     if (AResStrIdx == -1) return 0;
 
-    const BYTE *p = GetKBCachePtr(ResStrOffsets[AResStrIdx].Offset, ResStrOffsets[AResStrIdx].Size);
+    const Byte *p = GetKBCachePtr(ResStrOffsets[AResStrIdx].Offset, ResStrOffsets[AResStrIdx].Size);
 
-    rsInfo->ModuleID = *((WORD *) p);
+    rsInfo->ModuleID = *((Word *) p);
     p += 2;
-    WORD Len = *((WORD *) p);
+    Word Len = *((Word *) p);
     p += 2;
     rsInfo->ResStrName = String((char *) p);
     p += Len + 1;
-    Len = *((WORD *) p);
+    Len = *((Word *) p);
     p += 2;
     rsInfo->TypeDef = String((char *) p);
     p += Len + 1;
 
     if (AFlags & INFO_DUMP) {
-        //Len = *((WORD*)p); p += 2;
+        //Len = *((Word*)p); p += 2;
         //rsInfo->AContext = String((char*)p);
     }
 
@@ -1629,15 +1629,15 @@ MResStrInfo * __fastcall MKnowledgeBase::GetResStrInfo(int AResStrIdx, DWORD AFl
 }
 
 //---------------------------------------------------------------------------
-int __fastcall MKnowledgeBase::ScanCode(BYTE *code, DWORD *CodeFlags, DWORD CodeSz, MProcInfo *pInfo) {
+int __fastcall MKnowledgeBase::ScanCode(Byte *code, DWord *CodeFlags, DWord CodeSz, MProcInfo *pInfo) {
     if (!Inited) return -1;
 
     if (!pInfo) return -1;
 
-    DWORD DumpSz = pInfo->DumpSz;
+    DWord DumpSz = pInfo->DumpSz;
     if (!DumpSz || DumpSz >= CodeSz) return -1;
-    BYTE *Dump = pInfo->Dump;
-    BYTE *Relocs = Dump + DumpSz;
+    Byte *Dump = pInfo->Dump;
+    Byte *Relocs = Dump + DumpSz;
     int i, n;
 
     //Skip relocs in dump begin
@@ -1676,30 +1676,30 @@ int __fastcall MKnowledgeBase::ScanCode(BYTE *code, DWORD *CodeFlags, DWORD Code
 
 //---------------------------------------------------------------------------
 //Fill used modules ids array + module itself
-WORD * __fastcall MKnowledgeBase::GetModuleUses(WORD ModuleID) {
+Word * __fastcall MKnowledgeBase::GetModuleUses(Word ModuleID) {
     if (!Inited) return 0;
 
     if (ModuleID == 0xFFFF) return 0;
 
-    const BYTE *p = GetKBCachePtr(ModuleOffsets[ModuleID].Offset, ModuleOffsets[ModuleID].Size);
+    const Byte *p = GetKBCachePtr(ModuleOffsets[ModuleID].Offset, ModuleOffsets[ModuleID].Size);
 
     //ID
     p += 2;
     //Name
-    WORD len = *((WORD *) p);
+    Word len = *((Word *) p);
     p += len + 3;
     //Filename
-    len = *((WORD *) p);
+    len = *((Word *) p);
     p += len + 3;
     //UsesNum
-    WORD UsesNum = *((WORD *) p);
-    WORD *uses = new WORD[UsesNum + 2];
+    Word UsesNum = *((Word *) p);
+    Word *uses = new Word[UsesNum + 2];
     uses[0] = ModuleID;
     int m = 1;
     if (UsesNum) {
         p += 2;
         for (int n = 0; n < UsesNum; n++) {
-            WORD ID = *((WORD *) p);
+            Word ID = *((Word *) p);
             p += 2;
             if (ID != 0xFFFF) {
                 uses[m] = ID;
@@ -1712,7 +1712,7 @@ WORD * __fastcall MKnowledgeBase::GetModuleUses(WORD ModuleID) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall MKnowledgeBase::GetProcUses(const char *ProcName, WORD *uses) {
+int __fastcall MKnowledgeBase::GetProcUses(const char *ProcName, Word *uses) {
     if (!Inited) return 0;
 
     int num = 0;
@@ -1721,7 +1721,7 @@ int __fastcall MKnowledgeBase::GetProcUses(const char *ProcName, WORD *uses) {
     while (1) {
         int M = (L + R) / 2;
         int ID = ProcOffsets[M].NamId;
-        const BYTE *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
+        const Byte *p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
 
         int res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
         if (res < 0)
@@ -1729,7 +1729,7 @@ int __fastcall MKnowledgeBase::GetProcUses(const char *ProcName, WORD *uses) {
         else if (res > 0)
             L = M + 1;
         else {
-            WORD ModID = *((WORD *) p);
+            Word ModID = *((Word *) p);
             if (ModID != 0xFFFF) {
                 uses[num] = ModID;
                 num++;
@@ -1740,7 +1740,7 @@ int __fastcall MKnowledgeBase::GetProcUses(const char *ProcName, WORD *uses) {
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
                 res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
-                ModID = *((WORD *) p);
+                ModID = *((Word *) p);
                 if (ModID != 0xFFFF && uses[num - 1] != ModID) {
                     uses[num] = ModID;
                     num++;
@@ -1753,7 +1753,7 @@ int __fastcall MKnowledgeBase::GetProcUses(const char *ProcName, WORD *uses) {
                 p = GetKBCachePtr(ProcOffsets[ID].Offset, ProcOffsets[ID].Size);
                 res = stricmp(ProcName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
-                ModID = *((WORD *) p);
+                ModID = *((Word *) p);
                 if (ModID != 0xFFFF && uses[num - 1] != ModID) {
                     uses[num] = ModID;
                     num++;
@@ -1767,17 +1767,17 @@ int __fastcall MKnowledgeBase::GetProcUses(const char *ProcName, WORD *uses) {
 }
 
 //---------------------------------------------------------------------------
-WORD * __fastcall MKnowledgeBase::GetTypeUses(const char *TypeName) {
+Word * __fastcall MKnowledgeBase::GetTypeUses(const char *TypeName) {
     if (!Inited) return 0;
 
     int num = 0;
-    WORD *uses = 0;
+    Word *uses = 0;
 
     int L = 0, R = TypeCount - 1;
     while (1) {
         int M = (L + R) / 2;
         int ID = TypeOffsets[M].NamId;
-        const BYTE *p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
+        const Byte *p = GetKBCachePtr(TypeOffsets[ID].Offset, TypeOffsets[ID].Size); // + 4;
         if (Version >= 2) p += 4;                                                    //Add by ZGL
 
         int res = stricmp(TypeName, reinterpret_cast<const char *>(p + 4));
@@ -1786,8 +1786,8 @@ WORD * __fastcall MKnowledgeBase::GetTypeUses(const char *TypeName) {
         else if (res > 0)
             L = M + 1;
         else {
-            uses = new WORD[ModuleCount + 1];
-            WORD ModID = *((WORD *) p);
+            uses = new Word[ModuleCount + 1];
+            Word ModID = *((Word *) p);
             if (ModID != 0xFFFF) {
                 uses[num] = ModID;
                 num++;
@@ -1799,7 +1799,7 @@ WORD * __fastcall MKnowledgeBase::GetTypeUses(const char *TypeName) {
                 if (Version >= 2) p += 4;                                        //Add by ZGL
                 res = stricmp(TypeName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
-                ModID = *((WORD *) p);
+                ModID = *((Word *) p);
                 if (ModID != 0xFFFF && uses[num - 1] != ModID) {
                     uses[num] = ModID;
                     num++;
@@ -1813,7 +1813,7 @@ WORD * __fastcall MKnowledgeBase::GetTypeUses(const char *TypeName) {
                 if (Version >= 2) p += 4;                                        //Add by ZGL
                 res = stricmp(TypeName, reinterpret_cast<const char *>(p + 4));
                 if (res) break;
-                ModID = *((WORD *) p);
+                ModID = *((Word *) p);
                 if (ModID != 0xFFFF && uses[num - 1] != ModID) {
                     uses[num] = ModID;
                     num++;
@@ -1829,12 +1829,12 @@ WORD * __fastcall MKnowledgeBase::GetTypeUses(const char *TypeName) {
 }
 
 //---------------------------------------------------------------------------
-WORD * __fastcall MKnowledgeBase::GetConstUses(const char *ConstName) {
+Word * __fastcall MKnowledgeBase::GetConstUses(const char *ConstName) {
     if (!Inited) return 0;
 
     int ID, num;
-    WORD ModID, *uses = 0;
-    const BYTE *p;
+    Word ModID, *uses = 0;
+    const Byte *p;
 
     int F = 0, L = ConstCount - 1;
     while (F < L) {
@@ -1849,9 +1849,9 @@ WORD * __fastcall MKnowledgeBase::GetConstUses(const char *ConstName) {
     ID = ConstOffsets[L].NamId;
     p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
     if (!stricmp(ConstName, reinterpret_cast<const char *>(p + 4))) {
-        uses = new WORD[ModuleCount + 1];
+        uses = new Word[ModuleCount + 1];
         num = 0;
-        ModID = *((WORD *) p);
+        ModID = *((Word *) p);
         if (ModID != 0xFFFF) {
             uses[num] = ModID;
             num++;
@@ -1861,7 +1861,7 @@ WORD * __fastcall MKnowledgeBase::GetConstUses(const char *ConstName) {
             ID = ConstOffsets[N].NamId;
             p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
             if (stricmp(ConstName, reinterpret_cast<const char *>(p + 4))) break;
-            ModID = *((WORD *) p);
+            ModID = *((Word *) p);
             if (ModID != 0xFFFF && uses[num - 1] != ModID) {
                 uses[num] = ModID;
                 num++;
@@ -1873,7 +1873,7 @@ WORD * __fastcall MKnowledgeBase::GetConstUses(const char *ConstName) {
             ID = ConstOffsets[N].NamId;
             p = GetKBCachePtr(ConstOffsets[ID].Offset, ConstOffsets[ID].Size);
             if (stricmp(ConstName, reinterpret_cast<const char *>(p + 4))) break;
-            ModID = *((WORD *) p);
+            ModID = *((Word *) p);
             if (ModID != 0xFFFF && uses[num - 1] != ModID) {
                 uses[num] = ModID;
                 num++;
@@ -1918,8 +1918,8 @@ String __fastcall MKnowledgeBase::GetProcPrototype(MProcInfo *pInfo) {
 
         if (pInfo->ArgsNum) Result += "(";
 
-        BYTE *p = pInfo->Args;
-        WORD Len;
+        Byte *p = pInfo->Args;
+        Word Len;
         for (int n = 0; n < pInfo->ArgsNum; n++) {
             if (n) Result += "; ";
             //Tag
@@ -1930,12 +1930,12 @@ String __fastcall MKnowledgeBase::GetProcPrototype(MProcInfo *pInfo) {
             //Ndx
             p += 4;
             //Name
-            Len = *((WORD *) p);
+            Len = *((Word *) p);
             p += 2;
             Result += String((char *) p, Len) + ":";
             p += Len + 1;
             //TypeDef
-            Len = *((WORD *) p);
+            Len = *((Word *) p);
             p += 2;
             Result += String((char *) p, Len);
             p += Len + 1;
@@ -1968,7 +1968,7 @@ String __fastcall MKnowledgeBase::GetProcPrototype(MProcInfo *pInfo) {
 //---------------------------------------------------------------------------
 //as
 //return direct pointer to const data of KB
-const BYTE * __fastcall MKnowledgeBase::GetKBCachePtr(DWORD Offset, DWORD Size) {
+const Byte * __fastcall MKnowledgeBase::GetKBCachePtr(DWord Offset, DWord Size) {
     assert(Offset >= 0 && Offset < SizeKBFile && (Offset + Size < SizeKBFile));
     return KBCache + Offset;
 }
@@ -1997,7 +1997,7 @@ bool __fastcall MKnowledgeBase::GetKBProcInfo(String typeName, MProcInfo *procIn
 //---------------------------------------------------------------------------
 bool __fastcall MKnowledgeBase::GetKBTypeInfo(String typeName, MTypeInfo *typeInfo) {
     int idx;
-    WORD *uses;
+    Word *uses;
 
     uses = GetTypeUses(AnsiString(typeName).c_str());
     idx = GetTypeIdxByModuleIds(uses, AnsiString(typeName).c_str());
@@ -2014,8 +2014,8 @@ bool __fastcall MKnowledgeBase::GetKBTypeInfo(String typeName, MTypeInfo *typeIn
 //---------------------------------------------------------------------------
 bool __fastcall MKnowledgeBase::GetKBPropertyInfo(String className, String propName, MTypeInfo *typeInfo) {
     int n, idx, pos;
-    BYTE *p;
-    WORD *uses, Len;
+    Byte *p;
+    Word *uses, Len;
     MTypeInfo tInfo;
     String name, type;
 
@@ -2031,19 +2031,19 @@ bool __fastcall MKnowledgeBase::GetKBPropertyInfo(String className, String propN
                 p++;    //Scope
                 p += 4; //Index
                 p += 4; //DispID
-                Len = *((WORD *) p);
+                Len = *((Word *) p);
                 p += 2;
                 name = String((char *) p, Len);
                 p += Len + 1; //Name
-                Len = *((WORD *) p);
+                Len = *((Word *) p);
                 p += 2;
                 type = TrimTypeName(String((char *) p, Len));
                 p += Len + 1; //TypeDef
-                Len = *((WORD *) p);
+                Len = *((Word *) p);
                 p += 2 + Len + 1; //ReadName
-                Len = *((WORD *) p);
+                Len = *((Word *) p);
                 p += 2 + Len + 1; //WriteName
-                Len = *((WORD *) p);
+                Len = *((Word *) p);
                 p += 2 + Len + 1; //StoredName
 
                 if (SameText(name, propName)) {
@@ -2060,8 +2060,8 @@ bool __fastcall MKnowledgeBase::GetKBPropertyInfo(String className, String propN
 //---------------------------------------------------------------------------
 String __fastcall MKnowledgeBase::IsPropFunction(String className, String procName) {
     int n, idx;
-    BYTE *p;
-    WORD *uses, Len;
+    Byte *p;
+    Word *uses, Len;
     MTypeInfo tInfo;
     String pname, type, fname;
 
@@ -2076,27 +2076,27 @@ String __fastcall MKnowledgeBase::IsPropFunction(String className, String procNa
                 p++;    //Scope
                 p += 4; //Index
                 p += 4; //DispID
-                Len = *((WORD *) p);
+                Len = *((Word *) p);
                 p += 2;
                 pname = String((char *) p, Len);
                 p += Len + 1; //Name
-                Len = *((WORD *) p);
+                Len = *((Word *) p);
                 p += 2;
                 type = TrimTypeName(String((char *) p, Len));
                 p += Len + 1; //TypeDef
-                Len = *((WORD *) p);
+                Len = *((Word *) p);
                 p += 2;
                 fname = TrimTypeName(String((char *) p, Len));
                 p += Len + 1; //ReadName
                 if (SameText(procName, fname))
                     return pname;
-                Len = *((WORD *) p);
+                Len = *((Word *) p);
                 p += 2;
                 fname = TrimTypeName(String((char *) p, Len));
                 p += Len + 1; //WriteName
                 if (SameText(procName, fname))
                     return pname;
-                Len = *((WORD *) p);
+                Len = *((Word *) p);
                 p += 2;
                 fname = TrimTypeName(String((char *) p, Len));
                 p += Len + 1; //StoredName

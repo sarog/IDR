@@ -3,14 +3,14 @@
 #include "Misc.h"
 #include "StringInfo.h"
 
-extern BYTE *Code;
-extern DWORD CodeBase;
-extern DWORD CodeSize;
+extern Byte *Code;
+extern DWord CodeBase;
+extern DWord CodeSize;
 extern MDisasm Disasm;
-extern DWORD TotalSize;
-extern DWORD *Flags;
+extern DWord TotalSize;
+extern DWord *Flags;
 extern PInfoRec *Infos;
-extern DWORD CurUnitAdr;
+extern DWord CurUnitAdr;
 
 // extern WideString __fastcall UnicodeEncode(String Str, int CodePage);
 //---------------------------------------------------------------------------
@@ -94,7 +94,7 @@ void __fastcall TFMain_11011981::lbStringsClick(TObject *Sender) {
     WhereSearch = SEARCH_STRINGS;
 
     if (lbStrings->ItemIndex >= 0) {
-        DWORD adr;
+        DWord adr;
         String line = lbStrings->Items->Strings[lbStrings->ItemIndex];
         //sscanf(line.c_str() + 1, "%lX", &adr);
         sscanf(AnsiString(line).c_str(), "%lX", &adr);
@@ -104,7 +104,7 @@ void __fastcall TFMain_11011981::lbStringsClick(TObject *Sender) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::lbStringsDblClick(TObject *Sender) {
-    DWORD adr;
+    DWord adr;
     String line = lbStrings->Items->Strings[lbStrings->ItemIndex];
     //sscanf(line.c_str() + 1, "%lX", &adr);
     sscanf(AnsiString(line).c_str(), "%lX", &adr);
@@ -184,7 +184,7 @@ void __fastcall TFMain_11011981::miSearchStringClick(TObject *Sender) {
         if (StringsSearchList->IndexOf(StringsSearchText) == -1) StringsSearchList->Add(StringsSearchText);
         FindText(StringsSearchText);
 
-        DWORD adr;
+        DWord adr;
         String line = lbStrings->Items->Strings[lbStrings->ItemIndex];
         //sscanf(line.c_str() + 1, "%lX", &adr);
         sscanf(AnsiString(line).c_str(), "%lX", &adr);
@@ -210,14 +210,14 @@ void __fastcall TFMain_11011981::ShowSXrefsClick(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::ShowStringXrefs(DWORD Adr, int selIdx) {
+void __fastcall TFMain_11011981::ShowStringXrefs(DWord Adr, int selIdx) {
     lbSXrefs->Clear();
 
     PInfoRec recN = GetInfoRec(Adr);
     if (recN && recN->xrefs) {
         int wid, maxwid = 0;
         TCanvas *canvas = lbSXrefs->Canvas;
-        DWORD pAdr = 0;
+        DWord pAdr = 0;
         char f = 2;
 
         lbSXrefs->Items->BeginUpdate();

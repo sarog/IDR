@@ -40,21 +40,20 @@ class TFExplorer_11011981 : public TForm {
     void __fastcall btnUndefCodeClick(TObject *Sender);
     void __fastcall rgStringViewStyleClick(TObject *Sender);
     void __fastcall miCopy2ClipboardClick(TObject *Sender);
-    void __fastcall FormKeyDown(TObject *Sender, WORD &Key,
-                                TShiftState Shift);
+    void __fastcall FormKeyDown(TObject *Sender, Word &Key, TShiftState Shift);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall rgDataViewStyleClick(TObject *Sender);
     void __fastcall btnDefStringClick(TObject *Sender);
     void __fastcall FormCreate(TObject *Sender);
 
 private:       // User declarations
-    DWORD Adr; //Адрес, с которого показывается информация
+    DWord Adr; //Адрес, с которого показывается информация
 public:        // User declarations
     __fastcall TFExplorer_11011981(TComponent *Owner);
-    void __fastcall ShowCode(DWORD fromAdr, int maxBytes);
-    void __fastcall ShowData(DWORD fromAdr, int maxBytes);
-    void __fastcall ShowString(DWORD fromAdr, int maxbytes);
-    void __fastcall ShowArray(DWORD fromAdr);
+    void __fastcall ShowCode(DWord fromAdr, int maxBytes);
+    void __fastcall ShowData(DWord fromAdr, int maxBytes);
+    void __fastcall ShowString(DWord fromAdr, int maxbytes);
+    void __fastcall ShowArray(DWord fromAdr);
     int DefineAs; //1- Define as Code, 2 - Undefine
     int WAlign;   //Alignment for WideString visualization
 };

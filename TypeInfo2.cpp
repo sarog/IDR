@@ -9,11 +9,11 @@
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
-extern DWORD ImageBase;
-extern DWORD CodeBase;
-extern DWORD *Flags;
+extern DWord ImageBase;
+extern DWord CodeBase;
+extern DWord *Flags;
 extern PInfoRec *Infos;
-extern BYTE *Code;
+extern Byte *Code;
 extern int DelphiVersion;
 extern TList *TypeList;
 extern MKnowledgeBase KnowledgeBase;
@@ -25,7 +25,7 @@ __fastcall TFTypeInfo_11011981::TFTypeInfo_11011981(TComponent *Owner)
 
 //---------------------------------------------------------------------------
 void __fastcall TFTypeInfo_11011981::ShowKbInfo(MTypeInfo *tInfo) {
-    WORD Len;
+    Word Len;
     String line;
 
     memDescription->ReadOnly = True;
@@ -41,7 +41,7 @@ void __fastcall TFTypeInfo_11011981::ShowKbInfo(MTypeInfo *tInfo) {
     if (tInfo->Decl != "") memDescription->Lines->Add(tInfo->Decl);
     if (tInfo->FieldsNum) {
         memDescription->Lines->Add("//FIELDS//");
-        BYTE *p = tInfo->Fields;
+        Byte *p = tInfo->Fields;
         FIELDINFO fInfo;
 
         for (int n = 0; n < tInfo->FieldsNum; n++) {
@@ -51,11 +51,11 @@ void __fastcall TFTypeInfo_11011981::ShowKbInfo(MTypeInfo *tInfo) {
             p += 4;
             fInfo.Case = *((int *) p);
             p += 4;
-            Len = *((WORD *) p);
+            Len = *((Word *) p);
             p += 2;
             fInfo.Name = String((char *) p, Len);
             p += Len + 1;
-            Len = *((WORD *) p);
+            Len = *((Word *) p);
             p += 2;
             fInfo.Type = TrimTypeName(String((char *) p, Len));
             p += Len + 1;
@@ -83,7 +83,7 @@ void __fastcall TFTypeInfo_11011981::ShowKbInfo(MTypeInfo *tInfo) {
     }
     if (tInfo->PropsNum) {
         memDescription->Lines->Add("//PROPERTIES//");
-        BYTE *p = tInfo->Props;
+        Byte *p = tInfo->Props;
         PROPINFO pInfo;
 
         for (int n = 0; n < tInfo->PropsNum; n++) {
@@ -93,23 +93,23 @@ void __fastcall TFTypeInfo_11011981::ShowKbInfo(MTypeInfo *tInfo) {
             p += 4;
             pInfo.DispID = *((int *) p);
             p += 4;
-            Len = *((WORD *) p);
+            Len = *((Word *) p);
             p += 2;
             pInfo.Name = String((char *) p, Len);
             p += Len + 1;
-            Len = *((WORD *) p);
+            Len = *((Word *) p);
             p += 2;
             pInfo.TypeDef = String((char *) p, Len);
             p += Len + 1;
-            Len = *((WORD *) p);
+            Len = *((Word *) p);
             p += 2;
             pInfo.ReadName = String((char *) p, Len);
             p += Len + 1;
-            Len = *((WORD *) p);
+            Len = *((Word *) p);
             p += 2;
             pInfo.WriteName = String((char *) p, Len);
             p += Len + 1;
-            Len = *((WORD *) p);
+            Len = *((Word *) p);
             p += 2;
             pInfo.StoredName = String((char *) p, Len);
             p += Len + 1;
@@ -152,7 +152,7 @@ void __fastcall TFTypeInfo_11011981::ShowKbInfo(MTypeInfo *tInfo) {
     }
     if (tInfo->MethodsNum) {
         memDescription->Lines->Add("//METHODS//");
-        BYTE *p = tInfo->Methods;
+        Byte *p = tInfo->Methods;
         METHODINFO mInfo;
 
         for (int n = 0; n < tInfo->MethodsNum; n++) {
@@ -160,7 +160,7 @@ void __fastcall TFTypeInfo_11011981::ShowKbInfo(MTypeInfo *tInfo) {
             p++;
             mInfo.MethodKind = *p;
             p++;
-            Len = *((WORD *) p);
+            Len = *((Word *) p);
             p += 2;
             mInfo.Prototype = String((char *) p, Len);
             p += Len + 1;
@@ -188,7 +188,7 @@ void __fastcall TFTypeInfo_11011981::ShowKbInfo(MTypeInfo *tInfo) {
     }
     if (tInfo->Dump) {
         memDescription->Lines->Add("//Dump//");
-        BYTE *p = tInfo->Dump;
+        Byte *p = tInfo->Dump;
         line = "";
         for (int n = 0; n < tInfo->DumpSz; n++) {
             if (n) line += " ";
@@ -293,18 +293,18 @@ String __fastcall GetVarTypeString(int val) {
 }
 
 //---------------------------------------------------------------------------
-String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
+String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
     bool found;
-    BYTE floatType, methodKind, paramCount, numOps, ordType, callConv, paramFlags, propFlags, flags, dimCount;
-    WORD dw, propCount, methCnt;
-    DWORD minValue, maxValue, minValueB, maxValueB;
+    Byte floatType, methodKind, paramCount, numOps, ordType, callConv, paramFlags, propFlags, flags, dimCount;
+    Word dw, propCount, methCnt;
+    DWord minValue, maxValue, minValueB, maxValueB;
     int i, m, n, vmtofs, pos, posn, spos, _ap;
     __int64 minInt64Value, maxInt64Value;
     int elSize, varType; //for tkDynArray
-    DWORD elType;        //for tkDynArray
-    DWORD typeAdr, classVMT, parentAdr, Size, elNum, elOff, resultTypeAdr;
-    DWORD propType, getProc, setProc, storedProc, methAdr, procSig;
-    BYTE GUID[16];
+    DWord elType;        //for tkDynArray
+    DWord typeAdr, classVMT, parentAdr, Size, elNum, elOff, resultTypeAdr;
+    DWord propType, getProc, setProc, storedProc, methAdr, procSig;
+    Byte GUID[16];
     String typname, name, FldFileName;
     FILE *fldf;
     PInfoRec recN;
@@ -315,7 +315,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
     pos += 4;
     RTTIKind = Code[pos];
     pos++;
-    BYTE len = Code[pos];
+    Byte len = Code[pos];
     pos++;
     RTTIName = String((char *) (Code + pos), len);
     pos += len;
@@ -330,9 +330,9 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
         case ikWChar:
             ordType = Code[pos];
             pos++;
-            minValue = *((DWORD *) (Code + pos));
+            minValue = *((DWord *) (Code + pos));
             pos += 4;
-            maxValue = *((DWORD *) (Code + pos));
+            maxValue = *((DWord *) (Code + pos));
             //Signed type
             if (!(ordType & 1))
                 result = IntToStr((int) minValue) + ".." + IntToStr((int) maxValue);
@@ -344,12 +344,12 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
             result = "(";
             ordType = Code[pos];
             pos++;
-            minValue = *((DWORD *) (Code + pos));
+            minValue = *((DWord *) (Code + pos));
             pos += 4;
-            maxValue = *((DWORD *) (Code + pos));
+            maxValue = *((DWord *) (Code + pos));
             pos += 4;
             //BaseTypeAdr
-            typeAdr = *((DWORD *) (Code + pos));
+            typeAdr = *((DWord *) (Code + pos));
             pos += 4;
 
             if (SameText(RTTIName, "ByteBool") ||
@@ -368,9 +368,9 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                 pos++;
                 pos += len; //BaseClassName
                 pos++;      //ordType
-                minValueB = *((DWORD *) (Code + pos));
+                minValueB = *((DWord *) (Code + pos));
                 pos += 4;
-                maxValueB = *((DWORD *) (Code + pos));
+                maxValueB = *((DWord *) (Code + pos));
                 pos += 4;
                 pos += 4; //BaseClassPtr
             } else {
@@ -432,17 +432,17 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
         case ikSet:
             result = "set of ";
             pos++; //skip ordType
-            typeAdr = *((DWORD *) (Code + pos));
+            typeAdr = *((DWord *) (Code + pos));
             result = "set of " + GetTypeName(typeAdr);
             break;
         case ikClass:
             result = "class";
-            classVMT = *((DWORD *) (Code + pos));
+            classVMT = *((DWord *) (Code + pos));
             pos += 4;
-            parentAdr = *((DWORD *) (Code + pos));
+            parentAdr = *((DWord *) (Code + pos));
             pos += 4;
             if (parentAdr) result += "(" + GetTypeName(parentAdr) + ")";
-            propCount = *((WORD *) (Code + pos));
+            propCount = *((Word *) (Code + pos));
             pos += 2;
 
             //UnitName
@@ -451,10 +451,10 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
             Caption = String((char *) (Code + pos), len).Trim() + "." + Caption;
             pos += len;
 
-            propCount = *((WORD *) (Code + pos));
+            propCount = *((Word *) (Code + pos));
             pos += 2;
             for (i = 0; i < propCount; i++) {
-                propType = *((DWORD *) (Code + pos));
+                propType = *((DWord *) (Code + pos));
                 pos += 4;
                 posn = Adr2Pos(propType);
                 posn += 4;
@@ -462,11 +462,11 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                 len = Code[posn];
                 posn++;
                 typname = String((char *) (Code + posn), len);
-                getProc = *((DWORD *) (Code + pos));
+                getProc = *((DWord *) (Code + pos));
                 pos += 4;
-                setProc = *((DWORD *) (Code + pos));
+                setProc = *((DWord *) (Code + pos));
                 pos += 4;
-                storedProc = *((DWORD *) (Code + pos));
+                storedProc = *((DWord *) (Code + pos));
                 pos += 4;
                 //idx
                 pos += 4;
@@ -489,7 +489,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                         else
                             vmtofs = getProc & 0x0000FFFF;
                         posn = Adr2Pos(classVMT) + vmtofs;
-                        getProc = *((DWORD *) (Code + posn));
+                        getProc = *((DWord *) (Code + posn));
 
                         result += " vmt" + Val2Str0(vmtofs) + " " + Val2Str0(getProc);
                         recN = GetInfoRec(getProc);
@@ -510,7 +510,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                         else
                             vmtofs = setProc & 0x0000FFFF;
                         posn = Adr2Pos(classVMT) + vmtofs;
-                        setProc = *((DWORD *) (Code + posn));
+                        setProc = *((DWord *) (Code + posn));
                         result += " vmt" + Val2Str0(vmtofs) + " " + Val2Str0(setProc);
                         recN = GetInfoRec(setProc);
                         if (recN && recN->HasName()) result += " " + recN->GetName();
@@ -530,7 +530,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                         else
                             vmtofs = storedProc & 0x0000FFFF;
                         posn = Adr2Pos(classVMT) + vmtofs;
-                        storedProc = *((DWORD *) (Code + posn));
+                        storedProc = *((DWord *) (Code + posn));
                         result += " vmt" + Val2Str0(vmtofs) + " " + Val2Str0(storedProc);
                         recN = GetInfoRec(storedProc);
                         if (recN && recN->HasName()) result += " " + recN->GetName();
@@ -542,22 +542,22 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                 }
             }
             if (DelphiVersion >= 2010) {
-                propCount = *((WORD *) (Code + pos));
+                propCount = *((Word *) (Code + pos));
                 pos += 2;
                 for (i = 0; i < propCount; i++) {
                     //Flags
                     propFlags = Code[pos];
                     pos++;
                     //PPropInfo
-                    propType = *((DWORD *) (Code + pos));
+                    propType = *((DWord *) (Code + pos));
                     pos += 4;
                     //AttrData
-                    dw = *((WORD *) (Code + pos));
+                    dw = *((Word *) (Code + pos));
                     pos += dw; //ATR!!
                     spos = pos;
                     //PropInfo
                     pos = Adr2Pos(propType);
-                    propType = *((DWORD *) (Code + pos));
+                    propType = *((DWord *) (Code + pos));
                     pos += 4;
 
                     if (IsFlagSet(cfImport, Adr2Pos(propType))) {
@@ -572,11 +572,11 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                         typname = String((char *) (Code + posn), len);
                     }
 
-                    getProc = *((DWORD *) (Code + pos));
+                    getProc = *((DWord *) (Code + pos));
                     pos += 4;
-                    setProc = *((DWORD *) (Code + pos));
+                    setProc = *((DWord *) (Code + pos));
                     pos += 4;
-                    storedProc = *((DWORD *) (Code + pos));
+                    storedProc = *((DWord *) (Code + pos));
                     pos += 4;
                     //idx
                     pos += 4;
@@ -599,7 +599,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                             else
                                 vmtofs = getProc & 0x0000FFFF;
                             posn = Adr2Pos(classVMT) + vmtofs;
-                            getProc = *((DWORD *) (Code + pos));
+                            getProc = *((DWord *) (Code + pos));
 
                             result += " vmt" + Val2Str0(vmtofs) + " " + Val2Str0(getProc);
                             recN = GetInfoRec(getProc);
@@ -620,7 +620,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                             else
                                 vmtofs = setProc & 0x0000FFFF;
                             posn = Adr2Pos(classVMT) + vmtofs;
-                            setProc = *((DWORD *) (Code + pos));
+                            setProc = *((DWord *) (Code + pos));
                             result += " vmt" + Val2Str0(vmtofs) + " " + Val2Str0(setProc);
                             recN = GetInfoRec(setProc);
                             if (recN && recN->HasName()) result += " " + recN->GetName();
@@ -640,7 +640,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                             else
                                 vmtofs = storedProc & 0x0000FFFF;
                             posn = Adr2Pos(classVMT) + vmtofs;
-                            storedProc = *((DWORD *) (Code + pos));
+                            storedProc = *((DWord *) (Code + pos));
                             result += " vmt" + Val2Str0(vmtofs) + " " + Val2Str0(storedProc);
                             recN = GetInfoRec(storedProc);
                             if (recN && recN->HasName()) result += " " + recN->GetName();
@@ -653,11 +653,11 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                     pos = spos;
                 }
                 //AttrData
-                dw = *((WORD *) (Code + pos));
+                dw = *((Word *) (Code + pos));
                 pos += dw; //ATR!!
                 if (DelphiVersion >= 2012) {
                     //ArrayPropCount
-                    propCount = *((WORD *) (Code + pos));
+                    propCount = *((Word *) (Code + pos));
                     pos += 2;
                     for (i = 0; i < propCount; i++) {
                         //Flags
@@ -673,7 +673,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                         pos += len;
                         result += "\n" + name;
                         //AttrData
-                        dw = *((WORD *) (Code + pos));
+                        dw = *((Word *) (Code + pos));
                         pos += dw; //ATR!!
                     }
                 }
@@ -720,7 +720,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
             if (paramCount > 0) proto = "(";
 
             for (i = 0; i < paramCount; i++) {
-                BYTE paramFlags = Code[pos];
+                Byte paramFlags = Code[pos];
                 pos++;
                 if (paramFlags & PfVar)
                     proto += "var ";
@@ -748,7 +748,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                 name = String((char *) (Code + pos), len);
                 pos += len;
                 if (DelphiVersion > 6) {
-                    typeAdr = *((DWORD *) (Code + pos));
+                    typeAdr = *((DWord *) (Code + pos));
                     pos += 4;
                     name = GetTypeName(typeAdr);
                 }
@@ -762,10 +762,10 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                 pos += 4 * paramCount;
                 if (DelphiVersion >= 2010) {
                     //MethSig
-                    procSig = *((DWORD *) (Code + pos));
+                    procSig = *((DWord *) (Code + pos));
                     pos += 4;
                     //AttrData
-                    dw = *((WORD *) (Code + pos));
+                    dw = *((Word *) (Code + pos));
                     pos += dw; //ATR!!
                     //Procedure Signature
                     if (procSig) {
@@ -781,14 +781,14 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                             callConv = Code[posn];
                             posn++;
                             //ResultType
-                            resultTypeAdr = *((DWORD *) (Code + posn));
+                            resultTypeAdr = *((DWord *) (Code + posn));
                             posn += 4;
                             //ParamCount
                             paramCount = Code[posn];
                             posn++;
                             if (paramCount > 0) proto = "(";
                             for (i = 0; i < paramCount; i++) {
-                                BYTE paramFlags = Code[posn];
+                                Byte paramFlags = Code[posn];
                                 posn++;
                                 if (paramFlags & PfVar)
                                     proto += "var ";
@@ -796,7 +796,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                                     proto += "const ";
                                 else if (paramFlags & PfArray)
                                     proto += "array ";
-                                typeAdr = *((DWORD *) (Code + posn));
+                                typeAdr = *((DWord *) (Code + posn));
                                 posn += 4;
                                 len = Code[posn];
                                 posn++;
@@ -805,7 +805,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                                 proto += name + ":" + GetTypeName(typeAdr);
                                 if (i != paramCount - 1) proto += "; ";
                                 //AttrData
-                                dw = *((WORD *) (Code + posn));
+                                dw = *((Word *) (Code + posn));
                                 posn += dw; //ATR!!
                             }
                             if (paramCount > 0) proto += ")";
@@ -826,11 +826,11 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
             result = "Variant";
             break;
         case ikArray:
-            Size = *((DWORD *) (Code + pos));
+            Size = *((DWord *) (Code + pos));
             pos += 4;
-            elNum = *((DWORD *) (Code + pos));
+            elNum = *((DWord *) (Code + pos));
             pos += 4;
-            resultTypeAdr = *((DWORD *) (Code + pos));
+            resultTypeAdr = *((DWord *) (Code + pos));
             pos += 4;
             result = "array [1.." + String(elNum);
             if (DelphiVersion >= 2010) {
@@ -839,7 +839,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                 dimCount = Code[pos];
                 pos++;
                 for (i = 0; i < dimCount; i++) {
-                    typeAdr = *((DWORD *) (Code + pos));
+                    typeAdr = *((DWord *) (Code + pos));
                     pos += 4;
                     if (IsValidImageAdr(typeAdr))
                         result += GetTypeName(typeAdr);
@@ -858,16 +858,16 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
             result += "] of " + GetTypeName(resultTypeAdr);
             break;
         case ikRecord:
-            Size = *((DWORD *) (Code + pos));
+            Size = *((DWord *) (Code + pos));
             pos += 4;
             result = RTTIName + " = record//size=0x" + Val2Str0(Size);
-            elNum = *((DWORD *) (Code + pos));
+            elNum = *((DWord *) (Code + pos));
             pos += 4; //FldCount
             if (elNum) {
                 for (i = 0; i < elNum; i++) {
-                    typeAdr = *((DWORD *) (Code + pos));
+                    typeAdr = *((DWord *) (Code + pos));
                     pos += 4;
-                    elOff = *((DWORD *) (Code + pos));
+                    elOff = *((DWord *) (Code + pos));
                     pos += 4;
                     result += "\nf" + Val2Str0(elOff) + ":" + GetTypeName(typeAdr) + ";//f" + Val2Str0(elOff);
                 }
@@ -882,16 +882,16 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                 {
                     pos += 4;
                 }
-                elNum = *((DWORD *) (Code + pos));
+                elNum = *((DWord *) (Code + pos));
                 pos += 4; //RecFldCnt
 
                 if (elNum) {
                     for (i = 0; i < elNum; i++) {
                         //TypeRef
-                        typeAdr = *((DWORD *) (Code + pos));
+                        typeAdr = *((DWord *) (Code + pos));
                         pos += 4;
                         //FldOffset
-                        elOff = *((DWORD *) (Code + pos));
+                        elOff = *((DWord *) (Code + pos));
                         pos += 4;
                         //Flags
                         pos++;
@@ -902,23 +902,23 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                         pos += len;
                         result += "\n" + name + ":" + GetTypeName(typeAdr) + ";//f" + Val2Str0(elOff);
                         //AttrData
-                        dw = *((WORD *) (Code + pos));
+                        dw = *((Word *) (Code + pos));
                         pos += dw; //ATR!!
                     }
                     result += "\nend;";
                 }
                 //AttrData
-                dw = *((WORD *) (Code + pos));
+                dw = *((Word *) (Code + pos));
                 pos += dw; //ATR!!
                 if (DelphiVersion >= 2012) {
-                    methCnt = *((WORD *) (Code + pos));
+                    methCnt = *((Word *) (Code + pos));
                     pos += 2;
                     if (methCnt > 0) result += "\n//Methods:";
                     for (m = 0; m < methCnt; m++) {
                         //Flags
                         pos++;
                         //Code
-                        methAdr = *((DWORD *) (Code + pos));
+                        methAdr = *((DWord *) (Code + pos));
                         pos += 4;
                         //Name
                         len = Code[pos];
@@ -934,7 +934,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                             //CC
                             pos++;
                             //ResultType
-                            resultTypeAdr = *((DWORD *) (Code + pos));
+                            resultTypeAdr = *((DWord *) (Code + pos));
                             pos += 4;
                             //ParamCnt
                             paramCount = Code[pos];
@@ -945,7 +945,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                                 //Flags
                                 pos++;
                                 //ParamType
-                                typeAdr = *((DWORD *) (Code + pos));
+                                typeAdr = *((DWord *) (Code + pos));
                                 pos += 4;
                                 //Name
                                 len = Code[pos];
@@ -955,7 +955,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                                 result += name + ":" + GetTypeName(typeAdr);
                                 if (n != paramCount - 1) result += ";";
                                 //AttrData
-                                dw = *((WORD *) (Code + pos));
+                                dw = *((Word *) (Code + pos));
                                 pos += dw; //ATR!!
                             }
                             if (paramCount > 0) result += ")";
@@ -963,7 +963,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                             result += ";//" + Val2Str8(methAdr);
                         }
                         //AttrData
-                        dw = *((WORD *) (Code + pos));
+                        dw = *((Word *) (Code + pos));
                         pos += dw; //ATR!!
                     }
                 }
@@ -972,7 +972,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
         case ikInterface:
             result = "interface";
             //IntfParent
-            typeAdr = *((DWORD *) (Code + pos));
+            typeAdr = *((DWord *) (Code + pos));
             pos += 4;
             if (typeAdr) result += "(" + GetTypeName(typeAdr) + ")";
             //IntfFlags
@@ -989,12 +989,12 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
             pos += len;
 
             //Methods
-            propCount = *((WORD *) (Code + pos));
+            propCount = *((Word *) (Code + pos));
             pos += 2;
             result += "Methods Count = " + String(propCount);
             if (DelphiVersion >= 6) {
                 //RttiCount
-                dw = *((WORD *) (Code + pos));
+                dw = *((Word *) (Code + pos));
                 pos += 2;
                 if (dw != 0xFFFF) {
                     if (DelphiVersion >= 2010) {
@@ -1078,14 +1078,14 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
             break;
         case ikDynArray:
             //elSize
-            elSize = *((DWORD *) (Code + pos));
+            elSize = *((DWord *) (Code + pos));
             pos += 4;
             //elType
-            elType = *((DWORD *) (Code + pos));
+            elType = *((DWord *) (Code + pos));
             pos += 4;
             result = "array of " + GetTypeName(elType);
             //varType
-            varType = *((DWORD *) (Code + pos));
+            varType = *((DWord *) (Code + pos));
             pos += 4;
             if (DelphiVersion >= 6) {
                 //elType2
@@ -1098,7 +1098,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
             }
             if (DelphiVersion >= 2010) {
                 //DynArrElType
-                elType = *((DWORD *) (Code + pos));
+                elType = *((DWord *) (Code + pos));
                 result = "array of " + GetTypeName(elType);
             }
             result += ";";
@@ -1109,20 +1109,20 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
             result = "UString";
             break;
         case ikClassRef: //0x13
-            typeAdr = *((DWORD *) (Code + pos));
+            typeAdr = *((DWord *) (Code + pos));
             if (typeAdr) result = "class of " + GetTypeName(typeAdr);
             break;
         case ikPointer: //0x14
-            typeAdr = *((DWORD *) (Code + pos));
+            typeAdr = *((DWord *) (Code + pos));
             if (typeAdr) result = "^" + GetTypeName(typeAdr);
             break;
         case ikProcedure: //0x15
             result = RTTIName;
             //MethSig
-            procSig = *((DWORD *) (Code + pos));
+            procSig = *((DWord *) (Code + pos));
             pos += 4;
             //AttrData
-            dw = *((WORD *) (Code + pos));
+            dw = *((Word *) (Code + pos));
             pos += dw; //ATR!!
             //Procedure Signature
             if (procSig) {
@@ -1138,7 +1138,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                     callConv = Code[pos];
                     pos++;
                     //ResultType
-                    resultTypeAdr = *((DWORD *) (Code + pos));
+                    resultTypeAdr = *((DWord *) (Code + pos));
                     pos += 4;
                     if (resultTypeAdr)
                         result = "function ";
@@ -1158,7 +1158,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                         if (paramFlags & 1) result += "var ";
                         if (paramFlags & 2) result += "const ";
                         //ParamType
-                        typeAdr = *((DWORD *) (Code + pos));
+                        typeAdr = *((DWord *) (Code + pos));
                         pos += 4;
                         //Name
                         len = Code[pos];
@@ -1168,7 +1168,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
                         result += GetTypeName(typeAdr);
                         if (i != paramCount - 1) result += "; ";
                         //AttrData
-                        dw = *((WORD *) (Code + pos));
+                        dw = *((Word *) (Code + pos));
                         pos += dw; //ATR!!
                     }
                     if (paramCount) result += ")";
@@ -1197,7 +1197,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWORD adr) {
 }
 
 //---------------------------------------------------------------------
-void __fastcall TFTypeInfo_11011981::ShowRTTI(DWORD adr) {
+void __fastcall TFTypeInfo_11011981::ShowRTTI(DWord adr) {
     memDescription->ReadOnly = True;
     Panel1->Visible = False;
 
@@ -1226,7 +1226,7 @@ void __fastcall TFTypeInfo_11011981::ShowRTTI(DWORD adr) {
 }
 
 //---------------------------------------------------------------------
-String __fastcall Guid2String(BYTE *Guid) {
+String __fastcall Guid2String(Byte *Guid) {
     int n;
     char sbyte[8];
     String Result = "['{";
@@ -1264,15 +1264,12 @@ String __fastcall Guid2String(BYTE *Guid) {
 }
 
 //---------------------------------------------------------------------
-void __fastcall TFTypeInfo_11011981::FormKeyDown(TObject *Sender, WORD &Key,
-                                                 TShiftState Shift) {
+void __fastcall TFTypeInfo_11011981::FormKeyDown(TObject *Sender, Word &Key, TShiftState Shift) {
     if (Key == VK_ESCAPE) ModalResult = mrCancel;
 }
 
 //---------------------------------------------------------------------------
 void __fastcall TFTypeInfo_11011981::bSaveClick(TObject *Sender) {
-    BYTE len;
-    int pos, p;
     String line, decl;
 
     for (int n = 0; n < memDescription->Lines->Count; n++) {
@@ -1281,15 +1278,15 @@ void __fastcall TFTypeInfo_11011981::bSaveClick(TObject *Sender) {
         decl += line;
     }
     decl = decl.Trim();
-    p = decl.Pos(";");
+    int p = decl.Pos(";");
     if (p > 0) {
         decl = decl.SubString(1, p - 1);
     }
 
-    pos = Adr2Pos(RTTIAdr);
+    int pos = Adr2Pos(RTTIAdr);
     pos += 4;
     pos++; //Kind
-    len = Code[pos];
+    Byte len = Code[pos];
     pos++;
     pos += len; //Name
 
@@ -1298,7 +1295,7 @@ void __fastcall TFTypeInfo_11011981::bSaveClick(TObject *Sender) {
             //elSize
             pos += 4;
             //elType
-            *((DWORD *) (Code + pos)) = GetOwnTypeAdr(GetArrayElementType(decl));
+            *((DWord *) (Code + pos)) = GetOwnTypeAdr(GetArrayElementType(decl));
             break;
     }
     ModalResult = mrOk;
@@ -1320,16 +1317,16 @@ FIELD_INFO * __fastcall FindFieldInfoByOffset(TList *List, int Offset) {
 }
 
 //---------------------------------------------------------------------------
-String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, int action) {
+String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWord adr, int *o_pSize, int action) {
     bool found;
-    BYTE methodKind, paramCount, numOps, ordType, callConv, paramFlags, propFlags, flags, dimCount, len;
-    WORD dw, propCount, methCnt;
-    DWORD k, minValue, maxValue, minValueB, maxValueB;
+    Byte methodKind, paramCount, numOps, ordType, callConv, paramFlags, propFlags, flags, dimCount, len;
+    Word dw, propCount, methCnt;
+    DWord k, minValue, maxValue, minValueB, maxValueB;
     int i, j, m, n, vmtofs, pos = 0, posn, spos, _ap = 0, curOfs, typeKind, typeSize, fieldsNum, intfNum, size, prevOfs;
-    DWORD elType; //for tkDynArray
-    DWORD typeAdr, classVMT, parentAdr, elNum, elOff, resultTypeAdr;
-    DWORD propType, getProc, setProc, storedProc, methAdr, procSig;
-    BYTE GUID[16];
+    DWord elType; //for tkDynArray
+    DWord typeAdr, classVMT, parentAdr, elNum, elOff, resultTypeAdr;
+    DWord propType, getProc, setProc, storedProc, methAdr, procSig;
+    Byte GUID[16];
     String typname, name, FldFileName, bfZeroes, result, item;
     FILE *fldf;
     PInfoRec recN;
@@ -1382,12 +1379,12 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
         case ikEnumeration:
             ordType = Code[pos];
             pos++;
-            minValue = *((DWORD *) (Code + pos));
+            minValue = *((DWord *) (Code + pos));
             pos += 4;
-            maxValue = *((DWORD *) (Code + pos));
+            maxValue = *((DWord *) (Code + pos));
             pos += 4;
             //BaseTypeAdr
-            typeAdr = *((DWORD *) (Code + pos));
+            typeAdr = *((DWord *) (Code + pos));
             pos += 4;
             //If BaseTypeAdr != SelfAdr then fields extracted from BaseType
             if (typeAdr != RTTIAdr) {
@@ -1398,9 +1395,9 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                 pos++;
                 pos += len; //BaseClassName
                 pos++;      //ordType
-                minValueB = *((DWORD *) (Code + pos));
+                minValueB = *((DWord *) (Code + pos));
                 pos += 4;
-                maxValueB = *((DWORD *) (Code + pos));
+                maxValueB = *((DWord *) (Code + pos));
                 pos += 4;
                 pos += 4; //BaseClassPtr
             } else {
@@ -1437,7 +1434,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
             break;
         case ikSet:
             pos++; //skip ordType
-            typeAdr = *((DWORD *) (Code + pos));
+            typeAdr = *((DWord *) (Code + pos));
             result = GetCppTypeInfo(typeAdr, o_pSize, 1);
             break;
         case ikMethod:
@@ -1449,7 +1446,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
 
             for (i = 0; i < paramCount; i++) {
                 if (i) result += ", ";
-                BYTE paramFlags = Code[pos];
+                Byte paramFlags = Code[pos];
                 pos++;
                 len = Code[pos];
                 pos++;
@@ -1477,7 +1474,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                 name = String((char *) (Code + pos), len);
                 pos += len;
                 if (DelphiVersion > 6) {
-                    typeAdr = *((DWORD *) (Code + pos));
+                    typeAdr = *((DWord *) (Code + pos));
                     pos += 4;
                     name = GetTypeName(typeAdr);
                 }
@@ -1496,10 +1493,10 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                 pos += 4 * paramCount;
                 if (DelphiVersion >= 2010) {
                     //MethSig
-                    procSig = *((DWORD *) (Code + pos));
+                    procSig = *((DWord *) (Code + pos));
                     pos += 4;
                     //AttrData
-                    dw = *((WORD *) (Code + pos));
+                    dw = *((Word *) (Code + pos));
                     pos += dw; //ATR!!
                     //Procedure Signature
                     if (procSig) {
@@ -1515,7 +1512,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                             callConv = Code[posn];
                             posn++;
                             //ResultType
-                            resultTypeAdr = *((DWORD *) (Code + posn));
+                            resultTypeAdr = *((DWord *) (Code + posn));
                             posn += 4;
                             //ParamCount
                             paramCount = Code[posn];
@@ -1523,9 +1520,9 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                             result = "__fastcall (*P" + RTTIName + ")(";
                             for (i = 0; i < paramCount; i++) {
                                 if (i) result += ", ";
-                                BYTE paramFlags = Code[posn];
+                                Byte paramFlags = Code[posn];
                                 posn++;
-                                typeAdr = *((DWORD *) (Code + posn));
+                                typeAdr = *((DWord *) (Code + posn));
                                 posn += 4;
                                 len = Code[posn];
                                 posn++;
@@ -1542,7 +1539,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                                     result += "*";
                                 result += " " + name;
                                 //AttrData
-                                dw = *((WORD *) (Code + posn));
+                                dw = *((Word *) (Code + posn));
                                 posn += dw; //ATR!!
                             }
                             result += ")";
@@ -1567,11 +1564,11 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
             result = "WideString";
             break;
         case ikArray:
-            *o_pSize = *((DWORD *) (Code + pos));
+            *o_pSize = *((DWord *) (Code + pos));
             pos += 4;
-            elNum = *((DWORD *) (Code + pos));
+            elNum = *((DWord *) (Code + pos));
             pos += 4;
-            resultTypeAdr = *((DWORD *) (Code + pos));
+            resultTypeAdr = *((DWord *) (Code + pos));
             pos += 4;
             result = GetTypeName(resultTypeAdr) + " %s";
 
@@ -1581,7 +1578,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                 pos++;
                 for (i = 0; i < dimCount; i++) {
                     result += "[";
-                    typeAdr = *((DWORD *) (Code + pos));
+                    typeAdr = *((DWord *) (Code + pos));
                     pos += 4;
                     if (IsValidImageAdr(typeAdr)) {
                         typname = GetTypeName(typeAdr);
@@ -1605,19 +1602,19 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
             break;
         case ikRecord:
             fieldsList = new TList;
-            *o_pSize = *((DWORD *) (Code + pos));
+            *o_pSize = *((DWord *) (Code + pos));
             pos += 4;
-            elNum = *((DWORD *) (Code + pos));
+            elNum = *((DWord *) (Code + pos));
             pos += 4; //FldCount
             //First cycle - fill fieldsList
             if (elNum) {
                 curOfs = 0;
                 for (i = 0; i < elNum; i++) {
                     FieldInfo = new FIELD_INFO;
-                    typeAdr = *((DWORD *) (Code + pos));
+                    typeAdr = *((DWord *) (Code + pos));
                     pos += 4;
                     typname = GetTypeName(typeAdr);
-                    elOff = *((DWORD *) (Code + pos));
+                    elOff = *((DWord *) (Code + pos));
                     pos += 4;
                     FieldInfo->Offset = elOff;
                     //Find type size
@@ -1636,18 +1633,18 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                 {
                     pos += 4;
                 }
-                elNum = *((DWORD *) (Code + pos));
+                elNum = *((DWord *) (Code + pos));
                 pos += 4; //RecFldCnt
 
                 if (elNum) {
                     curOfs = 0;
                     for (i = 0; i < elNum; i++) {
                         //TypeRef
-                        typeAdr = *((DWORD *) (Code + pos));
+                        typeAdr = *((DWord *) (Code + pos));
                         pos += 4;
                         typname = GetTypeName(typeAdr);
                         //FldOffset
-                        elOff = *((DWORD *) (Code + pos));
+                        elOff = *((DWord *) (Code + pos));
                         pos += 4;
                         GetTypeKind(typname, &typeSize);
                         //Flags
@@ -1658,7 +1655,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                         name = String((char *) (Code + pos), len);
                         pos += len;
                         //AttrData
-                        dw = *((WORD *) (Code + pos));
+                        dw = *((Word *) (Code + pos));
                         pos += dw; //ATR!!
                         FieldInfo = FindFieldInfoByOffset(fieldsList, elOff);
                         //If field with elOff exists then add name
@@ -1680,17 +1677,17 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                     }
                 }
                 //AttrData
-                dw = *((WORD *) (Code + pos));
+                dw = *((Word *) (Code + pos));
                 pos += dw; //ATR!!
                 if (DelphiVersion >= 2012) {
-                    methCnt = *((WORD *) (Code + pos));
+                    methCnt = *((Word *) (Code + pos));
                     pos += 2;
                     if (methCnt > 0) result += "\n//Methods:";
                     for (m = 0; m < methCnt; m++) {
                         //Flags
                         pos++;
                         //Code
-                        methAdr = *((DWORD *) (Code + pos));
+                        methAdr = *((DWord *) (Code + pos));
                         pos += 4;
                         //Name
                         len = Code[pos];
@@ -1706,7 +1703,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                             //CC
                             pos++;
                             //ResultType
-                            resultTypeAdr = *((DWORD *) (Code + pos));
+                            resultTypeAdr = *((DWord *) (Code + pos));
                             pos += 4;
                             //ParamCnt
                             paramCount = Code[pos];
@@ -1717,7 +1714,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                                 //Flags
                                 pos++;
                                 //ParamType
-                                typeAdr = *((DWORD *) (Code + pos));
+                                typeAdr = *((DWord *) (Code + pos));
                                 pos += 4;
                                 //Name
                                 len = Code[pos];
@@ -1727,7 +1724,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                                 result += name + ":" + GetTypeName(typeAdr);
                                 if (n != paramCount - 1) result += ";";
                                 //AttrData
-                                dw = *((WORD *) (Code + pos));
+                                dw = *((Word *) (Code + pos));
                                 pos += dw; //ATR!!
                             }
                             if (paramCount > 0) result += ")";
@@ -1735,7 +1732,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                             result += ";//" + Val2Str8(methAdr);
                         }
                         //AttrData
-                        dw = *((WORD *) (Code + pos));
+                        dw = *((Word *) (Code + pos));
                         pos += dw; //ATR!!
                     }
                 }
@@ -1754,7 +1751,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                     continue;
 
                 if (elOff > curOfs) {
-                    result += "BYTE gap" + Val2Str0(curOfs) + "[0x" + Val2Str0(elOff - curOfs) + "];\n";
+                    result += "Byte gap" + Val2Str0(curOfs) + "[0x" + Val2Str0(elOff - curOfs) + "];\n";
                     curOfs = elOff;
                 }
 
@@ -1771,7 +1768,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                         result += "*";
                 } else {
                     size = 1;
-                    result += "BYTE";
+                    result += "Byte";
                 }
                 result += " f" + Val2Str0(FieldInfo->Offset);
                 if (FieldInfo->Name != "")
@@ -1781,7 +1778,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                 curOfs += size;
             }
             if (curOfs < *o_pSize)
-                result += "BYTE gap" + Val2Str0(curOfs) + "[0x" + Val2Str0(*o_pSize - curOfs) + "];\n";
+                result += "Byte gap" + Val2Str0(curOfs) + "[0x" + Val2Str0(*o_pSize - curOfs) + "];\n";
 
             fieldsList->Clear();
             delete fieldsList;
@@ -1798,11 +1795,11 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
             pos++;
             pos += len;
             //Methods
-            propCount = *((WORD *) (Code + pos));
+            propCount = *((Word *) (Code + pos));
             pos += 2;
             if (DelphiVersion >= 6) {
                 //RttiCount
-                dw = *((WORD *) (Code + pos));
+                dw = *((Word *) (Code + pos));
                 pos += 2;
                 if (dw != 0xFFFF) {
                     if (DelphiVersion >= 2010) {
@@ -1885,7 +1882,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
             //elSize
             pos += 4;
             //elType
-            elType = *((DWORD *) (Code + pos));
+            elType = *((DWord *) (Code + pos));
             pos += 4;
             result = SanitizeName(GetTypeName(elType));
             //varType
@@ -1900,7 +1897,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
             }
             if (DelphiVersion >= 2010) {
                 //DynArrElType
-                elType = *((DWORD *) (Code + pos));
+                elType = *((DWord *) (Code + pos));
                 result = SanitizeName(GetTypeName(elType));
             }
             break;
@@ -1908,20 +1905,20 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
             result = "UString";
             break;
         case ikClassRef: //0x13
-            typeAdr = *((DWORD *) (Code + pos));
+            typeAdr = *((DWord *) (Code + pos));
             if (typeAdr) result = GetTypeName(typeAdr);
             break;
         case ikPointer: //0x14
-            typeAdr = *((DWORD *) (Code + pos));
+            typeAdr = *((DWord *) (Code + pos));
             if (typeAdr) result = GetTypeName(typeAdr);
             break;
         case ikProcedure: //0x15
             result = "__fastcall (*" + RTTIName + ")";
             //MethSig
-            procSig = *((DWORD *) (Code + pos));
+            procSig = *((DWord *) (Code + pos));
             pos += 4;
             //AttrData
-            dw = *((WORD *) (Code + pos));
+            dw = *((Word *) (Code + pos));
             pos += dw; //ATR!!
             //Procedure Signature
             if (procSig) {
@@ -1937,7 +1934,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                     callConv = Code[pos];
                     pos++;
                     //ResultType
-                    resultTypeAdr = *((DWORD *) (Code + pos));
+                    resultTypeAdr = *((DWord *) (Code + pos));
                     pos += 4;
                     result += "(";
                     //ParamCount
@@ -1949,7 +1946,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                         paramFlags = Code[pos];
                         pos++;
                         //ParamType
-                        typeAdr = *((DWORD *) (Code + pos));
+                        typeAdr = *((DWord *) (Code + pos));
                         pos += 4;
                         //Name
                         len = Code[pos];
@@ -1966,7 +1963,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                         if (paramFlags & 1) result += "*";
                         result += " " + name;
                         //AttrData
-                        dw = *((WORD *) (Code + pos));
+                        dw = *((Word *) (Code + pos));
                         pos += dw; //ATR!!
                     }
                     result += ")";
@@ -2023,7 +2020,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                     continue;
 
                 if (elOff > curOfs) {
-                    result += "BYTE gap" + Val2Str0(curOfs) + "[0x" + Val2Str0(elOff - curOfs) + "];\n";
+                    result += "Byte gap" + Val2Str0(curOfs) + "[0x" + Val2Str0(elOff - curOfs) + "];\n";
                     curOfs = elOff;
                 }
 
@@ -2039,7 +2036,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
                         result += "*";
                 } else {
                     size = 1;
-                    result += "BYTE";
+                    result += "Byte";
                 }
                 result += " f" + Val2Str0(fInfo->Offset);
                 if (fInfo->Name != "")
@@ -2050,7 +2047,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWORD adr, int *o_pSize, i
             }
             size = GetClassSize(adr);
             if (curOfs < size)
-                result += "BYTE gap" + Val2Str0(curOfs) + "[0x" + Val2Str0(size - curOfs) + "];\n";
+                result += "Byte gap" + Val2Str0(curOfs) + "[0x" + Val2Str0(size - curOfs) + "];\n";
 
             fieldsList->Clear();
             delete fieldsList;

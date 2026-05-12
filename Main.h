@@ -81,9 +81,9 @@
 
 //---------------------------------------------------------------------------
 typedef struct {
-    DWORD Start;
-    DWORD Size;
-    DWORD Flags;
+    DWord Start;
+    DWord Size;
+    DWord Flags;
     String Name;
 } SegmentInfo, *PSegmentInfo;
 
@@ -128,7 +128,7 @@ typedef struct {
 
 typedef struct {
     String name;
-    DWORD codeOfs;
+    DWord codeOfs;
     int codeLen;
 } FuncListRec, *PFuncListRec;
 
@@ -150,14 +150,14 @@ typedef struct UnitRec {
 } UnitRec, *PUnitRec;
 
 typedef struct {
-    BYTE kind;
-    DWORD adr;
+    Byte kind;
+    DWord adr;
     String name;
 } TypeRec, *PTypeRec;
 
 typedef struct {
     int height;
-    DWORD vmtAdr;
+    DWord vmtAdr;
     String vmtName;
 } VmtListRec, *PVmtListRec;
 
@@ -225,14 +225,14 @@ enum NameVersion { nvPrimary, nvAfterScan, nvByUser };
 
 typedef struct {
     String name;
-    DWORD address;
-    WORD ord;
+    DWord address;
+    Word ord;
 } ExportNameRec, *PExportNameRec;
 
 typedef struct {
     String module;
     String name;
-    DWORD address;
+    DWord address;
 } ImportNameRec, *PImportNameRec;
 
 enum OrdType { OtSByte, OtUByte, OtSWord, OtUWord, OtSLong, OtULong };
@@ -255,7 +255,7 @@ enum IntfFlag { IfHasGuid, IfDispInterface, IfDispatch };
 
 // Proc navigation history record
 typedef struct {
-    DWORD adr;   // Procedure Address
+    DWord adr;   // Procedure Address
     int itemIdx; // Selected Item Index
     int xrefIdx; // Selected Xref Index
     int topIdx;  // TopIndex of ListBox
@@ -264,16 +264,16 @@ typedef struct {
 //---------------------------------------------------------------------------
 // Information about registry
 typedef struct {
-    BYTE result; //0 - nothing, 1 - type was set, 2 - type mismatch
+    Byte result; //0 - nothing, 1 - type was set, 2 - type mismatch
     char source; //0 - not defined; 'L' - local var; 'A' - argument; 'M' - memory; 'I' - immediate
-    DWORD value;
+    DWord value;
     String type;
 } RINFO, *PRINFO;
 
 //---------------------------------------------------------------------------
 typedef struct {
     const char *name;
-    DWORD impAdr;
+    DWord impAdr;
 } SysProcInfo;
 
 //---------------------------------------------------------------------------
@@ -539,12 +539,9 @@ class TFMain_11011981 : public TForm {
     void __fastcall miRenameUnitClick(TObject *Sender);
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
     void __fastcall lbFormsDblClick(TObject *Sender);
-    void __fastcall lbUnitsDrawItem(TWinControl *Control,
-                                    int Index, TRect &Rect, TOwnerDrawState State);
-    void __fastcall FormKeyDown(TObject *Sender, WORD &Key,
-                                TShiftState Shift);
-    void __fastcall lbCodeKeyDown(TObject *Sender, WORD &Key,
-                                  TShiftState Shift);
+    void __fastcall lbUnitsDrawItem(TWinControl *Control, int Index, TRect &Rect, TOwnerDrawState State);
+    void __fastcall FormKeyDown(TObject *Sender, Word &Key, TShiftState Shift);
+    void __fastcall lbCodeKeyDown(TObject *Sender, Word &Key, TShiftState Shift);
     void __fastcall miCollapseAllClick(TObject *Sender);
     void __fastcall NamePosition();
     void __fastcall GoToAddress();
@@ -614,18 +611,12 @@ class TFMain_11011981 : public TForm {
     void __fastcall miDelphi2005Click(TObject *Sender);
     void __fastcall miDelphi2006Click(TObject *Sender);
     void __fastcall miDelphi2007Click(TObject *Sender);
-    void __fastcall lbXrefsKeyDown(TObject *Sender, WORD &Key,
-                                   TShiftState Shift);
-    void __fastcall lbUnitsKeyDown(TObject *Sender, WORD &Key,
-                                   TShiftState Shift);
-    void __fastcall lbRTTIsKeyDown(TObject *Sender, WORD &Key,
-                                   TShiftState Shift);
-    void __fastcall lbFormsKeyDown(TObject *Sender, WORD &Key,
-                                   TShiftState Shift);
-    void __fastcall tvClassesShortKeyDown(TObject *Sender, WORD &Key,
-                                          TShiftState Shift);
-    void __fastcall lbUnitItemsKeyDown(TObject *Sender, WORD &Key,
-                                       TShiftState Shift);
+    void __fastcall lbXrefsKeyDown(TObject *Sender, Word &Key, TShiftState Shift);
+    void __fastcall lbUnitsKeyDown(TObject *Sender, Word &Key, TShiftState Shift);
+    void __fastcall lbRTTIsKeyDown(TObject *Sender, Word &Key, TShiftState Shift);
+    void __fastcall lbFormsKeyDown(TObject *Sender, Word &Key, TShiftState Shift);
+    void __fastcall tvClassesShortKeyDown(TObject *Sender, Word &Key, TShiftState Shift);
+    void __fastcall lbUnitItemsKeyDown(TObject *Sender, Word &Key, TShiftState Shift);
     void __fastcall miListerClick(TObject *Sender);
     void __fastcall bCodeNextClick(TObject *Sender);
     void __fastcall miEditFunctionIClick(TObject *Sender);
@@ -701,8 +692,8 @@ class TFMain_11011981 : public TForm {
     void __fastcall miHiewGeneratorClick(TObject *Sender);
     void __fastcall mniShellIntegration1Click(TObject *Sender);
     void __fastcall miCreateCHeaderFileClick(TObject *Sender);
-    static void __fastcall OutputForwardDeclarationsHeader(FILE *hF);
-    void __fastcall OutputForwardDeclarationsOfKind(FILE *hF, BYTE kind);
+    void __fastcall OutputForwardDeclarationsHeader(FILE *hF);
+    void __fastcall OutputForwardDeclarationsOfKind(FILE *hF, Byte kind);
     void __fastcall CreateCppHeaderFile(FILE *hF);
     //void __fastcall mniMap1Click(TObject *Sender);
     //void __fastcall mniCopyAllToClipboardClick(TObject *Sender);
@@ -723,23 +714,24 @@ private: // User declarations
     void __fastcall ReadNode(FILE *fIn, TTreeNode *node, char *buf);
     //void __fastcall ReadNode(TStream* stream, TTreeNode* node, char* buf);
     void __fastcall OpenProject(String FileName);
-    bool __fastcall ImportsValid(DWORD ImpRVA, DWORD ImpSize);
+    bool __fastcall ImportsValid(DWord ImpRVA, DWord ImpSize);
     int __fastcall LoadImageFile(FILE *f, int version, bool loadExp, bool loadImp);
     void __fastcall FindExports();
     void __fastcall FindImports();
     int __fastcall GetDelphiVersion();
     void __fastcall InitSysProcs();
-    bool __fastcall IsExtendedInitTab(DWORD *unitsTab);
+    bool __fastcall IsExtendedInitTab(DWord *unitsTab);
     int __fastcall GetUnits2(String dprName); //For Delphi2 (other structure!)
     int __fastcall GetUnits(String dprName);
     int __fastcall GetBCBUnits(String dprName);
-    int __fastcall IsValidCode(DWORD fromAdr);
+    int __fastcall IsValidCode(DWord fromAdr);
     void __fastcall CodeHistoryPush(PPROCHISTORYREC rec);
     PPROCHISTORYREC __fastcall CodeHistoryPop();
-    void __fastcall ShowCodeXrefs(DWORD Adr, int selIdx);
-    void __fastcall ShowStringXrefs(DWORD Adr, int selIdx);
-    void __fastcall ShowNameXrefs(DWORD Adr, int selIdx);
-    void __fastcall WriteNode(FILE *f, TTreeNode *node); //void __fastcall WriteNode(TStream* stream, TTreeNode* node);
+    void __fastcall ShowCodeXrefs(DWord Adr, int selIdx);
+    void __fastcall ShowStringXrefs(DWord Adr, int selIdx);
+    void __fastcall ShowNameXrefs(DWord Adr, int selIdx);
+    void __fastcall WriteNode(FILE *f, TTreeNode *node);
+    //void __fastcall WriteNode(TStream* stream, TTreeNode* node);
     void __fastcall SaveProject(String FileName);
     void __fastcall CloseProject();
     void __fastcall CleanProject();
@@ -747,10 +739,10 @@ private: // User declarations
     void __fastcall IniFileWrite();
     void __fastcall AddExe2MRF(String FileName);
     void __fastcall AddIdp2MRF(String FileName);
-    int __fastcall GetSegmentNo(DWORD Adr);
-    int __fastcall CodeGetTargetAdr(String line, DWORD *trgAdr);
-    void __fastcall OutputLine(FILE *outF, BYTE flags, DWORD adr, String content);
-    void __fastcall OutputCode(FILE *outF, DWORD fromAdr, String prototype, bool onlyComments);
+    int __fastcall GetSegmentNo(DWord Adr);
+    int __fastcall CodeGetTargetAdr(String line, DWord *trgAdr);
+    void __fastcall OutputLine(FILE *outF, Byte flags, DWord adr, String content);
+    void __fastcall OutputCode(FILE *outF, DWord fromAdr, String prototype, bool onlyComments);
     //Drag&Drop
     TDragDropHelper dragdropHelper;
     void __fastcall wm_dropFiles(TWMDropFiles &msg);
@@ -811,76 +803,76 @@ public: // User declarations
 
     void __fastcall DoOpenDelphiFile(int version, String FileName, bool loadExp, bool loadImp);
     void __fastcall ClearPassFlags();
-    DWORD __fastcall FollowInstructions(DWORD fromAdr, DWORD toAdr);
-    int __fastcall EstimateProcSize(DWORD fromAdr);
-    DWORD __fastcall EvaluateInitTable(BYTE *Data, DWORD Size, DWORD Base);
-    PFIELDINFO __fastcall GetField(String TypeName, int Offset, bool *vmt, DWORD *vmtAdr, String prefix);
-    PFIELDINFO __fastcall AddField(DWORD ProcAdr, int ProcOfs, String TypeName, BYTE Scope, int Offset, int Case,
+    DWord __fastcall FollowInstructions(DWord fromAdr, DWord toAdr);
+    int __fastcall EstimateProcSize(DWord fromAdr);
+    DWord __fastcall EvaluateInitTable(Byte *Data, DWord Size, DWord Base);
+    PFIELDINFO __fastcall GetField(String TypeName, int Offset, bool *vmt, DWord *vmtAdr, String prefix);
+    PFIELDINFO __fastcall AddField(DWord ProcAdr, int ProcOfs, String TypeName, Byte Scope, int Offset, int Case,
                                    String Name, String Type);
-    int __fastcall GetMethodOfs(PInfoRec rec, DWORD procAdr);
+    int __fastcall GetMethodOfs(PInfoRec rec, DWord procAdr);
     PMethodRec __fastcall GetMethodInfo(PInfoRec rec, String name);
-    PMethodRec __fastcall GetMethodInfo(DWORD adr, char kind, int methodOfs);
+    PMethodRec __fastcall GetMethodInfo(DWord adr, char kind, int methodOfs);
 
-    PImportNameRec __fastcall GetImportRec(DWORD adr);
+    PImportNameRec __fastcall GetImportRec(DWord adr);
     void __fastcall StrapProc(int pos, int ProcId, MProcInfo *ProcInfo, bool useFixups, int procSize);
     void __fastcall ShowUnits(bool showUnk);
     void __fastcall ShowUnitItems(PUnitRec recU, int topIdx, int itemIdx);
     void __fastcall ShowRTTIs();
     void __fastcall FillVmtList();
-    void __fastcall ShowClassViewer(DWORD VmtAdr);
+    void __fastcall ShowClassViewer(DWord VmtAdr);
     bool __fastcall IsUnitExist(String Name);
     void __fastcall SetVmtConsts(int version);
-    PUnitRec __fastcall GetUnit(DWORD Adr);
+    PUnitRec __fastcall GetUnit(DWord Adr);
     String __fastcall GetUnitName(PUnitRec recU);
-    String __fastcall GetUnitName(DWORD Adr);
+    String __fastcall GetUnitName(DWord Adr);
     void __fastcall SetUnitName(PUnitRec recU, String name);
-    bool __fastcall InOneUnit(DWORD Adr1, DWORD Adr2);
+    bool __fastcall InOneUnit(DWord Adr1, DWord Adr2);
     void __fastcall StrapVMT(int pos, int ConstId, MConstInfo *ConstInfo);
     bool __fastcall StrapCheck(int pos, MProcInfo *ProcInfo);
     TTreeNode * __fastcall GetNodeByName(String AName);
 
-    void __fastcall ScanIntfTable(DWORD adr);
-    void __fastcall ScanAutoTable(DWORD adr);
-    void __fastcall ScanInitTable(DWORD adr);
-    void __fastcall ScanFieldTable(DWORD adr);
-    void __fastcall ScanMethodTable(DWORD adr, String className);
-    void __fastcall ScanDynamicTable(DWORD adr);
-    void __fastcall ScanVirtualTable(DWORD adr);
-    int __fastcall GetClassHeight(DWORD adr);
+    void __fastcall ScanIntfTable(DWord adr);
+    void __fastcall ScanAutoTable(DWord adr);
+    void __fastcall ScanInitTable(DWord adr);
+    void __fastcall ScanFieldTable(DWord adr);
+    void __fastcall ScanMethodTable(DWord adr, String className);
+    void __fastcall ScanDynamicTable(DWord adr);
+    void __fastcall ScanVirtualTable(DWord adr);
+    int __fastcall GetClassHeight(DWord adr);
     String __fastcall GetCommonType(String Name1, String Name2);
-    void __fastcall PropagateVMTNames(DWORD adr);
+    void __fastcall PropagateVMTNames(DWord adr);
 
     void __fastcall ShowStrings(int idx);
     void __fastcall ShowNames(int idx);
     //void __fastcall ScanImports();
     void __fastcall RedrawCode();
-    int __fastcall AddAsmLine(DWORD Adr, String text, BYTE Flags);
-    void __fastcall ShowCode(DWORD fromAdr, int SelectedIdx, int XrefIdx, int topIdx);
-    void __fastcall AnalyzeProc(int pass, DWORD procAdr);
-    void __fastcall AnalyzeMethodTable(int pass, DWORD adr, const volatile bool *Terminated);
-    void __fastcall AnalyzeDynamicTable(int pass, DWORD adr, const volatile bool *Terminated);
-    void __fastcall AnalyzeVirtualTable(int pass, DWORD adr, const volatile bool *Terminated);
-    DWORD __fastcall AnalyzeProcInitial(DWORD fromAdr);
-    void __fastcall AnalyzeProc1(DWORD fromAdr, char xrefType, DWORD xrefAdr, int xrefOfs, bool maybeEmb);
-    void __fastcall AnalyzeProc2(DWORD fromAdr, bool addArg, bool AnalyzeRetType);
-    bool __fastcall AnalyzeProc2(DWORD fromAdr, bool addArg, bool AnalyzeRetType, TList *sctx);
-    String __fastcall AnalyzeTypes(DWORD parentAdr, int callPos, DWORD procAdr, PRINFO registers);
-    String __fastcall AnalyzeArguments(DWORD fromAdr);
+    int __fastcall AddAsmLine(DWord Adr, String text, Byte Flags);
+    void __fastcall ShowCode(DWord fromAdr, int SelectedIdx, int XrefIdx, int topIdx);
+    void __fastcall AnalyzeProc(int pass, DWord procAdr);
+    void __fastcall AnalyzeMethodTable(int pass, DWord adr, const volatile bool *Terminated);
+    void __fastcall AnalyzeDynamicTable(int pass, DWord adr, const volatile bool *Terminated);
+    void __fastcall AnalyzeVirtualTable(int pass, DWord adr, const volatile bool *Terminated);
+    DWord __fastcall AnalyzeProcInitial(DWord fromAdr);
+    void __fastcall AnalyzeProc1(DWord fromAdr, char xrefType, DWord xrefAdr, int xrefOfs, bool maybeEmb);
+    void __fastcall AnalyzeProc2(DWord fromAdr, bool addArg, bool AnalyzeRetType);
+    bool __fastcall AnalyzeProc2(DWord fromAdr, bool addArg, bool AnalyzeRetType, TList *sctx);
+    String __fastcall AnalyzeTypes(DWord parentAdr, int callPos, DWord procAdr, PRINFO registers);
+    String __fastcall AnalyzeArguments(DWord fromAdr);
 
-    int __fastcall LoadIntfTable(DWORD adr, TStringList *dstList);
-    int __fastcall LoadAutoTable(DWORD adr, TStringList *dstList);
-    int __fastcall LoadFieldTable(DWORD adr, TList *dstList);
-    int __fastcall LoadAllFields(DWORD adr, TList *dstList);
-    int __fastcall LoadMethodTable(DWORD adr, TList *dstList);
-    int __fastcall LoadMethodTable(DWORD adr, TStringList *dstList);
-    int __fastcall LoadDynamicTable(DWORD adr, TList *dstList);
-    int __fastcall LoadDynamicTable(DWORD adr, TStringList *dstList);
-    int __fastcall LoadVirtualTable(DWORD adr, TList *dstList);
-    int __fastcall LoadVirtualTable(DWORD adr, TStringList *dstList);
+    int __fastcall LoadIntfTable(DWord adr, TStringList *dstList);
+    int __fastcall LoadAutoTable(DWord adr, TStringList *dstList);
+    int __fastcall LoadFieldTable(DWord adr, TList *dstList);
+    int __fastcall LoadAllFields(DWord adr, TList *dstList);
+    int __fastcall LoadMethodTable(DWord adr, TList *dstList);
+    int __fastcall LoadMethodTable(DWord adr, TStringList *dstList);
+    int __fastcall LoadDynamicTable(DWord adr, TList *dstList);
+    int __fastcall LoadDynamicTable(DWord adr, TStringList *dstList);
+    int __fastcall LoadVirtualTable(DWord adr, TList *dstList);
+    int __fastcall LoadVirtualTable(DWord adr, TStringList *dstList);
     void __fastcall FillClassViewerOne(int n, TStringList *tmpList, const volatile bool *Terminated);
     TTreeNode * __fastcall AddClassTreeNode(TTreeNode *node, String name);
     //Function
-    void __fastcall EditFunction(DWORD Adr);
+    void __fastcall EditFunction(DWord Adr);
     String __fastcall MakeComment(PPICODE Picode);
     void __fastcall InitAliases(bool find);
     void __fastcall CopyAddress(String line, int ofs, int bytes);

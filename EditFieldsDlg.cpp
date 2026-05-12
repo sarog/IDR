@@ -9,9 +9,9 @@
 #pragma resource "*.dfm"
 
 extern bool ProjectModified;
-extern DWORD CurProcAdr;
-extern DWORD CodeBase;
-extern DWORD *Flags;
+extern DWord CurProcAdr;
+extern DWord CodeBase;
+extern DWord *Flags;
 extern PInfoRec *Infos;
 
 TFEditFieldsDlg_11011981 *FEditFieldsDlg_11011981;
@@ -77,7 +77,7 @@ void __fastcall TFEditFieldsDlg_11011981::FormShow(TObject *Sender) {
 //---------------------------------------------------------------------------
 void __fastcall TFEditFieldsDlg_11011981::lbFXrefsDblClick(TObject *Sender) {
     char type[2];
-    DWORD adr;
+    DWord adr;
 
     String item = lbFXrefs->Items->Strings[lbFXrefs->ItemIndex];
     sscanf(AnsiString(item).c_str() + 1, "%lX%2c", &adr, type);
@@ -146,13 +146,12 @@ void __fastcall TFEditFieldsDlg_11011981::edtTypeChange(TObject *Sender) {
 //---------------------------------------------------------------------------
 void __fastcall TFEditFieldsDlg_11011981::bApplyClick(TObject *Sender) {
     bool vmt, ok = false;
-    DWORD adr;
-    int n, size, offset, fromOfs, toOfs;
-    PInfoRec recN;
+    DWord adr;
+    int size, offset, fromOfs, toOfs;
     PFIELDINFO fInfo;
     String rtti;
 
-    recN = GetInfoRec(VmtAdr);
+    PInfoRec recN = GetInfoRec(VmtAdr);
     switch (Op) {
         case FD_OP_EDIT:
             fInfo = (PFIELDINFO) fieldsList->Items[lbFields->ItemIndex];
@@ -162,7 +161,7 @@ void __fastcall TFEditFieldsDlg_11011981::bApplyClick(TObject *Sender) {
             fromOfs = fInfo->Offset;
             if (GetTypeKind(edtType->Text, &size) == ikRecord) {
                 toOfs = fromOfs + size;
-                for (n = 0; n < fieldsList->Count; n++) {
+                for (int n = 0; n < fieldsList->Count; n++) {
                     fInfo = (PFIELDINFO) fieldsList->Items[n];
                     offset = fInfo->Offset;
                     if (offset > fromOfs && offset < toOfs) {
