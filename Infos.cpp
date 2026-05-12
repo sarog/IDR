@@ -1750,12 +1750,12 @@ String __fastcall InfoRec::MakeDelphiPrototype(int Adr, PMethodRec recM) {
                 else if (argInfo->Tag == 0x23) len += sprintf(StringBuf + len, "const "); //Add by ZGL
 
                 if (argInfo->Name != "")
-                    len += sprintf(StringBuf + len, "%s", argInfo->Name.c_str());
+                    len += sprintf(StringBuf + len, "%s", AnsiString(argInfo->Name).c_str());
                 else
                     len += sprintf(StringBuf + len, "?");
                 len += sprintf(StringBuf + len, ":");
                 if (argInfo->TypeDef != "")
-                    len += sprintf(StringBuf + len, "%s", argInfo->TypeDef.c_str());
+                    len += sprintf(StringBuf + len, "%s", AnsiString(argInfo->TypeDef).c_str());
                 else
                     len += sprintf(StringBuf + len, "?");
             }
