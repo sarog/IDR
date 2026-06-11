@@ -66,7 +66,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
     curPos = fromPos;
     curAdr = fromAdr;
 
-    while (1) {
+    while (true) {
         if (curAdr >= CodeBase + TotalSize) break;
         //---------------------------------- Try
         //        xor reg, reg               cfTry | cfSkip

@@ -750,7 +750,7 @@ bool __fastcall TDecompileEnv::GetBJLRange(DWord fromAdr, DWord *bodyBegAdr, DWo
     assert(_curPos >= 0);
     _curAdr = fromAdr;
 
-    while (1) {
+    while(true) {
         if (_curAdr == *bodyBegAdr) break;
         _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
         _curPos += _instrLen;
@@ -808,7 +808,7 @@ void __fastcall TDecompileEnv::CreateBJLSequence(DWord fromAdr, DWord bodyBegAdr
     assert(_curPos >= 0);
     _curAdr = fromAdr;
 
-    while (1) {
+    while(true) {
         if (_curAdr == bodyBegAdr) {
             _bjl = new TBJL;
             _bjl->branch = false;
@@ -899,7 +899,7 @@ void __fastcall TDecompileEnv::CreateBJLSequence(DWord fromAdr, DWord bodyBegAdr
         }
     }
 
-    while (1) {
+    while(true) {
         found = false;
         for (i = 0; i < bjllist->Count; i++) {
             _bjl1 = (TBJL *) bjllist->Items[i];
@@ -963,7 +963,7 @@ void __fastcall TDecompileEnv::UpdateBJLList() {
     TBJL *_bjl, *_bjl1, *_bjl2;
     TBJLInfo *_bjlInfo;
 
-    while (1) {
+    while(true) {
         found = false;
         for (i = 0; i < bjllist->Count; i++) {
             _bjl = (TBJL *) bjllist->Items[i];
@@ -1467,7 +1467,7 @@ DWord __fastcall TDecompiler::Decompile(DWord fromAdr, DWord flags, PLoopInfo lo
                     _fullSim = true;
                     _pos = _curPos;
                     _adr = _curAdr;
-                    while (1) {
+                    while(true) {
                         _instrLen = Disasm.Disassemble(Code + _pos, (__int64) _adr, &_disInfo, 0);
                         _op = Disasm.GetOp(_disInfo.Mnem);
                         if (_op != OP_PUSH && _op != OP_ADD && _op != OP_SUB) {
@@ -1505,7 +1505,7 @@ DWord __fastcall TDecompiler::Decompile(DWord fromAdr, DWord flags, PLoopInfo lo
                             for (n = 0; n < _num; n++) {
                                 _adr = _branchAdr;
                                 _pos = Adr2Pos(_adr);
-                                while (1) {
+                                while(true) {
                                     if (_pos == _decPos) break;
                                     _instrLen = Disasm.Disassemble(Code + _pos, (__int64) _adr, &DisInfo, 0);
                                     _op = Disasm.GetOp(DisInfo.Mnem);
@@ -1651,7 +1651,7 @@ DWord __fastcall TDecompiler::Decompile(DWord fromAdr, DWord flags, PLoopInfo lo
         if (IsFlagSet(cfSkip, _curPos)) {
             //Constructor or Destructor
             if ((_op == OP_TEST || _op == OP_CMP || DisInfo.Call) && (flags & (CF_CONSTRUCTOR | CF_DESTRUCTOR))) {
-                while (1) {
+                while(true) {
                     //If instruction test or cmp - skip until loc (instruction at loc position need to be executed)
                     if ((_op == OP_TEST || _op == OP_CMP) && IsFlagSet(cfLoc, _curPos)) break;
                     _curPos += _instrLen;
@@ -2087,7 +2087,7 @@ DWord __fastcall TDecompiler::Decompile(DWord fromAdr, DWord flags, PLoopInfo lo
                 }
             } else {
                 //skip until branch or set
-                while (1) {
+                while(true) {
                     _instrLen1 = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
                     _op = Disasm.GetOp(_disInfo.Mnem);
                     if (_disInfo.Branch || _op == OP_SET) break;
@@ -2986,7 +2986,7 @@ bool __fastcall TDecompiler::SimulateCall(DWord curAdr, DWord callAdr, int instr
 
         if (_methodKind == ikFunc) {
             if (SameText(_name, "TList.Get")) {
-                while (1) {
+                while(true) {
                     _retType = ManualInput(Env->StartAdr, curAdr,
                                            "Define type of function at " + IntToHex((int) curAdr, 8), "Type:");
                     if (_retType == "") {
@@ -2999,7 +2999,7 @@ bool __fastcall TDecompiler::SimulateCall(DWord curAdr, DWord callAdr, int instr
                     if (_retKind) break;
                 }
             } else {
-                while (1) {
+                while(true) {
                     if (_retType[1] == '^')
                         _retType = GetTypeDeref(_retType);
 
@@ -3671,7 +3671,7 @@ PLoopInfo __fastcall TDecompiler::GetLoopInfo(int fromAdr) {
             intTo = _disInfo.Immediate;
             //Find mov reg/mem,...
             pos = fromPos;
-            while (1) {
+            while(true) {
                 pos = GetNearestUpInstruction(pos);
                 instrLen = Disasm.Disassemble(Code + pos, (__int64) Pos2Adr(pos), &_disInfo, 0);
                 if (_disInfo.Branch || IsFlagSet(cfProcStart, pos)) {
@@ -3723,7 +3723,7 @@ PLoopInfo __fastcall TDecompiler::GetLoopInfo(int fromAdr) {
             }
             //Find array elements
             pos += instrLen;
-            while (1) {
+            while(true) {
                 if (pos == fromPos) break;
 
                 instrLen = Disasm.Disassemble(Code + pos, (__int64) Pos2Adr(pos), &_disInfo, 0);
@@ -3819,7 +3819,7 @@ PLoopInfo __fastcall TDecompiler::GetLoopInfo(int fromAdr) {
             pos = Adr2Pos(maxAdr);
             stopAdr = brkAdr;
             pos = GetNearestUpInstruction(pos);
-            while (1) {
+            while(true) {
                 pos = GetNearestUpInstruction(pos);
                 Disasm.Disassemble(Code + pos, (__int64) Pos2Adr(pos), &_disInfo, 0);
                 _dd = *((DWord *) _disInfo.Mnem);
@@ -3902,7 +3902,7 @@ PLoopInfo __fastcall TDecompiler::GetLoopInfo(int fromAdr) {
             }
             //2
             pos = fromPos;
-            while (1) {
+            while(true) {
                 pos = GetNearestUpInstruction(pos);
                 instrLen = Disasm.Disassemble(Code + pos, (__int64) Pos2Adr(pos), &_disInfo, 0);
                 if (SameText(cntIdxInfo.IdxStr, String(_disInfo.Op1)))
@@ -3910,7 +3910,7 @@ PLoopInfo __fastcall TDecompiler::GetLoopInfo(int fromAdr) {
             }
             //3
             pos += instrLen;
-            while (1) {
+            while(true) {
                 if (pos == fromPos) break;
 
                 instrLen = Disasm.Disassemble(Code + pos, (__int64) Pos2Adr(pos), &_disInfo, 0);
@@ -4022,7 +4022,7 @@ PLoopInfo __fastcall TDecompiler::GetLoopInfo(int fromAdr) {
             //4
             pos = GetNearestUpInstruction(Adr2Pos(maxAdr));
             stopAdr = Pos2Adr(pos);
-            while (1) {
+            while(true) {
                 pos = GetNearestUpInstruction(pos);
                 Disasm.Disassemble(Code + pos, (__int64) Pos2Adr(pos), &_disInfo, 0);
                 _dd = *((DWord *) _disInfo.Mnem);
@@ -5927,7 +5927,7 @@ DWord __fastcall TDecompiler::DecompileTry(DWord fromAdr, DWord flags, PLoopInfo
         Disasm.Disassemble(Code + pos1, (__int64) Pos2Adr(pos1), &DisInfo, 0);
         endFinallyAdr = DisInfo.Immediate;
         //Find flag cfFinally
-        while (1) {
+        while(true) {
             pos1--;
             if (IsFlagSet(cfFinally, pos1)) break;
         }
@@ -5972,7 +5972,7 @@ DWord __fastcall TDecompiler::DecompileTry(DWord fromAdr, DWord flags, PLoopInfo
         //Next
         pos += Disasm.Disassemble(Code + pos, (__int64) Pos2Adr(pos), &DisInfo, 0);
         //Find prev flag cfExcept
-        while (1) {
+        while(true) {
             if (IsFlagSet(cfExcept, pos1)) break;
             pos1--;
         }
@@ -8414,7 +8414,7 @@ void __fastcall TDecompiler::MarkGeneralCase(DWord fromAdr) {
     int _len, _instrLen;
     DISINFO _disInfo;
 
-    while (1) {
+    while(true) {
         _len = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
         _dd = *((DWord *) _disInfo.Mnem);
         //Switch at current address
@@ -8520,7 +8520,7 @@ TDecompiler::GetArrayFieldOffset(String ATypeName, int AFromOfs, int AScale, Str
     int _classSize = GetClassSize(GetClassAdr(ATypeName));
     int _offset = AFromOfs;
 
-    while (1) {
+    while (true) {
         if (_offset >= _classSize) break;
         _fofs = GetField(ATypeName, _offset, name, type);
         if (_fofs >= 0)
@@ -8997,14 +8997,14 @@ void __fastcall TDecompiler::GetMemItem(int CurAdr, PITEM Dst, Byte Op) {
                 int _k = 0;
                 _size = GetRecordSize(_typeName);
                 if (_offset < 0) {
-                    while (1) {
+                    while(true) {
                         _offset += _size;
                         _k--;
                         if (_offset >= 0 && _offset < _size) break;
                     }
                 }
                 if (_offset >= _size) {
-                    while (1) {
+                    while(true) {
                         _offset -= _size;
                         _k++;
                         if (_offset >= 0 && _offset < _size) break;
@@ -9234,14 +9234,14 @@ void __fastcall TDecompiler::GetMemItem(int CurAdr, PITEM Dst, Byte Op) {
                 int _k = 0;
                 _size = GetRecordSize(_typeName);
                 if (_offset < 0) {
-                    while (1) {
+                    while(true) {
                         _offset += _size;
                         _k--;
                         if (_offset >= 0 && _offset < _size) break;
                     }
                 }
                 if (_offset > _size) {
-                    while (1) {
+                    while(true) {
                         _offset -= _size;
                         _k++;
                         if (_offset >= 0 && _offset < _size) break;
@@ -9316,14 +9316,14 @@ void __fastcall TDecompiler::GetMemItem(int CurAdr, PITEM Dst, Byte Op) {
                 int _k = 0;
                 _size = GetRecordSize(_typeName);
                 if (_offset < 0) {
-                    while (1) {
+                    while(true) {
                         _offset += _size;
                         _k--;
                         if (_offset >= 0 && _offset < _size) break;
                     }
                 }
                 if (_offset > _size) {
-                    while (1) {
+                    while(true) {
                         _offset -= _size;
                         _k++;
                         if (_offset >= 0 && _offset < _size) break;

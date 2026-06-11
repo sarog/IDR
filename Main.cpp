@@ -1997,7 +1997,7 @@ DWord __fastcall FollowInstructions(DWord fromAdr, DWord toAdr) {
     DWord curAdr = fromAdr;
     DISINFO DisInfo;
 
-    while (1) {
+    while(true) {
         if (curAdr >= toAdr) break;
         if (IsFlagSet(cfInstruction, curPos)) break;
         instrLen = Disasm.Disassemble(Code + curPos, (__int64) curAdr, &DisInfo, 0);
@@ -2275,7 +2275,7 @@ int __fastcall TFMain_11011981::GetUnits2(String dprName) {
 
     //Ищем первую инструкцию call = @InitExe
     n = 0;
-    while (1) {
+    while(true) {
         instrLen = Disasm.Disassemble(Code + curPos, (__int64) curAdr, &DisInfo, 0);
         //if (!instrLen) return num;
         if (!instrLen) {
@@ -2506,7 +2506,7 @@ DWord __fastcall TFMain_11011981::EvaluateInitTable(Byte *Data, DWord Size, DWor
     if (dd == 'pmj') {
         curAdr = disInfo.Immediate;
         curPos = Adr2Pos(curAdr);
-        while (1) {
+        while(true) {
             instrLen = Disasm.Disassemble(Code + curPos, (__int64) curAdr, &disInfo, 0);
             dd = *reinterpret_cast<DWord *>(disInfo.Mnem);
             if (dd == 'pmj') break;
@@ -2771,7 +2771,7 @@ int __fastcall TFMain_11011981::GetBCBUnits(String dprName) {
     if (dd == 'pmj') {
         curAdr = disInfo.Immediate;
         curPos = Adr2Pos(curAdr);
-        while (1) {
+        while(true) {
             instrLen = Disasm.Disassemble(Code + curPos, (__int64) curAdr, &disInfo, 0);
             dd = *reinterpret_cast<DWord *>(disInfo.Mnem);
             if (dd == 'pmj') break;
@@ -3277,7 +3277,7 @@ void __fastcall TFMain_11011981::ScanIntfTable(DWord adr) {
                 _dx = 0;
                 _bx = 0;
                 _si = 0;
-                while (1) {
+                while(true) {
                     int instrlen = Disasm.Disassemble(Code + _pos, (__int64) _adr, &disInfo, 0);
                     if ((disInfo.OpType[0] == otMEM || disInfo.OpType[1] == otMEM) &&
                         disInfo.BaseReg != 20) //to exclude instruction "xchg reg, [esp]"
@@ -4195,7 +4195,7 @@ void __fastcall TFMain_11011981::ScanVirtualTable(DWord adr) {
 //Возвращает "высоту" класса (число родительских классов до 0)
 int __fastcall TFMain_11011981::GetClassHeight(DWord adr) {
     int level = 0;
-    while (1) {
+    while(true) {
         adr = GetParentAdr(adr);
         if (!adr) break;
         level++;
@@ -5492,7 +5492,7 @@ DWord __fastcall TFMain_11011981::AnalyzeProcInitial(DWord fromAdr) {
     curPos = fromPos;
     curAdr = fromAdr;
 
-    while (1) {
+    while(true) {
         if (curAdr >= CodeBase + TotalSize) break;
         //For example, cfProcEnd can be set for interface procs
         if (_procSize && curAdr - fromAdr >= _procSize) break;
@@ -6270,7 +6270,7 @@ void __fastcall TFMain_11011981::ShowClassViewer(DWord VmtAdr) {
                                 _dx = 0;
                                 _bx = 0;
                                 _si = 0;
-                                while (1) {
+                                while(true) {
                                     int instrlen = Disasm.Disassemble(Code + _pos, (__int64) _adr, &disInfo, 0);
                                     if ((disInfo.OpType[0] == otMEM || disInfo.OpType[1] == otMEM) &&
                                         disInfo.BaseReg != 20) //to exclude instruction "xchg reg, [esp]"
@@ -7873,7 +7873,7 @@ bool __fastcall TFMain_11011981::ImportsValid(DWord ImpRVA, DWord ImpSize) {
         DWord EndRVA = ImpRVA + ImpSize;
         IMAGE_IMPORT_DESCRIPTOR ImportDescriptor;
 
-        while (1) {
+        while(true) {
             memmove(&ImportDescriptor, (Image + Adr2Pos(EntryRVA + ImageBase)), sizeof(IMAGE_IMPORT_DESCRIPTOR));
 
             if (!ImportDescriptor.OriginalFirstThunk &&
@@ -8151,7 +8151,7 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
             EntryRVA = ImpRVA;
             EndRVA = ImpRVA + ImpSize;
 
-            while (1) {
+            while(true) {
                 memmove(&ImportDescriptor, (Image + Adr2Pos(EntryRVA + ImageBase)), sizeof(IMAGE_IMPORT_DESCRIPTOR));
                 //All descriptor fields are NULL - end of list, break
                 if (!ImportDescriptor.OriginalFirstThunk &&
@@ -8184,7 +8184,7 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
                 // ThunkRVA get from FirstThunk always
                 ThunkRVA = ImportDescriptor.FirstThunk;
                 //Get Imported Functions
-                while (1) {
+                while(true) {
                     //Names or ordinals get from LookupTable (this table can be inside OriginalFirstThunk or FirstThunk)
                     ThunkValue = *reinterpret_cast<DWord *>(Image + Adr2Pos(LookupRVA + ImageBase));
                     if (!ThunkValue) break;
@@ -9364,7 +9364,7 @@ void __fastcall TFMain_11011981::miKBTypeInfoClick(TObject *Sender) {
         //Property
         className = ExtractClassName(sName);
         propName = ExtractProcName(sName);
-        while (1) {
+        while(true) {
             if (KnowledgeBase.GetKBPropertyInfo(className, propName, &tInfo)) {
                 FTypeInfo_11011981->ShowKbInfo(&tInfo);
                 return;
@@ -11325,7 +11325,7 @@ void __fastcall TFMain_11011981::FillClassViewerOne(int n, TStringList *tmpList,
                         _dx = 0;
                         _bx = 0;
                         _si = 0;
-                        while (1) {
+                        while(true) {
                             int instrlen = Disasm.Disassemble(Code + _pos, (__int64) _adr, &disInfo, 0);
                             if ((disInfo.OpType[0] == otMEM || disInfo.OpType[1] == otMEM) &&
                                 disInfo.BaseReg != 20) //to exclude instruction "xchg reg, [esp]"
