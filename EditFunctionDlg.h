@@ -7,11 +7,11 @@
 #include <Vcl.ExtCtrls.hpp>
 #include <Vcl.StdCtrls.hpp>
 #include <Vcl.Buttons.hpp>
-
-#include <Grids.hpp>
-#include <ComCtrls.hpp>
-#include "Main.h"
 #include <Vcl.Mask.hpp>
+#include <Vcl.ComCtrls.hpp>
+#include <Vcl.Grids.hpp>
+
+#include "Main.h"
 
 //----------------------------------------------------------------------------
 class TFEditFunctionDlg_11011981 : public TForm {
