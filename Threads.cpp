@@ -54,7 +54,7 @@ __fastcall TAnalyzeThread::TAnalyzeThread(TFMain_11011981 *AForm, TFProgressBar 
 }
 
 //---------------------------------------------------------------------------
-__fastcall TAnalyzeThread::~TAnalyzeThread() {}
+TAnalyzeThread::~TAnalyzeThread() {}
 //---------------------------------------------------------------------------
 int __fastcall TAnalyzeThread::GetRetVal() {
     return ReturnValue;

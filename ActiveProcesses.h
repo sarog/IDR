@@ -57,7 +57,7 @@ private: // User declarations
 
 public: // User declarations
     __fastcall TFActiveProcesses(TComponent *Owner);
-    __fastcall ~TFActiveProcesses();
+    ~TFActiveProcesses();
 
     void ShowProcesses();
     void __fastcall EnumSections(HANDLE HProcess, Byte *PProcessBase, IMAGE_SECTION_HEADER *Buffer, DWord *Secnum);

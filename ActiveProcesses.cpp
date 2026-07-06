@@ -50,7 +50,7 @@ __fastcall TFActiveProcesses::TFActiveProcesses(TComponent *Owner)
 }
 
 //---------------------------------------------------------------------------
-__fastcall TFActiveProcesses::~TFActiveProcesses() {
+TFActiveProcesses::~TFActiveProcesses() {
     if (InstPSAPI) FreeLibrary(InstPSAPI);
     if (InstKernel32) FreeLibrary(InstKernel32);
 }
