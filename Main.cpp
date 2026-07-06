@@ -3630,7 +3630,7 @@ void __fastcall TFMain_11011981::ScanMethodTable(DWord adr, String className) {
     Byte len;
     Word skipNext;
     DWord codeAdr;
-    int spos, pos;
+    int spos;
     String name, methodName;
 
     if (!IsValidImageAdr(adr)) return;
@@ -3639,7 +3639,7 @@ void __fastcall TFMain_11011981::ScanMethodTable(DWord adr, String className) {
     DWord methodAdr = *(reinterpret_cast<DWord *>(Code + Adr2Pos(vmtAdr) + cVmtMethodTable));
     if (!methodAdr) return;
 
-    pos = Adr2Pos(methodAdr);
+    int pos = Adr2Pos(methodAdr);
     Word count = *(reinterpret_cast<Word *>(Code + pos));
     pos += 2;
 
@@ -4009,11 +4009,11 @@ PMsgMInfo __fastcall GetMsgInfo(Word msg) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::ScanDynamicTable(DWord adr) {
-    PInfoRec recN, recN1, recN2;
+    PInfoRec recN1, recN2;
 
     if (!IsValidImageAdr(adr)) return;
 
-    recN = GetInfoRec(adr);
+    PInfoRec recN = GetInfoRec(adr);
 
     if (!recN) return;
 
@@ -4123,24 +4123,23 @@ bool __fastcall IsOwnVirtualMethod(DWord vmtAdr, DWord procAdr) {
 //---------------------------------------------------------------------------
 //Create recN->methods list
 void __fastcall TFMain_11011981::ScanVirtualTable(DWord adr) {
-    int m, pos, idx = 0;
-    DWord vmtAdr, stopAt;
+    int idx = 0;
     String clsName;
-    PInfoRec recN, recN1;
+    PInfoRec recN1;
     MethodRec recM;
     MProcInfo aInfo;
     MProcInfo *pInfo = &aInfo;
 
     if (!IsValidImageAdr(adr)) return;
     clsName = GetClsName(adr);
-    vmtAdr = adr - cVmtSelfPtr;
-    stopAt = GetStopAt(vmtAdr);
+    DWord vmtAdr = adr - cVmtSelfPtr;
+    DWord stopAt = GetStopAt(vmtAdr);
     if (vmtAdr == stopAt) return;
 
-    pos = Adr2Pos(vmtAdr) + cVmtParent + 4;
-    recN = GetInfoRec(vmtAdr + cVmtSelfPtr);
+    int pos = Adr2Pos(vmtAdr) + cVmtParent + 4;
+    PInfoRec recN = GetInfoRec(vmtAdr + cVmtSelfPtr);
 
-    for (m = cVmtParent + 4;; m += 4, pos += 4) {
+    for (int m = cVmtParent + 4;; m += 4, pos += 4) {
         if (Pos2Adr(pos) == stopAt) break;
 
         recM.abstract = false;
@@ -10830,17 +10829,16 @@ void __fastcall TFMain_11011981::miEmptyHistoryClick(TObject *Sender) {
 
 //---------------------------------------------------------------------------
 PFIELDINFO __fastcall TFMain_11011981::GetField(String TypeName, int Offset, bool *vmt, DWord *vmtAdr, String prefix) {
-    int idx, kind, size, Ofs, Ofs1, Ofs2, pos1, pos2;
-    DWord classAdr;
+    int kind, size, Ofs, Ofs1, Ofs2, pos1, pos2;
     Byte *p, *ps;
-    Word *uses, Len;
+    Word Len;
     MTypeInfo atInfo;
     MTypeInfo *tInfo = &atInfo;
     PFIELDINFO fInfo, fInfo1, fInfo2;
 
     *vmt = false;
     *vmtAdr = 0;
-    classAdr = GetClassAdr(TypeName);
+    DWord classAdr = GetClassAdr(TypeName);
     if (IsValidImageAdr(classAdr)) {
         *vmt = true;
         *vmtAdr = classAdr;
@@ -10900,6 +10898,9 @@ PFIELDINFO __fastcall TFMain_11011981::GetField(String TypeName, int Offset, boo
     //try KB
     uses = KnowledgeBase.GetTypeUses(AnsiString(TypeName).c_str());
     idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(TypeName).c_str());
+    // Try KB
+    Word *uses = KnowledgeBase.GetTypeUses(AnsiString(TypeName).c_str());
+    int idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(TypeName).c_str());
     if (uses) delete[] uses;
 
     if (idx != -1) {
