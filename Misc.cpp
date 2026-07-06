@@ -2909,14 +2909,13 @@ int __fastcall IsInlineLengthTest(DWord fromAdr) {
 //mov reg, [reg]
 //mov [lvar], reg
 int __fastcall IsInlineLengthCmp(DWord fromAdr) {
-    Byte _op;
-    int _curPos = Adr2Pos(fromAdr), _instrLen, _regIdx;
+    int _curPos = Adr2Pos(fromAdr), _regIdx;
     int _baseReg, _offset;
     DWord _dd, _adr, _curAdr = fromAdr;
     DISINFO _disInfo;
 
-    _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-    _op = Disasm.GetOp(_disInfo.Mnem);
+    int _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
+    Byte _op = Disasm.GetOp(_disInfo.Mnem);
     if (_op == OP_CMP &&
         _disInfo.OpType[0] == otMEM &&
         _disInfo.OpType[1] == otIMM &&
@@ -2987,13 +2986,12 @@ int __fastcall IsInlineLengthCmp(DWord fromAdr) {
 //sar reg, k
 //@1
 int __fastcall IsInlineDiv(DWord fromAdr, int *div) {
-    Byte _op;
-    int _curPos = Adr2Pos(fromAdr), _instrLen, _regIdx;
+    int _curPos = Adr2Pos(fromAdr), _regIdx;
     DWord _dd, _adr, _curAdr = fromAdr, _imm;
     DISINFO _disInfo;
 
-    _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-    _op = Disasm.GetOp(_disInfo.Mnem);
+    int _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
+    Byte _op = Disasm.GetOp(_disInfo.Mnem);
     if (_op == OP_TEST &&
         _disInfo.OpType[0] == otREG &&
         _disInfo.OpType[1] == otREG &&

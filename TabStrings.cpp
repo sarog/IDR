@@ -15,7 +15,7 @@ extern DWord CurUnitAdr;
 // extern WideString __fastcall UnicodeEncode(String Str, int CodePage);
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::ShowStrings(int idx) {
-    int n, itemidx, wid, maxwid = 0;
+    int wid, maxwid = 0;
     PInfoRec recN;
     String line, line1, str;
     TCanvas *canvas = lbStrings->Canvas;
@@ -23,7 +23,7 @@ void __fastcall TFMain_11011981::ShowStrings(int idx) {
     lbStrings->Clear();
     lbStrings->Items->BeginUpdate();
 
-    for (n = 0; n < CodeSize; n++) {
+    for (int n = 0; n < CodeSize; n++) {
         recN = GetInfoRec(Pos2Adr(n));
         if (recN && !IsFlagSet(cfRTTI, n)) {
             if (recN->kind == ikResString && recN->rsInfo->value != "") {
