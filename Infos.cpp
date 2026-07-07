@@ -244,7 +244,7 @@ String __fastcall InfoProcInfo::AddArgsFromDeclaration(char *Decl, int from, int
         pp = p;
         num = 0;
         fColon = false;
-        while (1) {
+        while (true) {
             c = *pp;
             if (c == ')') break;
             if (c == ':' && !fColon) {
@@ -492,11 +492,11 @@ void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef) {
             String recFileName = FMain_11011981->WrkDir + "\\types.idr";
             FILE *recFile = fopen(AnsiString(recFileName).c_str(), "rt");
             if (recFile) {
-                while (1) {
+                while (true) {
                     if (!fgets(StringBuf, 1024, recFile)) break;
                     String str = String(StringBuf);
                     if (str.Pos(TypeDef + "=") == 1) {
-                        while (1) {
+                        while (true) {
                             if (!fgets(StringBuf, 1024, recFile)) break;
                             str = String(StringBuf);
                             if (str.Pos("end;")) break;
@@ -512,7 +512,7 @@ void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef) {
                 }
                 fclose(recFile);
             }
-            while (1) {
+            while (true) {
                 //KB
                 Word *uses = KnowledgeBase.GetTypeUses(AnsiString(TypeDef).c_str());
                 int idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(TypeDef).c_str());
