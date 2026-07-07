@@ -75,7 +75,8 @@ target_link_libraries(${APP} PRIVATE
         "${EMBT_BPI_DIR}/bcbsmp.bpi"
         "${EMBT_BPI_DIR}/vclx.bpi"
         "${EMBT_BPI_DIR}/vclimg.bpi"
-        "Idr.res"
+        "Idr.rc.res"
+        "IdcDialog.rc.res"
 )
 
 add_custom_command(
