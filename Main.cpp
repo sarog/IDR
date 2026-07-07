@@ -190,8 +190,7 @@ void __fastcall ClearClassAdrMap();
 TCriticalSection *CrtSection = 0;
 TFMain_11011981 *FMain_11011981;
 //---------------------------------------------------------------------------
-__fastcall TFMain_11011981::TFMain_11011981(TComponent *Owner)
-    : dragdropHelper(Handle), TForm(Owner) {
+__fastcall TFMain_11011981::TFMain_11011981(TComponent *Owner) : dragdropHelper(Handle), TForm(Owner) {
     CrtSection = new TCriticalSection;
 }
 
@@ -6813,8 +6812,7 @@ void __fastcall TFMain_11011981::tvClassesDblClick(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::tvClassesShortKeyDown(TObject *Sender,
-                                                       Word &Key, TShiftState Shift) {
+void __fastcall TFMain_11011981::tvClassesShortKeyDown(TObject *Sender, Word &Key, TShiftState Shift) {
     if (Key == VK_RETURN) tvClassesDblClick(Sender);
 }
 
@@ -6977,14 +6975,12 @@ void __fastcall TFMain_11011981::ShowDfm(TDfm *dfm) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::lbFormsKeyDown(TObject *Sender, Word &Key,
-                                                TShiftState Shift) {
+void __fastcall TFMain_11011981::lbFormsKeyDown(TObject *Sender, Word &Key, TShiftState Shift) {
     if (lbForms->ItemIndex >= 0 && Key == VK_RETURN) lbFormsDblClick(Sender);
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::lbCodeKeyDown(TObject *Sender,
-                                               Word &Key, TShiftState Shift) {
+void __fastcall TFMain_11011981::lbCodeKeyDown(TObject *Sender, Word &Key, TShiftState Shift) {
     switch (Key) {
         case VK_RETURN:
             lbCodeDblClick(Sender);
