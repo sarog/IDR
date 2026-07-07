@@ -2269,16 +2269,14 @@ void __fastcall Copy2Clipboard(TStrings *items, int leftMargin, bool asmCode) {
         line = items->Strings[n];
         bufLen += line.Length() + 2;
     }
-    // Последний символ должен быть 0
-    // The last character must be 0
+    //Последний символ должен быть 0
     bufLen++;
 
     if (bufLen) {
         char *buf = new char[bufLen];
         if (buf) {
             Clipboard()->Open();
-            // Запихиваем все данные в буфер
-            // We push all the data into the buffer
+            //Запихиваем все данные в буфер
             char *p = buf;
             for (int n = 0; n < items->Count; n++) {
                 line = items->Strings[n];
@@ -2578,7 +2576,7 @@ DWord __fastcall IsGeneralCase(DWord fromAdr, int retAdr) {
         if (IsFlagSet(cfSwitch, _curPos + _len)) {
             _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
             Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-            _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
+            _dd = *((DWord *) _disInfo.Mnem);
             if (_dd == 'aj') {
                 if (IsValidCodeAdr(_disInfo.Immediate))
                     return _disInfo.Immediate;
@@ -2590,14 +2588,14 @@ DWord __fastcall IsGeneralCase(DWord fromAdr, int retAdr) {
         if (_dd == 'pmc' && _disInfo.OpType[0] == otREG && _disInfo.OpType[1] == otIMM) {
             _regIdx = _disInfo.OpRegIdx[0];
             _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-            _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
+            _dd = *((DWord *) _disInfo.Mnem);
             if (_dd == 'bj' || _dd == 'gj' || _dd == 'egj') {
                 if (IsGeneralCase(_disInfo.Immediate, retAdr)) {
                     _curAdr += _len;
                     _curPos += _len;
 
                     _len = Disasm.Disassemble(Code + _curPos, (__int64)(_curAdr), &_disInfo, 0);
-                    _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
+                    _dd = *((DWord *) _disInfo.Mnem);
                     if (_dd == 'zj' || _dd == 'ej') {
                         _curAdr += _len;
                         _curPos += _len;
@@ -2618,7 +2616,7 @@ DWord __fastcall IsGeneralCase(DWord fromAdr, int retAdr) {
                 break;
 
             _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-            _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
+            _dd = *((DWord *) _disInfo.Mnem);
             if (_dd == 'bus' && IsSameRegister(_regIdx, _disInfo.OpRegIdx[0])) {
                 _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
                 _dd = *((DWord *) _disInfo.Mnem);
@@ -2627,7 +2625,7 @@ DWord __fastcall IsGeneralCase(DWord fromAdr, int retAdr) {
                 _curAdr += _len;
                 _curPos += _len;
                 _len = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-                _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
+                _dd = *((DWord *) _disInfo.Mnem);
                 if (_dd == 'zj' || _dd == 'ej') {
                     _curAdr += _len;
                     _curPos += _len;
@@ -2666,10 +2664,10 @@ DWord __fastcall IsGeneralCase(DWord fromAdr, int retAdr) {
                 break;
 
             _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-            _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
+            _dd = *((DWord *) _disInfo.Mnem);
             if (_dd == 'bus') {
                 _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-                _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
+                _dd = *((DWord *) _disInfo.Mnem);
                 if (_dd == 'bj') {
                     _curAdr += _len;
                     _curPos += _len;
@@ -2711,7 +2709,7 @@ bool __fastcall IsXorMayBeSkipped(DWord fromAdr) {
         _curPos += _instrlen;
         _curAdr += _instrlen;
         Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-        _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
+        _dd = *((DWord *) _disInfo.Mnem);
         if (_dd == 'vom' && _disInfo.OpType[0] == otREG && IsSameRegister(_disInfo.OpRegIdx[0], _regIdx)) return true;
     }
     return false;
@@ -3094,7 +3092,7 @@ int __fastcall IsCopyDynArrayToStack(DWord fromAdr) {
         _curPos += _instrLen;
         _curAdr += _instrLen;
         _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-        DWord _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
+        DWord _dd = *((DWord *) _disInfo.Mnem);
         if (_dd == 'sj') {
             DWord _adr1 = _disInfo.Immediate;
             _curPos += _instrLen;
