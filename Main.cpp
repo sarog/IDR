@@ -6893,7 +6893,8 @@ void __fastcall TFMain_11011981::miEditClassClick(TObject *Sender) {
                 sscanf(AnsiString(node->Text).c_str(), "%lX", &FieldOfs);
             while (node) {
                 int pos = node->Text.Pos("#");
-                //Указан адрес
+                // Указан адрес
+                // The address is indicated
                 if (pos && node->Text.Pos("Sz=")) {
                     DWord vmtAdr;
                     sscanf(AnsiString(node->Text).c_str() + pos, "%lX", &vmtAdr);
@@ -6936,7 +6937,8 @@ void __fastcall TFMain_11011981::lbFormsDblClick(TObject *Sender) {
         //As Form
         case 1:
             if (dfm->Open != 2) {
-                //Если есть открытые формы, закрываем их
+                // Если есть открытые формы, закрываем их
+                // If there are open forms, close them.
                 ResInfo->CloseAllForms();
 
                 ShowDfm(dfm);
