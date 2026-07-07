@@ -3641,6 +3641,36 @@ void __fastcall TFMain_11011981::ScanFieldTable(DWord Adr) {
 }
 
 //---------------------------------------------------------------------------
+//{ vmtMethodTable entry in VMT }
+//TVmtMethodTable = packed record
+//  Count: Word;
+//  {Entry: array[1..Count] of TVmtMethodEntry;}
+//  {ExCount: Word;}
+//  {ExEntry: array[1..ExCount] of TVmtMethodExEntry;}
+//  {VirtCount: Word;}
+//TVmtMethodEntry = packed record
+//  Len: Word;
+//  CodeAddress: Pointer;
+//  Name: ShortString;
+//  {Tail: TVmtMethodEntryTail;} // only exists if Len indicates data here
+//TVmtMethodEntryTail = packed record
+//  Version: Byte; // =3
+//  CC: TCallConv;
+//  ResultType: PPTypeInfo; // nil for procedures
+//  ParOff: Word; // total size of data needed for stack parameters + 8 (ret-addr + pushed EBP)
+//  ParamCount: Byte;
+//  {Params: array[1..ParamCount] of TVmtMethodParam;
+//  AttrData: TAttrData;}
+//TVmtMethodExEntry = packed record
+//  Entry: PVmtMethodEntry;
+//  Flags: Word;
+//  VirtualIndex: Smallint; // signed word
+//TVmtMethodParam = packed record
+//  Flags: Byte;
+//  ParamType: PPTypeInfo;
+//  ParOff: Byte; // Parameter location: 0..2 for reg, >=8 for stack
+//  Name: ShortStringBase;
+//  {AttrData: TAttrData;}
 void __fastcall TFMain_11011981::ScanMethodTable(DWord adr, String className) {
     Byte len;
     Word skipNext;
