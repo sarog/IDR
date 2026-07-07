@@ -1037,7 +1037,7 @@ void __fastcall TIDCGen::OutputMethodTable(int pos) {
 //---------------------------------------------------------------------------
 void __fastcall TIDCGen::OutputVmtMethodEntry(int pos) {
     MakeDword(pos);
-    DWord entry = *reinterpret_cast<DWord *>(Code + pos);
+    const DWord entry = *reinterpret_cast<DWord *>(Code + pos);
     if (entry) {
         pos = Adr2Pos(entry);
         // Len
@@ -1110,7 +1110,7 @@ void __fastcall TIDCGen::OutputDynamicTable(int pos) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TIDCGen::OutputResString(int pos, PInfoRec recN) {
+void __fastcall TIDCGen::OutputResString(int pos, const PInfoRec recN) {
     itemName = recN->GetName();
     MakeComment(pos, itemName);
     pos = MakeDword(pos);
@@ -1118,7 +1118,7 @@ void __fastcall TIDCGen::OutputResString(int pos, PInfoRec recN) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TIDCGen::OutputProc(int pos, PInfoRec recN, bool imp) {
+int __fastcall TIDCGen::OutputProc(int pos, const PInfoRec recN, const bool imp) {
     itemName = recN->GetName();
     int fromPos = pos;
     DWord fromAdr = Pos2Adr(pos);
@@ -1191,7 +1191,7 @@ int __fastcall TIDCGen::OutputProc(int pos, PInfoRec recN, bool imp) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TIDCGen::OutputData(int pos, PInfoRec recN) {
+void __fastcall TIDCGen::OutputData(const int pos, const PInfoRec recN) {
     if (recN->HasName()) {
         MakeByte(pos);
         if (recN->type == "" ||
