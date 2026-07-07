@@ -534,12 +534,12 @@ void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef) {
                             //Name
                             int len = *reinterpret_cast<Word *>(p);
                             p += 2;
-                            String name = String((char *) p, len);
+                            String name = String(static_cast<char *>(p), len);
                             p += len + 1;
                             //Type
                             len = *reinterpret_cast<Word *>(p);
                             p += 2;
-                            String type = TrimTypeName(String((char *) p, len));
+                            String type = TrimTypeName(String(static_cast<char *>(p), len));
                             p += len + 1;
                             AddLocal(Ofs + elofs, 1, fname + "." + name, type);
                         }
