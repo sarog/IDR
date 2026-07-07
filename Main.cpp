@@ -7898,7 +7898,7 @@ bool __fastcall TFMain_11011981::ImportsValid(DWord ImpRVA, DWord ImpSize) {
                 break;
 
             if (!IsValidImageAdr(ImportDescriptor.Name + ImageBase)) return false;
-            int NameLength = strlen(static_cast<char *>(Image + Adr2Pos(ImportDescriptor.Name + ImageBase)));
+            int NameLength = strlen(reinterpret_cast<char *>(Image + Adr2Pos(ImportDescriptor.Name + ImageBase)));
             if (NameLength < 0 || NameLength > 256) return false;
             if (!IsValidModuleName(NameLength, Adr2Pos(ImportDescriptor.Name + ImageBase))) return false;
 

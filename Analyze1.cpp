@@ -246,7 +246,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
                     //Set flag cfETable
                     SetFlag(cfETable, Pos);
                     //dd num
-                    num = *((int *) (Code + Pos));
+                    num = *reinterpret_cast<int *>(Code + Pos);
                     SetFlags(cfSkip, Pos, 4);
                     Pos += 4;
                     if (Adr + 4 + 8 * num > lastAdr) lastAdr = Adr + 4 + 8 * num;
@@ -330,7 +330,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
         //Skip exception table
         if (IsFlagSet(cfETable, curPos)) {
             //dd num
-            num = *((int *) (Code + curPos));
+            num = *reinterpret_cast<int *>(Code + curPos);
             curPos += 4 + 8 * num;
             curAdr += 4 + 8 * num;
             continue;
@@ -467,7 +467,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
             Pos = curPos + instrLen;
             Adr = curAdr + instrLen;
             //Table address  - last 4 bytes of instruction
-            jTblAdr = *((DWord *) (Code + Pos - 4));
+            jTblAdr = *reinterpret_cast<DWord *>(Code + Pos - 4);
             //Scan gap to find table cTbl
             if (Adr <= lastMovTarget && lastMovTarget < jTblAdr) cTblAdr = lastMovTarget;
             //If exists cTblAdr, skip it
@@ -605,7 +605,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
                                     //Set flag cfETable
                                     SetFlag(cfETable, Pos);
                                     //dd num
-                                    num = *((int *) (Code + Pos));
+                                    num = *reinterpret_cast<int *>(Code + Pos);
                                     SetFlags(cfSkip, Pos, 4);
                                     Pos += 4;
                                     if (Adr + 4 + 8 * num > lastAdr) lastAdr = Adr + 4 + 8 * num;
