@@ -2269,14 +2269,16 @@ void __fastcall Copy2Clipboard(TStrings *items, int leftMargin, bool asmCode) {
         line = items->Strings[n];
         bufLen += line.Length() + 2;
     }
-    //Последний символ должен быть 0
+    // Последний символ должен быть 0
+    // The last character must be 0
     bufLen++;
 
     if (bufLen) {
         char *buf = new char[bufLen];
         if (buf) {
             Clipboard()->Open();
-            //Запихиваем все данные в буфер
+            // Запихиваем все данные в буфер
+            // We push all the data into the buffer
             char *p = buf;
             for (int n = 0; n < items->Count; n++) {
                 line = items->Strings[n];
