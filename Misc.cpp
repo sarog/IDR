@@ -1925,7 +1925,7 @@ String __fastcall GetSetString(String TypeName, Byte *ValAdr) {
 
 //---------------------------------------------------------------------------
 void __fastcall OutputDecompilerHeader(FILE *f) {
-    int n = sprintf(StringBuf, "IDR home page: http://kpnc.org/idr32/en");
+    int n = sprintf(StringBuf, "IDR home page: https://github.com/crypto2011/idr");
     int m = sprintf(StringBuf, "Decompiled by IDR v.%s", IDRVersion.c_str());
     if (n < m) n = m;
 
@@ -1933,7 +1933,7 @@ void __fastcall OutputDecompilerHeader(FILE *f) {
     StringBuf[n] = 0;
     fprintf(f, "//%s\n", StringBuf);
 
-    fprintf(f, "//IDR home page: http://kpnc.org/idr32/en\n");
+    fprintf(f, "//IDR home page: https://github.com/crypto2011/idr\n");
 
     sprintf(StringBuf, "Decompiled by IDR v.%s", IDRVersion.c_str());
     fprintf(f, "//%s\n", StringBuf);
