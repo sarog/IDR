@@ -54,7 +54,7 @@ object FEditFunctionDlg_11011981: TFEditFunctionDlg_11011981
       Top = 5
       Width = 75
       Height = 25
-      Caption = 'Ok'
+      Caption = 'OK'
       ModalResult = 1
       TabOrder = 3
       OnClick = bOkClick

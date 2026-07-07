@@ -1,46 +1,60 @@
 object FInputDlg_11011981: TFInputDlg_11011981
   Left = 552
   Top = 350
+  Margins.Left = 2
+  Margins.Top = 2
+  Margins.Right = 2
+  Margins.Bottom = 2
   BorderStyle = bsDialog
-  ClientHeight = 87
-  ClientWidth = 697
+  ClientHeight = 70
+  ClientWidth = 556
   Color = clBtnFace
   ParentFont = True
-  OldCreateOrder = True
   Position = poScreenCenter
   OnCreate = FormCreate
   OnShow = FormShow
-  PixelsPerInch = 120
-  TextHeight = 16
+  TextHeight = 15
   object OKBtn: TButton
-    Left = 252
-    Top = 49
-    Width = 93
-    Height = 31
+    Left = 202
+    Top = 39
+    Width = 74
+    Height = 25
     Cursor = crHandPoint
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     Caption = 'OK'
     Default = True
     ModalResult = 1
     TabOrder = 0
   end
   object CancelBtn: TButton
-    Left = 351
-    Top = 49
-    Width = 92
-    Height = 31
+    Left = 281
+    Top = 39
+    Width = 73
+    Height = 25
     Cursor = crHandPoint
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
     TabOrder = 1
   end
   object edtName: TLabeledEdit
-    Left = 128
-    Top = 10
-    Width = 503
-    Height = 28
-    EditLabel.Width = 50
-    EditLabel.Height = 20
+    Left = 102
+    Top = 8
+    Width = 403
+    Height = 23
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
+    EditLabel.Width = 43
+    EditLabel.Height = 23
     EditLabel.Caption = 'Name:'
     EditLabel.Font.Charset = RUSSIAN_CHARSET
     EditLabel.Font.Color = clWindowText
@@ -50,13 +64,13 @@ object FInputDlg_11011981: TFInputDlg_11011981
     EditLabel.ParentFont = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -15
+    Font.Height = -12
     Font.Name = 'Fixedsys'
     Font.Style = []
     LabelPosition = lpLeft
-    LabelSpacing = 3
     ParentFont = False
     TabOrder = 2
+    Text = ''
     OnEnter = edtNameEnter
   end
 end
