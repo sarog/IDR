@@ -607,7 +607,7 @@ int __fastcall MDisasm::EvaluateOperandSize() {
     return OpSize;
 }
 //---------------------------------------------------------------------------
-char *__fastcall MDisasm::GetSizeString(int size) {
+const char *__fastcall MDisasm::GetSizeString(int size) {
     if (size == 1) return "byte";
     if (size == 2) return "word";
     if (size == 4) return "dword";
