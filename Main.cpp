@@ -7701,13 +7701,13 @@ void __fastcall TFMain_11011981::LoadFile(String FileName, int version) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::LoadDelphiFile(int version) {
+void __fastcall TFMain_11011981::LoadDelphiFile(const int version) {
     DoOpenDelphiFile(version, "", true, true);
 }
 
 //---------------------------------------------------------------------------
 //version: 0 for autodetect, else - exact version
-void __fastcall TFMain_11011981::DoOpenDelphiFile(int version, String FileName, bool loadExp, bool loadImp) {
+void __fastcall TFMain_11011981::DoOpenDelphiFile(const int version, String FileName, const bool loadExp, const bool loadImp) {
     if (ProjectModified) {
         int res = Application->MessageBox(L"Save active Project?", L"Confirmation", MB_YESNOCANCEL);
         if (res == IDCANCEL) return;
