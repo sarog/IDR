@@ -3193,7 +3193,7 @@ bool __fastcall TDecompiler::SimulateCall(DWord curAdr, DWord callAdr, int instr
                                         _line += _recN1->GetName();
                                     else {
                                         if (_kind == ikCString) {
-                                            _line += "'" + String((char *) (Code + Adr2Pos(_item.IntValue))) + "'";
+                                            _line += "'" + String(reinterpret_cast<char *>(Code + Adr2Pos(_item.IntValue))) + "'";
                                         } else if (_kind == ikLString)
                                             _line += TransformString(reinterpret_cast<char *>(Code + Adr2Pos(_item.IntValue)), -1);
                                         else
@@ -3231,7 +3231,7 @@ bool __fastcall TDecompiler::SimulateCall(DWord curAdr, DWord callAdr, int instr
                             if (IsValidImageAdr(_item.IntValue))
                                 _line += GetSetString(_argInfo->TypeDef, Code + Adr2Pos(_item.IntValue));
                             else
-                                _line += GetSetString(_argInfo->TypeDef, (Byte *) &_item.IntValue);
+                                _line += GetSetString(_argInfo->TypeDef, reinterpret_cast<Byte *>(&_item.IntValue));
                         } else
                             _line += _item.Value;
                         continue;
@@ -3338,10 +3338,10 @@ bool __fastcall TDecompiler::SimulateCall(DWord curAdr, DWord callAdr, int instr
                         //edx
                     else if (_ndx == 1)
                         GetRegItem(18, &_item);
-                        //ecx
+                        // ecx
                     else if (_ndx == 2)
                         GetRegItem(17, &_item);
-                    //last pushed
+                    // last pushed
                     else {
                         _esp -= 4;
                         _item = Env->Stack[_esp];
@@ -5997,12 +5997,12 @@ DWord __fastcall TDecompiler::DecompileTry(DWord fromAdr, DWord flags, PLoopInfo
         //on except
         if (IsFlagSet(cfETable, pos)) {
             Env->AddToBody("except");
-            int num = *((DWord *) (Code + pos));
+            int num = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
             //Table pos
             tpos = pos;
             for (int n = 0; n < num; n++) {
-                adr = *((DWord *) (Code + pos));
+                adr = *reinterpret_cast<DWord *>(Code + pos);
                 pos += 4;
                 if (IsValidCodeAdr(adr)) {
                     recN = GetInfoRec(adr);
@@ -6014,7 +6014,7 @@ DWord __fastcall TDecompiler::DecompileTry(DWord fromAdr, DWord flags, PLoopInfo
                 } else {
                     Env->AddToBody("else");
                 }
-                hAdr = *((DWord *) (Code + pos));
+                hAdr = *reinterpret_cast<DWord *>(Code + pos);
                 pos += 4;
                 if (IsValidCodeAdr(hAdr)) {
                     de = new TDecompiler(Env);
@@ -8513,8 +8513,7 @@ void __fastcall TDecompiler::MarkGeneralCase(DWord fromAdr) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall
-TDecompiler::GetArrayFieldOffset(String ATypeName, int AFromOfs, int AScale, String &name, String &type) {
+int __fastcall TDecompiler::GetArrayFieldOffset(String ATypeName, int AFromOfs, int AScale, String &name, String &type) {
     bool _vmt;
     int _size, _lIdx, _hIdx, _ofs, _fofs;
     int _classSize = GetClassSize(GetClassAdr(ATypeName));

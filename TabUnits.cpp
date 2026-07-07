@@ -214,19 +214,15 @@ void __fastcall TFMain_11011981::lbUnitsKeyDown(TObject *Sender, Word &Key, TShi
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::lbUnitsDrawItem(TWinControl *Control, int Index, TRect &Rect, TOwnerDrawState State) {
-    char *s, *pos;
-    int flags, len;
     TColor _color;
-    TListBox *lb;
-    TCanvas *canvas;
     String text, str1, str2;
 
-    lb = (TListBox *) Control;
-    canvas = lb->Canvas;
+    TListBox *lb = (TListBox *) Control;
+    TCanvas *canvas = lb->Canvas;
     SaveCanvas(canvas);
 
     if (Index < lb->Count) {
-        flags = Control->DrawTextBiDiModeFlags(DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
+        int flags = Control->DrawTextBiDiModeFlags(DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
         if (!Control->UseRightToLeftAlignment())
             Rect.Left += 2;
         else
@@ -236,10 +232,10 @@ void __fastcall TFMain_11011981::lbUnitsDrawItem(TWinControl *Control, int Index
         //lb->ItemHeight = canvas->TextHeight(text);
         canvas->FillRect(Rect);
 
-        s = AnsiString(text).c_str();
+        char *s = AnsiString(text).c_str();
         //*XXXXXXXX #XXX XX NAME
-        pos = strrchr(s, ' ');
-        len = pos - s;
+        char *pos = strrchr(s, ' ');
+        int len = pos - s;
         str1 = text.SubString(2, len - 1);
         str2 = text.SubString(len + 1, text.Length() - len);
 

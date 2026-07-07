@@ -8,8 +8,7 @@
 #pragma resource "*.dfm"
 TFindDlg_11011981 *FindDlg_11011981;
 //---------------------------------------------------------------------
-__fastcall TFindDlg_11011981::TFindDlg_11011981(TComponent *AOwner)
-    : TForm(AOwner) {}
+__fastcall TFindDlg_11011981::TFindDlg_11011981(TComponent *AOwner) : TForm(AOwner) {}
 
 //---------------------------------------------------------------------
 void __fastcall TFindDlg_11011981::FormShow(TObject *Sender) {

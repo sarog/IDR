@@ -1,9 +1,9 @@
 object FMain_11011981: TFMain_11011981
   Left = 243
   Top = 124
-  Width = 1033
-  Height = 855
   Caption = 'Interactive Delphi Reconstructor'
+  ClientHeight = 796
+  ClientWidth = 1017
   Color = clBtnFace
   DefaultMonitor = dmDesktop
   Font.Charset = DEFAULT_CHARSET
@@ -13,7 +13,6 @@ object FMain_11011981: TFMain_11011981
   Font.Style = []
   KeyPreview = True
   Menu = MainMenu
-  OldCreateOrder = False
   Position = poDefault
   OnClose = FormClose
   OnCloseQuery = FormCloseQuery
@@ -22,11 +21,10 @@ object FMain_11011981: TFMain_11011981
   OnKeyDown = FormKeyDown
   OnResize = FormResize
   OnShow = FormShow
-  PixelsPerInch = 96
   TextHeight = 13
   object SplitterH1: TSplitter
     Left = 0
-    Top = 647
+    Top = 646
     Width = 1017
     Height = 4
     Cursor = crVSplit
@@ -36,27 +34,26 @@ object FMain_11011981: TFMain_11011981
     Color = clGray
     MinSize = 100
     ParentColor = False
+    ExplicitTop = 647
   end
   object SplitterV1: TSplitter
     Left = 250
     Top = 0
-    Width = 3
-    Height = 647
-    Cursor = crHSplit
+    Height = 646
     AutoSnap = False
     Beveled = True
     Color = clGray
     MinSize = 3
     ParentColor = False
+    ExplicitHeight = 647
   end
   object pcWorkArea: TPageControl
     Left = 253
     Top = 0
     Width = 764
-    Height = 647
+    Height = 646
     ActivePage = tsClassView
     Align = alClient
-    TabIndex = 1
     TabOrder = 1
     OnChange = pcWorkAreaChange
     object tsCodeView: TTabSheet
@@ -65,7 +62,7 @@ object FMain_11011981: TFMain_11011981
         Left = 0
         Top = 25
         Width = 646
-        Height = 594
+        Height = 593
         Cursor = crIBeam
         Style = lbOwnerDrawFixed
         AutoComplete = False
@@ -78,7 +75,6 @@ object FMain_11011981: TFMain_11011981
         Font.Height = -12
         Font.Name = 'Courier New'
         Font.Style = []
-        ItemHeight = 16
         ParentFont = False
         ParentShowHint = False
         PopupMenu = pmCode
@@ -189,7 +185,7 @@ object FMain_11011981: TFMain_11011981
         Left = 646
         Top = 25
         Width = 110
-        Height = 594
+        Height = 593
         Style = lbOwnerDrawFixed
         Align = alRight
         Anchors = []
@@ -199,7 +195,6 @@ object FMain_11011981: TFMain_11011981
         Font.Height = -12
         Font.Name = 'Courier New'
         Font.Style = []
-        ItemHeight = 16
         ParentFont = False
         TabOrder = 2
         OnDblClick = lbXrefsDblClick
@@ -215,7 +210,7 @@ object FMain_11011981: TFMain_11011981
         Left = 0
         Top = 40
         Width = 756
-        Height = 579
+        Height = 578
         Align = alClient
         Color = clWhite
         Font.Charset = DEFAULT_CHARSET
@@ -260,7 +255,7 @@ object FMain_11011981: TFMain_11011981
         Left = 0
         Top = 40
         Width = 756
-        Height = 579
+        Height = 578
         Align = alClient
         Color = clWhite
         Font.Charset = DEFAULT_CHARSET
@@ -288,7 +283,7 @@ object FMain_11011981: TFMain_11011981
         Left = 0
         Top = 25
         Width = 646
-        Height = 594
+        Height = 593
         AutoComplete = False
         Align = alClient
         Anchors = []
@@ -298,7 +293,7 @@ object FMain_11011981: TFMain_11011981
         Font.Height = -12
         Font.Name = 'Fixedsys'
         Font.Style = []
-        ItemHeight = 16
+        ItemHeight = 15
         MultiSelect = True
         ParentFont = False
         PopupMenu = pmStrings
@@ -330,7 +325,7 @@ object FMain_11011981: TFMain_11011981
         Left = 646
         Top = 25
         Width = 110
-        Height = 594
+        Height = 593
         Style = lbOwnerDrawFixed
         Align = alRight
         Anchors = []
@@ -339,7 +334,6 @@ object FMain_11011981: TFMain_11011981
         Font.Height = -12
         Font.Name = 'Courier New'
         Font.Style = []
-        ItemHeight = 16
         ParentFont = False
         TabOrder = 2
         OnDblClick = lbXrefsDblClick
@@ -355,8 +349,8 @@ object FMain_11011981: TFMain_11011981
       object sgItems: TStringGrid
         Left = 0
         Top = 0
-        Width = 657
-        Height = 363
+        Width = 756
+        Height = 618
         Align = alClient
         DefaultRowHeight = 16
         FixedCols = 0
@@ -378,7 +372,7 @@ object FMain_11011981: TFMain_11011981
         Left = 0
         Top = 25
         Width = 646
-        Height = 594
+        Height = 593
         AutoComplete = False
         Align = alClient
         Anchors = []
@@ -401,7 +395,7 @@ object FMain_11011981: TFMain_11011981
         Align = alTop
         TabOrder = 1
         object ShowNXrefs: TPanel
-          Left = 652
+          Left = 644
           Top = 1
           Width = 111
           Height = 23
@@ -416,7 +410,7 @@ object FMain_11011981: TFMain_11011981
         Left = 646
         Top = 25
         Width = 110
-        Height = 594
+        Height = 593
         Style = lbOwnerDrawFixed
         Align = alRight
         Anchors = []
@@ -425,7 +419,6 @@ object FMain_11011981: TFMain_11011981
         Font.Height = -12
         Font.Name = 'Courier New'
         Font.Style = []
-        ItemHeight = 16
         ParentFont = False
         TabOrder = 2
         OnDblClick = lbXrefsDblClick
@@ -447,7 +440,7 @@ object FMain_11011981: TFMain_11011981
         Left = 0
         Top = 0
         Width = 756
-        Height = 619
+        Height = 604
         Align = alClient
         Font.Charset = RUSSIAN_CHARSET
         Font.Color = clWindowText
@@ -469,10 +462,9 @@ object FMain_11011981: TFMain_11011981
     Left = 0
     Top = 0
     Width = 250
-    Height = 647
-    ActivePage = tsRTTIs
+    Height = 646
+    ActivePage = tsUnits
     Align = alLeft
-    TabIndex = 1
     TabOrder = 0
     OnChange = pcInfoChange
     object tsUnits: TTabSheet
@@ -481,7 +473,7 @@ object FMain_11011981: TFMain_11011981
         Left = 0
         Top = 0
         Width = 242
-        Height = 619
+        Height = 618
         Style = lbOwnerDrawFixed
         AutoComplete = False
         Align = alClient
@@ -492,7 +484,6 @@ object FMain_11011981: TFMain_11011981
         Font.Height = -12
         Font.Name = 'Courier New'
         Font.Style = []
-        ItemHeight = 16
         ParentFont = False
         ParentShowHint = False
         PopupMenu = pmUnits
@@ -512,7 +503,7 @@ object FMain_11011981: TFMain_11011981
         Left = 0
         Top = 0
         Width = 242
-        Height = 619
+        Height = 618
         AutoComplete = False
         Align = alClient
         Color = clWhite
@@ -536,7 +527,7 @@ object FMain_11011981: TFMain_11011981
       ImageIndex = 3
       object Splitter1: TSplitter
         Left = 0
-        Top = 445
+        Top = 444
         Width = 242
         Height = 4
         Cursor = crVSplit
@@ -544,6 +535,7 @@ object FMain_11011981: TFMain_11011981
         Color = clGray
         MinSize = 3
         ParentColor = False
+        ExplicitTop = 445
       end
       object Panel2: TPanel
         Left = 0
@@ -572,7 +564,7 @@ object FMain_11011981: TFMain_11011981
         Left = 0
         Top = 40
         Width = 242
-        Height = 405
+        Height = 404
         AutoComplete = False
         Align = alClient
         Color = clWhite
@@ -593,7 +585,7 @@ object FMain_11011981: TFMain_11011981
       end
       object Panel4: TPanel
         Left = 0
-        Top = 449
+        Top = 448
         Width = 242
         Height = 170
         Align = alBottom
@@ -648,7 +640,6 @@ object FMain_11011981: TFMain_11011981
             Font.Height = -12
             Font.Name = 'Courier New'
             Font.Style = []
-            ItemHeight = 0
             ParentFont = False
             Sorted = True
             TabOrder = 0
@@ -679,7 +670,7 @@ object FMain_11011981: TFMain_11011981
   end
   object lbUnitItems: TListBox
     Left = 0
-    Top = 651
+    Top = 650
     Width = 1017
     Height = 146
     TabStop = False
@@ -693,7 +684,6 @@ object FMain_11011981: TFMain_11011981
     Font.Height = -12
     Font.Name = 'Courier New'
     Font.Style = []
-    ItemHeight = 16
     ParentFont = False
     PopupMenu = pmUnitItems
     TabOrder = 2
@@ -716,79 +706,139 @@ object FMain_11011981: TFMain_11011981
           OnClick = miAutodetectVersionClick
         end
         object miDelphi2: TMenuItem
-          Caption = 'Delphi2'
+          Caption = 'Delphi 2'
           Enabled = False
           OnClick = miDelphi2Click
         end
         object miDelphi3: TMenuItem
-          Caption = 'Delphi3'
+          Caption = 'Delphi 3'
           Enabled = False
           OnClick = miDelphi3Click
         end
         object miDelphi4: TMenuItem
-          Caption = 'Delphi4'
+          Caption = 'Delphi 4'
           Enabled = False
           OnClick = miDelphi4Click
         end
         object miDelphi5: TMenuItem
-          Caption = 'Delphi5'
+          Caption = 'Delphi 5'
           Enabled = False
           OnClick = miDelphi5Click
         end
         object miDelphi6: TMenuItem
-          Caption = 'Delphi6'
+          Caption = 'Delphi 6'
           Enabled = False
           OnClick = miDelphi6Click
         end
         object miDelphi7: TMenuItem
-          Caption = 'Delphi7'
+          Caption = 'Delphi 7'
           Enabled = False
           OnClick = miDelphi7Click
         end
         object miDelphi2005: TMenuItem
-          Caption = 'Delphi2005'
+          Caption = 'Delphi 2005'
           Enabled = False
           OnClick = miDelphi2005Click
         end
         object miDelphi2006: TMenuItem
-          Caption = 'Delphi2006'
+          Caption = 'Delphi 2006'
           Enabled = False
           OnClick = miDelphi2006Click
         end
         object miDelphi2007: TMenuItem
-          Caption = 'Delphi2007'
+          Caption = 'Delphi 2007'
           Enabled = False
           OnClick = miDelphi2007Click
         end
         object miDelphi2009: TMenuItem
-          Caption = 'Delphi2009'
+          Caption = 'Delphi 2009'
           Enabled = False
           OnClick = miDelphi2009Click
         end
         object miDelphi2010: TMenuItem
-          Caption = 'Delphi2010'
+          Caption = 'Delphi 2010'
           Enabled = False
           OnClick = miDelphi2010Click
         end
         object miDelphiXE1: TMenuItem
-          Caption = 'DelphiXE1'
+          Caption = 'Delphi XE1'
           Enabled = False
           OnClick = miDelphiXE1Click
         end
         object miDelphiXE2: TMenuItem
-          Caption = 'DelphiXE2'
+          Caption = 'Delphi XE2'
           Enabled = False
           OnClick = miDelphiXE2Click
         end
         object miDelphiXE3: TMenuItem
-          Caption = 'DelphiXE3'
+          Caption = 'Delphi XE3'
           Enabled = False
           OnClick = miDelphiXE3Click
         end
         object miDelphiXE4: TMenuItem
-          Caption = 'DelphiXE4'
+          Caption = 'Delphi XE4'
           Enabled = False
           OnClick = miDelphiXE4Click
+        end
+        object miDelphiXE5: TMenuItem
+          Caption = 'Delphi XE5'
+          Enabled = False
+          OnClick = miDelphiXE5Click
+        end
+        object miDelphiXE6: TMenuItem
+          Caption = 'Delphi XE6'
+          Enabled = False
+          OnClick = miDelphiXE6Click
+        end
+        object miDelphiXE7: TMenuItem
+          Caption = 'Delphi XE7'
+          Enabled = False
+          OnClick = miDelphiXE7Click
+        end
+        object miDelphiXE8: TMenuItem
+          Caption = 'Delphi XE8'
+          Enabled = False
+          OnClick = miDelphiXE8Click
+        end
+        object miDelphiSeattle: TMenuItem
+          Caption = 'Delphi Seattle (D23)'
+          Enabled = False
+          OnClick = miDelphiSeattleClick
+        end
+        object miDelphiBerlin: TMenuItem
+          Caption = 'Delphi Berlin (D24)'
+          Enabled = False
+          OnClick = miDelphiBerlinClick
+        end
+        object miDelphiTokyo: TMenuItem
+          Caption = 'Delphi Tokyo (D25)'
+          Enabled = False
+          OnClick = miDelphiTokyoClick
+        end
+        object miDelphiRio: TMenuItem
+          Caption = 'Delphi Rio (D26)'
+          Enabled = False
+          OnClick = miDelphiRioClick
+        end
+        object miDelphiSydney: TMenuItem
+          Caption = 'Delphi Sydney (D27)'
+          Enabled = False
+          OnClick = miDelphiSydneyClick
+        end
+        object miDelphiAlexandria: TMenuItem
+          Caption = 'Delphi Alexandria (D28)'
+          Enabled = False
+          OnClick = miDelphiAlexandriaClick
+        end
+        object miDelphiAthens: TMenuItem
+          Caption = 'Delphi Athens (D29)'
+          Enabled = False
+          OnClick = miDelphiAthensClick
+        end
+        object miDelphiFlorence: TMenuItem
+          Caption = 'Delphi Florence (D30)'
+          Enabled = False
+          OnClick = miDelphiFlorenceClick
         end
       end
       object miOpenProject: TMenuItem
@@ -1294,8 +1344,6 @@ object FMain_11011981: TFMain_11011981
     Font.Height = -11
     Font.Name = 'MS Sans Serif'
     Font.Style = []
-    MinFontSize = 0
-    MaxFontSize = 0
     Left = 776
     Top = 96
   end

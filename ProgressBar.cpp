@@ -10,8 +10,7 @@
 #pragma resource "*.dfm"
 TFProgressBar *FProgressBar;
 //---------------------------------------------------------------------------
-__fastcall TFProgressBar::TFProgressBar(TComponent *Owner)
-    : TForm(Owner) {}
+__fastcall TFProgressBar::TFProgressBar(TComponent *Owner) : TForm(Owner) {}
 
 //---------------------------------------------------------------------------
 void __fastcall TFProgressBar::FormShow(TObject *Sender) {

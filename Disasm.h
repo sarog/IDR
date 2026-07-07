@@ -6,7 +6,7 @@
 // Instruction type
 #define itUnknown   0 // Unknown instruction
 #define itTransfer  1 // Data transfer instruction
-#define itArifm     2 // Ariphmetical instruction
+#define itArifm     2 // Arithmetical instruction
 #define itLogic     3 // Logical instruction
 #define itControl   4 // Control flow instruction
 #define itString    5 // String instruction
@@ -106,7 +106,7 @@ public:
     void __fastcall SetPostByte(Byte b);
     void __fastcall SetOffset(DWord ofs);
     void __fastcall GetInstrBytes(Byte *dst);
-    char * __fastcall GetSizeString(int size);
+    const char * __fastcall GetSizeString(int size);
 
 private:
     bool __fastcall GetAddressSize();
