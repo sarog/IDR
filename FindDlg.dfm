@@ -1,60 +1,81 @@
 object FindDlg_11011981: TFindDlg_11011981
   Left = 487
   Top = 325
+  Margins.Left = 2
+  Margins.Top = 2
+  Margins.Right = 2
+  Margins.Bottom = 2
   BorderStyle = bsToolWindow
   Caption = 'Find'
-  ClientHeight = 118
-  ClientWidth = 473
+  ClientHeight = 94
+  ClientWidth = 377
   Color = clBtnFace
   ParentFont = True
-  OldCreateOrder = True
   Position = poScreenCenter
   OnCreate = FormCreate
   OnShow = FormShow
-  PixelsPerInch = 120
-  TextHeight = 16
+  TextHeight = 15
   object Bevel1: TBevel
-    Left = 10
-    Top = 10
-    Width = 424
-    Height = 60
+    Left = 8
+    Top = 8
+    Width = 339
+    Height = 48
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     Shape = bsFrame
   end
   object Label1: TLabel
-    Left = 30
-    Top = 30
-    Width = 67
-    Height = 16
+    Left = 24
+    Top = 24
+    Width = 62
+    Height = 15
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     Caption = 'Text to find:'
   end
   object OKBtn: TButton
-    Left = 142
-    Top = 84
-    Width = 92
-    Height = 30
+    Left = 114
+    Top = 67
+    Width = 73
+    Height = 24
     Cursor = crHandPoint
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     Caption = 'OK'
     Default = True
     ModalResult = 1
     TabOrder = 0
   end
   object CancelBtn: TButton
-    Left = 240
-    Top = 84
-    Width = 92
-    Height = 30
+    Left = 192
+    Top = 67
+    Width = 74
+    Height = 24
     Cursor = crHandPoint
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
     TabOrder = 1
   end
   object cbText: TComboBox
-    Left = 108
-    Top = 25
-    Width = 307
+    Left = 86
+    Top = 20
+    Width = 246
     Height = 24
-    ItemHeight = 16
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     TabOrder = 2
     OnEnter = cbTextEnter
   end

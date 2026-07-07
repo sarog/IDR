@@ -1,29 +1,39 @@
 object FExit_11011981: TFExit_11011981
   Left = 482
   Top = 333
+  Margins.Left = 2
+  Margins.Top = 2
+  Margins.Right = 2
+  Margins.Bottom = 2
   BorderStyle = bsDialog
   Caption = 'Save Project'
-  ClientHeight = 156
-  ClientWidth = 385
+  ClientHeight = 125
+  ClientWidth = 306
   Color = clBtnFace
   ParentFont = True
-  OldCreateOrder = True
   Position = poScreenCenter
   OnCreate = FormCreate
-  PixelsPerInch = 120
-  TextHeight = 16
+  TextHeight = 15
   object Bevel1: TBevel
-    Left = 10
-    Top = 10
-    Width = 365
-    Height = 100
+    Left = 8
+    Top = 8
+    Width = 292
+    Height = 80
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     Shape = bsFrame
   end
   object OKBtn: TButton
-    Left = 78
-    Top = 123
-    Width = 92
-    Height = 31
+    Left = 62
+    Top = 98
+    Width = 74
+    Height = 25
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     Caption = 'OK'
     Default = True
     ModalResult = 1
@@ -31,10 +41,14 @@ object FExit_11011981: TFExit_11011981
     OnClick = OKBtnClick
   end
   object CancelBtn: TButton
-    Left = 215
-    Top = 123
-    Width = 93
-    Height = 31
+    Left = 172
+    Top = 98
+    Width = 74
+    Height = 25
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
@@ -42,10 +56,14 @@ object FExit_11011981: TFExit_11011981
     OnClick = CancelBtnClick
   end
   object cbDontSaveProject: TCheckBox
-    Left = 64
-    Top = 49
-    Width = 257
-    Height = 21
+    Left = 51
+    Top = 39
+    Width = 206
+    Height = 17
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     Caption = 'Don'#39't save Project'
     TabOrder = 2
   end
