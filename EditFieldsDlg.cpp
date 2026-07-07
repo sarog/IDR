@@ -16,8 +16,7 @@ extern PInfoRec *Infos;
 
 TFEditFieldsDlg_11011981 *FEditFieldsDlg_11011981;
 //----------------------------------------------------------------------------
-__fastcall TFEditFieldsDlg_11011981::TFEditFieldsDlg_11011981(TComponent *Owner)
-    : TForm(Owner) {
+__fastcall TFEditFieldsDlg_11011981::TFEditFieldsDlg_11011981(TComponent *Owner) : TForm(Owner) {
     Op = FD_OP_EDIT;
     SelIndex = -1;
     FieldOffset = -1;
@@ -207,8 +206,7 @@ void __fastcall TFEditFieldsDlg_11011981::bApplyClick(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFEditFieldsDlg_11011981::bCloseClick(
-    TObject *Sender) {
+void __fastcall TFEditFieldsDlg_11011981::bCloseClick(TObject *Sender) {
     edtPanel->Visible = false;
     lbFields->Height = lbFXrefs->Height;
 

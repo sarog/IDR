@@ -8,8 +8,7 @@
 #pragma resource "*.dfm"
 TFInputDlg_11011981 *FInputDlg_11011981;
 //---------------------------------------------------------------------
-__fastcall TFInputDlg_11011981::TFInputDlg_11011981(TComponent *AOwner)
-    : TForm(AOwner) {}
+__fastcall TFInputDlg_11011981::TFInputDlg_11011981(TComponent *AOwner) : TForm(AOwner) {}
 
 //---------------------------------------------------------------------
 void __fastcall TFInputDlg_11011981::FormShow(TObject *Sender) {

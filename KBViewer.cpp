@@ -3,14 +3,13 @@
 #pragma hdrstop
 
 #include "KBViewer.h"
-//---------------------------------------------------------------------------
-#pragma package(smart_init)
-#pragma resource "*.dfm"
-
 #include "Disasm.h"
 #include "KnowledgeBase.h"
 #include "Main.h"
 #include "Misc.h"
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
 
 extern DWord CodeBase;
 extern DWord CurProcAdr;
@@ -24,8 +23,7 @@ extern TList *OwnTypeList;
 
 TFKBViewer_11011981 *FKBViewer_11011981;
 //---------------------------------------------------------------------------
-__fastcall TFKBViewer_11011981::TFKBViewer_11011981(TComponent *Owner)
-    : TForm(Owner) {
+__fastcall TFKBViewer_11011981::TFKBViewer_11011981(TComponent *Owner) : TForm(Owner) {
     UnitsNum = 0;
     CurrIdx = -1;
     CurrAdr = 0;

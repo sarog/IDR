@@ -17,8 +17,7 @@ extern MKnowledgeBase KnowledgeBase;
 
 TFEditFunctionDlg_11011981 *FEditFunctionDlg_11011981;
 //---------------------------------------------------------------------
-__fastcall TFEditFunctionDlg_11011981::TFEditFunctionDlg_11011981(TComponent *AOwner)
-    : TForm(AOwner) {
+__fastcall TFEditFunctionDlg_11011981::TFEditFunctionDlg_11011981(TComponent *AOwner) : TForm(AOwner) {
     VmtCandidatesNum = 0;
 }
 

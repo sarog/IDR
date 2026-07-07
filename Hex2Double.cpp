@@ -8,8 +8,7 @@
 #pragma resource "*.dfm"
 TFHex2DoubleDlg_11011981 *FHex2DoubleDlg_11011981;
 //---------------------------------------------------------------------
-__fastcall TFHex2DoubleDlg_11011981::TFHex2DoubleDlg_11011981(TComponent *AOwner)
-    : TForm(AOwner) {}
+__fastcall TFHex2DoubleDlg_11011981::TFHex2DoubleDlg_11011981(TComponent *AOwner) : TForm(AOwner) {}
 
 //---------------------------------------------------------------------
 void __fastcall TFHex2DoubleDlg_11011981::FormShow(TObject *Sender) {

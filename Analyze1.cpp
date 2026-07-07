@@ -1,7 +1,8 @@
-﻿#include "Main.h"
+﻿//---------------------------------------------------------------------------
+#include "Main.h"
 #include "Misc.h"
 #include "Disasm.h"
-
+//---------------------------------------------------------------------------
 extern Byte *Code;
 extern DWord CodeBase;
 extern MDisasm Disasm;
@@ -765,4 +766,3 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
 }
 
 //---------------------------------------------------------------------------
-

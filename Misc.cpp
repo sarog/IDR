@@ -138,9 +138,9 @@ DWord __fastcall Pos2Adr(int Pos) {
 //---------------------------------------------------------------------------
 //Can replace type "fromName" to type "toName"?
 bool __fastcall CanReplace(const String &fromName, const String &toName) {
-    //Skip empty toName
+    // Skip empty toName
     if (toName == "") return false;
-    //We can replace empty "fromName" or name "byte", "word", "dword'
+    // We can replace empty "fromName" or name "byte", "word", "dword'
     if (fromName == "" || SameText(fromName, "byte") || SameText(fromName, "word") || SameText(fromName, "dword"))
         return true;
     return false;
@@ -4324,4 +4324,3 @@ int __fastcall FieldInfoCmpFunction(void *item1, void *item2) {
 }
 
 //---------------------------------------------------------------------------
-

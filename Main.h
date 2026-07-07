@@ -317,7 +317,7 @@ class TDfm;
 
 class TFMain_11011981 : public TForm {
     __published: // IDE-managed Components
-    TMenuItem * miFile;
+    TMenuItem *miFile;
     TMenuItem *miLoadFile;
     TMenuItem *miExit;
     TMenuItem *miSaveProject;

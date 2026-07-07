@@ -4,13 +4,13 @@
 
 #include "AboutDlg.h"
 #include "Misc.h"
+//---------------------------------------------------------------------
 extern String IDRVersion;
-//--------------------------------------------------------------------- 
+//---------------------------------------------------------------------
 #pragma resource "*.dfm"
 TFAboutDlg_11011981 *FAboutDlg_11011981;
 //---------------------------------------------------------------------
-__fastcall TFAboutDlg_11011981::TFAboutDlg_11011981(TComponent *AOwner)
-    : TForm(AOwner) {}
+__fastcall TFAboutDlg_11011981::TFAboutDlg_11011981(TComponent *AOwner) : TForm(AOwner) {}
 
 //---------------------------------------------------------------------
 void __fastcall TFAboutDlg_11011981::FormCreate(TObject *Sender) {
@@ -22,13 +22,14 @@ void __fastcall TFAboutDlg_11011981::FormCreate(TObject *Sender) {
 void __fastcall TFAboutDlg_11011981::lEmailClick(TObject *Sender) {
     ShellExecute(Handle, "open", "mailto:crypto2011@gmail.com", nullptr, nullptr, 1);
 }
+
 //---------------------------------------------------------------------------
 void __fastcall TFAboutDlg_11011981::lWWWClick(TObject *Sender) {
     ShellExecute(Handle, "open", "http://kpnc.org/idr32/en/", nullptr, nullptr, 1);
 }
+
 //---------------------------------------------------------------------------
 void __fastcall TFAboutDlg_11011981::bDonateClick(TObject *Sender) {
     ShellExecute(Handle, "open", "http://kpnc.org/idr32/en/donation.htm", nullptr, nullptr, 1);
 }
 //---------------------------------------------------------------------------
-
