@@ -1476,10 +1476,12 @@ int __fastcall TFMain_11011981::GetDelphiVersion() {
             Image[n + 4] == 'o' && Image[n + 5] == 'n' &&
             Image[n + 6] == 't' && Image[n + 7] == 'r' &&
             Image[n + 8] == 'o' && Image[n + 9] == 'l') {
-            // После типа должен следовать указатель на таблицу VMT (0) | The type must be followed by a pointer to the VMT table (0)
+            // После типа должен следовать указатель на таблицу VMT (0)
+            // The type must be followed by a pointer to the VMT table (0)
             vmtAdr = *(reinterpret_cast<DWord *>(Image + n + 10));
             if (IsValidImageAdr(vmtAdr)) {
-                // Проверяем смещение -0x18 | Checking offset -0x18
+                // Проверяем смещение -0x18
+                // Checking offset -0x18
                 TControlInstSize = *(reinterpret_cast<DWord *>(Image + Adr2Pos(vmtAdr) - 0x18));
                 if (TControlInstSize == 0xA8) return 2;
                 // Проверяем смещение -0x1C
@@ -1492,15 +1494,18 @@ int __fastcall TFMain_11011981::GetDelphiVersion() {
                 if (TControlInstSize == 0x15C) //6 или 7
                 {
                     DWord TFormInstSize = 0;
-                    // Ищем тип TForm (выбор между версией 6 и 7) | We are looking for the TForm type (choosing between versions 6 and 7)
+                    // Ищем тип TForm (выбор между версией 6 и 7)
+                    // We are looking for the TForm type (choosing between versions 6 and 7)
                     for (int m = 0; m < TotalSize - 11; m += 4) {
                         if (Image[m] == 7 && Image[m + 1] == 5 && Image[m + 2] == 'T' &&
                             Image[m + 3] == 'F' && Image[m + 4] == 'o' &&
                             Image[m + 5] == 'r' && Image[m + 6] == 'm') {
-                            // После типа должен следовать указатель на таблицу VMT (0) | The type must be followed by a pointer to the VMT table (0)
+                            // После типа должен следовать указатель на таблицу VMT (0)
+                            // The type must be followed by a pointer to the VMT table (0)
                             vmtAdr = *(reinterpret_cast<DWord *>(Image + m + 7));
                             if (IsValidImageAdr(vmtAdr)) {
                                 // Проверяем смещение -0x28
+                                // Checking offset -0x28
                                 TFormInstSize = *(reinterpret_cast<DWord *>(Image + Adr2Pos(vmtAdr) - 0x28));
                                 if (TFormInstSize == 0x2F0) return 6;
                                 if (TFormInstSize == 0x2F8) return 7;
