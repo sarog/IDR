@@ -612,7 +612,7 @@ object FAboutDlg_11011981: TFAboutDlg_11011981
         Width = 118
         Height = 13
         Cursor = crDrag
-        Caption = 'http://kpnc.org/idr32/en'
+        Caption = 'https://github.com/crypto2011/idr'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -12
