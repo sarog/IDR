@@ -1099,11 +1099,11 @@ void __fastcall TIDCGen::OutputDynamicTable(int pos) {
         pos = MakeWord(pos);
 
         for (int n = 0; n < num; n++) {
-            //Msg
+            // Msg
             pos = MakeWord(pos);
         }
         for (int n = 0; n < num; n++) {
-            //ProcAddress
+            // ProcAddress
             pos = MakeDword(pos);
         }
     }
@@ -1253,9 +1253,9 @@ void __fastcall TSaveIDCDialog::WndProc(TMessage &Message) {
                     else
                         SplitIDC = false;
                     break;
-            };
+            }
             break;
-    };
+    }
     TOpenDialog::WndProc(Message);
 };
 

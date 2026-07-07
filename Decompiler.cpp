@@ -3338,10 +3338,10 @@ bool __fastcall TDecompiler::SimulateCall(DWord curAdr, DWord callAdr, int instr
                         //edx
                     else if (_ndx == 1)
                         GetRegItem(18, &_item);
-                        //ecx
+                        // ecx
                     else if (_ndx == 2)
                         GetRegItem(17, &_item);
-                    //last pushed
+                    // last pushed
                     else {
                         _esp -= 4;
                         _item = Env->Stack[_esp];
