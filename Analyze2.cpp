@@ -564,7 +564,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
             continue;
         }
         if (registers[16].type != "" && registers[16].type[1] == '#') {
-            DWord dd = *reinterpret_cast<DWord *>(registers[16].type.c_str());
+            DWord dd = *((DWord *) (registers[16].type.c_str()));
             // Если был вызов функции @GetTls, смотрим след. инструкцию вида [eax+N]
             // If there was a call to the @GetTls function, look at the next instruction of the form [eax+N]
             if (dd == 'SLT#') {

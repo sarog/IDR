@@ -95,7 +95,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
         // Skip exception table
         if (IsFlagSet(cfETable, curPos)) {
             // dd num
-            num = *reinterpret_cast<int *>(Code + curPos);
+            num = *((int *) (Code + curPos));
             curPos += 4 + 8 * num;
             curAdr += 4 + 8 * num;
             continue;
@@ -430,7 +430,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                                     Pos += instrLen1;
                                     Adr += instrLen1;
                                     // dd num
-                                    num = *reinterpret_cast<int *>(Code + Pos);
+                                    num = *((int *) (Code + Pos));
                                     Pos += 4;
                                     if (Adr + 4 + 8 * num > lastAdr) lastAdr = Adr + 4 + 8 * num;
 
