@@ -528,16 +528,16 @@ void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef) {
                         for (int k = 0; k < tInfo.FieldsNum; k++) {
                             //Scope
                             p++;
-                            int elofs = *((int *) p);
+                            int elofs = *reinterpret_cast<int *>(p);
                             p += 4;
                             p += 4; //case
                             //Name
-                            int len = *((Word *) p);
+                            int len = *reinterpret_cast<Word *>(p);
                             p += 2;
                             String name = String((char *) p, len);
                             p += len + 1;
                             //Type
-                            len = *((Word *) p);
+                            len = *reinterpret_cast<Word *>(p);
                             p += 2;
                             String type = TrimTypeName(String((char *) p, len));
                             p += len + 1;

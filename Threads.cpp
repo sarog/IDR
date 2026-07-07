@@ -965,7 +965,7 @@ void __fastcall TAnalyzeThread::FindVMTs2() {
         if (fieldTableAdr) {
             if (!IsValidImageAdr(fieldTableAdr)) continue;
             pos = Adr2Pos(fieldTableAdr);
-            Num16 = *((Word *) (Code + pos));
+            Num16 = *reinterpret_cast<Word *>(Code + pos);
             if (Num16 > 10000) continue;
         }
 
@@ -973,7 +973,7 @@ void __fastcall TAnalyzeThread::FindVMTs2() {
         if (methodTableAdr) {
             if (!IsValidImageAdr(methodTableAdr)) continue;
             pos = Adr2Pos(methodTableAdr);
-            Num16 = *((Word *) (Code + pos));
+            Num16 = *reinterpret_cast<Word *>(Code + pos);
             if (Num16 > 10000) continue;
         }
 
@@ -981,7 +981,7 @@ void __fastcall TAnalyzeThread::FindVMTs2() {
         if (dynamicTableAdr) {
             if (!IsValidImageAdr(dynamicTableAdr)) continue;
             pos = Adr2Pos(dynamicTableAdr);
-            Num16 = *((Word *) (Code + pos));
+            Num16 = *reinterpret_cast<Word *>(Code + pos);
             if (Num16 > 10000) continue;
         }
 
@@ -1046,7 +1046,7 @@ void __fastcall TAnalyzeThread::FindVMTs2() {
             bytes++; //unknown byte
             pos += 4;
             bytes += 4; //unknown dd
-            Num32 = *((DWord *) (Code + pos));
+            Num32 = *reinterpret_cast<DWord *>(Code + pos);
             bytes += 4;
 
             for (int m = 0; m < Num32; m++) {
@@ -1062,11 +1062,11 @@ void __fastcall TAnalyzeThread::FindVMTs2() {
         if (fieldTableAdr) {
             pos = Adr2Pos(fieldTableAdr);
             bytes = 0;
-            Num16 = *((Word *) (Code + pos));
+            Num16 = *reinterpret_cast<Word *>(Code + pos);
             pos += 2;
             bytes += 2;
             //TypesTab
-            DWord typesTab = *((DWord *) (Code + pos));
+            DWord typesTab = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
             bytes += 4;
 
@@ -1094,13 +1094,13 @@ void __fastcall TAnalyzeThread::FindVMTs2() {
         if (methodTableAdr) {
             pos = Adr2Pos(methodTableAdr);
             bytes = 0;
-            Num16 = *((Word *) (Code + pos));
+            Num16 = *reinterpret_cast<Word *>(Code + pos);
             pos += 2;
             bytes += 2;
 
             for (int m = 0; m < Num16; m++) {
                 //Length of Method Description
-                Word skipNext = *((Word *) (Code + pos));
+                Word skipNext = *reinterpret_cast<Word *>(Code + pos);
                 pos += skipNext;
                 bytes += skipNext;
             }
@@ -1111,7 +1111,7 @@ void __fastcall TAnalyzeThread::FindVMTs2() {
         if (dynamicTableAdr) {
             pos = Adr2Pos(dynamicTableAdr);
             bytes = 0;
-            Num16 = *((Word *) (Code + pos));
+            Num16 = *reinterpret_cast<Word *>(Code + pos);
             pos += 2;
             bytes += 2;
 
@@ -1178,7 +1178,7 @@ void __fastcall TAnalyzeThread::FindVMTs() {
             if (intfTableAdr) {
                 if (!IsValidImageAdr(intfTableAdr)) continue;
                 pos = Adr2Pos(intfTableAdr);
-                EntryCount = *((DWord *) (Code + pos));
+                EntryCount = *reinterpret_cast<DWord *>(Code + pos);
                 if (EntryCount > 10000) continue;
             }
 
@@ -1186,7 +1186,7 @@ void __fastcall TAnalyzeThread::FindVMTs() {
             if (autoTableAdr) {
                 if (!IsValidImageAdr(autoTableAdr)) continue;
                 pos = Adr2Pos(autoTableAdr);
-                EntryCount = *((DWord *) (Code + pos));
+                EntryCount = *reinterpret_cast<DWord *>(Code + pos);
                 if (EntryCount > 10000) continue;
             }
 
@@ -1213,7 +1213,7 @@ void __fastcall TAnalyzeThread::FindVMTs() {
             if (fieldTableAdr) {
                 if (!IsValidImageAdr(fieldTableAdr)) continue;
                 pos = Adr2Pos(fieldTableAdr);
-                Num16 = *((Word *) (Code + pos));
+                Num16 = *reinterpret_cast<Word *>(Code + pos);
                 if (Num16 > 10000) continue;
             }
 
@@ -1221,7 +1221,7 @@ void __fastcall TAnalyzeThread::FindVMTs() {
             if (methodTableAdr) {
                 if (!IsValidImageAdr(methodTableAdr)) continue;
                 pos = Adr2Pos(methodTableAdr);
-                Num16 = *((Word *) (Code + pos));
+                Num16 = *reinterpret_cast<Word *>(Code + pos);
                 if (Num16 > 10000) continue;
             }
 
@@ -1229,7 +1229,7 @@ void __fastcall TAnalyzeThread::FindVMTs() {
             if (dynamicTableAdr) {
                 if (!IsValidImageAdr(dynamicTableAdr)) continue;
                 pos = Adr2Pos(dynamicTableAdr);
-                Num16 = *((Word *) (Code + pos));
+                Num16 = *reinterpret_cast<Word *>(Code + pos);
                 if (Num16 > 10000) continue;
             }
 
@@ -1272,14 +1272,14 @@ void __fastcall TAnalyzeThread::FindVMTs() {
                 pos = Adr2Pos(intfTableAdr);
                 bytes = 0;
                 SetFlag(cfData | cfVTable, pos);
-                EntryCount = *((DWord *) (Code + pos));
+                EntryCount = *reinterpret_cast<DWord *>(Code + pos);
                 pos += 4;
                 bytes += 4;
                 for (int m = 0; m < EntryCount; m++) {
                     //GUID
                     pos += 16;
                     bytes += 16;
-                    vTableAdr = *((DWord *) (Code + pos));
+                    vTableAdr = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
                     bytes += 4;
                     if (IsValidImageAdr(vTableAdr)) SetFlag(cfData | cfVTable, Adr2Pos(vTableAdr));
@@ -1302,7 +1302,7 @@ void __fastcall TAnalyzeThread::FindVMTs() {
                 for (int m = 0; m < EntryCount; m++) {
                     //Skip GUID
                     pos += 16;
-                    vTableAdr = *((DWord *) (Code + pos));
+                    vTableAdr = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
                     //IOffset
                     pos += 4;
@@ -1336,7 +1336,7 @@ void __fastcall TAnalyzeThread::FindVMTs() {
             if (autoTableAdr) {
                 pos = Adr2Pos(autoTableAdr);
                 bytes = 0;
-                EntryCount = *((DWord *) (Code + pos));
+                EntryCount = *reinterpret_cast<DWord *>(Code + pos);
                 pos += 4;
                 bytes += 4;
                 for (int m = 0; m < EntryCount; m++) {
@@ -1344,7 +1344,7 @@ void __fastcall TAnalyzeThread::FindVMTs() {
                     pos += 4;
                     bytes += 4;
                     //NameAdr
-                    DWord pos1 = Adr2Pos(*((DWord *) (Code + pos)));
+                    DWord pos1 = Adr2Pos(*reinterpret_cast<DWord *>(Code + pos));
                     pos += 4;
                     bytes += 4;
                     len = Code[pos1];
@@ -1354,7 +1354,7 @@ void __fastcall TAnalyzeThread::FindVMTs() {
                     pos += 4;
                     bytes += 4;
                     //ParamsAdr
-                    pos1 = Adr2Pos(*((DWord *) (Code + pos)));
+                    pos1 = Adr2Pos(*reinterpret_cast<DWord *>(Code + pos));
                     pos += 4;
                     bytes += 4;
                     Byte ParamCnt = Code[pos1 + 1];
@@ -1380,7 +1380,7 @@ void __fastcall TAnalyzeThread::FindVMTs() {
                 //Unknown dword
                 pos += 4;
                 bytes += 4;
-                Num32 = *((DWord *) (Code + pos));
+                Num32 = *reinterpret_cast<DWord *>(Code + pos);
                 bytes += 4;
 
                 for (int m = 0; m < Num32; m++) {
@@ -1396,11 +1396,11 @@ void __fastcall TAnalyzeThread::FindVMTs() {
             if (fieldTableAdr) {
                 pos = Adr2Pos(fieldTableAdr);
                 bytes = 0;
-                Num16 = *((Word *) (Code + pos));
+                Num16 = *reinterpret_cast<Word *>(Code + pos);
                 pos += 2;
                 bytes += 2;
                 //TypesTab
-                DWord typesTab = *((DWord *) (Code + pos));
+                DWord typesTab = *reinterpret_cast<DWord *>(Code + pos);
                 pos += 4;
                 bytes += 4;
 
@@ -1425,7 +1425,7 @@ void __fastcall TAnalyzeThread::FindVMTs() {
                 }
                 //Extended Information
                 if (DelphiVersion >= 2010) {
-                    Num16 = *((Word *) (Code + pos));
+                    Num16 = *reinterpret_cast<Word *>(Code + pos);
                     pos += 2;
                     bytes += 2;
                     for (int m = 0; m < Num16; m++) {
@@ -1445,7 +1445,7 @@ void __fastcall TAnalyzeThread::FindVMTs() {
                         pos += len;
                         bytes += len;
                         //AttrData
-                        Word dw = *((Word *) (Code + pos));
+                        Word dw = *reinterpret_cast<Word *>(Code + pos);
                         pos += dw;
                         bytes += dw; //ATR!!
                     }
@@ -1457,23 +1457,23 @@ void __fastcall TAnalyzeThread::FindVMTs() {
             if (methodTableAdr) {
                 pos = Adr2Pos(methodTableAdr);
                 bytes = 0;
-                Num16 = *((Word *) (Code + pos));
+                Num16 = *reinterpret_cast<Word *>(Code + pos);
                 pos += 2;
                 bytes += 2;
 
                 for (int m = 0; m < Num16; m++) {
                     //Len
-                    Word skipBytes = *((Word *) (Code + pos));
+                    Word skipBytes = *reinterpret_cast<Word *>(Code + pos);
                     pos += skipBytes;
                     bytes += skipBytes;
                 }
                 if (DelphiVersion >= 2010) {
-                    Num16 = *((Word *) (Code + pos));
+                    Num16 = *reinterpret_cast<Word *>(Code + pos);
                     pos += 2;
                     bytes += 2;
                     for (int m = 0; m < Num16; m++) {
                         //MethodEntry
-                        DWord methodEntry = *((DWord *) (Code + pos));
+                        DWord methodEntry = *reinterpret_cast<DWord *>(Code + pos);
                         pos += 4;
                         bytes += 4;
                         Word skipBytes = *((Word *) (Code + Adr2Pos(methodEntry)));
@@ -1497,7 +1497,7 @@ void __fastcall TAnalyzeThread::FindVMTs() {
             if (dynamicTableAdr) {
                 pos = Adr2Pos(dynamicTableAdr);
                 bytes = 0;
-                Num16 = *((Word *) (Code + pos));
+                Num16 = *reinterpret_cast<Word *>(Code + pos);
                 bytes += 2;
                 for (int m = 0; m < Num16; m++) {
                     //Msg+ProcAdr
@@ -1532,7 +1532,7 @@ void __fastcall TAnalyzeThread::FindVMTs() {
                     pos++;
                     bytes++;
                     if (!IsValidName(len, pos)) continue;
-                    String unitName = String((char *) (Code + pos), len).Trim();
+                    String unitName = String(reinterpret_cast<char *>(Code + pos), len).Trim();
                     bytes += len;
                     FMain_11011981->SetUnitName(recU, unitName);
                     //Use information about Unit (including previous dword)
@@ -2919,9 +2919,9 @@ void __fastcall TAnalyzeThread::PropagateClassProps() {
                 pos++;
                 Byte len = Code[pos];
                 pos++;
-                String clsName = String((char *) (Code + pos), len);
+                String clsName = String(reinterpret_cast<char *>(Code + pos), len);
                 pos += len;
-                DWord classVMT = *((DWord *) (Code + pos));
+                DWord classVMT = *reinterpret_cast<DWord *>(Code + pos);
                 pos += 4;
                 pos += 4; //ParentAdr
                 pos += 2; //PropCount
@@ -2929,11 +2929,11 @@ void __fastcall TAnalyzeThread::PropagateClassProps() {
                 len = Code[pos];
                 pos++;
                 pos += len;
-                Word propCount = *((Word *) (Code + pos));
+                Word propCount = *reinterpret_cast<Word *>(Code + pos);
                 pos += 2;
 
                 for (int i = 0; i < propCount && !Terminated; i++) {
-                    DWord propType = *((DWord *) (Code + pos));
+                    DWord propType = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
                     int posn = Adr2Pos(propType);
                     posn += 4;
@@ -2942,18 +2942,18 @@ void __fastcall TAnalyzeThread::PropagateClassProps() {
                     posn++;
                     String typeName = String((char *) (Code + posn), len);
 
-                    DWord getProc = *((DWord *) (Code + pos));
+                    DWord getProc = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
-                    DWord setProc = *((DWord *) (Code + pos));
+                    DWord setProc = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
-                    DWord storedProc = *((DWord *) (Code + pos));
+                    DWord storedProc = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
                     pos += 4; //Idx
                     pos += 4; //DefVal
                     pos += 2; //NameIdx
                     len = Code[pos];
                     pos++;
-                    String name = String((char *) (Code + pos), len);
+                    String name = String(reinterpret_cast<char *>(Code + pos), len);
                     pos += len;
 
                     int vmtofs, fieldOfs;
@@ -3143,7 +3143,7 @@ void __fastcall TAnalyzeThread::AnalyzeDC() {
 
         //Destructor
         pos = Adr2Pos(vmtAdr) - cVmtSelfPtr + cVmtDestroy;
-        adr = *((DWord *) (Code + pos));
+        adr = *reinterpret_cast<DWord *>(Code + pos);
         if (IsValidImageAdr(adr)) {
             recN = GetInfoRec(adr);
             if (recN && !recN->HasName()) {
@@ -3183,7 +3183,7 @@ void __fastcall TAnalyzeThread::AnalyzeDC() {
 
         for (m = cVmtParent + 4;; m += 4, pos += 4) {
             if (Pos2Adr(pos) == stopAt) break;
-            procAdr = *((DWord *) (Code + pos));
+            procAdr = *reinterpret_cast<DWord *>(Code + pos);
             if (m >= 0) {
                 recN = GetInfoRec(procAdr);
                 if (recN && recN->kind == ikConstructor && !recN->HasName()) {

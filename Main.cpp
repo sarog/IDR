@@ -979,24 +979,24 @@ void __fastcall TFMain_11011981::StrapProc(int pos, int ProcIdx, MProcInfo *Proc
                 for (int k = 0; k < ProcInfo->ArgsNum; k++) {
                     argInfo.Tag = *p;
                     p++;
-                    int locflags = *((int *) p);
+                    int locflags = *reinterpret_cast<int *>(p);
                     p += 4;
 
                     if ((locflags & 7) == 1) argInfo.Tag = 0x23; //Add by ZGL
 
                     argInfo.Register = (locflags & 8);
                     //Ndx
-                    int ndx = *((int *) p);
+                    int ndx = *reinterpret_cast<int *>(p);
                     p += 4;
 
                     argInfo.Size = 4;
-                    Word wlen = *((Word *) p);
+                    Word wlen = *reinterpret_cast<Word *>(p);
                     p += 2;
-                    argInfo.Name = String((char *) p, wlen);
+                    argInfo.Name = String(reinterpret_cast<char *>(p), wlen);
                     p += wlen + 1;
-                    wlen = *((Word *) p);
+                    wlen = *reinterpret_cast<Word *>(p);
                     p += 2;
-                    argInfo.TypeDef = TrimTypeName(String((char *) p, wlen));
+                    argInfo.TypeDef = TrimTypeName(String(reinterpret_cast<char *>(p), wlen));
                     p += wlen + 1;
                     //Some correction of knowledge base
                     if (SameText(argInfo.Name, "Message") && SameText(argInfo.TypeDef, "void")) {
@@ -3424,11 +3424,11 @@ void __fastcall TFMain_11011981::ScanAutoTable(DWord Adr) {
     PInfoRec recN = GetInfoRec(Adr);
 
     pos = Adr2Pos(autoAdr);
-    int entryCount = *((int *) (Code + pos));
+    int entryCount = *reinterpret_cast<int *>(Code + pos);
     pos += 4;
 
     for (int i = 0; i < entryCount; i++) {
-        int dispID = *((int *) (Code + pos));
+        int dispID = *reinterpret_cast<int *>(Code + pos);
         pos += 4;
 
         DWord nameAdr = *reinterpret_cast<DWord *>(Code + pos);
@@ -3436,7 +3436,7 @@ void __fastcall TFMain_11011981::ScanAutoTable(DWord Adr) {
         DWord posn = Adr2Pos(nameAdr);
         Byte len = *(Code + posn);
         posn++;
-        String name = String((char *) (Code + posn), len);
+        String name = String(reinterpret_cast<char *>(Code + posn), len);
         String procname = className + ".";
 
         int flags = *((int *) (Code + pos));
@@ -3550,7 +3550,7 @@ void __fastcall TFMain_11011981::ScanInitTable(DWord Adr) {
         post++;                            //skip tkKind
         Byte len = *(Code + post);
         post++;
-        String typeName = String((char *) &Code[post], len);
+        String typeName = String(reinterpret_cast<char *>(&Code[post]), len);
         if (typeName.Pos(":") > 0) {
             Byte typeKind = GetTypeKind(typeAdr);
             typeName = TransformShadowName(typeName, typeKind, typeAdr); //SHADOW
@@ -3602,7 +3602,7 @@ void __fastcall TFMain_11011981::ScanFieldTable(DWord Adr) {
         pos += 2;
         Byte len = Code[pos];
         pos++;
-        String name = String((char *) (Code + pos), len);
+        String name = String(reinterpret_cast<char *>(Code + pos), len);
         pos += len;
 
         DWord post = Adr2Pos(typesTab) + 2 + 4 * idx;
@@ -3627,7 +3627,7 @@ void __fastcall TFMain_11011981::ScanFieldTable(DWord Adr) {
             pos += 4;
             Byte len = Code[pos];
             pos++;
-            String name = String((char *) (Code + pos), len);
+            String name = String(reinterpret_cast<char *>(Code + pos), len);
             pos += len;
             Word dw = *(reinterpret_cast<Word *>(Code + pos));
             pos += dw;
@@ -3699,7 +3699,7 @@ void __fastcall TFMain_11011981::ScanMethodTable(DWord adr, String className) {
             pos += 4;
             len = Code[pos];
             pos++;
-            name = String((char *) &Code[pos], len);
+            name = String(reinterpret_cast<char *>(&Code[pos]), len);
             pos += len;
             Infos[Adr2Pos(adr)]->vmtInfo->AddMethod(false, 'M', -1, codeAdr, className + "." + name);
             pos = spos;
@@ -5260,7 +5260,7 @@ void __fastcall TFMain_11011981::AnalyzeMethodTable(int Pass, DWord Adr, const v
         procAdr = *reinterpret_cast<DWord *>(Code + pos + 2);
         procPos = Adr2Pos(procAdr);
         sLen = Code[pos + 6];
-        methodName = String((char *) (Code + pos + 7), sLen);
+        methodName = String(reinterpret_cast<char *>(Code + pos + 7), sLen);
 
         AnalyzeProc(Pass, procAdr);
 
@@ -5294,7 +5294,7 @@ void __fastcall TFMain_11011981::AnalyzeMethodTable(int Pass, DWord Adr, const v
             pos += 4;
             procPos = Adr2Pos(procAdr);
             sLen = Code[pos];
-            methodName = String((char *) (Code + pos + 1), sLen);
+            methodName = String(reinterpret_cast<char *>(Code + pos + 1), sLen);
             pos += sLen + 1;
 
             if (procAdr == Adr) continue;
@@ -10917,37 +10917,37 @@ PFIELDINFO __fastcall TFMain_11011981::GetField(String TypeName, int Offset, boo
                 p = tInfo->Fields;
                 for (int n = 0; n < tInfo->FieldsNum; n++) {
                     ps = p;
-                    p++; //scope
-                    Ofs1 = *((int *) p);
-                    p += 4; //offset
-                    p += 4; //case
-                    Len = *((Word *) p);
-                    p += Len + 3; //name
-                    Len = *((Word *) p);
-                    p += Len + 3; //type
+                    p++; // scope
+                    Ofs1 = *reinterpret_cast<int *>(p);
+                    p += 4; // offset
+                    p += 4; // case
+                    Len = *reinterpret_cast<Word *>(p);
+                    p += Len + 3; // name
+                    Len = *reinterpret_cast<Word *>(p);
+                    p += Len + 3; // type
                     if (n == tInfo->FieldsNum - 1) {
                         Ofs2 = 0;
                     } else {
-                        Ofs2 = *((int *) (p + 1));
+                        Ofs2 = *reinterpret_cast<int *>(p + 1);
                     }
                     if (Offset >= Ofs1 && Offset < Ofs2) {
                         p = ps;
-                        p++; //Scope
-                        Ofs = *((int *) p);
-                        p += 4; //offset
+                        p++; // Scope
+                        Ofs = *reinterpret_cast<int *>(p);
+                        p += 4; // offset
                         fInfo = new FIELDINFO;
                         fInfo->Offset = Offset - Ofs;
                         fInfo->Scope = SCOPE_TMP;
-                        fInfo->Case = *((int *) p);
+                        fInfo->Case = *reinterpret_cast<int *>(p);
                         p += 4;
                         fInfo->xrefs = 0;
-                        Len = *((Word *) p);
+                        Len = *reinterpret_cast<Word *>(p);
                         p += 2;
-                        fInfo->Name = String((char *) p, Len);
+                        fInfo->Name = String(reinterpret_cast<char *>(p), Len);
                         p += Len + 1;
-                        Len = *((Word *) p);
+                        Len = *reinterpret_cast<Word *>(p);
                         p += 2;
-                        fInfo->Type = TrimTypeName(String((char *) p, Len));
+                        fInfo->Type = TrimTypeName(String(reinterpret_cast<char *>(p), Len));
                         return fInfo;
                     }
                 }

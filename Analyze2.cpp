@@ -433,7 +433,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                 //Loc - end of table
                 if (IsFlagSet(cfLoc, Pos)) break;
 
-                Adr1 = *((DWord *) (Code + Pos));
+                Adr1 = *reinterpret_cast<DWord *>(Code + Pos);
                 //Validate Adr1
                 if (!IsValidCodeAdr(Adr1) || Adr1 < fromAdr) break;
                 //Set cfLoc
@@ -504,14 +504,14 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
 
                                     for (int k = 0; k < num; k++) {
                                         //dd offset ExceptionInfo
-                                        Adr = *((DWord *) (Code + Pos));
+                                        Adr = *reinterpret_cast<DWord *>(Code + Pos);
                                         Pos += 4;
                                         if (IsValidImageAdr(Adr)) {
                                             recN1 = GetInfoRec(Adr);
                                             if (recN1 && recN1->kind == ikVMT) className = recN1->GetName();
                                         }
                                         //dd offset ExceptionProc
-                                        procAdr = *((DWord *) (Code + Pos));
+                                        procAdr = *reinterpret_cast<DWord *>(Code + Pos);
                                         Pos += 4;
                                         if (IsValidImageAdr(procAdr)) {
                                             //Save context
