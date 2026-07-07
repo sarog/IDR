@@ -4,6 +4,7 @@
 
 #include "Misc.h"
 #include "Threads.h"
+//---------------------------------------------------------------------------
 #pragma package(smart_init)
 //---------------------------------------------------------------------------
 extern bool ProjectModified;
@@ -44,8 +45,7 @@ extern MDisasm Disasm;
 //as: print every 10th address in status bar (analysis time booster)
 static const int SKIPADDR_COUNT = 10;
 //---------------------------------------------------------------------------
-__fastcall TAnalyzeThread::TAnalyzeThread(TFMain_11011981 *AForm, TFProgressBar *ApbForm, bool AllValues)
-    : TThread(true) {
+__fastcall TAnalyzeThread::TAnalyzeThread(TFMain_11011981 *AForm, TFProgressBar *ApbForm, bool AllValues) : TThread(true) {
     Priority = tpLower;
     mainForm = AForm;
     pbForm = ApbForm;

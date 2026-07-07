@@ -8513,8 +8513,7 @@ void __fastcall TDecompiler::MarkGeneralCase(DWord fromAdr) {
 }
 
 //---------------------------------------------------------------------------
-int __fastcall
-TDecompiler::GetArrayFieldOffset(String ATypeName, int AFromOfs, int AScale, String &name, String &type) {
+int __fastcall TDecompiler::GetArrayFieldOffset(String ATypeName, int AFromOfs, int AScale, String &name, String &type) {
     bool _vmt;
     int _size, _lIdx, _hIdx, _ofs, _fofs;
     int _classSize = GetClassSize(GetClassAdr(ATypeName));
