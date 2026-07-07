@@ -420,8 +420,8 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
         if (op == OP_POP) SetFlag(cfPop, curPos);
         //add (sub) esp,...
         if (DisInfo.OpRegIdx[0] == 20 && DisInfo.OpType[1] == otIMM) {
-            if (op == OP_ADD) bpBase -= (int) DisInfo.Immediate;
-            if (op == OP_SUB) bpBase += (int) DisInfo.Immediate;
+            if (op == OP_ADD) bpBase -= static_cast<int>(DisInfo.Immediate);
+            if (op == OP_SUB) bpBase += static_cast<int>(DisInfo.Immediate);
             //skip
             SetFlags(cfSkip, curPos, instrLen);
             curPos += instrLen;
@@ -443,7 +443,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
         if (op == OP_CMP) lastCmpPos = curPos;
 
         //Is instruction (not call and jmp), that contaibs operand [reg+xxx], where xxx is negative value
-        if (maybeEmb && !DisInfo.Call && !DisInfo.Branch && (int) DisInfo.Offset < 0 &&
+        if (maybeEmb && !DisInfo.Call && !DisInfo.Branch && static_cast<int>(DisInfo.Offset) < 0 &&
             (DisInfo.IndxReg == -1 && (DisInfo.BaseReg >= 16 && DisInfo.BaseReg <= 23 && DisInfo.BaseReg != 20 &&
                                        DisInfo.BaseReg != 21))) {
             //May be add condition that all Xrefs must points to one subroutine!!!!!!!!!!!!!

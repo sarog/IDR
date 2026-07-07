@@ -1213,7 +1213,7 @@ void __fastcall TIDCGen::OutputData(int pos, PInfoRec recN) {
                     info = new REPNAMEINFO;
                     info->index = idx;
                     info->counter = 0;
-                    repeated->Add((void *) info);
+                    repeated->Add(static_cast<void *>(info));
                 }
                 int cnt = info->counter;
                 info->counter++;

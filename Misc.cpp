@@ -3020,7 +3020,7 @@ int __fastcall IsInlineDiv(DWord fromAdr, int *div) {
                     _disInfo.OpType[0] == otREG &&
                     _disInfo.OpRegIdx[0] == _regIdx &&
                     _disInfo.OpType[1] == otIMM) {
-                    if (((DWord) 1 << _disInfo.Immediate) == _imm) {
+                    if ((static_cast<DWord>(1) << _disInfo.Immediate) == _imm) {
                         *div = _imm;
                         return (_curAdr + _instrLen) - fromAdr;
                     }
