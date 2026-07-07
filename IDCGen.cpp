@@ -237,13 +237,13 @@ void __fastcall TIDCGen::OutputRTTIEnumeration(Byte kind, int pos, DWord adr) {
     // ordType
     pos = MakeByte(pos);
     // minValue
-    DWord minValue = *((DWord *) (Code + pos));
+    DWord minValue = *reinterpret_cast<DWord *>(Code + pos);
     pos = MakeDword(pos);
     // maxValue
-    DWord maxValue = *((DWord *) (Code + pos));
+    DWord maxValue = *reinterpret_cast<DWord *>(Code + pos);
     pos = MakeDword(pos);
     // baseTypeAdr
-    DWord baseTypeAdr = *((DWord *) (Code + pos));
+    DWord baseTypeAdr = *reinterpret_cast<DWord *>(Code + pos);
     pos = MakeDword(pos);
 
     if (baseTypeAdr == adr) {
@@ -301,7 +301,7 @@ void __fastcall TIDCGen::OutputRTTIClass(Byte kind, int pos) {
     // UnitName
     pos = MakeShortString(pos);
     // PropData
-    Word Count = *((Word *) (Code + pos));
+    Word Count = *reinterpret_cast<Word *>(Code + pos);
     pos = MakeWord(pos);
     for (int n = 0; n < Count; n++) {
         // TPropInfo
@@ -313,13 +313,13 @@ void __fastcall TIDCGen::OutputRTTIClass(Byte kind, int pos) {
     }
     if (DelphiVersion >= 2010) {
         // PropDataEx
-        Count = *((Word *) (Code + pos));
+        Count = *reinterpret_cast<Word *>(Code + pos);
         pos = MakeWord(pos);
         for (int n = 0; n < Count; n++) {
             // Flags
             pos = MakeByte(pos);
             // Info
-            DWord typeInfo = *((DWord *) (Code + pos));
+            DWord typeInfo = *reinterpret_cast<DWord *>(Code + pos);
             pos = MakeDword(pos);
             for (int m = 0; m < 6; m++) {
                 MakeDword(Adr2Pos(typeInfo));
@@ -374,7 +374,7 @@ void __fastcall TIDCGen::OutputRTTIMethod(Byte kind, int pos) {
             pos = MakeDword(pos);
         }
         if (DelphiVersion >= 2010) {
-            DWord procSig = *((DWord *) (Code + pos));
+            DWord procSig = *reinterpret_cast<DWord *>(Code + pos);
             // MethSig
             pos = MakeDword(pos);
             // AttrData
@@ -511,7 +511,7 @@ void __fastcall TIDCGen::OutputRTTIRecord(Byte kind, int pos) {
         // AttrData
         pos = OutputAttrData(pos);
         if (DelphiVersion >= 2012) {
-            Word methCnt = *((Word *) (Code + pos));
+            Word methCnt = *reinterpret_cast<Word *>(Code + pos);
             pos = MakeWord(pos);
             for (int n = 0; n < methCnt; n++) {
                 // Flags
@@ -562,12 +562,12 @@ void __fastcall TIDCGen::OutputRTTIInterface(Byte kind, int pos) {
     // UnitName
     pos = MakeShortString(pos);
     // PropCount
-    Word Count = *((Word *) (Code + pos));
+    Word Count = *reinterpret_cast<Word *>(Code + pos);
     pos = MakeWord(pos);
 
     if (DelphiVersion >= 6) {
         // RttiCount
-        Word dw = *((Word *) (Code + pos));
+        Word dw = *reinterpret_cast<Word *>(Code + pos);
         pos = MakeWord(pos);
         if (dw != 0xFFFF) {
             if (DelphiVersion >= 2010) {
@@ -696,7 +696,7 @@ void __fastcall TIDCGen::OutputRTTIProcedure(Byte kind, int pos) {
 
     pos += OutputRTTIHeader(kind, pos);
     // MethSig
-    DWord procSig = *((DWord *) (Code + pos));
+    DWord procSig = *reinterpret_cast<DWord *>(Code + pos);
     pos = MakeDword(pos);
     // AttrData
     pos = OutputAttrData(pos);
@@ -758,7 +758,7 @@ void __fastcall TIDCGen::OutputVMT(int pos, PInfoRec recN) {
     OutputDynamicTable(pos);
     pos += 4;
     // VmtClassName
-    DWord nameAdr = *((DWord *) (Code + pos));
+    DWord nameAdr = *reinterpret_cast<DWord *>(Code + pos);
     pos = MakeDword(pos);
     MakeShortString(Adr2Pos(nameAdr));
     // VmtInstanceSize
@@ -819,13 +819,13 @@ int __fastcall TIDCGen::OutputVMTHeader(int pos, String vmtName) {
 //---------------------------------------------------------------------------
 void __fastcall TIDCGen::OutputIntfTable(int pos) {
     MakeDword(pos);
-    DWord intfTable = *((DWord *) (Code + pos));
+    DWord intfTable = *reinterpret_cast<DWord *>(Code + pos);
     if (intfTable) {
         CurrentBytes += fprintf(idcF, "MakeUnkn(0x%lX, 1);\n", intfTable);
         CurrentBytes += fprintf(idcF, "MakeNameEx(0x%lX, \"%s_IntfTable\", 0);\n", intfTable, AnsiString(itemName).c_str());
         pos = Adr2Pos(intfTable);
         // EntryCount
-        DWord EntryCount = *((DWord *) (Code + pos));
+        DWord EntryCount = *reinterpret_cast<DWord *>(Code + pos);
         pos = MakeDword(pos);
         for (int n = 0; n < EntryCount; n++) {
             // GUID
@@ -846,14 +846,14 @@ void __fastcall TIDCGen::OutputIntfTable(int pos) {
 //---------------------------------------------------------------------------
 void __fastcall TIDCGen::OutputIntfVTable(int pos, DWord stopAdr) {
     MakeDword(pos);
-    DWord vTableAdr = *((DWord *) (Code + pos));
+    DWord vTableAdr = *reinterpret_cast<DWord *>(Code + pos);
     if (vTableAdr) {
         int pos = Adr2Pos(vTableAdr);
         // CC byte address
         DWord CCadr = vTableAdr;
         for (int n = 0;; n++) {
             if (Pos2Adr(pos) == stopAdr) break;
-            DWord vAdr = *((DWord *) (Code + pos));
+            DWord vAdr = *reinterpret_cast<DWord *>(Code + pos);
             pos = MakeDword(pos);
             MakeFunction(vAdr);
             if (vAdr && vAdr < CCadr) CCadr = vAdr;
@@ -866,13 +866,13 @@ void __fastcall TIDCGen::OutputIntfVTable(int pos, DWord stopAdr) {
 //---------------------------------------------------------------------------
 void __fastcall TIDCGen::OutputAutoTable(int pos) {
     MakeDword(pos);
-    DWord autoTable = *((DWord *) (Code + pos));
+    DWord autoTable = *reinterpret_cast<DWord *>(Code + pos);
     if (autoTable) {
         CurrentBytes += fprintf(idcF, "MakeUnkn(0x%lX, 1);\n", autoTable);
         CurrentBytes += fprintf(idcF, "MakeNameEx(0x%lX, \"%s_AutoTable\", 0);\n", autoTable, AnsiString(itemName).c_str());
         pos = Adr2Pos(autoTable);
         // EntryCount
-        DWord EntryCount = *((DWord *) (Code + pos));
+        DWord EntryCount = *reinterpret_cast<DWord *>(Code + pos);
         pos = MakeDword(pos);
         for (int n = 0; n < EntryCount; n++) {
             // DispID
@@ -895,7 +895,7 @@ void __fastcall TIDCGen::OutputAutoTable(int pos) {
 //---------------------------------------------------------------------------
 void __fastcall TIDCGen::OutputAutoPTable(int pos) {
     MakeDword(pos);
-    DWord paramsAdr = *((DWord *) (Code + pos));
+    DWord paramsAdr = *reinterpret_cast<DWord *>(Code + pos);
     if (paramsAdr) {
         pos = Adr2Pos(paramsAdr);
         Byte paramCnt = Code[pos + 1];
@@ -906,7 +906,7 @@ void __fastcall TIDCGen::OutputAutoPTable(int pos) {
 //---------------------------------------------------------------------------
 void __fastcall TIDCGen::OutputInitTable(int pos) {
     MakeDword(pos);
-    DWord initTable = *((DWord *) (Code + pos));
+    DWord initTable = *reinterpret_cast<DWord *>(Code + pos);
     if (initTable) {
         CurrentBytes += fprintf(idcF, "MakeUnkn(0x%lX, 1);\n", initTable);
         CurrentBytes += fprintf(idcF, "MakeNameEx(0x%lX, \"%s_InitTable\", 0);\n", initTable, AnsiString(itemName).c_str());
@@ -918,7 +918,7 @@ void __fastcall TIDCGen::OutputInitTable(int pos) {
         // Unknown dword
         pos = MakeDword(pos);
         // num
-        DWord num = *((DWord *) (Code + pos));
+        DWord num = *reinterpret_cast<DWord *>(Code + pos);
         pos = MakeDword(pos);
 
         for (int n = 0; n < num; n++) {
@@ -933,13 +933,13 @@ void __fastcall TIDCGen::OutputInitTable(int pos) {
 //---------------------------------------------------------------------------
 void __fastcall TIDCGen::OutputFieldTable(int pos) {
     MakeDword(pos);
-    DWord fieldTable = *((DWord *) (Code + pos));
+    DWord fieldTable = *reinterpret_cast<DWord *>(Code + pos);
     if (fieldTable) {
         CurrentBytes += fprintf(idcF, "MakeUnkn(0x%lX, 1);\n", fieldTable);
         CurrentBytes += fprintf(idcF, "MakeNameEx(0x%lX, \"%s_FieldTable\", 0);\n", fieldTable, AnsiString(itemName).c_str());
         pos = Adr2Pos(fieldTable);
         // num
-        Word num = *((Word *) (Code + pos));
+        Word num = *reinterpret_cast<Word *>(Code + pos);
         pos = MakeWord(pos);
         // TypesTab
         OutputFieldTTable(pos);
@@ -954,7 +954,7 @@ void __fastcall TIDCGen::OutputFieldTable(int pos) {
         }
         if (DelphiVersion >= 2010) {
             // num
-            num = *((Word *) (Code + pos));
+            num = *reinterpret_cast<Word *>(Code + pos);
             pos = MakeWord(pos);
 
             for (int n = 0; n < num; n++) {
@@ -976,11 +976,11 @@ void __fastcall TIDCGen::OutputFieldTable(int pos) {
 //---------------------------------------------------------------------------
 void __fastcall TIDCGen::OutputFieldTTable(int pos) {
     MakeDword(pos);
-    DWord typesTab = *((DWord *) (Code + pos));
+    DWord typesTab = *reinterpret_cast<DWord *>(Code + pos);
     if (typesTab) {
         pos = Adr2Pos(typesTab);
         // num
-        Word num = *((Word *) (Code + pos));
+        Word num = *reinterpret_cast<Word *>(Code + pos);
         pos = MakeWord(pos);
         for (int n = 0; n < num; n++)
             pos = MakeDword(pos);
@@ -990,18 +990,18 @@ void __fastcall TIDCGen::OutputFieldTTable(int pos) {
 //---------------------------------------------------------------------------
 void __fastcall TIDCGen::OutputMethodTable(int pos) {
     MakeDword(pos);
-    DWord methodTable = *((DWord *) (Code + pos));
+    DWord methodTable = *reinterpret_cast<DWord *>(Code + pos);
     if (methodTable) {
         CurrentBytes += fprintf(idcF, "MakeUnkn(0x%lX, 1);\n", methodTable);
         CurrentBytes += fprintf(idcF, "MakeNameEx(0x%lX, \"%s_MethodTable\", 0);\n", methodTable, AnsiString(itemName).c_str());
         pos = Adr2Pos(methodTable);
         // Count
-        Word count = *((Word *) (Code + pos));
+        Word count = *reinterpret_cast<Word *>(Code + pos);
         pos = MakeWord(pos);
 
         for (int n = 0; n < count; n++) {
             // Len
-            Word len = *((Word *) (Code + pos));
+            Word len = *reinterpret_cast<Word *>(Code + pos);
             int endpos = pos + len;
             pos = MakeWord(pos);
             // CodeAddress
@@ -1018,7 +1018,7 @@ void __fastcall TIDCGen::OutputMethodTable(int pos) {
         }
         if (DelphiVersion >= 2010) {
             // ExCount
-            Word excount = *((Word *) (Code + pos));
+            Word excount = *reinterpret_cast<Word *>(Code + pos);
             pos = MakeWord(pos);
 
             for (int n = 0; n < excount; n++) {
@@ -1037,11 +1037,11 @@ void __fastcall TIDCGen::OutputMethodTable(int pos) {
 //---------------------------------------------------------------------------
 void __fastcall TIDCGen::OutputVmtMethodEntry(int pos) {
     MakeDword(pos);
-    DWord entry = *((DWord *) (Code + pos));
+    DWord entry = *reinterpret_cast<DWord *>(Code + pos);
     if (entry) {
         pos = Adr2Pos(entry);
         // Len
-        Word len = *((Word *) (Code + pos));
+        Word len = *reinterpret_cast<Word *>(Code + pos);
         int endpos = pos + len;
         pos = MakeWord(pos);
         // CodeAddress
@@ -1089,13 +1089,13 @@ int __fastcall TIDCGen::OutputVmtMethodEntryTail(int pos) {
 //---------------------------------------------------------------------------
 void __fastcall TIDCGen::OutputDynamicTable(int pos) {
     MakeDword(pos);
-    DWord dynamicTable = *((DWord *) (Code + pos));
+    DWord dynamicTable = *reinterpret_cast<DWord *>(Code + pos);
     if (dynamicTable) {
         CurrentBytes += fprintf(idcF, "MakeUnkn(0x%lX, 1);\n", dynamicTable);
         CurrentBytes += fprintf(idcF, "MakeNameEx(0x%lX, \"%s_DynamicTable\", 0);\n", dynamicTable, AnsiString(itemName).c_str());
         pos = Adr2Pos(dynamicTable);
         //Num
-        Word num = *((Word *) (Code + pos));
+        Word num = *reinterpret_cast<Word *>(Code + pos);
         pos = MakeWord(pos);
 
         for (int n = 0; n < num; n++) {
@@ -1172,7 +1172,7 @@ int __fastcall TIDCGen::OutputProc(int pos, PInfoRec recN, bool imp) {
         }
 
         if (IsFlagSet(cfETable, pos)) {
-            DWord num = *((DWord *) (Code + pos));
+            DWord num = *reinterpret_cast<DWord *>(Code + pos);
             pos = MakeDword(pos);
             for (int n = 0; n < num; n++) {
                 pos = MakeDword(pos); //ExceptionInfo

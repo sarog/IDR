@@ -823,7 +823,7 @@ int __fastcall GetRecordField(String ARecType, int AOfs, String &name, String &t
                     for (m = 0, n = 0; n < _tInfo.FieldsNum; n++) {
                         p++;    //scope
                         p += 4; //offset
-                        _case = *((int *) p);
+                        _case = *reinterpret_cast<int *>(p);
                         p += 4; //case
                         if (!_cases[m].count) {
                             _cases[m].caseno = _case;
@@ -844,9 +844,9 @@ int __fastcall GetRecordField(String ARecType, int AOfs, String &name, String &t
                             for (n = 0, k = 0; n < _tInfo.FieldsNum; n++) {
                                 ps = p;
                                 p++; //scope
-                                Ofs1 = *((int *) p);
+                                Ofs1 = *reinterpret_cast<int *>(p);
                                 p += 4; //offset
-                                _case = *((int *) p);
+                                _case = *reinterpret_cast<int *>(p);
                                 p += 4; //case
                                 _len = *reinterpret_cast<Word *>(p);
                                 p += _len + 3; //name
@@ -856,12 +856,12 @@ int __fastcall GetRecordField(String ARecType, int AOfs, String &name, String &t
                                     if (k == _cases[m].count - 1) {
                                         Ofs2 = GetRecordSize(ARecType);
                                     } else {
-                                        Ofs2 = *((int *) (p + 1));
+                                        Ofs2 = *reinterpret_cast<int *>(p + 1);
                                     }
                                     if (AOfs >= Ofs1 && AOfs < Ofs2) {
                                         p = ps;
                                         p++; //scope
-                                        Ofs1 = *((int *) p);
+                                        Ofs1 = *reinterpret_cast<int *>(p);
                                         p += 4; //offset
                                         p += 4; //case
                                         _len = *reinterpret_cast<Word *>(p);
@@ -896,7 +896,7 @@ int __fastcall GetRecordField(String ARecType, int AOfs, String &name, String &t
         _pos++;    //TypeKind
         _len = Code[_pos];
         _pos++;
-        _name = String((char *) (Code + _pos), _len);
+        _name = String(reinterpret_cast<char *>(Code + _pos), _len);
         _pos += _len; //Name
         _pos += 4;    //Size
         _elNum = *reinterpret_cast<DWord *>(Code + _pos);
@@ -935,7 +935,7 @@ int __fastcall GetRecordField(String ARecType, int AOfs, String &name, String &t
                 _pos++; //Flags
                 _len = Code[_pos];
                 _pos++;
-                _name = String((char *) (Code + _pos), _len);
+                _name = String(reinterpret_cast<char *>(Code + _pos), _len);
                 _pos += _len;
                 //AttrData
                 _dw = *reinterpret_cast<Word *>(Code + _pos);
@@ -1098,7 +1098,7 @@ DWord __fastcall GetParentAdr(DWord Adr) {
 
     DWord vmtAdr = Adr - cVmtSelfPtr;
     DWord pos = Adr2Pos(vmtAdr) + cVmtParent;
-    DWord adr = *((DWord *) (Code + pos));
+    DWord adr = *reinterpret_cast<DWord *>(Code + pos);
     if (IsValidImageAdr(adr) && IsFlagSet(cfImport, Adr2Pos(adr)))
         return 0;
 
@@ -1138,7 +1138,7 @@ String __fastcall GetClsName(DWord adr) {
         PInfoRec recN = GetInfoRec(vmtAdr + cVmtClassName);
         return recN->GetName();
     }
-    DWord nameAdr = *((DWord *) (Code + pos));
+    DWord nameAdr = *reinterpret_cast<DWord *>(Code + pos);
     if (!IsValidImageAdr(nameAdr))
         return "";
 
@@ -1294,7 +1294,7 @@ DWord __fastcall GetStopAt(DWord VmtAdr) {
     if (DelphiVersion != 2) {
         pos = Adr2Pos(VmtAdr) + cVmtIntfTable;
         for (m = cVmtIntfTable; m != cVmtInstanceSize; m += 4, pos += 4) {
-            pointer = *((DWord *) (Code + pos));
+            pointer = *reinterpret_cast<DWord *>(Code + pos);
             if (pointer >= VmtAdr && pointer < stopAt) stopAt = pointer;
         }
     } else {
@@ -1302,7 +1302,7 @@ DWord __fastcall GetStopAt(DWord VmtAdr) {
         for (m = cVmtInitTable; m != cVmtInstanceSize; m += 4, pos += 4) {
             if (Adr2Pos(VmtAdr) < 0)
                 return 0;
-            pointer = *((DWord *) (Code + pos));
+            pointer = *reinterpret_cast<DWord *>(Code + pos);
             if (pointer >= VmtAdr && pointer < stopAt) stopAt = pointer;
         }
     }
@@ -1327,7 +1327,7 @@ String __fastcall GetTypeName(DWord adr) {
     pos++;
     Byte len = *(Code + pos);
     pos++;
-    String Result = String((char *) (Code + pos), len);
+    String Result = String(reinterpret_cast<char *>(Code + pos), len);
     if (Result.Pos(":") > 0)
         Result = TransformShadowName(Result, kind, adr); //SHADOW
     return Result;
@@ -1373,7 +1373,7 @@ String __fastcall GetDynArrayTypeName(DWord adr) {
     pos++;
     pos += len; //Name
     pos += 4;   //elSize
-    return GetTypeName(*((DWord *) (Code + pos)));
+    return GetTypeName(*reinterpret_cast<DWord *>(Code + pos));
 }
 
 //---------------------------------------------------------------------------
@@ -1802,16 +1802,16 @@ String __fastcall GetEnumerationString(String TypeName, Variant Val) {
         pos++;
         len = Code[pos];
         pos++;
-        clsName = String((char *) (Code + pos), len);
+        clsName = String(reinterpret_cast<char *>(Code + pos), len);
         pos += len;
         //ordType
         pos++;
-        minValue = *((DWord *) (Code + pos));
+        minValue = *reinterpret_cast<DWord *>(Code + pos);
         pos += 4;
-        maxValue = *((DWord *) (Code + pos));
+        maxValue = *reinterpret_cast<DWord *>(Code + pos);
         pos += 4;
         //BaseTypeAdr
-        typeAdr = *((DWord *) (Code + pos));
+        typeAdr = *reinterpret_cast<DWord *>(Code + pos);
         pos += 4;
 
         //If BaseTypeAdr != SelfAdr then fields extracted from BaseType
@@ -1823,9 +1823,9 @@ String __fastcall GetEnumerationString(String TypeName, Variant Val) {
             pos++;
             pos += len; //BaseClassName
             pos++;      //ordType
-            minValueB = *((DWord *) (Code + pos));
+            minValueB = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
-            maxValueB = *((DWord *) (Code + pos));
+            maxValueB = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
             pos += 4; //BaseClassPtr
         } else {
@@ -1837,7 +1837,7 @@ String __fastcall GetEnumerationString(String TypeName, Variant Val) {
             len = Code[pos];
             pos++;
             if (n >= minValue && n <= maxValue && n == _val) {
-                return String((char *) (Code + pos), len);
+                return String(reinterpret_cast<char *>(Code + pos), len);
             }
             pos += len;
         }

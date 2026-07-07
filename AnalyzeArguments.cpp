@@ -339,7 +339,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
             Pos = curPos + instrLen;
             Adr = curAdr + instrLen;
             //Taqble address - last 4 bytes of instruction
-            jTblAdr = *((DWord *) (Code + Pos - 4));
+            jTblAdr = *reinterpret_cast<DWord *>(Code + Pos - 4);
             //Analyze gap to find table cTbl
             if (Adr <= lastMovAdr && lastMovAdr < jTblAdr) cTblAdr = lastMovAdr;
             //If cTblAdr exists, skip it
@@ -353,7 +353,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                 //Loc - end of table
                 if (IsFlagSet(cfLoc, Pos)) break;
 
-                Adr1 = *((DWord *) (Code + Pos));
+                Adr1 = *reinterpret_cast<DWord *>(Code + Pos);
                 //Validate Adr1
                 if (!IsValidCodeAdr(Adr1) || Adr1 < fromAdr) break;
                 //Set cfLoc

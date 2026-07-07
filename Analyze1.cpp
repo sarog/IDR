@@ -256,7 +256,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
                         SetFlags(cfSkip, Pos, 4);
                         Pos += 4;
                         //dd offset ExceptionProc
-                        DWord procAdr = *((DWord *) (Code + Pos));
+                        DWord procAdr = *reinterpret_cast<DWord *>(Code + Pos);
                         if (IsValidCodeAdr(procAdr)) SetFlag(cfLoc, Adr2Pos(procAdr));
                         SetFlags(cfSkip, Pos, 4);
                         Pos += 4;
@@ -482,7 +482,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
                 //Loc - end of table
                 if (IsFlagSet(cfLoc, Pos)) break;
 
-                Adr1 = *((DWord *) (Code + Pos));
+                Adr1 = *reinterpret_cast<DWord *>(Code + Pos);
                 //Validate Adr1
                 if (!IsValidCodeAdr(Adr1) || Adr1 < fromAdr) break;
                 //Set cfLoc
@@ -615,7 +615,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
                                         SetFlags(cfSkip, Pos, 4);
                                         Pos += 4;
                                         //dd offset ExceptionProc
-                                        DWord procAdr = *((DWord *) (Code + Pos));
+                                        DWord procAdr = *reinterpret_cast<DWord *>(Code + Pos);
                                         if (IsValidCodeAdr(procAdr)) SetFlag(cfLoc, Adr2Pos(procAdr));
                                         SetFlags(cfSkip, Pos, 4);
                                         Pos += 4;
