@@ -12437,11 +12437,11 @@ void __fastcall TFMain_11011981::mniShellIntegration1Click(TObject *Sender) {
     if (!mniShellIntegration1->Checked) {
         TRegistry *reg = new TRegistry(KEY_ALL_ACCESS);
         reg->RootKey = HKEY_CLASSES_ROOT;
-        reg->OpenKey("\exefile\shell\Open with IDR\command", true);
+        reg->OpenKey(R"(\exefile\shell\Open with IDR\command)", true);
         reg->WriteString("", (ExtractFilePath(Application->ExeName) + "Idr.exe %1"));
         reg->CloseKey();
 
-        reg->OpenKey("\dllfile\shell\Open with IDR\command", true);
+        reg->OpenKey(R"(\dllfile\shell\Open with IDR\command)", true);
         reg->WriteString("", (ExtractFilePath(Application->ExeName) + "Idr.exe %1"));
         reg->CloseKey();
         delete reg;
@@ -12449,8 +12449,8 @@ void __fastcall TFMain_11011981::mniShellIntegration1Click(TObject *Sender) {
     } else {
         TRegistry *reg = new TRegistry(KEY_ALL_ACCESS);
         reg->RootKey = HKEY_CLASSES_ROOT;
-        reg->DeleteKey("\exefile\shell\Open with IDR");
-        reg->DeleteKey("\dllfile\shell\Open with IDR");
+        reg->DeleteKey(R"(\exefile\shell\Open with IDR)");
+        reg->DeleteKey(R"(\dllfile\shell\Open with IDR)");
         delete reg;
         mniShellIntegration1->Checked = false;
     }
