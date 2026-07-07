@@ -4370,21 +4370,28 @@ void __fastcall TFMain_11011981::FormCreate(TObject *Sender) {
     Application->HelpFile = AppDir + "idr.chm";
     IniFileRead();
 
-    miDelphi2->Enabled = FileExists(AppDir + "kb2.bin");
-    miDelphi3->Enabled = FileExists(AppDir + "kb3.bin");
-    miDelphi4->Enabled = FileExists(AppDir + "kb4.bin");
-    miDelphi5->Enabled = FileExists(AppDir + "kb5.bin");
-    miDelphi6->Enabled = FileExists(AppDir + "kb6.bin");
-    miDelphi7->Enabled = FileExists(AppDir + "kb7.bin");
-    miDelphi2005->Enabled = FileExists(AppDir + "kb2005.bin");
-    miDelphi2006->Enabled = FileExists(AppDir + "kb2006.bin");
-    miDelphi2007->Enabled = FileExists(AppDir + "kb2007.bin");
-    miDelphi2009->Enabled = FileExists(AppDir + "kb2009.bin");
-    miDelphi2010->Enabled = FileExists(AppDir + "kb2010.bin");
-    miDelphiXE1->Enabled = FileExists(AppDir + "kb2011.bin");
-    miDelphiXE2->Enabled = FileExists(AppDir + "kb2012.bin");
-    miDelphiXE3->Enabled = FileExists(AppDir + "kb2013.bin");
-    miDelphiXE4->Enabled = FileExists(AppDir + "kb2014.bin");
+#ifdef _DEBUG
+    // BinsDir = AppDir + "Bins\\";
+    BinsDir = AppDir + "..\\..\\KBs\\";
+#else
+    BinsDir = AppDir + "KBs\\";
+#endif
+
+    miDelphi2->Enabled = FileExists(BinsDir + "kb2.bin");
+    miDelphi3->Enabled = FileExists(BinsDir + "kb3.bin");
+    miDelphi4->Enabled = FileExists(BinsDir + "kb4.bin");
+    miDelphi5->Enabled = FileExists(BinsDir + "kb5.bin");
+    miDelphi6->Enabled = FileExists(BinsDir + "kb6.bin");
+    miDelphi7->Enabled = FileExists(BinsDir + "kb7.bin");
+    miDelphi2005->Enabled = FileExists(BinsDir + "kb2005.bin");
+    miDelphi2006->Enabled = FileExists(BinsDir + "kb2006.bin");
+    miDelphi2007->Enabled = FileExists(BinsDir + "kb2007.bin");
+    miDelphi2009->Enabled = FileExists(BinsDir + "kb2009.bin");
+    miDelphi2010->Enabled = FileExists(BinsDir + "kb2010.bin");
+    miDelphiXE1->Enabled = FileExists(BinsDir + "kb2011.bin");
+    miDelphiXE2->Enabled = FileExists(BinsDir + "kb2012.bin");
+    miDelphiXE3->Enabled = FileExists(BinsDir + "kb2013.bin");
+    miDelphiXE4->Enabled = FileExists(BinsDir + "kb2014.bin");
 
     SegmentList = new TList;
     ExpFuncList = new TList;
@@ -7762,7 +7769,7 @@ void __fastcall TFMain_11011981::LoadDelphiFile1(String FileName, int version, b
             UserKnowledgeBase = true;
         }
     } else
-        KBFileName = AppDir + "kb" + DelphiVersion + ".bin";
+        KBFileName = BinsDir + "kb" + DelphiVersion + ".bin";
 
     if (KBFileName == "") {
         ShowMessage("Knowledge Base file is not selected");
@@ -8346,7 +8353,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
             _useFuzzy = false;
         }
     }
-    if (!UserKnowledgeBase) KBFileName = AppDir + "kb" + DelphiVersion + ".bin";
+    if (!UserKnowledgeBase) KBFileName = BinsDir + "kb" + DelphiVersion + ".bin";
 
     MaxBufLen = 0;
     fseek(projectFile, -4L, SEEK_END);
