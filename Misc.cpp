@@ -241,11 +241,11 @@ void __fastcall FillArgInfo(int k, Byte callkind, PARGINFO argInfo, Byte **p, in
     }
 
     argInfo->Size = 4;
-    Word wlen = *((Word *) pp);
+    Word wlen = *reinterpret_cast<Word *>(pp);
     pp += 2;
     argInfo->Name = String(reinterpret_cast<char *>(pp), wlen);
     pp += wlen + 1;
-    wlen = *((Word *) pp);
+    wlen = *reinterpret_cast<Word *>(pp);
     pp += 2;
     argInfo->TypeDef = TrimTypeName(String(reinterpret_cast<char *>(pp), wlen));
     pp += wlen + 1;
@@ -2861,13 +2861,13 @@ int __fastcall IsInlineLengthTest(DWord fromAdr) {
         _curPos += _instrLen;
         _curAdr += _instrLen;
         _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-        _dd = *((DWord *) _disInfo.Mnem);
+        _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
         if (_dd == 'zj' || _dd == 'ej') {
             _adr = _disInfo.Immediate;
             _curPos += _instrLen;
             _curAdr += _instrLen;
             _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-            _dd = *((DWord *) _disInfo.Mnem);
+            _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
             //mov reg, [reg-4]
             if (_dd == 'vom' &&
                 _disInfo.OpType[0] == otREG &&
@@ -2885,7 +2885,7 @@ int __fastcall IsInlineLengthTest(DWord fromAdr) {
                 _curPos += _instrLen;
                 _curAdr += _instrLen;
                 _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-                _dd = *((DWord *) _disInfo.Mnem);
+                _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
                 //mov reg, [reg]
                 if (_dd == 'vom' &&
                     _disInfo.OpType[0] == otREG &&
@@ -3000,7 +3000,7 @@ int __fastcall IsInlineDiv(DWord fromAdr, int *div) {
         _curPos += _instrLen;
         _curAdr += _instrLen;
         _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-        _dd = *((DWord *) _disInfo.Mnem);
+        _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
         if (_dd == 'snj') {
             _adr = _disInfo.Immediate;
             _curPos += _instrLen;
@@ -3055,7 +3055,7 @@ int __fastcall IsInlineMod(DWord fromAdr, int *mod) {
         _curPos += _instrLen;
         _curAdr += _instrLen;
         _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-        _dd = *((DWord *) _disInfo.Mnem);
+        _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
         if (_dd == 'snj') {
             _adr = _disInfo.Immediate;
             _curPos += _instrLen;
@@ -3146,7 +3146,7 @@ int __fastcall IsCopyDynArrayToStack(DWord fromAdr) {
                         _curPos += _instrLen;
                         _curAdr += _instrLen;
                         _instrLen = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-                        _dd = *((DWord *) _disInfo.Mnem);
+                        _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
                         if (_dd == 'snj' && _disInfo.Immediate == _adr2) {
                             _curPos += _instrLen;
                             _curAdr += _instrLen;
