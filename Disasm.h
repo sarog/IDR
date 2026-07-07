@@ -6,7 +6,7 @@
 // Instruction type
 #define itUnknown   0 // Unknown instruction
 #define itTransfer  1 // Data transfer instruction
-#define itArifm     2 // Ariphmetical instruction
+#define itArifm     2 // Arithmetical instruction
 #define itLogic     3 // Logical instruction
 #define itControl   4 // Control flow instruction
 #define itString    5 // String instruction
