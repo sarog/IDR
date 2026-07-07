@@ -762,7 +762,8 @@ private: // User declarations
     void __fastcall miSearchNameClick(TObject *Sender);
 
 public: // User declarations
-    String AppDir;
+    String AppDir; // Application directory
+    String BinsDir; // KnowledgeBase files
     String WrkDir;
     String SourceFile;
     int SysProcsNum; // Number of elements in SysProcs array
