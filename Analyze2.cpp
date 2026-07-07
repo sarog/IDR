@@ -484,8 +484,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                     instrLen2 = Disasm.Disassemble(Code + Pos, (__int64) Adr, &DisInfo, 0);
                                     Adr += instrLen2;
                                     if (Adr > lastAdr) lastAdr = Adr;
-                                } else if (recN->SameName("@HandleAnyException") || recN->SameName(
-                                               "@HandleAutoException")) {
+                                } else if (recN->SameName("@HandleAnyException") || recN->SameName("@HandleAutoException")) {
                                     //jmp HandleAnyException
                                     Pos += instrLen1;
                                     Adr += instrLen1;
@@ -563,9 +562,11 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
         }
         if (registers[16].type != "" && registers[16].type[1] == '#') {
             DWord dd = *((DWord *) (registers[16].type.c_str()));
-            //Если был вызов функции @GetTls, смотрим след. инструкцию вида [eax+N]
+            // Если был вызов функции @GetTls, смотрим след. инструкцию вида [eax+N]
+            // If there was a call to the @GetTls function, look at the next instruction of the form [eax+N]
             if (dd == 'SLT#') {
-                //Если нет внутреннего имени (Fixup, ThreadVar)
+                // Если нет внутреннего имени (Fixup, ThreadVar)
+                // If there is no internal name (Fixup, ThreadVar)
                 if (!NameInside) {
                     //Destination (GlobalLists := TList.Create)
                     //Source (GlobalLists.Add)
@@ -590,7 +591,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
             if (IsValidImageAdr(Adr)) {
                 recN = GetInfoRec(Adr);
                 if (recN && recN->procInfo) {
-                    int retBytes = (int) recN->procInfo->retBytes;
+                    int retBytes = recN->procInfo->retBytes;
                     if (retBytes != -1 && sp >= retBytes)
                         sp -= retBytes;
                     else
@@ -598,7 +599,8 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
 
                     //for constructor type is in eax
                     if (recN->kind == ikConstructor) {
-                        //Если dl = 1, регистр eax после вызова используется
+                        // Если dl = 1, регистр eax после вызова используется
+                        // If dl = 1, the eax register is used after the call
                         if (registers[2].value == 1) {
                             classAdr = GetClassAdr(registers[16].type);
                             if (IsValidImageAdr(classAdr)) {
@@ -743,8 +745,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                     else
                                         delete fInfo;
                                 } else if (vmt) {
-                                    fInfo = AddField(fromAdr, curAdr - fromAdr, typeName, FIELD_PUBLIC, callOfs, -1, "",
-                                                     "");
+                                    fInfo = AddField(fromAdr, curAdr - fromAdr, typeName, FIELD_PUBLIC, callOfs, -1, "", "");
                                     if (fInfo) AddFieldXref(fInfo, fromAdr, curAdr - fromAdr, 'C');
                                 }
                             }
@@ -1129,11 +1130,9 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                                         'C', fromAdr, curAdr - fromAdr);
                                                                 } else {
                                                                     if (recN->HasName())
-                                                                        recN1 = AddToBSSInfos(
-                                                                            Val, recN->GetName(), recN->type);
+                                                                        recN1 = AddToBSSInfos(Val, recN->GetName(), recN->type);
                                                                     else
-                                                                        recN1 = AddToBSSInfos(
-                                                                            Val, MakeGvarName(Val), recN->type);
+                                                                        recN1 = AddToBSSInfos(Val, MakeGvarName(Val), recN->type);
                                                                     if (recN1) recN1->AddXref(
                                                                         'C', fromAdr, curAdr - fromAdr);
                                                                 }
@@ -1285,8 +1284,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                 SetRegisterType(registers, reg1Idx, locInfo->TypeDef);
                                             }
                                         }
-                                    } else //cop reg, [ebp + Offset]
-                                    {
+                                    } else { // cop reg, [ebp + Offset]
                                         if (reset) {
                                             if (op == OP_IMUL) {
                                                 SetRegisterSource(registers, reg1Idx, 0);
@@ -1308,8 +1306,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                             }
                                         }
                                     }
-                                } else if (DisInfo.BaseReg == 20) //cop reg, [esp + Offset]
-                                {
+                                } else if (DisInfo.BaseReg == 20) { // cop reg, [esp + Offset]
                                     if (reset) {
                                         if (op == OP_IMUL) {
                                             SetRegisterSource(registers, reg1Idx, 0);
@@ -1320,8 +1317,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                             SetRegisterType(registers, reg1Idx, "");
                                         }
                                     }
-                                } else //cop reg, [BaseReg + Offset]
-                                {
+                                } else { // cop reg, [BaseReg + Offset]
                                     if (!DisInfo.Offset) //cop reg, [BaseReg]
                                     {
                                         Adr = registers[DisInfo.BaseReg].value;
@@ -1399,8 +1395,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                 }
                                             }
                                         }
-                                    } else //cop reg, [BaseReg - Offset]
-                                    {
+                                    } else { // cop reg, [BaseReg - Offset]
                                         if (reset) {
                                             if (op == OP_IMUL) {
                                                 SetRegisterSource(registers, reg1Idx, 0);
@@ -1413,8 +1408,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                         }
                                     }
                                 }
-                            } else //cop reg, [BaseReg + IndxReg*Scale + Offset]
-                            {
+                            } else { // cop reg, [BaseReg + IndxReg*Scale + Offset]
                                 if (DisInfo.BaseReg == 21) //cop reg, [ebp + IndxReg*Scale + Offset]
                                 {
                                     if (reset) {
@@ -1427,8 +1421,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                             SetRegisterType(registers, reg1Idx, "");
                                         }
                                     }
-                                } else if (DisInfo.BaseReg == 20) //cop reg, [esp + IndxReg*Scale + Offset]
-                                {
+                                } else if (DisInfo.BaseReg == 20) { // cop reg, [esp + IndxReg*Scale + Offset]
                                     if (reset) {
                                         if (op == OP_IMUL) {
                                             SetRegisterSource(registers, reg1Idx, 0);
@@ -1439,8 +1432,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                             SetRegisterType(registers, reg1Idx, "");
                                         }
                                     }
-                                } else //cop reg, [BaseReg + IndxReg*Scale + Offset]
-                                {
+                                } else { // cop reg, [BaseReg + IndxReg*Scale + Offset]
                                     typeName = TrimTypeName(registers[DisInfo.BaseReg].type);
                                     if (reset) {
                                         if (op == OP_LEA) {
@@ -1449,9 +1441,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                 SetRegisterSource(registers, reg1Idx, 0);
                                                 SetRegisterValue(registers, reg1Idx, 0xFFFFFFFF);
                                                 SetRegisterType(registers, reg1Idx, "");
-                                            }
-                                            //Else - general arifmetics
-                                            else {
+                                            } else { // Else - general arithmetics
                                                 SetRegisterSource(registers, reg1Idx, 0);
                                                 SetRegisterValue(registers, reg1Idx, 0xFFFFFFFF);
                                                 SetRegisterType(registers, reg1Idx, "Integer");
@@ -1469,12 +1459,10 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                             }
                         }
                     }
-                }
-                //cop Mem,...
-                else {
-                    //cop Mem, Imm
+                } else { //cop Mem,...
+                    // cop Mem, Imm
                     if (DisInfo.OpType[1] == otIMM) {
-                        //cop [Offset], Imm
+                        // cop [Offset], Imm
                         if (DisInfo.BaseReg == -1 && DisInfo.IndxReg == -1) {
                             Adr = DisInfo.Offset;
                             if (IsValidImageAdr(Adr)) {
@@ -1489,9 +1477,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                     if (recN1) recN1->AddXref('C', fromAdr, curAdr - fromAdr);
                                 }
                             }
-                        }
-                        //cop [BaseReg + IndxReg*Scale + Offset], Imm
-                        else if (DisInfo.BaseReg != -1) {
+                        } else if (DisInfo.BaseReg != -1) { //cop [BaseReg + IndxReg*Scale + Offset], Imm
                             //cop [BaseReg + Offset], Imm
                             if (DisInfo.IndxReg == -1) {
                                 //cop [ebp - Offset], Imm
@@ -1544,16 +1530,10 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                 }
                                             }
                                         }
-                                    }
-                                    //cop [BaseReg - Offset], Imm
-                                    else {}
+                                    } else {} // cop [BaseReg - Offset], Imm
                                 }
-                            }
-                            //cop [BaseReg + IndxReg*Scale + Offset], Imm
-                            else {}
-                        }
-                        //Other instructions
-                        else {}
+                            } else {} // cop [BaseReg + IndxReg*Scale + Offset], Imm
+                        } else {} // Other instructions
                     }
                     //cop Mem, reg
                     else if (DisInfo.OpType[1] == otREG) {
@@ -1599,11 +1579,9 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                 if (!recN1) recN1 = new InfoRec(_ap, ikData);
                                                 MakeGvar(recN1, varAdr, curAdr);
                                                 if (recN1->type == "") recN1->type = registers[reg2Idx].type;
-                                                if (!IsValidCodeAdr(varAdr)) recN1->AddXref(
-                                                    'C', fromAdr, curAdr - fromAdr);
+                                                if (!IsValidCodeAdr(varAdr)) recN1->AddXref('C', fromAdr, curAdr - fromAdr);
                                             } else {
-                                                recN1 = AddToBSSInfos(varAdr, MakeGvarName(varAdr),
-                                                                      registers[reg2Idx].type);
+                                                recN1 = AddToBSSInfos(varAdr, MakeGvarName(varAdr), registers[reg2Idx].type);
                                                 if (recN1) recN1->AddXref('C', fromAdr, curAdr - fromAdr);
                                             }
                                         } else {
@@ -1834,8 +1812,7 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                                             int size = WideCharToMultiByte(CP_ACP, 0, wStr.c_bstr(), len, 0, 0, 0, 0);
                                             if (size) {
                                                 tmpBuf = new char[size + 1];
-                                                WideCharToMultiByte(
-                                                    CP_ACP, 0, wStr.c_bstr(), len, (LPSTR) tmpBuf, size, 0, 0);
+                                                WideCharToMultiByte(CP_ACP, 0, wStr.c_bstr(), len, (LPSTR) tmpBuf, size, 0, 0);
                                                 recN1->SetName(TransformString(tmpBuf, size));
                                                 delete[] tmpBuf;
                                                 if (recN->SameName("GetProcAddress")) retName = recN1->GetName();
