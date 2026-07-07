@@ -6870,9 +6870,8 @@ void __fastcall TFMain_11011981::miSearchVMTClick(TObject *Sender) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::miCollapseAllClick(TObject *Sender) {
-    TTreeView *tv;
     if (ActiveControl == tvClassesFull || ActiveControl == tvClassesShort) {
-        tv = (TTreeView *) ActiveControl;
+        TTreeView *tv = (TTreeView *) ActiveControl;
         tv->Items->BeginUpdate();
         TTreeNode *rootNode = tv->Items->Item[0];
         const int cnt = rootNode->Count;
@@ -12587,12 +12586,12 @@ void __fastcall TFMain_11011981::OutputForwardDeclarationsHeader(FILE *hF) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::OutputForwardDeclarationsOfKind(FILE *hF, Byte kind) {
-    int n, size, typeKind;
+    int size, typeKind;
     DWord adr;
     PTypeRec recT;
     String str, RTTIName;
 
-    for (n = 0; n < OwnTypeList->Count; n++) {
+    for (int n = 0; n < OwnTypeList->Count; n++) {
         recT = static_cast<PTypeRec>(OwnTypeList->Items[n]);
         if (recT->kind == kind) {
             adr = recT->adr;
