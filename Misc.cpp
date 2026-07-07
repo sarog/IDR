@@ -4238,10 +4238,10 @@ int __fastcall GetAdrOfsFromShadowName(String name) {
 String __fastcall SanitizeName(String name) {
     int pos = 0;
 
-    while (pos = name.Pos("<")) name[pos] = 'L';
-    while (pos = name.Pos(">")) name[pos] = 'R';
-    while (pos = name.Pos(",")) name[pos] = 'C';
-    while (pos = name.Pos(".")) name[pos] = 'D';
+    while ((pos = name.Pos("<"))) name[pos] = 'L';
+    while ((pos = name.Pos(">"))) name[pos] = 'R';
+    while ((pos = name.Pos(","))) name[pos] = 'C';
+    while ((pos = name.Pos("."))) name[pos] = 'D';
     return name;
 }
 
