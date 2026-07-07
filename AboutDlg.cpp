@@ -20,16 +20,16 @@ void __fastcall TFAboutDlg_11011981::FormCreate(TObject *Sender) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFAboutDlg_11011981::lEmailClick(TObject *Sender) {
-    ShellExecute(Handle, "open", "mailto:crypto2011@gmail.com", nullptr, nullptr, 1);
+    ShellExecute(Handle, _T("open"), _T("mailto:crypto2011@gmail.com"), nullptr, nullptr, 1);
 }
 
 //---------------------------------------------------------------------------
 void __fastcall TFAboutDlg_11011981::lWWWClick(TObject *Sender) {
-    ShellExecute(Handle, "open", "http://kpnc.org/idr32/en/", nullptr, nullptr, 1);
+    ShellExecute(Handle, _T("open"), _T("https://github.com/crypto2011/IDR/"), nullptr, nullptr, 1);
 }
 
 //---------------------------------------------------------------------------
 void __fastcall TFAboutDlg_11011981::bDonateClick(TObject *Sender) {
-    ShellExecute(Handle, "open", "http://kpnc.org/idr32/en/donation.htm", nullptr, nullptr, 1);
+    ShellExecute(Handle, _T("open"), _T("https://github.com/crypto2011/IDR/"), nullptr, nullptr, 1);
 }
 //---------------------------------------------------------------------------
