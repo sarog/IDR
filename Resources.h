@@ -162,11 +162,17 @@ protected:
     TCollection *CompsEventsList;
     String lastClassAliasName;
 
-    void __fastcall AncestorNotFound(TReader *Reader, String ComponentName, TMetaClass *ComponentClass,
-                                     TComponent * &Component);
-    void __fastcall ReaderError(TReader *Reader, String Message, bool &Handled);
-    void __fastcall FindComponentClass(TReader *Reader, String ClassName, TMetaClass * &ComponentClass);
+#ifdef _WIN64
+    void __fastcall AncestorNotFound(TReader *Reader, String ComponentName, TPersistentClass ComponentClass, TComponent *&Component);
+    void __fastcall CreateComponent(TReader* Reader, System::Classes::TComponentClass ComponentClass, TComponent* &Component);
+    void __fastcall FindComponentClass(TReader* Reader, UnicodeString ClassName, System::Classes::TComponentClass &ComponentClass);
+#else
+    void __fastcall AncestorNotFound(TReader *Reader, String ComponentName, TMetaClass *ComponentClass, TComponent *&Component);
     void __fastcall CreateComponent(TReader *Reader, TMetaClass *ComponentClass, TComponent * &Component);
+    void __fastcall FindComponentClass(TReader *Reader, String ClassName, TMetaClass * &ComponentClass);
+#endif
+
+    void __fastcall ReaderError(TReader *Reader, String Message, bool &Handled);
     void __fastcall FindMethod(TReader *Reader, String MethodName, void * &Address, bool &Error);
     void __fastcall SetComponentName(TReader *Reader, TComponent *Component, String &Name);
 

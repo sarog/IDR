@@ -1871,6 +1871,7 @@ String __fastcall InfoRec::MakeMultilinePrototype(int Adr, int *ArgsBytes, Strin
 }
 
 //---------------------------------------------------------------------------
+// IDR64 equivalent: InfoRec::MakePrototype()
 String __fastcall InfoRec::MakeCppPrototype(int Adr, String FType) {
     int argsNum, typeKind, size;
     PARGINFO argInfo;

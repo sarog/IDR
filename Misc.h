@@ -21,6 +21,33 @@ typedef struct {
 } FIELD_INFO, *PFIELD_INFO;
 
 //---------------------------------------------------------------------------
+
+// IDR64: Debugging/tracing tools
+class MacroCall {
+public:
+    MacroCall() {}
+    void operator()(const wchar_t *szFormat, ...) const {
+        if (szFormat == nullptr || *szFormat == 0)
+            return;
+
+        va_list args;
+        va_start(args, szFormat);
+
+        wchar_t szBuffer[32 * 1024];
+        int bufSize = vsnwprintf(szBuffer, sizeof szBuffer, szFormat, args);
+        ::OutputDebugStringW(szBuffer);
+
+        va_end(args);
+    }
+};
+
+#ifdef _DEBUG
+#define TRACE MacroCall()
+#else
+#define TRACE // do {} while(0);
+#endif
+
+//---------------------------------------------------------------------------
 //global API
 void __fastcall ScaleForm(TForm * AForm);
 int __fastcall Adr2Pos(DWord adr);
@@ -179,4 +206,54 @@ int __fastcall ImportsCmpFunction(void *item1, void *item2);
 int __fastcall LocalsCmpFunction(void *item1, void *item2);
 int __fastcall MethodsCmpFunction(void *item1, void *item2);
 //---------------------------------------------------------------------------
+
+// IDR64:
+struct DelphiVmt {
+    DelphiVmt() {
+        SelfPtr = 0;
+        IntfTable = AutoTable = InitTable = 0;
+        TypeInfo = 0;
+        FieldTable = MethodTable = DynamicTable = 0;
+        ClassName = 0;
+        InstanceSize = 0;
+        Parent = 0;
+        Equals = 0;
+        GetHashCode = 0;
+        ToString = 0;
+        SafeCallException = 0;
+        AfterConstruction = 0;
+        BeforeDestruction = 0;
+        Dispatch = 0;
+        DefaultHandler = 0;
+        NewInstance = 0;
+        FreeInstance = 0;
+        Destroy = 0;
+    }
+    int SelfPtr;
+    int IntfTable;
+    int AutoTable;
+    int InitTable;
+    int TypeInfo;
+    int FieldTable;
+    int MethodTable;
+    int DynamicTable;
+    int ClassName;
+    int InstanceSize;
+    int Parent;
+    int Equals;
+    int GetHashCode;
+    int ToString;
+    int SafeCallException;
+    int AfterConstruction;
+    int BeforeDestruction;
+    int Dispatch;
+    int DefaultHandler;
+    int NewInstance;
+    int FreeInstance;
+    int Destroy;
+
+    void __fastcall SetVmtConsts(int version);
+    void __fastcall AdjustVmtConsts(int Adjustment);
+};
+
 #endif

@@ -2881,7 +2881,7 @@ int __fastcall TFMain_11011981::IsValidCode(DWord fromAdr) {
     Byte op;
     int firstPushReg, lastPopReg;
     int firstPushPos, lastPopPos;
-    int row, num, instrLen, instrLen1, instrLen2;
+    int row, num, instrLen, instrLen1, instrLen2, _mnemIdx;
     int fromPos;
     int curPos;
     DWord curAdr;
@@ -2930,6 +2930,14 @@ int __fastcall TFMain_11011981::IsValidCode(DWord fromAdr) {
             curAdr++;
             continue;
         }
+
+#ifdef IDR64
+        _mnemIdx = DisInfo.MnemIdx;
+        if (_mnemIdx == IDX_ARPL || _mnemIdx == IDX_OUT  || _mnemIdx == IDX_IN) {
+            return -1;
+        }
+#endif
+
         if (!memcmp(DisInfo.Mnem, "arpl", 4) ||
             !memcmp(DisInfo.Mnem, "out", 3) ||
             (DisInfo.Mnem[0] == 'i' && DisInfo.Mnem[1] == 'n' && DisInfo.Mnem[2] != 'c')) {
@@ -2975,6 +2983,13 @@ int __fastcall TFMain_11011981::IsValidCode(DWord fromAdr) {
             //Инструкция перехода или ret c аргументами
             if (DisInfo.Ret && DisInfo.OpNum >= 1) return -1;
             if (DisInfo.Branch) return -1;
+#ifdef IDR64
+            if (_mnemIdx == IDX_BOUND || _mnemIdx == IDX_RETF || _mnemIdx == IDX_POP ||
+               _mnemIdx == IDX_AAA || _mnemIdx == IDX_ADC || _mnemIdx == IDX_SBB ||
+               _mnemIdx == IDX_RCL || _mnemIdx == IDX_RCR || _mnemIdx == IDX_CLC ||
+               _mnemIdx == IDX_STC)
+                return -1;
+#else
             if (!memcmp(DisInfo.Mnem, "bound", 5) ||
                 !memcmp(DisInfo.Mnem, "retf", 4) ||
                 !memcmp(DisInfo.Mnem, "pop", 3) ||
@@ -2987,6 +3002,8 @@ int __fastcall TFMain_11011981::IsValidCode(DWord fromAdr) {
                 !memcmp(DisInfo.Mnem, "stc", 3))
                 return -1;
         }
+#endif
+
         //Если в позиции встретился уже определенный ранее код, выходим
         for (int k = 0; k < instrLen; k++) {
             if (IsFlagSet(cfProcStart, curPos + k) || IsFlagSet(cfCode, curPos + k))
@@ -7972,12 +7989,20 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
         ShowMessage("File is not PE-executable");
         return 0;
     }
+#ifdef IDR64
+    //IDD_ERR_INVALID_PE_EXECUTABLE
+    if (NTHeaders.FileHeader.SizeOfOptionalHeader < sizeof(IMAGE_OPTIONAL_HEADER) ||
+        NTHeaders.OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR64_MAGIC) {
+        throw Exception("File is invalid 64-bit PE-executable");
+    }
+#else
     //IDD_ERR_INVALID_PE_EXECUTABLE
     if (NTHeaders.FileHeader.SizeOfOptionalHeader < sizeof(IMAGE_OPTIONAL_HEADER) ||
         NTHeaders.OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR32_MAGIC) {
         ShowMessage("File is invalid 32-bit PE-executable");
         return 0;
     }
+#endif
     //IDD_ERR_INVALID_PE_EXECUTABLE
     SectionsNum = NTHeaders.FileHeader.NumberOfSections;
     if (!SectionsNum) {

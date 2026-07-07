@@ -1418,13 +1418,22 @@ TForm * __fastcall IdrDfmLoader::LoadForm(TStream *dfmStream, TDfm *dfm, bool lo
 }
 
 //---------------------------------------------------------------------------
-void __fastcall IdrDfmLoader::AncestorNotFound(TReader *Reader, String ComponentName, TMetaClass *ComponentClass,
-                                               TComponent * &Component) {
+#ifdef _WIN64
+void __fastcall IdrDfmLoader::AncestorNotFound(TReader *Reader, System::UnicodeString ComponentName, TPersistentClass ComponentClass, System::Classes::TComponent *&Component) {
     String s = ComponentClass->ClassName();
 }
-
+#else
+void __fastcall IdrDfmLoader::AncestorNotFound(TReader *Reader, String ComponentName, TMetaClass *ComponentClass, TComponent * &Component) {
+    String s = ComponentClass->ClassName();
+}
+#endif
 //---------------------------------------------------------------------------
+
+#ifdef _WIN64
+void __fastcall IdrDfmLoader::FindComponentClass(TReader* Reader, System::UnicodeString ClassName, System::Classes::TComponentClass &ComponentClass) {
+#else
 void __fastcall IdrDfmLoader::FindComponentClass(TReader *Reader, String ClassName, TMetaClass * &ComponentClass) {
+#endif
     try {
         ComponentClass = static_cast<TComponentClass>(FindClass(ClassName));
         // ComponentClass = FindClass(ClassName);
@@ -1443,7 +1452,11 @@ void __fastcall IdrDfmLoader::FindComponentClass(TReader *Reader, String ClassNa
 }
 
 //---------------------------------------------------------------------------
+#ifdef _WIN64
+void __fastcall IdrDfmLoader::CreateComponent(TReader* Reader, TComponentClass ComponentClass, TComponent* &Component) {
+#else
 void __fastcall IdrDfmLoader::CreateComponent(TReader *Reader, TMetaClass *ComponentClass, TComponent * &Component) {
+#endif
     Current = 0;
 }
 

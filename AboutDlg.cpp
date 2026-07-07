@@ -14,7 +14,7 @@ __fastcall TFAboutDlg_11011981::TFAboutDlg_11011981(TComponent *AOwner) : TForm(
 
 //---------------------------------------------------------------------
 void __fastcall TFAboutDlg_11011981::FormCreate(TObject *Sender) {
-    lVer->Caption = "Version: " + IDRVersion;
+    lVer->Caption = "Version: " + IDRVersion; // todo: idr.GetVersion()
     ScaleForm(this);
 }
 

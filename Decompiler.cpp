@@ -8145,6 +8145,9 @@ String __fastcall TDecompiler::GetCycleTo() {
 DWord __fastcall TDecompiler::DecompileGeneralCase(DWord fromAdr, DWord markAdr, PLoopInfo loopInfo, int N) {
     //bool _changed = false;
     int _N, _N1 = N, _N2;
+#ifdef IDR64
+    int _mnemIdx;
+#endif
     DWord _dd;
     DWord _curAdr = fromAdr, _adr, _endAdr = 0, _begAdr;
     int _curPos = Adr2Pos(fromAdr);
@@ -8152,9 +8155,15 @@ DWord __fastcall TDecompiler::DecompileGeneralCase(DWord fromAdr, DWord markAdr,
     TDecompiler *de;
     DISINFO _disInfo;
 
-    while (1) {
+    while (true) {
+#ifdef IDR64
+        _len = GetDisasm().Disassemble(Code + _curPos, (__int64)_curAdr, &_disInfo, 0);
+        _mnemIdx = _disInfo.MnemIdx;
+#else
         _len = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
         _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
+#endif
+
         //Switch at current address
         if (IsFlagSet(cfSwitch, _curPos)) {
             de = new TDecompiler(Env);

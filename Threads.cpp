@@ -44,6 +44,9 @@ extern MDisasm Disasm;
 
 //as: print every 10th address in status bar (analysis time booster)
 static const int SKIPADDR_COUNT = 10;
+
+static int cntProgress = 0;
+
 //---------------------------------------------------------------------------
 __fastcall TAnalyzeThread::TAnalyzeThread(TFMain_11011981 *AForm, TFProgressBar *ApbForm, bool AllValues) : TThread(true) {
     Priority = tpLower;
@@ -51,6 +54,7 @@ __fastcall TAnalyzeThread::TAnalyzeThread(TFMain_11011981 *AForm, TFProgressBar 
     pbForm = ApbForm;
     all = AllValues;
     adrCnt = 0;
+    cntProgress = 0; // IDR64
 }
 
 //---------------------------------------------------------------------------
@@ -168,6 +172,7 @@ void __fastcall TAnalyzeThread::Execute() {
     //as update main wnd about operation over
     //only Post() here!) - async, otherwise deadlock!
     ::PostMessage(mainForm->Handle, WM_UPDANALYSISSTATUS, (int) taFinished, 0);
+    TRACE(L"TAnalyzeThread::Execute() done, taFinished sent");
 }
 
 //---------------------------------------------------------------------------
@@ -189,6 +194,10 @@ int __fastcall TAnalyzeThread::StartProgress(int pbMaxCount, const String &sbTex
     ThreadAnalysisData *startOperation = new ThreadAnalysisData(pbSteps, sbText);
     ::SendMessage(pbForm->Handle, WM_UPDANALYSISSTATUS, (int) taStartPrBar, (long) startOperation); //Post
 
+    // IDR64:
+    ++cntProgress;
+    TRACE(L"StartProgress %d, maxcnt %d for [%s]", cntProgress, pbMaxCount, sbText.c_str());
+
     return stepSize - 1;
 }
 
@@ -199,7 +208,9 @@ void __fastcall TAnalyzeThread::UpdateProgress() {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TAnalyzeThread::StopProgress() {}
+void __fastcall TAnalyzeThread::StopProgress() {
+    TRACE(L"StopProgress %d", cntProgress); // IDR64
+}
 //---------------------------------------------------------------------------
 void __fastcall TAnalyzeThread::UpdateStatusBar(int adr) {
     //if (Terminated)

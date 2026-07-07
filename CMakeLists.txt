@@ -38,6 +38,8 @@ file(GLOB SOURCES
         IdcDialog.rc
 )
 
+list(REMOVE_ITEM SOURCES "Idr64Manager.cpp" "Idr64Manager.h")
+
 ## .DFM
 file(GLOB SOURCES_DFM
         "*.dfm"

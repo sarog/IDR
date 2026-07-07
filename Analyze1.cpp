@@ -346,7 +346,11 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
             curAdr++;
             continue;
         }
+#ifdef IDR64
+        op = GetDisasm().GetOp(_disInfo.MnemIdx);
+#else
         op = Disasm.GetOp(DisInfo.Mnem);
+#endif
         //Code
         SetFlags(cfCode, curPos, instrLen);
         //Instruction begin

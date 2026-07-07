@@ -22,10 +22,14 @@ extern Byte *Code;
 extern int __fastcall Adr2Pos(DWord Adr);
 extern TCriticalSection* CrtSection;
 
+static void *(__stdcall *PStreamNew)(); // IDR64
 DWord *(__stdcall *PdisNew)(int);
 DWord(_stdcall *CchFormatInstr)(char *, DWord);
 DWord(_stdcall *Dist)();
 DWord *DIS;
+
+static void *DISX86; // IDR64
+
 const char*   Reg8Tab[8] =
 {
     //0     1     2     3     4     5     6     7
@@ -55,29 +59,116 @@ const char*   RepPrefixTab[4] =
     "lock", "repne", "repe", "rep"
 };
 //---------------------------------------------------------------------------
-MDisasm::MDisasm()
-{
+#ifdef IDR64
+MDisasm::MDisasm(TCriticalSection *cs) : _cs(cs), FormatInstrStops(0) {
+    hModule = 0;
+    PdisNew = 0;
+}
+#else
+MDisasm::MDisasm() {
     hModule = 0;
     PdisNew = 0;
     CchFormatInstr = 0;
     Dist = 0;
     DIS = 0;
 }
+#endif
 //---------------------------------------------------------------------------
-MDisasm::~MDisasm()
-{
+MDisasm::~MDisasm() {
+#ifdef IDR64
+    Free();
+#else
     if (hModule) FreeLibrary(hModule);
     hModule = 0;
+#endif
 }
+
 //---------------------------------------------------------------------------
-int __fastcall MDisasm::Init()
-{
-    hModule = LoadLibrary("dis.dll");
-    if (!hModule) return 0;
-    DIS = PdisNew(1);
+void __fastcall MDisasm::Free() {
+#ifdef IDR64
+    if (DISX86) {
+#ifdef _WIN64
+        // delete DISX86;
+        asm
+        {
+            // @formatter:off
+            // clang-format off
+            push    1
+            mov     rcx, [DISX86]
+            mov     rax, [rcx]
+            call    qword ptr [rax]
+            // @formatter:on
+            // clang-format on
+        }
+#else
+        asm //Call destructor of class DISX86
+        {
+            // @formatter:off
+            // clang-format off
+            push    1
+            mov     ecx, [DISX86]
+            mov     eax, [ecx]
+            call    dword ptr [eax]
+            // @formatter:on
+            // clang-format on
+       }
+#endif
+        DISX86 = 0;
+    }
+    if (hModule) {
+        FreeLibrary(hModule);
+        hModule = nullptr;
+    }
+#endif
+}
+
+//---------------------------------------------------------------------------
+int __fastcall MDisasm::Init() {
+    try {
+        // IDR64: msvcdis110.dll
+        hModule = LoadLibrary("dis.dll");
+        if (!hModule)
+            return 0;
+
         PdisNew = (DWord * (__stdcall *) (int) ) GetProcAddress(hModule, "?PdisNew@DIS@@SGPAV1@W4DIST@1@@Z");
         CchFormatInstr = (DWord(_stdcall *)(char *, DWord)) GetProcAddress(hModule, "?CchFormatInstr@DIS@@QBEIPADI@Z");
         Dist = (DWord(_stdcall *)()) GetProcAddress(hModule, "?Dist@DIS@@QBE?AW4DIST@1@XZ");
+        DIS = PdisNew(1);
+
+#ifdef IDR64
+        PStreamNew = (void *(__stdcall *) ()) GetProcAddress(hModule, "?PwostrstreamNew@wostrstream@DIS@@SGPAV12@XZ");
+
+        if (PdisNew)
+            DISX86 = PdisNew(ENCODING64);
+
+        if (! (PStreamNew && PdisNew && SetAddr64 && CchFormatInstr && DISX86)) {
+            Free();
+            return 0;
+        }
+#define     SetAddr64Offset  0x1005B480
+        mpopaszMnemonicOffset = reinterpret_cast<wchar_t **>((BYTE *) SetAddr64 + (0x10024488 - SetAddr64Offset));
+        int _FormatInstrStops;
+
+        asm
+        {
+            // @formatter:off
+            // clang-format off
+            mov     ecx, [DISX86]
+            mov     al, 1
+            call    SetAddr64
+            mov     ecx, [DISX86]
+            mov     eax, [ecx+1C8h]
+            mov     [_FormatInstrStops], eax
+            // @formatter:on
+            // clang-format on
+        }
+        FormatInstrStops = _FormatInstrStops;
+#endif
+    } catch (Exception &e) {
+        ShowMessage("Exception when initializing Disasm: " + e.Message);
+        Free();
+        return 0;
+    }
     return 1;
 }
 //---------------------------------------------------------------------------
@@ -165,6 +256,23 @@ int __fastcall MDisasm::Disassemble(Byte* from, __int64 address, PDISINFO pDisIn
 
     CrtSection->Enter();
 
+#ifdef _WIN64
+    asm
+    {
+        // @formatter:off
+        // clang-format off
+        push    64h
+        mov     rcx, [DIS]
+        mov     rax, [ecx]
+        push    [from]
+        push    qword ptr [address + 8]
+        push    qword ptr [address]
+        call    qword ptr [rax+20h]     //CbDisassemble
+        mov     [InstrLen], eax
+        // clang-format on
+        // @formatter:on
+    }
+#else
     asm
     {
         // @formatter:off
@@ -180,6 +288,7 @@ int __fastcall MDisasm::Disassemble(Byte* from, __int64 address, PDISINFO pDisIn
         // clang-format on
         // @formatter:on
     }
+#endif
 
     // If address of structure DISINFO not given, return only instruction length
     if (pDisInfo) {
@@ -232,6 +341,15 @@ int __fastcall MDisasm::Disassemble(Byte* from, __int64 address, PDISINFO pDisIn
     CrtSection->Leave();
     return _res;
 }
+//---------------------------------------------------------------------------
+#ifdef IDR64
+String __fastcall MDisasm::GetMnemonic(const int Idx) {
+    wchar_t *wInstr;
+
+    wInstr = mpopaszMnemonicOffset[Idx];
+    return WideString(wInstr);
+}
+#endif
 //---------------------------------------------------------------------------
 void __fastcall MDisasm::FormatInstr(PDISINFO pDisInfo, char* disLine) {
     Byte    _repPrefix, p, *ArgInfo;
