@@ -1549,7 +1549,7 @@ DWord __fastcall TDecompiler::Decompile(DWord fromAdr, DWord flags, PLoopInfo lo
                                 _line += GetDecompilerRegisterName(_varidx);
                             //local var
                             if (_loopInfo->forInfo->CntInfo.IdxType == itLVAR)
-                                _line += Env->GetLvarName((int) _varidx, "Integer");
+                                _line += Env->GetLvarName(static_cast<int>(_varidx), "Integer");
                         } else {
                             _varidx = _loopInfo->forInfo->VarInfo.IdxValue;
                             //register
@@ -1557,7 +1557,7 @@ DWord __fastcall TDecompiler::Decompile(DWord fromAdr, DWord flags, PLoopInfo lo
                                 _line += GetDecompilerRegisterName(_varidx);
                             //local var
                             if (_loopInfo->forInfo->VarInfo.IdxType == itLVAR)
-                                _line += Env->GetLvarName((int) _varidx, "Integer");
+                                _line += Env->GetLvarName(static_cast<int>(_varidx), "Integer");
                         }
                         _line += " := " + _loopInfo->forInfo->From + " ";
                         if (_loopInfo->forInfo->Down) _line += "down";
@@ -1639,7 +1639,7 @@ DWord __fastcall TDecompiler::Decompile(DWord fromAdr, DWord flags, PLoopInfo lo
             _curAdr += _instrLen;
             continue;
         }
-        _dd = *((DWord *) DisInfo.Mnem);
+        _dd = *reinterpret_cast<DWord *>(DisInfo.Mnem);
         //skip wait, sahf
         if (_dd == 'tiaw' || _dd == 'fhas') {
             _curPos += _instrLen;
@@ -2988,7 +2988,7 @@ bool __fastcall TDecompiler::SimulateCall(DWord curAdr, DWord callAdr, int instr
             if (SameText(_name, "TList.Get")) {
                 while(true) {
                     _retType = ManualInput(Env->StartAdr, curAdr,
-                                           "Define type of function at " + IntToHex((int) curAdr, 8), "Type:");
+                                           "Define type of function at " + IntToHex(static_cast<int>(curAdr), 8), "Type:");
                     if (_retType == "") {
                         Env->ErrAdr = curAdr;
                         throw Exception("You need to define type of function later");
@@ -3007,7 +3007,7 @@ bool __fastcall TDecompiler::SimulateCall(DWord curAdr, DWord callAdr, int instr
                     if (_retKind) break;
 
                     _retType = ManualInput(Env->StartAdr, curAdr,
-                                           "Define type of function at " + IntToHex((int) curAdr, 8), "Type:");
+                                           "Define type of function at " + IntToHex(static_cast<int>(curAdr), 8), "Type:");
                     if (_retType == "") {
                         Env->ErrAdr = curAdr;
                         throw Exception("You need to define type of function later");
@@ -3470,10 +3470,10 @@ bool __fastcall TDecompiler::SimulateCall(DWord curAdr, DWord callAdr, int instr
             //Method
             _recM = FMain_11011981->GetMethodInfo(_classAdr, 'V', DisInfo.Offset);
             if (_recM) {
-                callAdr = *((DWord *) (Code + Adr2Pos(_classAdr) - cVmtSelfPtr + DisInfo.Offset));
+                callAdr = *reinterpret_cast<DWord *>(Code + Adr2Pos(_classAdr) - cVmtSelfPtr + DisInfo.Offset);
                 if (_recM->abstract) {
                     _classAdr = GetChildAdr(_classAdr);
-                    callAdr = *((DWord *) (Code + Adr2Pos(_classAdr) - cVmtSelfPtr + DisInfo.Offset));
+                    callAdr = *reinterpret_cast<DWord *>(Code + Adr2Pos(_classAdr) - cVmtSelfPtr + DisInfo.Offset);
                 }
                 if (_recM->name != "")
                     return SimulateCall(curAdr, callAdr, instrLen, _recM, _classAdr);
@@ -3493,10 +3493,10 @@ bool __fastcall TDecompiler::SimulateCall(DWord curAdr, DWord callAdr, int instr
                     _classAdr = GetClassAdr(_typeName);
                     _recM = FMain_11011981->GetMethodInfo(_classAdr, 'V', DisInfo.Offset);
                 }
-                callAdr = *((DWord *) (Code + Adr2Pos(_classAdr) - cVmtSelfPtr + DisInfo.Offset));
+                callAdr = *reinterpret_cast<DWord *>(Code + Adr2Pos(_classAdr) - cVmtSelfPtr + DisInfo.Offset);
                 if (_recM->abstract) {
                     _classAdr = GetChildAdr(_classAdr);
-                    callAdr = *((DWord *) (Code + Adr2Pos(_classAdr) - cVmtSelfPtr + DisInfo.Offset));
+                    callAdr = *reinterpret_cast<DWord *>(Code + Adr2Pos(_classAdr) - cVmtSelfPtr + DisInfo.Offset);
                 }
                 if (_recM->name != "")
                     return SimulateCall(curAdr, callAdr, instrLen, _recM, _classAdr);
@@ -3636,7 +3636,7 @@ PLoopInfo __fastcall TDecompiler::GetLoopInfo(int fromAdr) {
     fromPos = Adr2Pos(fromAdr);
     pos1 = GetNearestUpInstruction(fromPos);
     Disasm.Disassemble(Code + pos1, (__int64) Pos2Adr(pos1), &_disInfo, 0);
-    _dd = *((DWord *) _disInfo.Mnem);
+    _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
     if (_dd == 'pmj') bWhile = true;
 
     recN = GetInfoRec(fromAdr);
@@ -3654,7 +3654,7 @@ PLoopInfo __fastcall TDecompiler::GetLoopInfo(int fromAdr) {
             res = new TLoopInfo('W', fromAdr, brkAdr, lastAdr); //while
             return res;
         }
-        _dd = *((DWord *) _disInfo.Mnem);
+        _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
         if (_dd == 'pmj') {
             res = new TLoopInfo('T', fromAdr, brkAdr, lastAdr); //while true
             res->whileInfo = new TWhileInfo(true);
@@ -3663,7 +3663,7 @@ PLoopInfo __fastcall TDecompiler::GetLoopInfo(int fromAdr) {
         //First instruction before maxAdr
         pos1 = GetNearestUpInstruction(Adr2Pos(maxAdr), fromPos);
         Disasm.Disassemble(Code + pos1, (__int64) Pos2Adr(pos1), &_disInfo, 0);
-        _dd1 = *((DWord *) _disInfo.Mnem);
+        _dd1 = *reinterpret_cast<DWord *>(_disInfo.Mnem);
         //cmp reg/mem, imm
         if (_dd1 == 'pmc' && _disInfo.OpType[1] == otIMM) {
             noVar = false;
@@ -3822,7 +3822,7 @@ PLoopInfo __fastcall TDecompiler::GetLoopInfo(int fromAdr) {
             while(true) {
                 pos = GetNearestUpInstruction(pos);
                 Disasm.Disassemble(Code + pos, (__int64) Pos2Adr(pos), &_disInfo, 0);
-                _dd = *((DWord *) _disInfo.Mnem);
+                _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
                 if (_dd == 'cni' || _dd == 'ced' || _dd == 'dda' || _dd == 'bus') {
                     if (_disInfo.OpType[0] == otREG) {
                         GetRegItem(_disInfo.OpRegIdx[0], &item);
@@ -4025,7 +4025,7 @@ PLoopInfo __fastcall TDecompiler::GetLoopInfo(int fromAdr) {
             while(true) {
                 pos = GetNearestUpInstruction(pos);
                 Disasm.Disassemble(Code + pos, (__int64) Pos2Adr(pos), &_disInfo, 0);
-                _dd = *((DWord *) _disInfo.Mnem);
+                _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
                 if (_dd == 'cni' || _dd == 'ced' || _dd == 'dda' || _dd == 'bus') {
                     if (_disInfo.OpType[0] == otREG) {
                         GetRegItem(_disInfo.OpRegIdx[0], &item);
@@ -4600,8 +4600,8 @@ void __fastcall TDecompiler::SimulateInstr2RegImm(DWord curAdr, Byte Op) {
                             _item.Type = "PChar";
                             break;
                         case ikWCString:
-                            _len = wcslen((wchar_t *) (Code + _ap));
-                            _wStr = WideString((wchar_t *) (Code + _ap));
+                            _len = wcslen(reinterpret_cast<wchar_t *>(Code + _ap));
+                            _wStr = WideString(reinterpret_cast<wchar_t *>(Code + _ap));
                             _size = WideCharToMultiByte(CP_ACP, 0, _wStr.c_bstr(), _len, 0, 0, 0, 0);
                             if (_size) {
                                 _tmpBuf = new char[_size + 1];
@@ -4668,7 +4668,7 @@ void __fastcall TDecompiler::SimulateInstr2RegImm(DWord curAdr, Byte Op) {
         GetRegItem(_reg1Idx, &_item);
         _kind = GetTypeKind(_item.Type, &_size);
         if (_kind == ikSet) {
-            CmpInfo.L = GetSetString(_item.Type, (Byte *) &DisInfo.Immediate);
+            CmpInfo.L = GetSetString(_item.Type, reinterpret_cast<Byte *>(&DisInfo.Immediate));
             CmpInfo.O = CmpOp + 12; //look GetDirectCondition (in)
             CmpInfo.R = GetDecompilerRegisterName(_reg1Idx);
             return;
@@ -4682,14 +4682,14 @@ void __fastcall TDecompiler::SimulateInstr2RegImm(DWord curAdr, Byte Op) {
     if (Op == OP_ADD) {
         //add esp, imm
         if (_reg1Idx == 20) {
-            _ESP_ += (int) DisInfo.Immediate;
+            _ESP_ += static_cast<int>(DisInfo.Immediate);
             return;
         }
         //add reg, imm
         GetRegItem(_reg1Idx, &_item1);
         //If stack ptr
         if (_item1.Flags & IF_STACK_PTR) {
-            _item1.IntValue += (int) DisInfo.Immediate;
+            _item1.IntValue += static_cast<int>(DisInfo.Immediate);
             SetRegItem(_reg1Idx, &_item1);
             return;
         }
@@ -4770,7 +4770,7 @@ void __fastcall TDecompiler::SimulateInstr2RegImm(DWord curAdr, Byte Op) {
     if (Op == OP_SUB) {
         //sub esp, imm
         if (_reg1Idx == 20) {
-            _ESP_ -= (int) DisInfo.Immediate;
+            _ESP_ -= static_cast<int>(DisInfo.Immediate);
             return;
         }
         GetRegItem(_reg1Idx, &_item1);
@@ -5241,7 +5241,7 @@ void __fastcall TDecompiler::SimulateInstr2RegMem(DWord curAdr, Byte Op) {
                 _type = _recN->type;
 
                 if (_ap >= 0) {
-                    _adr = *(DWord *) (Code + _ap);
+                    _adr = *reinterpret_cast<DWord *>(Code + _ap);
                     //May be pointer to var
                     if (IsValidImageAdr(_adr)) {
                         _recN1 = GetInfoRec(_adr);
@@ -5726,7 +5726,7 @@ void __fastcall TDecompiler::SimulateInstr2MemReg(DWord curAdr, Byte Op) {
         _recN = GetInfoRec(_offset);
         if (_recN) MakeGvar(_recN, _offset, curAdr);
         if (_ap >= 0) {
-            _adr = *(DWord *) (Code + _ap);
+            _adr = *reinterpret_cast<DWord *>(Code + _ap);
             //May be pointer to var
             if (IsValidImageAdr(_adr)) {
                 _recN = GetInfoRec(_adr);
@@ -6023,7 +6023,7 @@ DWord __fastcall TDecompiler::DecompileTry(DWord fromAdr, DWord flags, PLoopInfo
                     pos1 = tpos;
                     for (int m = 0; m < num; m++) {
                         pos1 += 4;
-                        adr = *((DWord *) (Code + pos1));
+                        adr = *reinterpret_cast<DWord *>(Code + pos1);
                         pos1 += 4;
                         de->SetStop(adr);
                     }
@@ -6102,7 +6102,7 @@ void __fastcall TDecompiler::MarkCaseEnum(DWord fromAdr) {
         }
         jTblPos = Adr2Pos(jTblAdr);
         for (n = 0; n <= maxN; n++) {
-            jAdr = *((DWord *) (Code + jTblPos));
+            jAdr = *reinterpret_cast<DWord *>(Code + jTblPos);
             SetStop(jAdr);
             jTblPos += 4;
         }
@@ -6110,7 +6110,7 @@ void __fastcall TDecompiler::MarkCaseEnum(DWord fromAdr) {
         jTblPos = Adr2Pos(jTblAdr);
         for (n = 0; n < caseNum; n++) {
             if (IsFlagSet(cfCode | cfLoc, jTblPos)) break;
-            jAdr = *((DWord *) (Code + jTblPos));
+            jAdr = *reinterpret_cast<DWord *>(Code + jTblPos);
             SetStop(jAdr);
             jTblPos += 4;
         }
@@ -6166,7 +6166,7 @@ DWord __fastcall TDecompiler::DecompileCaseEnum(DWord fromAdr, int N, PLoopInfo 
             cTblPos = Adr2Pos(cTblAdr);
             for (n = 0; n < cNum; n++) {
                 b = *(Code + cTblPos);
-                jAdr = *((DWord *) (Code + jTblPos));
+                jAdr = *reinterpret_cast<DWord *>(Code + jTblPos);
                 if (b == m) {
                     if (jAdr == endOfCaseAdr) {
                         skip = true;
@@ -6206,13 +6206,13 @@ DWord __fastcall TDecompiler::DecompileCaseEnum(DWord fromAdr, int N, PLoopInfo 
     jTblPos = Adr2Pos(jTblAdr);
     for (n = 0; n < caseNum; n++) {
         if (IsFlagSet(cfCode | cfLoc, jTblPos)) break;
-        jAdr = *((DWord *) (Code + jTblPos));
+        jAdr = *reinterpret_cast<DWord *>(Code + jTblPos);
         if (jAdr != endOfCaseAdr) {
             skip = false;
             //If case already decompiled?
             jTblPos1 = Adr2Pos(jTblAdr);
             for (m = 0; m < n; m++) {
-                jAdr1 = *((DWord *) (Code + jTblPos1));
+                jAdr1 = *reinterpret_cast<DWord *>(Code + jTblPos1);
                 if (jAdr1 == jAdr) {
                     skip = true;
                     break;
@@ -6225,7 +6225,7 @@ DWord __fastcall TDecompiler::DecompileCaseEnum(DWord fromAdr, int N, PLoopInfo 
                 jTblPos1 = Adr2Pos(jTblAdr);
                 for (m = 0; m < caseNum; m++) {
                     if (IsFlagSet(cfCode | cfLoc, jTblPos1)) break;
-                    jAdr1 = *((DWord *) (Code + jTblPos1));
+                    jAdr1 = *reinterpret_cast<DWord *>(Code + jTblPos1);
                     if (jAdr1 == jAdr) {
                         if (line != "") line += ",";
                         line += String(m + N);
@@ -7456,7 +7456,7 @@ void __fastcall TDecompiler::SimulateFloatInstruction(DWord curAdr) {
     _r = false;
     _p = false;
     _pp = false;
-    _dd = *((DWord *) (DisInfo.Mnem + 1));
+    _dd = *reinterpret_cast<DWord *>(DisInfo.Mnem + 1);
     //fild, fld
     if (_dd == 'dli' || _dd == 'dl') {
         //op Mem
@@ -8204,7 +8204,7 @@ DWord __fastcall TDecompiler::DecompileGeneralCase(DWord fromAdr, DWord markAdr,
         if (_dd == 'pmc' && _disInfo.OpType[0] == otREG && _disInfo.OpType[1] == otIMM) {
             _N = _disInfo.Immediate;
             _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-            _dd = *((DWord *) _disInfo.Mnem);
+            _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
             if (_dd == 'bj' || _dd == 'gj' || _dd == 'egj') {
                 _adr = DecompileGeneralCase(_disInfo.Immediate, markAdr, loopInfo, _N1);
                 if (_adr > _endAdr) _endAdr = _adr;
@@ -8213,7 +8213,7 @@ DWord __fastcall TDecompiler::DecompileGeneralCase(DWord fromAdr, DWord markAdr,
                 _curPos += _len;
 
                 _len = Disasm.Disassemble(Code + _curPos, (__int64)(_curAdr), &_disInfo, 0);
-                _dd = *((DWord *) _disInfo.Mnem);
+                _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
                 if (_dd == 'zj' || _dd == 'ej') {
                     Env->AddToBody(String(_N) + ":");
                     _begAdr = _disInfo.Immediate;
@@ -8258,7 +8258,7 @@ DWord __fastcall TDecompiler::DecompileGeneralCase(DWord fromAdr, DWord markAdr,
             _curPos += _len;
 
             _len = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-            _dd = *((DWord *) _disInfo.Mnem);
+            _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
             if (_dd == 'bj') {
                 Env->AddToBody(String(_N1 - _N2) + ".." + String(_N1 - 1) + ":");
                 _begAdr = _disInfo.Immediate;
@@ -8283,7 +8283,7 @@ DWord __fastcall TDecompiler::DecompileGeneralCase(DWord fromAdr, DWord markAdr,
                 _curAdr += _len;
                 _curPos += _len;
                 _len = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-                _dd = *((DWord *) _disInfo.Mnem);
+                _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
                 if (_dd == 'zj' || _dd == 'ej') {
                     Env->AddToBody(String(_N1) + ":");
                     _begAdr = _disInfo.Immediate;
@@ -8374,7 +8374,7 @@ DWord __fastcall TDecompiler::DecompileGeneralCase(DWord fromAdr, DWord markAdr,
             _curPos += _len;
 
             _len = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-            _dd = *((DWord *) _disInfo.Mnem);
+            _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
             if (_dd == 'zj' || _dd == 'ej') {
                 Env->AddToBody(String(_N1) + ":");
                 _begAdr = _disInfo.Immediate;
@@ -8416,7 +8416,7 @@ void __fastcall TDecompiler::MarkGeneralCase(DWord fromAdr) {
 
     while(true) {
         _len = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-        _dd = *((DWord *) _disInfo.Mnem);
+        _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
         //Switch at current address
         if (IsFlagSet(cfSwitch, _curPos)) {
             //Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);//ja
@@ -8435,7 +8435,7 @@ void __fastcall TDecompiler::MarkGeneralCase(DWord fromAdr) {
         //cmp reg, imm
         if (_dd == 'pmc' && _disInfo.OpType[0] == otREG && _disInfo.OpType[1] == otIMM) {
             _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-            _dd = *((DWord *) _disInfo.Mnem);
+            _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
             if (_dd == 'bj' || _dd == 'gj' || _dd == 'egj') {
                 MarkGeneralCase(_disInfo.Immediate);
 
@@ -8443,7 +8443,7 @@ void __fastcall TDecompiler::MarkGeneralCase(DWord fromAdr) {
                 _curPos += _len;
 
                 _len = Disasm.Disassemble(Code + _curPos, (__int64)(_curAdr), &_disInfo, 0);
-                _dd = *((DWord *) _disInfo.Mnem);
+                _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
                 if (_dd == 'zj' || _dd == 'ej') {
                     SetStop(_disInfo.Immediate);
                     _curAdr += _len;
@@ -8456,17 +8456,17 @@ void __fastcall TDecompiler::MarkGeneralCase(DWord fromAdr) {
         if ((_dd == 'bus' && _disInfo.OpType[0] == otREG && _disInfo.OpType[1] == otIMM) || (
                 _dd == 'ced' && _disInfo.OpType[0] == otREG)) {
             _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-            _dd = *((DWord *) _disInfo.Mnem);
+            _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
             if (_dd == 'bus') {
                 _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-                _dd = *((DWord *) _disInfo.Mnem);
+                _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
             }
             if (_dd == 'bj') {
                 SetStop(_disInfo.Immediate);
                 _curAdr += _len;
                 _curPos += _len;
                 _len = Disasm.Disassemble(Code + _curPos, (__int64) _curAdr, &_disInfo, 0);
-                _dd = *((DWord *) _disInfo.Mnem);
+                _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
                 if (_dd == 'zj' || _dd == 'ej') {
                     SetStop(_disInfo.Immediate);
                     _curAdr += _len;
@@ -8487,10 +8487,10 @@ void __fastcall TDecompiler::MarkGeneralCase(DWord fromAdr) {
         if ((_dd == 'dda' && _disInfo.OpType[0] == otREG && _disInfo.OpType[1] == otIMM) || (
                 _dd == 'cni' && _disInfo.OpType[0] == otREG)) {
             _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-            _dd = *((DWord *) _disInfo.Mnem);
+            _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
             if (_dd == 'bus') {
                 _len += Disasm.Disassemble(Code + _curPos + _len, (__int64)(_curAdr + _len), &_disInfo, 0);
-                _dd = *((DWord *) _disInfo.Mnem);
+                _dd = *reinterpret_cast<DWord *>(_disInfo.Mnem);
                 if (_dd == 'bj') {
                     SetStop(_disInfo.Immediate);
                     _curAdr += _len;

@@ -475,7 +475,7 @@ void __fastcall TIDCGen::OutputRTTIRecord(Byte kind, int pos) {
     // Size
     pos = MakeDword(pos);
     // ManagedFldCount
-    int elNum = *((int *) (Code + pos));
+    int elNum = *reinterpret_cast<int *>(Code + pos);
     pos = MakeDword(pos);
     for (int n = 0; n < elNum; n++) {
         // TypeRef
@@ -493,7 +493,7 @@ void __fastcall TIDCGen::OutputRTTIRecord(Byte kind, int pos) {
             pos = MakeDword(pos);
         }
         // RecFldCnt
-        elNum = *((int *) (Code + pos));
+        elNum = *reinterpret_cast<int *>(Code + pos);
         pos = MakeDword(pos);
 
         for (int n = 0; n < elNum; n++) {
