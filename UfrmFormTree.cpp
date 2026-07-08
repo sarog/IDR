@@ -5,6 +5,7 @@
 #include "UfrmFormTree.h"
 #include <System.StrUtils.hpp>
 #include <memory>
+
 #include "Main.h"
 #include "Misc.h"
 //---------------------------------------------------------------------------
@@ -142,8 +143,7 @@ TTreeNode * __fastcall TIdrDfmFormTree_11011981::FindTreeNodeByTag(const void *t
 }
 
 //---------------------------------------------------------------------------
-TTreeNode * __fastcall TIdrDfmFormTree_11011981::FindTreeNodeByText(TTreeNode *nodeFrom, const String &txt,
-                                                                    bool caseSensitive) {
+TTreeNode * __fastcall TIdrDfmFormTree_11011981::FindTreeNodeByText(TTreeNode *nodeFrom, const String &txt, bool caseSensitive) {
     TTreeNode *tn = 0;
     bool startScan = nodeFrom ? false : true;
 

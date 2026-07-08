@@ -38,6 +38,8 @@ file(GLOB SOURCES
         IdcDialog.rc
 )
 
+list(REMOVE_ITEM SOURCES "Idr64Manager.cpp" "Idr64Manager.h")
+
 ## .DFM
 file(GLOB SOURCES_DFM
         "*.dfm"
@@ -75,7 +77,8 @@ target_link_libraries(${APP} PRIVATE
         "${EMBT_BPI_DIR}/bcbsmp.bpi"
         "${EMBT_BPI_DIR}/vclx.bpi"
         "${EMBT_BPI_DIR}/vclimg.bpi"
-        "Idr.res"
+        "Idr.rc.res"
+        "IdcDialog.rc.res"
 )
 
 add_custom_command(

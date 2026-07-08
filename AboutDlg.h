@@ -10,10 +10,9 @@
 #include <Vcl.Graphics.hpp>
 #include <Vcl.Imaging.jpeg.hpp>
 #include <Vcl.StdCtrls.hpp>
-
 //----------------------------------------------------------------------------
 class TFAboutDlg_11011981 : public TForm {
-    __published:
+__published: // IDE-managed Components
     TPanel * Panel3;
     TButton *Button2;
     TPageControl *PageControl1;
@@ -41,8 +40,8 @@ class TFAboutDlg_11011981 : public TForm {
     void __fastcall lEmailClick(TObject *Sender);
     void __fastcall lWWWClick(TObject *Sender);
     void __fastcall bDonateClick(TObject *Sender);
-private:
-public:
+private: // User declarations
+public: // User declarations
     virtual __fastcall TFAboutDlg_11011981(TComponent *AOwner);
 };
 

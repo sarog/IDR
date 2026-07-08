@@ -244,7 +244,7 @@ String __fastcall InfoProcInfo::AddArgsFromDeclaration(char *Decl, int from, int
         pp = p;
         num = 0;
         fColon = false;
-        while (1) {
+        while (true) {
             c = *pp;
             if (c == ')') break;
             if (c == ':' && !fColon) {
@@ -492,11 +492,11 @@ void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef) {
             String recFileName = FMain_11011981->WrkDir + "\\types.idr";
             FILE *recFile = fopen(AnsiString(recFileName).c_str(), "rt");
             if (recFile) {
-                while (1) {
+                while (true) {
                     if (!fgets(StringBuf, 1024, recFile)) break;
                     String str = String(StringBuf);
                     if (str.Pos(TypeDef + "=") == 1) {
-                        while (1) {
+                        while (true) {
                             if (!fgets(StringBuf, 1024, recFile)) break;
                             str = String(StringBuf);
                             if (str.Pos("end;")) break;
@@ -512,7 +512,7 @@ void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef) {
                 }
                 fclose(recFile);
             }
-            while (1) {
+            while (true) {
                 //KB
                 Word *uses = KnowledgeBase.GetTypeUses(AnsiString(TypeDef).c_str());
                 int idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(TypeDef).c_str());
@@ -528,18 +528,18 @@ void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef) {
                         for (int k = 0; k < tInfo.FieldsNum; k++) {
                             //Scope
                             p++;
-                            int elofs = *((int *) p);
+                            int elofs = *reinterpret_cast<int *>(p);
                             p += 4;
                             p += 4; //case
                             //Name
-                            int len = *((Word *) p);
+                            int len = *reinterpret_cast<Word *>(p);
                             p += 2;
-                            String name = String((char *) p, len);
+                            String name = String(static_cast<char *>(p), len);
                             p += len + 1;
                             //Type
-                            len = *((Word *) p);
+                            len = *reinterpret_cast<Word *>(p);
                             p += 2;
-                            String type = TrimTypeName(String((char *) p, len));
+                            String type = TrimTypeName(String(static_cast<char *>(p), len));
                             p += len + 1;
                             AddLocal(Ofs + elofs, 1, fname + "." + name, type);
                         }
@@ -1871,6 +1871,7 @@ String __fastcall InfoRec::MakeMultilinePrototype(int Adr, int *ArgsBytes, Strin
 }
 
 //---------------------------------------------------------------------------
+// IDR64 equivalent: InfoRec::MakePrototype()
 String __fastcall InfoRec::MakeCppPrototype(int Adr, String FType) {
     int argsNum, typeKind, size;
     PARGINFO argInfo;
@@ -1980,7 +1981,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
 
     if (name[1] != '@') return false;
 
-    //Strings
+    // Strings
     if (name[2] == 'L')
         _sname = "AnsiString";
     else if (name[2] == 'W')
@@ -1991,34 +1992,34 @@ bool __fastcall InfoRec::MakeArgsManually() {
         _sname = "?";
 
     if (_sname != "?") {
-        //@LStrClr, @WStrClr, @UStrClr
+        // @LStrClr, @WStrClr, @UStrClr
         if (SameText(&name[3], "StrClr")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "S", _sname);
             return true;
         }
-        //@LStrArrayClr, @WStrArrayClr, @UStrArrayClr
+        // @LStrArrayClr, @WStrArrayClr, @UStrArrayClr
         if (SameText(&name[3], "StrArrayClr")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "StrArray", "Pointer");
             procInfo->AddArg(0x21, 1, 4, "Count", "Integer");
             return true;
         }
-        //@LStrAsg, @WStrAsg, @UStrAsg
+        // @LStrAsg, @WStrAsg, @UStrAsg
         if (SameText(&name[3], "StrAsg")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x21, 1, 4, "Source", _sname);
             return true;
         }
-        //@LStrLAsg, @WStrLAsg, @UStrLAsg
+        // @LStrLAsg, @WStrLAsg, @UStrLAsg
         if (SameText(&name[3], "StrLAsg")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x23, 1, 4, "Source", _sname); //Modify by ZGL
             return true;
         }
-        //@LStrFromPCharLen, @WStrFromPCharLen, @UStrFromPCharLen
+        // @LStrFromPCharLen, @WStrFromPCharLen, @UStrFromPCharLen
         if (SameText(&name[3], "StrFromPCharLen")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
@@ -2026,7 +2027,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
             procInfo->AddArg(0x21, 2, 4, "Length", "Integer");
             return true;
         }
-        //@LStrFromPWCharLen, @WStrFromPWCharLen, @UStrFromPWCharLen
+        // @LStrFromPWCharLen, @WStrFromPWCharLen, @UStrFromPWCharLen
         if (SameText(&name[3], "StrFromPWCharLen")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
@@ -2034,42 +2035,42 @@ bool __fastcall InfoRec::MakeArgsManually() {
             procInfo->AddArg(0x21, 2, 4, "Length", "Integer");
             return true;
         }
-        //@LStrFromChar, @WStrFromChar, @UStrFromChar
+        // @LStrFromChar, @WStrFromChar, @UStrFromChar
         if (SameText(&name[3], "StrFromChar")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x21, 1, 4, "Source", "AnsiChar");
             return true;
         }
-        //@LStrFromWChar, @WStrFromWChar, @UStrFromWChar
+        // @LStrFromWChar, @WStrFromWChar, @UStrFromWChar
         if (SameText(&name[3], "StrFromWChar")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x21, 1, 4, "Source", "WideChar");
             return true;
         }
-        //@LStrFromPChar, @WStrFromPChar, @UStrFromPChar
+        // @LStrFromPChar, @WStrFromPChar, @UStrFromPChar
         if (SameText(&name[3], "StrFromPChar")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x21, 1, 4, "Source", "PAnsiChar");
             return true;
         }
-        //@LStrFromPWChar, @WStrFromPWChar, @UStrFromPWChar
+        // @LStrFromPWChar, @WStrFromPWChar, @UStrFromPWChar
         if (SameText(&name[3], "StrFromPWChar")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x21, 1, 4, "Source", "PWideChar");
             return true;
         }
-        //@LStrFromString, @WStrFromString, @UStrFromString
+        // @LStrFromString, @WStrFromString, @UStrFromString
         if (SameText(&name[3], "StrFromString")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x23, 1, 4, "Source", "ShortString"); //Modify by ZGL
             return true;
         }
-        //@LStrFromArray, @WStrFromArray, @UStrFromArray
+        // @LStrFromArray, @WStrFromArray, @UStrFromArray
         if (SameText(&name[3], "StrFromArray")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
@@ -2077,7 +2078,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
             procInfo->AddArg(0x21, 2, 4, "Length", "Integer");
             return true;
         }
-        //@LStrFromWArray, @WStrFromWArray, @UStrFromWArray
+        // @LStrFromWArray, @WStrFromWArray, @UStrFromWArray
         if (SameText(&name[3], "StrFromWArray")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
@@ -2085,14 +2086,14 @@ bool __fastcall InfoRec::MakeArgsManually() {
             procInfo->AddArg(0x21, 2, 4, "Length", "Integer");
             return 1;
         }
-        //@LStrFromWStr, @UStrFromWStr
+        // @LStrFromWStr, @UStrFromWStr
         if (SameText(&name[3], "StrFromWStr")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x23, 1, 4, "Source", "WideString"); //Modify by ZGL
             return true;
         }
-        //@LStrToString, @WStrToString, @UStrToString
+        // @LStrToString, @WStrToString, @UStrToString
         if (SameText(&name[3], "StrToString")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", "ShortString");
@@ -2100,21 +2101,21 @@ bool __fastcall InfoRec::MakeArgsManually() {
             procInfo->AddArg(0x21, 2, 4, "MaxLen", "Integer");
             return true;
         }
-        //@LStrLen, @WStrLen, @UStrLen
+        // @LStrLen, @WStrLen, @UStrLen
         if (SameText(&name[3], "StrLen")) {
             kind = ikFunc;
             type = "Integer";
             procInfo->AddArg(0x21, 0, 4, "S", _sname);
             return true;
         }
-        //@LStrCat, @WStrCat, @UStrCat
+        // @LStrCat, @WStrCat, @UStrCat
         if (SameText(&name[3], "StrCat")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x21, 1, 4, "Source", _sname);
             return true;
         }
-        //@LStrCat3, @WStrCat3, @UStrCat3
+        // @LStrCat3, @WStrCat3, @UStrCat3
         if (SameText(&name[3], "StrCat3")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
@@ -2122,14 +2123,14 @@ bool __fastcall InfoRec::MakeArgsManually() {
             procInfo->AddArg(0x21, 2, 4, "Source2", _sname);
             return true;
         }
-        //@LStrCatN, @WStrCatN, @UStrCatN
+        // @LStrCatN, @WStrCatN, @UStrCatN
         if (SameText(&name[3], "StrCatN")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x21, 1, 4, "ArgCnt", "Integer");
             return true;
         }
-        //@LStrCmp, @WStrCmp, @UStrCmp
+        // @LStrCmp, @WStrCmp, @UStrCmp
         if (SameText(&name[3], "StrCmp")) //return Flags
         {
             kind = ikFunc;
@@ -2137,21 +2138,21 @@ bool __fastcall InfoRec::MakeArgsManually() {
             procInfo->AddArg(0x21, 1, 4, "Right", _sname);
             return true;
         }
-        //@LStrAddRef, @WStrAddRef, @UStrAddRef
+        // @LStrAddRef, @WStrAddRef, @UStrAddRef
         if (SameText(&name[3], "StrAddRef")) {
             kind = ikFunc;
             type = "Pointer";
             procInfo->AddArg(0x22, 0, 4, "S", _sname);
             return true;
         }
-        //@LStrToPChar, @WStrToPChar, @UStrToPChar
+        // @LStrToPChar, @WStrToPChar, @UStrToPChar
         if (SameText(&name[3], "StrToPChar")) {
             kind = ikFunc;
             type = "PChar";
             procInfo->AddArg(0x21, 0, 4, "S", _sname);
             return true;
         }
-        //@LStrCopy, @WStrCopy, @UStrCopy
+        // @LStrCopy, @WStrCopy, @UStrCopy
         if (SameText(&name[3], "StrCopy")) {
             kind = ikFunc;
             type = _sname;
@@ -2160,7 +2161,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
             procInfo->AddArg(0x21, 2, 4, "Count", "Integer");
             return true;
         }
-        //@LStrDelete, @WStrDelete, @UStrDelete
+        // @LStrDelete, @WStrDelete, @UStrDelete
         if (SameText(&name[3], "StrDelete")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "S", _sname);
@@ -2168,7 +2169,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
             procInfo->AddArg(0x21, 2, 4, "Count", "Integer");
             return true;
         }
-        //@LStrInsert, @WStrInsert, @UStrInsert
+        // @LStrInsert, @WStrInsert, @UStrInsert
         if (SameText(&name[3], "StrInsert")) {
             kind = ikProc;
             procInfo->AddArg(0x23, 0, 4, "Source", _sname); //Modify by ZGL
@@ -2176,7 +2177,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
             procInfo->AddArg(0x21, 2, 4, "Index", "Integer");
             return true;
         }
-        //@LStrPos, @WStrPos, @UStrPos
+        // @LStrPos, @WStrPos, @UStrPos
         if (SameText(&name[3], "StrPos")) {
             kind = ikFunc;
             type = "Integer";
@@ -2184,14 +2185,14 @@ bool __fastcall InfoRec::MakeArgsManually() {
             procInfo->AddArg(0x23, 1, 4, "S", _sname);      //Modify by ZGL
             return true;
         }
-        //@LStrSetLength, @WStrSetLength, @UStrSetLength
+        // @LStrSetLength, @WStrSetLength, @UStrSetLength
         if (SameText(&name[3], "StrSetLength")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "S", _sname);
             procInfo->AddArg(0x21, 1, 4, "NewLen", "Integer");
             return true;
         }
-        //@LStrOfChar, @WStrOfChar, @UStrOfChar
+        // @LStrOfChar, @WStrOfChar, @UStrOfChar
         if (SameText(&name[3], "StrOfChar")) {
             kind = ikProc;
             procInfo->AddArg(0x21, 0, 1, "C", "Char");
@@ -2199,21 +2200,21 @@ bool __fastcall InfoRec::MakeArgsManually() {
             procInfo->AddArg(0x22, 2, 4, "Result", _sname);
             return 1;
         }
-        //@WStrToPWChar, @UStrToPWChar
+        // @WStrToPWChar, @UStrToPWChar
         if (SameText(&name[3], "StrToPWChar")) {
             kind = ikFunc;
             type = "PWideChar";
             procInfo->AddArg(0x21, 0, 4, "S", _sname);
             return true;
         }
-        //@WStrFromLStr, @UStrFromLStr
+        // @WStrFromLStr, @UStrFromLStr
         if (SameText(&name[3], "StrFromLStr")) {
             kind = ikProc;
             procInfo->AddArg(0x22, 0, 4, "Dest", _sname);
             procInfo->AddArg(0x23, 1, 4, "Source", "AnsiString"); //Modify by ZGL
             return true;
         }
-        //@WStrOfWChar
+        // @WStrOfWChar
         if (SameText(&name[3], "StrOfWChar")) {
             kind = ikProc;
             procInfo->AddArg(0x21, 0, 4, "C", "WideChar");
@@ -2221,7 +2222,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
             procInfo->AddArg(0x22, 2, 4, "Result", _sname);
             return true;
         }
-        //@UStrEqual
+        // @UStrEqual
         if (SameText(&name[3], "StrEqual")) {
             kind = ikProc;
             procInfo->AddArg(0x21, 0, 4, "Left", _sname);
@@ -2231,7 +2232,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
     }
     //ShortStrings--------------------------------------------------------------
     _sname = "ShortString";
-    //@Copy
+    // @Copy
     if (SameText(name, "@Copy")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "S", _sname);
@@ -2240,7 +2241,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 8, 4, "Result", _sname);
         return true;
     }
-    //@Delete
+    // @Delete
     if (SameText(name, "@Delete")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "S", _sname);
@@ -2248,7 +2249,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "Count", "Integer");
         return true;
     }
-    //@Insert
+    // @Insert
     if (SameText(name, "@Insert")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Source", _sname);
@@ -2256,7 +2257,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "Index", "Integer");
         return true;
     }
-    //@Pos
+    // @Pos
     if (SameText(name, "@Pos")) {
         kind = ikFunc;
         type = "Integer";
@@ -2265,14 +2266,14 @@ bool __fastcall InfoRec::MakeArgsManually() {
         return true;
     }
     _sname = "PShortString";
-    //@SetLength
+    // @SetLength
     if (SameText(name, "@SetLength")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "S", _sname);
         procInfo->AddArg(0x21, 1, 4, "NewLength", "Byte");
         return true;
     }
-    //@SetString
+    // @SetString
     if (SameText(name, "@SetString")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "S", _sname);
@@ -2280,14 +2281,14 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "Length", "Byte");
         return true;
     }
-    //@PStrCat
+    // @PStrCat
     if (SameText(name, "@PStrCat")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Dest", _sname);
         procInfo->AddArg(0x21, 1, 4, "Source", _sname);
         return true;
     }
-    //@PStrNCat
+    // @PStrNCat
     if (SameText(name, "@PStrNCat")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Dest", _sname);
@@ -2295,14 +2296,14 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "MaxLen", "Byte");
         return true;
     }
-    //@PStrCpy
+    // @PStrCpy
     if (SameText(name, "@PStrCpy")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Dest", _sname);
         procInfo->AddArg(0x21, 1, 4, "Source", _sname);
         return true;
     }
-    //@PStrNCpy
+    // @PStrNCpy
     if (SameText(name, "@PStrNCpy")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Dest", _sname);
@@ -2310,7 +2311,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "MaxLen", "Byte");
         return true;
     }
-    //@AStrCmp
+    // @AStrCmp
     if (SameText(name, "@AStrCmp")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "S1", _sname);
@@ -2318,21 +2319,21 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "Bytes", "Integer");
         return true;
     }
-    //@PStrCmp
+    // @PStrCmp
     if (SameText(name, "@PStrCmp")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "S1", _sname);
         procInfo->AddArg(0x21, 1, 4, "S2", _sname);
         return true;
     }
-    //@Str0Long
+    // @Str0Long
     if (SameText(name, "@Str0Long")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Val", "Longint");
         procInfo->AddArg(0x21, 1, 4, "S", _sname);
         return true;
     }
-    //@StrLong
+    // @StrLong
     if (SameText(name, "@StrLong")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Val", "Integer");
@@ -2340,15 +2341,15 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "S", _sname);
         return true;
     }
-    //Files---------------------------------------------------------------------
-    //@Append(
+    // Files---------------------------------------------------------------------
+    // @Append(
     if (SameText(name, "@Append")) {
         kind = ikFunc;
         type = "Integer";
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         return true;
     }
-    //@Assign
+    // @Assign
     if (SameText(name, "@Assign")) {
         kind = ikFunc;
         type = "Integer";
@@ -2356,7 +2357,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 1, 4, "S", "String");
         return true;
     }
-    //@BlockRead
+    // @BlockRead
     if (SameText(name, "@BlockRead")) {
         kind = ikFunc;
         type = "Longint";
@@ -2366,7 +2367,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x22, 8, 4, "recsRead", "Longint");
         return true;
     }
-    //@BlockWrite
+    // @BlockWrite
     if (SameText(name, "@BlockWrite")) {
         kind = ikFunc;
         type = "Longint";
@@ -2376,60 +2377,60 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x22, 8, 4, "recsWritten", "Longint");
         return true;
     }
-    //@Close
+    // @Close
     if (SameText(name, "@Close")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         return true;
     }
-    //@EofFile
+    // @EofFile
     if (SameText(name, "@EofFile")) {
         kind = ikFunc;
         type = "Boolean";
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         return true;
     }
-    //@EofText
+    // @EofText
     if (SameText(name, "@EofText")) {
         kind = ikFunc;
         type = "Boolean";
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
-    //@Eoln
+    // @Eoln
     if (SameText(name, "@Eoln")) {
         kind = ikFunc;
         type = "Boolean";
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
-    //@Erase
+    // @Erase
     if (SameText(name, "@Erase")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         return true;
     }
-    //@FilePos
+    // @FilePos
     if (SameText(name, "@FilePos")) {
         kind = ikFunc;
         type = "Longint";
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         return true;
     }
-    //@FileSize
+    // @FileSize
     if (SameText(name, "@FileSize")) {
         kind = ikFunc;
         type = "Longint";
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         return true;
     }
-    //@Flush
+    // @Flush
     if (SameText(name, "@Flush")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         return true;
     }
-    //@ReadRec
+    // @ReadRec
     if (SameText(name, "@ReadRec")) {
         kind = ikFunc;
         type = "Integer";
@@ -2437,21 +2438,21 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 1, 4, "Buffer", "Pointer");
         return true;
     }
-    //@ReadChar
+    // @ReadChar
     if (SameText(name, "@ReadChar")) {
         kind = ikFunc;
         type = "Char";
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
-    //@ReadLong
+    // @ReadLong
     if (SameText(name, "@ReadLong")) {
         kind = ikFunc;
         type = "Longint";
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
-    //@ReadString
+    // @ReadString
     if (SameText(name, "@ReadString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
@@ -2459,7 +2460,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "MaxLen", "Longint");
         return true;
     }
-    //@ReadCString
+    // @ReadCString
     if (SameText(name, "@ReadCString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
@@ -2467,28 +2468,28 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "MaxLen", "Longint");
         return true;
     }
-    //@ReadLString
+    // @ReadLString
     if (SameText(name, "@ReadLString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x22, 1, 4, "S", "AnsiString");
         return true;
     }
-    //@ReadWString
+    // @ReadWString
     if (SameText(name, "@ReadWString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x22, 1, 4, "S", "WideString");
         return true;
     }
-    //@ReadUString
+    // @ReadUString
     if (SameText(name, "@ReadUString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x22, 1, 4, "S", "UnicodeString");
         return true;
     }
-    //@ReadWCString
+    // @ReadWCString
     if (SameText(name, "@ReadWCString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
@@ -2496,34 +2497,34 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "MaxBytes", "Longint");
         return true;
     }
-    //@ReadWChar
+    // @ReadWChar
     if (SameText(name, "@ReadWChar")) {
         kind = ikFunc;
         type = "WideChar";
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
-    //@ReadExt
+    // @ReadExt
     if (SameText(name, "@ReadExt")) {
         //kind = ikFunc;
         //type = "Extended";
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
-    //@ReadLn
+    // @ReadLn
     if (SameText(name, "@ReadLn")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
-    //@Rename
+    // @Rename
     if (SameText(name, "@Rename")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         procInfo->AddArg(0x21, 1, 4, "NewName", "PChar");
         return true;
     }
-    //@ResetFile
+    // @ResetFile
     if (SameText(name, "@ResetFile")) {
         kind = ikFunc;
         type = "Integer";
@@ -2531,14 +2532,14 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 1, 4, "RecSize", "Longint");
         return true;
     }
-    //@ResetText
+    // @ResetText
     if (SameText(name, "@ResetText")) {
         kind = ikFunc;
         type = "Integer";
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
-    //@RewritFile
+    // @RewritFile
     if (SameText(name, "@RewritFile")) {
         kind = ikFunc;
         type = "Integer";
@@ -2546,7 +2547,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 1, 4, "RecSize", "Longint");
         return true;
     }
-    //@RewritText
+    // @RewritText
     if (SameText(name, "@RewritText")) {
         kind = ikFunc;
         type = "Integer";
@@ -2554,28 +2555,28 @@ bool __fastcall InfoRec::MakeArgsManually() {
         //procInfo->AddArg(0x21, 1, 4, "recSize", "Longint");
         return true;
     }
-    //@Seek
+    // @Seek
     if (SameText(name, "@Seek")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         procInfo->AddArg(0x21, 1, 4, "RecNum", "Longint");
         return true;
     }
-    //@SeekEof
+    // @SeekEof
     if (SameText(name, "@SeekEof")) {
         kind = ikFunc;
         type = "Boolean";
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
-    //@SeekEoln
+    // @SeekEoln
     if (SameText(name, "@SeekEoln")) {
         kind = ikFunc;
         type = "Boolean";
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
-    //@SetTextBuf
+    // @SetTextBuf
     if (SameText(name, "@SetTextBuf")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
@@ -2583,20 +2584,20 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "Size", "Longint");
         return true;
     }
-    //@Truncate
+    // @Truncate
     if (SameText(name, "@Truncate")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         return true;
     }
-    //@WriteRec
+    // @WriteRec
     if (SameText(name, "@WriteRec")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "F", "TFileRec");
         procInfo->AddArg(0x21, 1, 4, "Buffer", "Pointer");
         return true;
     }
-    //@WriteChar
+    // @WriteChar
     if (SameText(name, "@WriteChar")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
@@ -2604,14 +2605,14 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "Width", "Integer");
         return true;
     }
-    //@Write0Char
+    // @Write0Char
     if (SameText(name, "@Write0Char")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "C", "AnsiChar");
         return true;
     }
-    //@WriteBool
+    // @WriteBool
     if (SameText(name, "@WriteBool")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
@@ -2619,14 +2620,14 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "Width", "Longint");
         return true;
     }
-    //@Write0Bool
+    // @Write0Bool
     if (SameText(name, "@Write0Bool")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "Val", "Boolean");
         return true;
     }
-    //@WriteLong
+    // @WriteLong
     if (SameText(name, "@WriteLong")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
@@ -2634,14 +2635,14 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "Width", "Longint");
         return true;
     }
-    //@Write0Long
+    // @Write0Long
     if (SameText(name, "@Write0Long")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "Val", "Longint");
         return true;
     }
-    //@WriteString
+    // @WriteString
     if (SameText(name, "@WriteString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
@@ -2649,14 +2650,14 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "Width", "Longint");
         return true;
     }
-    //@Write0String
+    // @Write0String
     if (SameText(name, "@Write0String")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "ShortString");
         return true;
     }
-    //@WriteCString
+    // @WriteCString
     if (SameText(name, "@WriteCString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
@@ -2664,14 +2665,14 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "Width", "Longint");
         return true;
     }
-    //@Write0CString
+    // @Write0CString
     if (SameText(name, "@Write0CString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "PAnsiChar");
         return true;
     }
-    //@WriteLString
+    // @WriteLString
     if (SameText(name, "@WriteLString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
@@ -2679,14 +2680,14 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "Width", "Longint");
         return true;
     }
-    //@Write0LString
+    // @Write0LString
     if (SameText(name, "@Write0LString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "AnsiString");
         return true;
     }
-    //@Write2Ext
+    // @Write2Ext
     if (SameText(name, "@Write2Ext") ||
         SameText(name, "@Str2Ext")) {
         kind = ikProc;
@@ -2696,7 +2697,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "Precision", "Longint");
         return true;
     }
-    //@WriteWString
+    // @WriteWString
     if (SameText(name, "@WriteWString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
@@ -2704,14 +2705,14 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "Width", "Longint");
         return true;
     }
-    //@Write0WString
+    // @Write0WString
     if (SameText(name, "@Write0WString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "WideString");
         return true;
     }
-    //@WriteWCString
+    // @WriteWCString
     if (SameText(name, "@WriteWCString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
@@ -2719,14 +2720,14 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "Width", "Longint");
         return true;
     }
-    //@Write0WCString
+    // @Write0WCString
     if (SameText(name, "@Write0WCString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "PWideChar");
         return true;
     }
-    //@WriteWChar
+    // @WriteWChar
     if (SameText(name, "@WriteWChar")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
@@ -2734,33 +2735,33 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "Width", "Longint");
         return true;
     }
-    //@Write0WChar
+    // @Write0WChar
     if (SameText(name, "@Write0WChar")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "C", "WideChar");
         return true;
     }
-    //@Write1Ext
+    // @Write1Ext
     if (SameText(name, "@Write1Ext")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "Width", "Longint");
         return true;
     }
-    //@Write0Ext
+    // @Write0Ext
     if (SameText(name, "@Write0Ext")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
-    //@WriteLn
+    // @WriteLn
     if (SameText(name, "@WriteLn")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         return true;
     }
-    //@WriteUString
+    // @WriteUString
     if (SameText(name, "@WriteUString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
@@ -2768,14 +2769,14 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "Width", "Integer");
         return true;
     }
-    //@Write0UString
+    // @Write0UString
     if (SameText(name, "@Write0UString")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
         procInfo->AddArg(0x21, 1, 4, "S", "UnicodeString");
         return true;
     }
-    //@WriteVariant
+    // @WriteVariant
     if (SameText(name, "@WriteVariant")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
@@ -2783,7 +2784,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "Width", "Integer");
         return true;
     }
-    //@Write0Variant
+    // @Write0Variant
     if (SameText(name, "@Write0Variant")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "T", "TTextRec");
@@ -2808,12 +2809,12 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "LineNumber", "Integer");
         return true;
     }
-    //@BoundErr
+    // @BoundErr
     if (SameText(name, "@BoundErr")) {
         kind = ikProc;
         return true;
     }
-    //@CopyArray
+    // @CopyArray
     if (SameText(name, "@CopyArray")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Dest", "Pointer");
@@ -2822,7 +2823,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 8, 4, "Cnt", "Integer");
         return true;
     }
-    //@CopyRecord
+    // @CopyRecord
     if (SameText(name, "@CopyRecord")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Dest", "Pointer");
@@ -2831,13 +2832,13 @@ bool __fastcall InfoRec::MakeArgsManually() {
         return true;
     }
     //DynArrays
-    //@DynArrayAddRef
+    // @DynArrayAddRef
     if (SameText(name, "@DynArrayAddRef")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Arr", "Pointer");
         return true;
     }
-    //@DynArrayAsg
+    // @DynArrayAsg
     if (SameText(name, "@DynArrayAsg")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "Dest", "Pointer");
@@ -2845,14 +2846,14 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "TypeInfo", "PDynArrayTypeInfo");
         return true;
     }
-    //@DynArrayClear
+    // @DynArrayClear
     if (SameText(name, "@DynArrayClear")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "Arr", "Pointer");
         procInfo->AddArg(0x21, 1, 4, "TypeInfo", "PDynArrayTypeInfo");
         return true;
     }
-    //@DynArrayCopy
+    // @DynArrayCopy
     if (SameText(name, "@DynArrayCopy")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Arr", "Pointer");
@@ -2860,7 +2861,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x22, 2, 4, "Result", "Pointer");
         return true;
     }
-    //@DynArrayCopyRange
+    // @DynArrayCopyRange
     if (SameText(name, "@DynArrayCopyRange")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "Arr", "Pointer");
@@ -2870,21 +2871,21 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x22, 12, 4, "Result", "Pointer");
         return true;
     }
-    //@DynArrayHigh
+    // @DynArrayHigh
     if (SameText(name, "@DynArrayHigh")) {
         kind = ikFunc;
         type = "Longint";
         procInfo->AddArg(0x21, 0, 4, "Arr", "Pointer");
         return true;
     }
-    //@DynArrayLength
+    // @DynArrayLength
     if (SameText(name, "@DynArrayLength")) {
         kind = ikFunc;
         type = "Longint";
         procInfo->AddArg(0x21, 0, 4, "Arr", "Pointer");
         return true;
     }
-    //@DynArraySetLength
+    // @DynArraySetLength
     if (SameText(name, "@DynArraySetLength")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "Arr", "Pointer");
@@ -2893,7 +2894,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 8, 4, "LengthVec", "Longint");
         return true;
     }
-    //@FillChar
+    // @FillChar
     if (SameText(name, "@FillChar")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "dst", "Pointer");
@@ -2901,26 +2902,26 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "val", "Char");
         return true;
     }
-    //@FreeMem
+    // @FreeMem
     if (SameText(name, "@FreeMem")) {
         kind = ikFunc;
         type = "Integer";
         procInfo->AddArg(0x21, 0, 4, "p", "Pointer");
         return true;
     }
-    //@GetMem
+    // @GetMem
     if (SameText(name, "@GetMem")) {
         kind = ikFunc;
         type = "Pointer";
         procInfo->AddArg(0x21, 0, 4, "size", "Integer");
         return true;
     }
-    //@IntOver
+    // @IntOver
     if (SameText(name, "@IntOver")) {
         kind = ikProc;
         return true;
     }
-    //@IsClass
+    // @IsClass
     if (SameText(name, "@IsClass")) {
         kind = ikFunc;
         type = "Boolean";
@@ -2928,14 +2929,14 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 1, 4, "Parent", "TClass");
         return true;
     }
-    //@RandInt
+    // @RandInt
     if (SameText(name, "@RandInt")) {
         kind = ikFunc;
         type = "Integer";
         procInfo->AddArg(0x21, 0, 4, "Range", "Integer");
         return true;
     }
-    //@ReallocMem
+    // @ReallocMem
     if (SameText(name, "@ReallocMem")) {
         kind = ikFunc;
         type = "Pointer";
@@ -2943,7 +2944,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 1, 4, "NewSize", "Integer");
         return true;
     }
-    //@SetElem
+    // @SetElem
     if (SameText(name, "@SetElem")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "Dest", "SET");
@@ -2951,7 +2952,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 1, "Size", "Byte");
         return true;
     }
-    //Trunc
+    // @Trunc
     if (SameText(name, "@Trunc")) {
         kind = ikFunc;
         type = "Int64";

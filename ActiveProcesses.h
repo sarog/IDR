@@ -1,5 +1,4 @@
 //---------------------------------------------------------------------------
-
 #ifndef ActiveProcessesH
 #define ActiveProcessesH
 //---------------------------------------------------------------------------
@@ -10,10 +9,9 @@
 #include <Vcl.Menus.hpp>
 #include <TlHelp32.h>
 #include <Psapi.h>
-
 //---------------------------------------------------------------------------
 class TFActiveProcesses : public TForm {
-    __published: // IDE-managed Components
+__published: // IDE-managed Components
     TButton * btnDump;
     TButton *btnCancel;
     TListView *lvProcesses;
@@ -57,7 +55,7 @@ private: // User declarations
 
 public: // User declarations
     __fastcall TFActiveProcesses(TComponent *Owner);
-    __fastcall ~TFActiveProcesses();
+    ~TFActiveProcesses();
 
     void ShowProcesses();
     void __fastcall EnumSections(HANDLE HProcess, Byte *PProcessBase, IMAGE_SECTION_HEADER *Buffer, DWord *Secnum);

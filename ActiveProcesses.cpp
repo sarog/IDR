@@ -1,20 +1,16 @@
 ﻿//---------------------------------------------------------------------------
-
 #include <vcl.h>
 #include <VersionHelpers.h>
 #pragma hdrstop
 
 #include "Main.h"
 #include "ActiveProcesses.h"
-
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-
 TFActiveProcesses *FActiveProcesses;
 //---------------------------------------------------------------------------
-__fastcall TFActiveProcesses::TFActiveProcesses(TComponent *Owner)
-    : TForm(Owner) {
+__fastcall TFActiveProcesses::TFActiveProcesses(TComponent *Owner) : TForm(Owner) {
     InstPSAPI = 0;
     lpEnumProcesses = 0;
     lpEnumProcessModules = 0;
@@ -50,7 +46,7 @@ __fastcall TFActiveProcesses::TFActiveProcesses(TComponent *Owner)
 }
 
 //---------------------------------------------------------------------------
-__fastcall TFActiveProcesses::~TFActiveProcesses() {
+TFActiveProcesses::~TFActiveProcesses() {
     if (InstPSAPI) FreeLibrary(InstPSAPI);
     if (InstKernel32) FreeLibrary(InstKernel32);
 }
@@ -163,9 +159,9 @@ void __fastcall TFActiveProcesses::EnumSections(HANDLE HProcess, Byte *PProcessB
     IMAGE_NT_HEADERS _ntHdr;
     IMAGE_SECTION_HEADER _section;
 
-    //Read offset of PE header
+    // Read offset of PE header
     if (!ReadProcessMemory(HProcess, PProcessBase + 0x3C, &_peHdrOffset, sizeof(_peHdrOffset), &_sz)) return;
-    //Read IMAGE_NT_HEADERS.OptionalHeader.BaseOfCode
+    // Read IMAGE_NT_HEADERS.OptionalHeader.BaseOfCode
     if (!ReadProcessMemory(HProcess, PProcessBase + _peHdrOffset, &_ntHdr, sizeof(_ntHdr), &_sz)) return;
 
     Byte *_pSection = PProcessBase + _peHdrOffset + 4 + sizeof(_ntHdr.FileHeader) + _ntHdr.FileHeader.SizeOfOptionalHeader;

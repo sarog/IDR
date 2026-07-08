@@ -79,7 +79,7 @@ protected:
 
 public:
     __fastcall TAnalyzeThread(TFMain_11011981 *AForm, TFProgressBar *ApbForm, bool AllValues);
-    __fastcall ~TAnalyzeThread();
+    ~TAnalyzeThread();
     int __fastcall GetRetVal();
     bool all; //if false, only ClassViewer
 };
