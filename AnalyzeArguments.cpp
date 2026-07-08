@@ -1,6 +1,9 @@
 #include "Main.h"
 #include "Misc.h"
 #include "Disasm.h"
+#ifdef IDR64
+#include "Idr64Manager.h"
+#endif
 
 extern Byte *Code;
 extern DWord CodeBase;
@@ -10,7 +13,11 @@ extern DWord TotalSize;
 extern DWord *Flags;
 
 //---------------------------------------------------------------------------
+#ifdef IDR64
+String __fastcall Idr64Manager::AnalyzeArguments(DWord fromAdr)
+#else
 String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
+#endif
     Byte op;
     bool kb;
     bool bpBased;

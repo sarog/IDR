@@ -1489,10 +1489,14 @@ typedef struct {
     int BaseReg;
     int IndxReg;
     int Scale;
+#ifdef IDR64
+    ULONGLONG Offset;
+    ULONGLONG Immediate;
+#else
     DWord Offset;
-    //
-    //bool    ImmPresent;
     DWord Immediate;
+#endif
+    //bool    ImmPresent;
     Byte OpSize; //Operand size
     //Byte    ImmSize;//size of immediate operand
     char sSize[32];
