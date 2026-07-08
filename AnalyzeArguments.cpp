@@ -74,7 +74,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
     if (className == "" && (recN->procInfo->flags & PF_VIRTUAL) && recN->xrefs) {
         minClassName = "";
         for (int n = 0; n < recN->xrefs->Count; n++) {
-            PXrefRec recX = (PXrefRec) recN->xrefs->Items[n];
+            PXrefRec recX = static_cast<PXrefRec>(recN->xrefs->Items[n]);
             if (recX->type == 'D') {
                 className = GetClsName(recX->adr);
                 if (minClassName == "" || !IsInheritsByClassName(className, minClassName)) minClassName = className;
@@ -105,7 +105,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
         Byte b2 = Code[curPos + 1];
         if (!b1 && !b2 && !lastAdr) break;
 
-        instrLen = Disasm.Disassemble(Code + curPos, (__int64) curAdr, &DisInfo, 0);
+        instrLen = Disasm.Disassemble(Code + curPos, static_cast<__int64>(curAdr), &DisInfo, 0);
         //if (!instrLen) break;
         if (!instrLen) {
             curPos++;
@@ -162,7 +162,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                             if (b & cfPop) {
                                 //pop ecx
                                 if (b & cfSkip) break;
-                                instrLen1 = Disasm.Disassemble(Code + Pos, (__int64) Pos2Adr(Pos), &DisInfo1, 0);
+                                instrLen1 = Disasm.Disassemble(Code + Pos, static_cast<__int64>(Pos2Adr(Pos)), &DisInfo1, 0);
                                 firstPopRegIdx = DisInfo1.OpRegIdx[0];
                                 popBytes += 4;
                                 SetFlags(cfFrame, Pos, instrLen1);
@@ -176,7 +176,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                                     if (!kb && !(recN1->procInfo->flags & (PF_EVENT | PF_DYNAMIC)) &&
                                         recN1->kind != ikConstructor && recN1->kind != ikDestructor) {
                                         recN1->kind = ikFunc;
-                                        Disasm.Disassemble(Code + Pos, (__int64) Pos2Adr(Pos), &DisInfo1, 0);
+                                        Disasm.Disassemble(Code + Pos, static_cast<__int64>(Pos2Adr(Pos)), &DisInfo1, 0);
                                         op = Disasm.GetOp(DisInfo1.Mnem);
                                         //if setXX - return type is Boolean
                                         if (op == OP_SET) recN1->type = "Boolean";
@@ -196,7 +196,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                             //if (Pos != fromPos && (b & cfProcEnd))
                             if (_procSize && Pos - fromPos + 1 >= _procSize) break;
                             if (b & cfInstruction) {
-                                instrLen1 = Disasm.Disassemble(Code + Pos, (__int64) Pos2Adr(Pos), &DisInfo1, 0);
+                                instrLen1 = Disasm.Disassemble(Code + Pos, static_cast<__int64>(Pos2Adr(Pos)), &DisInfo1, 0);
                                 SetFlags(cfFrame, Pos, instrLen1);
                                 if ((b & cfPush) && (DisInfo1.OpRegIdx[0] == firstPopRegIdx)) break;
                             }
@@ -210,17 +210,17 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                             //if (Pos != fromPos && (b & cfProcEnd))
                             if (_procSize && Pos - fromPos + 1 >= _procSize) break;
                             if (b & cfInstruction) {
-                                instrLen1 = Disasm.Disassemble(Code + Pos, (__int64) Pos2Adr(Pos), &DisInfo1, 0);
+                                instrLen1 = Disasm.Disassemble(Code + Pos, static_cast<__int64>(Pos2Adr(Pos)), &DisInfo1, 0);
                                 op = Disasm.GetOp(DisInfo1.Mnem);
                                 SetFlags(cfFrame, Pos, instrLen1);
                                 //add esp,...
                                 if (op == OP_ADD && DisInfo1.OpRegIdx[0] == 20) {
-                                    popBytes += (int) DisInfo1.Immediate;
+                                    popBytes += static_cast<int>(DisInfo1.Immediate);
                                     continue;
                                 }
                                 //sub esp,...
                                 if (op == OP_SUB && DisInfo1.OpRegIdx[0] == 20) {
-                                    popBytes -= (int) DisInfo1.Immediate;
+                                    popBytes -= static_cast<int>(DisInfo1.Immediate);
                                     continue;
                                 }
                                 if (b & cfPush) popBytes -= 4;
@@ -263,14 +263,14 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
         if (IsFlagSet(cfLoc, curPos)) {
             recN1 = GetInfoRec(curAdr);
             if (recN1 && recN1->xrefs && recN1->xrefs->Count == 1) {
-                PXrefRec recX = (PXrefRec) recN1->xrefs->Items[0];
+                PXrefRec recX = static_cast<PXrefRec>(recN1->xrefs->Items[0]);
                 Adr = recX->adr + recX->offset;
                 if (Adr > curAdr) {
                     sSize = IsInitStackViaLoop(curAdr, Adr);
                     if (sSize) {
                         procStackSize += sSize * lastMovImm;
                         //skip jne
-                        instrLen = Disasm.Disassemble(Code + Adr2Pos(Adr), (__int64) Adr, 0, 0);
+                        instrLen = Disasm.Disassemble(Code + Adr2Pos(Adr), static_cast<__int64>(Adr), 0, 0);
                         curAdr = Adr + instrLen;
                         curPos = Adr2Pos(curAdr);
                         SetFlags(cfFrame, fromPos, curAdr - fromAdr);
@@ -282,10 +282,10 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
         //add (sub) esp,...
         if (DisInfo.OpRegIdx[0] == 20 && DisInfo.OpType[1] == otIMM) {
             if (op == OP_ADD) {
-                if ((int) DisInfo.Immediate < 0) procStackSize -= (int) DisInfo.Immediate;
+                if (static_cast<int>(DisInfo.Immediate) < 0) procStackSize -= static_cast<int>(DisInfo.Immediate);
             }
             if (op == OP_SUB) {
-                if ((int) DisInfo.Immediate > 0) procStackSize += (int) DisInfo.Immediate;
+                if (static_cast<int>(DisInfo.Immediate) > 0) procStackSize += static_cast<int>(DisInfo.Immediate);
             }
             curPos += instrLen;
             curAdr += instrLen;
@@ -406,7 +406,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                         if (Code[Pos] == 0xE9) //jmp Handle...
                         {
                             //Disassemble jmp
-                            instrLen1 = Disasm.Disassemble(Code + Pos, (__int64) Adr, &DisInfo, 0);
+                            instrLen1 = Disasm.Disassemble(Code + Pos, static_cast<__int64>(Adr), &DisInfo, 0);
 
                             recN1 = GetInfoRec(DisInfo.Immediate);
                             if (recN1) {
@@ -415,7 +415,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                                     Pos += instrLen1;
                                     Adr += instrLen1;
                                     //jmp @2
-                                    instrLen2 = Disasm.Disassemble(Code + Pos, (__int64) Adr, &DisInfo, 0);
+                                    instrLen2 = Disasm.Disassemble(Code + Pos, static_cast<__int64>(Adr), &DisInfo, 0);
                                     Adr += instrLen2;
                                     if (Adr > lastAdr) lastAdr = Adr;
                                 } else if (recN1->SameName("@HandleAnyException") || recN1->SameName(
@@ -424,7 +424,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                                     Pos += instrLen1;
                                     Adr += instrLen1;
                                     //call DoneExcept
-                                    instrLen2 = Disasm.Disassemble(Code + Pos, (__int64) Adr, 0, 0);
+                                    instrLen2 = Disasm.Disassemble(Code + Pos, static_cast<__int64>(Adr), 0, 0);
                                     Adr += instrLen2;
                                     if (Adr > lastAdr) lastAdr = Adr;
                                 } else if (recN1->SameName("@HandleOnException")) {
@@ -499,17 +499,17 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                 break;
             }
             //cop ..., [ebp + Offset]
-            if (!kb && bpBased && DisInfo.BaseReg == 21 && DisInfo.IndxReg == -1 && (int) DisInfo.Offset > 0) {
+            if (!kb && bpBased && DisInfo.BaseReg == 21 && DisInfo.IndxReg == -1 && static_cast<int>(DisInfo.Offset) > 0) {
                 recN1 = GetInfoRec(fromAdr);
                 //For embedded procs we have on1 additional argument (pushed on stack first), that poped from stack by instrcution pop ecx
-                if (!emb || (int) DisInfo.Offset != retBytes + bpBase) {
+                if (!emb || static_cast<int>(DisInfo.Offset) != retBytes + bpBase) {
                     int argSize = DisInfo.OpSize;
                     String argType = "";
                     if (argSize == 10) argType = "Extended";
                     //Each argument in stack has size 4*N bytes
                     if (argSize < 4) argSize = 4;
                     argSize = ((argSize + 3) / 4) * 4;
-                    recN1->procInfo->AddArg(0x21, (int) DisInfo.Offset, argSize, "", argType);
+                    recN1->procInfo->AddArg(0x21, static_cast<int>(DisInfo.Offset), argSize, "", argType);
                 }
             }
             //Instruction pop reg always change reg
@@ -947,14 +947,14 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                     else if (recN1->SameName("@BoundErr")) {
                         if (IsFlagSet(cfLoc, curPos)) {
                             Pos = GetNearestUpInstruction(curPos, fromPos, 1);
-                            Disasm.Disassemble(Code + Pos, (__int64) Pos2Adr(Pos), &DisInfo1, 0);
+                            Disasm.Disassemble(Code + Pos, static_cast<__int64>(Pos2Adr(Pos)), &DisInfo1, 0);
                             if (DisInfo1.Branch) {
                                 Pos = GetNearestUpInstruction(Pos, fromPos, 3);
                                 SetFlags(cfSkip, Pos, (curPos - Pos) + instrLen);
                             }
                         } else {
                             Pos = GetNearestUpInstruction(curPos, fromPos, 1);
-                            Disasm.Disassemble(Code + Pos, (__int64) Pos2Adr(Pos), &DisInfo1, 0);
+                            Disasm.Disassemble(Code + Pos, static_cast<__int64>(Pos2Adr(Pos)), &DisInfo1, 0);
                             if (DisInfo1.Branch) {
                                 Pos = GetNearestUpInstruction(Pos, fromPos, 1);
                                 if (IsFlagSet(cfPop, Pos)) {
@@ -1008,7 +1008,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
         if (recN->procInfo->args) {
             int delta = retBytes;
             for (int n = 0; n < recN->procInfo->args->Count; n++) {
-                argInfo = (PARGINFO) recN->procInfo->args->Items[n];
+                argInfo = static_cast<PARGINFO>(recN->procInfo->args->Items[n]);
                 if (argInfo->Ndx > 2) delta -= argInfo->Size;
             }
             if (delta < 0) {
@@ -1020,11 +1020,11 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                     recN->procInfo->flags |= PF_EMBED;
                     //Skip following after call instrcution "pop ecx"
                     for (int n = 0; n < recN->xrefs->Count; n++) {
-                        PXrefRec recX = (PXrefRec) recN->xrefs->Items[n];
+                        PXrefRec recX = static_cast<PXrefRec>(recN->xrefs->Items[n]);
                         if (recX->type == 'C') {
                             Adr = recX->adr + recX->offset;
                             Pos = Adr2Pos(Adr);
-                            instrLen = Disasm.Disassemble(Code + Pos, (__int64) Adr, &DisInfo, 0);
+                            instrLen = Disasm.Disassemble(Code + Pos, static_cast<__int64>(Adr), &DisInfo, 0);
                             Pos += instrLen;
                             if (Code[Pos] == 0x59) SetFlag(cfSkip, Pos);
                         }
