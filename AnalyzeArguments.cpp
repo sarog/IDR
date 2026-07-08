@@ -40,13 +40,13 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
     recN = GetInfoRec(fromAdr);
     if (!recN || !recN->procInfo) return "";
 
-    //If cfPass is set exit
+    // If cfPass is set exit
     if (IsFlagSet(cfPass, fromPos)) return recN->type;
 
-    //Proc start
+    // Proc start
     SetFlag(cfProcStart | cfPass, fromPos);
 
-    //Skip Imports
+    // Skip Imports
     if (IsFlagSet(cfImport, fromPos)) return recN->type;
 
     kb = (recN->procInfo->flags & PF_KBPROTO);
@@ -55,14 +55,14 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
     bpBase = recN->procInfo->bpBase;
     retBytes = recN->procInfo->retBytes;
 
-    //If constructor or destructor get class name
+    // If constructor or destructor get class name
     if (recN->kind == ikConstructor || recN->kind == ikDestructor)
         className = ExtractClassName(recN->GetName());
-    //If ClassName not given and proc is dynamic, try to find minimal class
+    // If ClassName not given and proc is dynamic, try to find minimal class
     if (className == "" && (recN->procInfo->flags & PF_DYNAMIC) && recN->xrefs) {
         minClassName = "";
         for (int n = 0; n < recN->xrefs->Count; n++) {
-            PXrefRec recX = (PXrefRec) recN->xrefs->Items[n];
+            PXrefRec recX = static_cast<PXrefRec>(recN->xrefs->Items[n]);
             if (recX->type == 'D') {
                 className = GetClsName(recX->adr);
                 if (minClassName == "" || !IsInheritsByClassName(className, minClassName)) minClassName = className;
@@ -70,7 +70,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
         }
         if (minClassName != "") className = minClassName;
     }
-    //If ClassName not given and proc is virtual, try to find minimal class
+    // If ClassName not given and proc is virtual, try to find minimal class
     if (className == "" && (recN->procInfo->flags & PF_VIRTUAL) && recN->xrefs) {
         minClassName = "";
         for (int n = 0; n < recN->xrefs->Count; n++) {

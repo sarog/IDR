@@ -195,11 +195,15 @@ int __fastcall MDisasm::Disassemble(Byte* from, __int64 address, PDISINFO pDisIn
             /*
             asm
             {
+            // @formatter:off
+            // clang-format off
                 push    400h
                 lea     eax, [Instr]
                 push    eax
                 mov     ecx, [DIS]
                 call    CchFormatInstr
+            // @formatter:on
+            // clang-format on
             }
             */
             FormatInstr(pDisInfo, disLine);
