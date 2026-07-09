@@ -127,8 +127,7 @@ Byte __fastcall MDisasm::GetOp(char* mnem)
     return OP_UNK;
 }
 //---------------------------------------------------------------------------
-int __fastcall MDisasm::GetOpType(char* Op)
-{
+int __fastcall MDisasm::GetOpType(char* Op) {
     char c = Op[0];
     if (c == 0) return otUND;
     if (strchr(Op, '[')) return otMEM;
@@ -137,10 +136,8 @@ int __fastcall MDisasm::GetOpType(char* Op)
     return otREG;
 }
 //---------------------------------------------------------------------------
-int __fastcall MDisasm::GetRegister(const char * reg)
-{
-    for (int n = 0; n < 8; n++)
-    {
+int __fastcall MDisasm::GetRegister(const char * reg) {
+    for (int n = 0; n < 8; n++) {
         if (!stricmp(Reg32Tab[n], reg)) return n;
     }
     return -1;
@@ -184,11 +181,9 @@ int __fastcall MDisasm::Disassemble(Byte* from, __int64 address, PDISINFO pDisIn
         // @formatter:on
     }
 
-    //If address of structure DISINFO not given, return only instruction length
-    if (pDisInfo)
-    {
-        if (InstrLen)
-        {
+    // If address of structure DISINFO not given, return only instruction length
+    if (pDisInfo) {
+        if (InstrLen) {
             memset(pDisInfo, 0, sizeof(DISINFO));
             pDisInfo->OpRegIdx[0] = -1;
             pDisInfo->OpRegIdx[1] = -1;
@@ -200,42 +195,37 @@ int __fastcall MDisasm::Disassemble(Byte* from, __int64 address, PDISINFO pDisIn
             /*
             asm
             {
+            // @formatter:off
+            // clang-format off
                 push    400h
                 lea     eax, [Instr]
                 push    eax
                 mov     ecx, [DIS]
                 call    CchFormatInstr
+            // @formatter:on
+            // clang-format on
             }
             */
             FormatInstr(pDisInfo, disLine);
-            if (pDisInfo->IndxReg != -1 && !pDisInfo->Scale) pDisInfo->Scale = 1;
+            if (pDisInfo->IndxReg != -1 && !pDisInfo->Scale)
+                pDisInfo->Scale = 1;
 
-            if (pDisInfo->Mnem[0] == 'f' || strncmp(pDisInfo->Mnem, "wait", 4) == 0)
-            {
+            if (pDisInfo->Mnem[0] == 'f' || strncmp(pDisInfo->Mnem, "wait", 4) == 0) {
                 pDisInfo->Float = true;
-            }
-            else if (pDisInfo->Mnem[0] == 'j')
-            {
+            } else if (pDisInfo->Mnem[0] == 'j') {
                 pDisInfo->Branch = true;
-                if (pDisInfo->Mnem[1] != 'm') pDisInfo->Conditional = true;
-            }
-            else if (strncmp(pDisInfo->Mnem, "call", 4) == 0)
-            {
+                if (pDisInfo->Mnem[1] != 'm')
+                    pDisInfo->Conditional = true;
+            } else if (strncmp(pDisInfo->Mnem, "call", 4) == 0) {
                 pDisInfo->Call = true;
-            }
-            else if (strncmp(pDisInfo->Mnem, "ret", 3) == 0)
-            {
+            } else if (strncmp(pDisInfo->Mnem, "ret", 3) == 0) {
                 pDisInfo->Ret = true;
             }
             _res = InstrLen;
-        }
-        else
-        {
+        } else {
             _res = 0;
         }
-    }
-    else
-    {
+    } else {
         _res = InstrLen;
     }
 
@@ -243,8 +233,7 @@ int __fastcall MDisasm::Disassemble(Byte* from, __int64 address, PDISINFO pDisIn
     return _res;
 }
 //---------------------------------------------------------------------------
-void __fastcall MDisasm::FormatInstr(PDISINFO pDisInfo, char* disLine)
-{
+void __fastcall MDisasm::FormatInstr(PDISINFO pDisInfo, char* disLine) {
     Byte    _repPrefix, p, *ArgInfo;
     const char *OpName;
     int     i, Bytes = 0;
@@ -252,35 +241,30 @@ void __fastcall MDisasm::FormatInstr(PDISINFO pDisInfo, char* disLine)
 
     if (disLine) *disLine = 0;
     _repPrefix = GetRepPrefix();
-    if (_repPrefix)
-    {
-        switch (_repPrefix)
-        {
-        case 0xF0:
-            if (disLine) strcat(disLine, "lock ");
-            pDisInfo->RepPrefix = 0;
-            Bytes = 5;
-            break;
-        case 0xF2:
-            if (disLine) strcat(disLine, "repne ");
-            pDisInfo->RepPrefix = 1;
-            Bytes = 6;
-            break;
-        case 0xF3:
-            if ((GetCop() & 0xF6) == 0xA6)
-            {
-                if (disLine) strcat(disLine, "repe ");
-                pDisInfo->RepPrefix = 2;
+    if (_repPrefix) {
+        switch (_repPrefix) {
+            case 0xF0:
+                if (disLine) strcat(disLine, "lock ");
+                pDisInfo->RepPrefix = 0;
                 Bytes = 5;
+                break;
+            case 0xF2:
+                if (disLine) strcat(disLine, "repne ");
+                pDisInfo->RepPrefix = 1;
+                Bytes = 6;
+                break;
+            case 0xF3:
+                if ((GetCop() & 0xF6) == 0xA6) {
+                    if (disLine) strcat(disLine, "repe ");
+                    pDisInfo->RepPrefix = 2;
+                    Bytes = 5;
+                } else {
+                    if (disLine) strcat(disLine, "rep ");
+                    pDisInfo->RepPrefix = 3;
+                    Bytes = 4;
+                }
+                break;
             }
-            else
-            {
-                if (disLine) strcat(disLine, "rep ");
-                pDisInfo->RepPrefix = 3;
-                Bytes = 4;
-            }
-            break;
-        }
     }
 
     asm
@@ -295,31 +279,29 @@ void __fastcall MDisasm::FormatInstr(PDISINFO pDisInfo, char* disLine)
         // clang-format on
     }
 
-    if (!GetOperandSize())
-    {
-        switch (GetCop())
-        {
-        case 0x60:
-            OpName = "pusha";
-            break;
-        case 0x61:
-            OpName = "popa";
-            break;
-        case 0x98:
-            OpName = "cbw";
-            break;
-        case 0x99:
-            OpName = "cwd";
-            break;
-        case 0x9C:
-            OpName = "pushf";
-            break;
-        case 0x9D:
-            OpName = "popf";
-            break;
-        case 0xCF:
-            OpName = "iret";
-            break;
+    if (!GetOperandSize()) {
+        switch (GetCop()) {
+            case 0x60:
+                OpName = "pusha";
+                break;
+            case 0x61:
+                OpName = "popa";
+                break;
+            case 0x98:
+                OpName = "cbw";
+                break;
+            case 0x99:
+                OpName = "cwd";
+                break;
+            case 0x9C:
+                OpName = "pushf";
+                break;
+            case 0x9D:
+                OpName = "popf";
+                break;
+            case 0xCF:
+                OpName = "iret";
+                break;
         }
     }
 
@@ -342,11 +324,9 @@ void __fastcall MDisasm::FormatInstr(PDISINFO pDisInfo, char* disLine)
         // clang-format on
     }
 
-    for (i = 0; i < 3; i++)
-    {
+    for (i = 0; i < 3; i++) {
         if (!*ArgInfo) break;
-        if (disLine)
-        {
+        if (disLine) {
             if (!i)
                 for (; Bytes < ASMMAXCOPLEN; Bytes++) strcat(disLine, " ");
             else
@@ -374,25 +354,19 @@ void __fastcall MDisasm::FormatInstr(PDISINFO pDisInfo, char* disLine)
     }
 }
 //---------------------------------------------------------------------------
-int __fastcall MDisasm::OutputGeneralRegister(char *dst, int reg, int size)
-{
-Byte        OperandSize;
-
-    if (size == 1)
-    {
+int __fastcall MDisasm::OutputGeneralRegister(char *dst, int reg, int size) {
+    if (size == 1) {
         strcat(dst, Reg8Tab[reg]);
         return 0;
     }
 
-    if (size == 2)
-    {
+    if (size == 2) {
         strcat(dst, Reg16Tab[reg]);
         return 8;
     }
 
-    OperandSize = GetOperandSize();
-    if (size != 4 && !OperandSize)
-    {
+    Byte OperandSize = GetOperandSize();
+    if (size != 4 && !OperandSize) {
         strcat(dst, Reg16Tab[reg]);
         return 8;
     }
@@ -401,13 +375,11 @@ Byte        OperandSize;
     return 16;
 }
 //---------------------------------------------------------------------------
-void __fastcall MDisasm::OutputHex(char *dst, DWord val)
-{
+void __fastcall MDisasm::OutputHex(char *dst, DWord val) {
     Byte b;
     char buf[12];
 
-    if (val <= 9)
-    {
+    if (val <= 9) {
         sprintf(dst + strlen(dst), "%ld", val);
         return;
     }
@@ -417,8 +389,7 @@ void __fastcall MDisasm::OutputHex(char *dst, DWord val)
     strcat(dst, buf);
 }
 //---------------------------------------------------------------------------
-DWord __fastcall MDisasm::GetAddress()
-{
+DWord __fastcall MDisasm::GetAddress() {
     int   n;
     DWord res = 0;
 
@@ -433,188 +404,183 @@ DWord __fastcall MDisasm::GetAddress()
         // clang-format on
     }
 
-    switch (n)
-    {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-    case 7:
-    case 8:
-    case 9:
-    case 0x11:
-        asm
-        {
-            // @formatter:off
-            // clang-format off
-            xor     eax, eax
-            mov     dword ptr [res], eax
-            // @formatter:on
-            // clang-format on
-        }
-        break;
-    case 4:
-    case 0xA:
-    case 0xC:
-    case 0xD:
-        asm
-        {
-            // @formatter:off
-            // clang-format off
-            mov     ecx, [DIS]
-            mov     eax, [ecx+64h]
-            movsx   eax, byte ptr [eax+ecx+3Ch]
-            mov     edi, [ecx+38h]
-            mov     ebx, [ecx+28h]
-            cdq
-            xor     esi, esi
-            add     edi, eax
-            mov     al, [ecx+51h]
-            push    ebp
-            mov     ebp, [ecx+2Ch]
-            adc     esi, edx
-            add     edi, ebx
-            adc     esi, ebp
-            pop     ebp
-            test    al, al
-            jnz     GA1
-            and     edi, 0FFFFh
-            and     esi, 0
-        GA1:
-            mov     eax, [ecx+8]
-            test    eax, eax
-            jnz     GA2
-            and     ebx, 0FFFF0000h
-            and     edi, 0FFFFh
-            or      ebx, edi
-            xor     esi, esi
-            xor     ecx, ecx
-            mov     edi, ebx
-            or      esi, ecx
-        GA2:
-            mov     eax, edi
-            mov     edx, esi
-            mov     dword ptr [res], eax
-            // @formatter:on
-            // clang-format on
-        }
-        break;
-    case 5:
-    case 0xB:
-    case 0xE:
-    case 0xF:
-        asm
-        {
-            // @formatter:off
-            // clang-format off
-            mov     ecx, [DIS]
-            mov     al, [ecx+51h]
-            test    al, al
-            jz      GA3
-            mov     edx, [ecx+64h]
-            mov     eax, [edx+ecx+3Ch]
-            jmp     GA4
-        GA3:
-            mov     eax, [ecx+64h]
-            movsx   eax, word ptr [eax+ecx+3Ch]
-        GA4:
-            mov     edi, [ecx+38h]
-            mov     ebx, [ecx+28h]
-            cdq
-            xor     esi, esi
-            add     edi, eax
-            mov     al, [ecx+51h]
-            push    ebp
-            mov     ebp, [ecx+2Ch]
-            adc     esi, edx
-            add     edi, ebx
-            adc     esi, ebp
-            pop     ebp
-            test    al, al
-            jnz     GA5
-            and     edi, 0FFFFh
-            and     esi, 0
-        GA5:
-            mov     eax, [ecx+8]
-            test    eax, eax
-            jnz     GA6
-            and     ebx, 0FFFF0000h
-            and     edi, 0FFFFh
-            or      ebx, edi
-            xor     esi, esi
-            xor     ecx, ecx
-            mov     edi, ebx
-            or      esi, ecx
-        GA6:
-            mov     eax, edi
-            mov     edx, esi
-            mov     dword ptr [res], eax
-            // @formatter:on
-            // clang-format on
-        }
-        break;
-    case 6:
-    case 0x10:
-        asm
-        {
-            // @formatter:off
-            // clang-format off
-            mov     ecx, [DIS]
-            mov     edx, [ecx+64h]
-            mov     eax, [edx+ecx+3Ch]
-            mov     dword ptr [res], eax
-            // @formatter:on
-            // clang-format on
-        }
-        break;
+    switch (n) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 7:
+        case 8:
+        case 9:
+        case 0x11:
+            asm
+            {
+                // @formatter:off
+                // clang-format off
+                xor     eax, eax
+                mov     dword ptr [res], eax
+                // @formatter:on
+                // clang-format on
+            }
+            break;
+        case 4:
+        case 0xA:
+        case 0xC:
+        case 0xD:
+            asm
+            {
+                // @formatter:off
+                // clang-format off
+                mov     ecx, [DIS]
+                mov     eax, [ecx+64h]
+                movsx   eax, byte ptr [eax+ecx+3Ch]
+                mov     edi, [ecx+38h]
+                mov     ebx, [ecx+28h]
+                cdq
+                xor     esi, esi
+                add     edi, eax
+                mov     al, [ecx+51h]
+                push    ebp
+                mov     ebp, [ecx+2Ch]
+                adc     esi, edx
+                add     edi, ebx
+                adc     esi, ebp
+                pop     ebp
+                test    al, al
+                jnz     GA1
+                and     edi, 0FFFFh
+                and     esi, 0
+            GA1:
+                mov     eax, [ecx+8]
+                test    eax, eax
+                jnz     GA2
+                and     ebx, 0FFFF0000h
+                and     edi, 0FFFFh
+                or      ebx, edi
+                xor     esi, esi
+                xor     ecx, ecx
+                mov     edi, ebx
+                or      esi, ecx
+            GA2:
+                mov     eax, edi
+                mov     edx, esi
+                mov     dword ptr [res], eax
+                // @formatter:on
+                // clang-format on
+            }
+            break;
+        case 5:
+        case 0xB:
+        case 0xE:
+        case 0xF:
+            asm
+            {
+                // @formatter:off
+                // clang-format off
+                mov     ecx, [DIS]
+                mov     al, [ecx+51h]
+                test    al, al
+                jz      GA3
+                mov     edx, [ecx+64h]
+                mov     eax, [edx+ecx+3Ch]
+                jmp     GA4
+            GA3:
+                mov     eax, [ecx+64h]
+                movsx   eax, word ptr [eax+ecx+3Ch]
+            GA4:
+                mov     edi, [ecx+38h]
+                mov     ebx, [ecx+28h]
+                cdq
+                xor     esi, esi
+                add     edi, eax
+                mov     al, [ecx+51h]
+                push    ebp
+                mov     ebp, [ecx+2Ch]
+                adc     esi, edx
+                add     edi, ebx
+                adc     esi, ebp
+                pop     ebp
+                test    al, al
+                jnz     GA5
+                and     edi, 0FFFFh
+                and     esi, 0
+            GA5:
+                mov     eax, [ecx+8]
+                test    eax, eax
+                jnz     GA6
+                and     ebx, 0FFFF0000h
+                and     edi, 0FFFFh
+                or      ebx, edi
+                xor     esi, esi
+                xor     ecx, ecx
+                mov     edi, ebx
+                or      esi, ecx
+            GA6:
+                mov     eax, edi
+                mov     edx, esi
+                mov     dword ptr [res], eax
+                // @formatter:on
+                // clang-format on
+            }
+            break;
+        case 6:
+        case 0x10:
+            asm
+            {
+                // @formatter:off
+                // clang-format off
+                mov     ecx, [DIS]
+                mov     edx, [ecx+64h]
+                mov     eax, [edx+ecx+3Ch]
+                mov     dword ptr [res], eax
+                // @formatter:on
+                // clang-format on
+            }
+            break;
     }
     return res;
 }
 //---------------------------------------------------------------------------
-void __fastcall MDisasm::OutputSegPrefix(char* dst, PDISINFO pDisInfo)
-{
-    Byte    _segPrefix;
+void __fastcall MDisasm::OutputSegPrefix(char *dst, PDISINFO pDisInfo) {
     const char *sptr = nullptr;
-
-    _segPrefix = GetSegPrefix();
-    switch (_segPrefix)
-    {
-    case 0x26:
-        sptr = "es:";
-        pDisInfo->SegPrefix = 0;
-        break;
-    case 0x2E:
-        sptr = "cs:";
-        pDisInfo->SegPrefix = 1;
-        break;
-    case 0x36:
-        sptr = "ss:";
-        pDisInfo->SegPrefix = 2;
-        break;
-    case 0x3E:
-        sptr = "ds:";
-        pDisInfo->SegPrefix = 3;
-        break;
-    case 0x64:
-        sptr = "fs:";
-        pDisInfo->SegPrefix = 4;
-        break;
-    case 0x65:
-        sptr = "gs:";
-        pDisInfo->SegPrefix = 5;
-        break;
+    Byte _segPrefix = GetSegPrefix();
+    switch (_segPrefix) {
+        case 0x26:
+            sptr = "es:";
+            pDisInfo->SegPrefix = 0;
+            break;
+        case 0x2E:
+            sptr = "cs:";
+            pDisInfo->SegPrefix = 1;
+            break;
+        case 0x36:
+            sptr = "ss:";
+            pDisInfo->SegPrefix = 2;
+            break;
+        case 0x3E:
+            sptr = "ds:";
+            pDisInfo->SegPrefix = 3;
+            break;
+        case 0x64:
+            sptr = "fs:";
+            pDisInfo->SegPrefix = 4;
+            break;
+        case 0x65:
+            sptr = "gs:";
+            pDisInfo->SegPrefix = 5;
+            break;
     }
 
     if (sptr) strcat(dst, sptr);
 }
 //---------------------------------------------------------------------------
-int __fastcall MDisasm::EvaluateOperandSize()
-{
+int __fastcall MDisasm::EvaluateOperandSize() {
     Byte    OperandSize;
     DWord   Ofs;
     int     OpSize;
 
     OperandSize = GetOperandSize();
+
     asm
     {
         // @formatter:off
@@ -645,8 +611,7 @@ int __fastcall MDisasm::EvaluateOperandSize()
     return OpSize;
 }
 //---------------------------------------------------------------------------
-char* __fastcall MDisasm::GetSizeString(int size)
-{
+const char *__fastcall MDisasm::GetSizeString(int size) {
     if (size == 1) return "byte";
     if (size == 2) return "word";
     if (size == 4) return "dword";
@@ -656,13 +621,12 @@ char* __fastcall MDisasm::GetSizeString(int size)
     return 0;
 }
 //---------------------------------------------------------------------------
-void __fastcall MDisasm::OutputSizePtr(int size, bool mm, PDISINFO pDisInfo, char* disLine)
-{
+void __fastcall MDisasm::OutputSizePtr(int size, bool mm, PDISINFO pDisInfo, char *disLine) {
     const char *sptr = nullptr;
 
     if (!size) size = EvaluateOperandSize();
-    switch (size)
-    {
+
+    switch (size) {
         case 1:
             sptr = "byte";
             break;
@@ -685,13 +649,13 @@ void __fastcall MDisasm::OutputSizePtr(int size, bool mm, PDISINFO pDisInfo, cha
             sptr = "tbyte";
             break;
         case 16:
-            if (mm) sptr = "xmmword";
+            if (mm)
+                sptr = "xmmword";
             break;
     }
-    if (sptr)
-    {
-        if (disLine)
-        {
+
+    if (sptr) {
+        if (disLine) {
             strcat(disLine, sptr);
             strcat(disLine, " ptr ");
         }
@@ -719,10 +683,8 @@ void __fastcall MDisasm::OutputMemAdr32(int argno, char* dst, DWord arg, bool f1
     }
 
     mod = PostByte & 0xC0;
-    if (mod == 0xC0)
-    {
-        if (!f1 && !f2)
-        {
+    if (mod == 0xC0) {
+        if (!f1 && !f2) {
             idxval = PostByte & 7;
             idxofs = OutputGeneralRegister(dst, idxval, arg);
             pDisInfo->OpRegIdx[argno] = idxofs + idxval;
@@ -749,19 +711,15 @@ void __fastcall MDisasm::OutputMemAdr32(int argno, char* dst, DWord arg, bool f1
 
     base = PostByte & 7;
 
-    if (base != 4)
-    {
-        if ((PostByte & 0xC7) == 5) //mod=00;r/m=101
-        {
+    if (base != 4) {
+        if ((PostByte & 0xC7) == 5) { // mod=00;r/m=101
             ofs = true;
             base = -1;
         }
-    }
-    else    //sib
-    {
+    } else { // sib
         sib = *pos++;
         if ((sib & 7) == 5 && !mod)
-            base = - 1;
+            base = -1;
         else
             base = sib & 7;
         index = (sib >> 3) & 7;
@@ -774,64 +732,52 @@ void __fastcall MDisasm::OutputMemAdr32(int argno, char* dst, DWord arg, bool f1
     }
 
     offset32 = 0;
-    if ((PostByte & 0xC0) == 0x40)  //mod=01
-    {
+    if ((PostByte & 0xC0) == 0x40) { // mod=01
         b = *pos;
         offset32 = b;
         if ((b & 0x80) != 0)
             offset32 |= 0xFFFFFF00;
-    }
-    else if ((PostByte & 0xC0) == 0x80) //mod=10
+    } else if ((PostByte & 0xC0) == 0x80) // mod=10
         ofs = true;
 
-    if (ofs) offset32 = *((DWord*)pos);
+    if (ofs) offset32 = *((DWord *) pos);
 
     mm = (f1 || f2);
     OutputSizePtr(arg, mm, pDisInfo, disLine);
     OutputSegPrefix(dst, pDisInfo);
     ib = (base != -1 || index != -1);
 
-    if (!GetSegPrefix() && !ib)
-    {
+    if (!GetSegPrefix() && !ib) {
         pDisInfo->SegPrefix = 3;
         strcat(dst, "ds:");
     }
     strcat(dst, "[");
     ofs1 = (offset32 != 0);
 
-    if (ib)
-    {
-        if (base != -1)
-        {
+    if (ib) {
+        if (base != -1) {
             strcat(dst, Reg32Tab[base]);
             pDisInfo->BaseReg = base + 16;
         }
-        if (index != -1)
-        {
+        if (index != -1) {
             if (base != -1) strcat(dst, "+");
             strcat(dst, Reg32Tab[index]);
             pDisInfo->IndxReg = index + 16;
-            if (ss != 1)
-            {
+            if (ss != 1) {
                 sprintf(dst + strlen(dst), "*%d", ss);
                 pDisInfo->Scale = ss;
             }
         }
-    }
-    else
+    } else
         ofs1 = true;
 
-    if (ofs)
-    {
+    if (ofs) {
         pDisInfo->Offset = offset32;
-        if (ib)
-        {
-            if ((int)offset32 < 0)
-            {
+        if (ib) {
+            if ((int) offset32 < 0) {
                 strcat(dst, "-");
-                offset32 = -(int)offset32;
-            }
-            else
+                offset32 = -(int) offset32;
+            } else
                 strcat(dst, "+");
         }
         OutputHex(dst, offset32);
@@ -839,17 +785,13 @@ void __fastcall MDisasm::OutputMemAdr32(int argno, char* dst, DWord arg, bool f1
         return;
     }
 
-    if (ofs1)
-    {
+    if (ofs1) {
         pDisInfo->Offset = offset32;
-        if (ib)
-        {
-            if ((int)offset32 < 0)
-            {
+        if (ib) {
+            if ((int) offset32 < 0) {
                 strcat(dst, "-");
-                offset32 = -(int)offset32;
-            }
-            else
+                offset32 = -(int) offset32;
+            } else
                 strcat(dst, "+");
         }
         OutputHex(dst, offset32);
@@ -857,8 +799,7 @@ void __fastcall MDisasm::OutputMemAdr32(int argno, char* dst, DWord arg, bool f1
     strcat(dst, "]");
 }
 //---------------------------------------------------------------------------
-void __fastcall MDisasm::OutputMemAdr16(int argno, char* dst, DWord arg, bool f1, bool f2, PDISINFO pDisInfo, char* disLine)
-{
+void __fastcall MDisasm::OutputMemAdr16(int argno, char* dst, DWord arg, bool f1, bool f2, PDISINFO pDisInfo, char* disLine) {
     Byte    PostByte, SegPrefix, b;
     bool    ofs, mm;
     const char  *regcomb;
@@ -878,10 +819,8 @@ void __fastcall MDisasm::OutputMemAdr16(int argno, char* dst, DWord arg, bool f1
         // clang-format on
     }
 
-    if ((PostByte & 0xC0) == 0xC0)  //mod=11
-    {
-        if (!f1 && !f2)
-        {
+    if ((PostByte & 0xC0) == 0xC0) { // mod=11
+        if (!f1 && !f2) {
             idxval = PostByte & 7;
             idxofs = OutputGeneralRegister(dst, idxval, arg);
             pDisInfo->OpRegIdx[argno] = idxofs + idxval;
@@ -895,10 +834,9 @@ void __fastcall MDisasm::OutputMemAdr16(int argno, char* dst, DWord arg, bool f1
     ofs = false;
     regcomb = 0;
 
-    if ((PostByte & 0xC7) == 6) //mod=00;r/m=110
+    if ((PostByte & 0xC7) == 6) // mod=00;r/m=110
         ofs = true;
-    else
-    {
+    else {
         b = PostByte & 7;
         regcomb = RegCombTab[b];
         if (b == 0 || b == 1 || b == 7)
@@ -912,8 +850,7 @@ void __fastcall MDisasm::OutputMemAdr16(int argno, char* dst, DWord arg, bool f1
     }
     sign = 0;
 
-    if ((PostByte & 0xC0) == 0x40)  //mod=01
-    {
+    if ((PostByte & 0xC0) == 0x40) { // mod=01
         asm
         {
             // @formatter:off
@@ -936,9 +873,7 @@ void __fastcall MDisasm::OutputMemAdr16(int argno, char* dst, DWord arg, bool f1
             // @formatter:on
             // clang-format on
         }
-    }
-    else if ((PostByte & 0xC0) == 0x80) //mod=10
-    {
+    } else if ((PostByte & 0xC0) == 0x80) { // mod=10
         ofs = true;
     }
 
@@ -946,16 +881,14 @@ void __fastcall MDisasm::OutputMemAdr16(int argno, char* dst, DWord arg, bool f1
     OutputSizePtr(arg, mm, pDisInfo, disLine);
     OutputSegPrefix(dst, pDisInfo);
 
-    if (!GetSegPrefix() && !regcomb)
-    {
+    if (!GetSegPrefix() && !regcomb) {
         strcat(dst, "ds:");
         pDisInfo->SegPrefix = 3;
     }
     strcat(dst, "[");
     if (regcomb) strcat(dst, regcomb);
 
-    if (ofs)
-    {
+    if (ofs) {
         if (regcomb) strcat(dst, "+");
         asm
         {
@@ -973,8 +906,7 @@ void __fastcall MDisasm::OutputMemAdr16(int argno, char* dst, DWord arg, bool f1
         sprintf(dst + strlen(dst), "%04lX]", dval);
         return;
     }
-    if (sign)
-    {
+    if (sign) {
         pDisInfo->Offset = offset16;
         sprintf(dst + strlen(dst), "%c", sign);
         OutputHex(dst, offset16);
@@ -982,8 +914,7 @@ void __fastcall MDisasm::OutputMemAdr16(int argno, char* dst, DWord arg, bool f1
     }
 }
 //---------------------------------------------------------------------------
-void __fastcall MDisasm::FormatArg(int argno, DWord cmd, DWord arg, PDISINFO pDisInfo, char* disLine)
-{
+void __fastcall MDisasm::FormatArg(int argno, DWord cmd, DWord arg, PDISINFO pDisInfo, char *disLine) {
     Byte    AddressSize, OperandSize;
     DWord   dval, adr;
     int     ival, idxofs, idxval, stno;
@@ -991,13 +922,125 @@ void __fastcall MDisasm::FormatArg(int argno, DWord cmd, DWord arg, PDISINFO pDi
 
     *p = 0;
 
-    switch (cmd)
-    {
-    //segment:offset
-    case 1:
-        OperandSize = GetOperandSize();
-        if (OperandSize)
-        {
+    switch (cmd) {
+            // segment:offset
+        case 1:
+            OperandSize = GetOperandSize();
+            if (OperandSize) {
+                asm
+                {
+                    // @formatter:off
+                    // clang-format off
+                    mov     ecx, [DIS]
+                    mov     edx, [ecx+64h]
+                    xor     eax, eax
+                    mov     ax, [edx+ecx+40h]
+                    mov     [dval], eax
+                    // @formatter:on
+                    // clang-format on
+                }
+                p += sprintf(p, "%04lX:", dval);
+                asm
+                {
+                    // @formatter:off
+                    // clang-format off
+                    mov     ecx, [DIS]
+                    mov     edx, [ecx+64h]
+                    mov     eax, [edx+ecx+3Ch]
+                    mov     [dval], eax
+                    // @formatter:on
+                    // clang-format on
+                }
+                sprintf(p, "%08lX", dval);
+            } else {
+                asm
+                {
+                    // @formatter:off
+                    // clang-format off
+                    mov     ecx, [DIS]
+                    mov     edx, [ecx+64h]
+                    xor     eax, eax
+                    mov     ax, [edx+ecx+3Eh]
+                    mov     [dval], eax
+                    // @formatter:on
+                    // clang-format on
+                }
+                p += sprintf(p, "%04lX:", dval);
+                asm
+                {
+                    // @formatter:off
+                    // clang-format off
+                    mov     ecx, [DIS]
+                    mov     edx, [ecx+64h]
+                    xor     eax, eax
+                    mov     ax, [edx+ecx+3Ch]
+                    mov     [dval], eax
+                    // @formatter:on
+                    // clang-format on
+                }
+                sprintf(p, "%04lX", dval);
+            }
+            break;
+        // cr#
+        case 2:
+            sprintf(Op, "cr%d", GetPostByteReg());
+            break;
+        // Integer value (sar, shr)
+        case 3:
+            sprintf(Op, "%d", arg);
+            pDisInfo->Immediate = arg;
+            // pDisInfo->ImmPresent = true;
+            break;
+        // dr#
+        case 4:
+            sprintf(Op, "dr%d", GetPostByteReg());
+            break;
+        // General register
+        case 5:
+            idxval = GetCop() & 7;
+            idxofs = OutputGeneralRegister(Op, idxval, arg);
+            pDisInfo->OpRegIdx[argno] = idxofs + idxval;
+            break;
+        // General register
+        case 6:
+            idxval = GetCop1() & 7;
+            idxofs = OutputGeneralRegister(Op, idxval, arg);
+            pDisInfo->OpRegIdx[argno] = idxofs + idxval;
+            break;
+        // Immediate byte
+        case 7:
+            if (GetCop() == 0x83) {
+                asm
+                {
+                    // @formatter:off
+                    // clang-format off
+                    mov     ecx, [DIS]
+                    mov     edx, [ecx+64h]
+                    movsx   eax, byte ptr [edx+ecx+3Ch]
+                    mov     [dval], eax
+                    // @formatter:on
+                    // clang-format on
+                }
+            } else {
+                asm
+                {
+                    // @formatter:off
+                    // clang-format off
+                    mov     ecx, [DIS]
+                    mov     edx, [ecx+64h]
+                    movzx   eax, byte ptr [edx+ecx+3Ch]
+                    mov     [dval], eax
+                    // @formatter:on
+                    // clang-format on
+                }
+            }
+            pDisInfo->Immediate = dval;
+            // pDisInfo->ImmPresent = true;
+            // pDisInfo->ImmSize = 1;
+            OutputHex(Op, dval);
+            break;
+        // Immediate byte
+        case 8:
             asm
             {
                 // @formatter:off
@@ -1005,245 +1048,52 @@ void __fastcall MDisasm::FormatArg(int argno, DWord cmd, DWord arg, PDISINFO pDi
                 mov     ecx, [DIS]
                 mov     edx, [ecx+64h]
                 xor     eax, eax
-                mov     ax, [edx+ecx+40h]
+                mov     al, [edx+ecx+3Eh]
                 mov     [dval], eax
                 // @formatter:on
                 // clang-format on
             }
-            p += sprintf(p, "%04lX:", dval);
-            asm
-            {
-                // @formatter:off
-                // clang-format off
-                mov     ecx, [DIS]
-                mov     edx, [ecx+64h]
-                mov     eax, [edx+ecx+3Ch]
-                mov     [dval], eax
-                // @formatter:on
-                // clang-format on
+            pDisInfo->Immediate = dval;
+            // pDisInfo->ImmPresent = true;
+            // pDisInfo->ImmSize = 1;
+            OutputHex(Op, dval);
+            break;
+        // Immediate dword
+        case 9:
+            OperandSize = GetOperandSize();
+            if (OperandSize) {
+                asm
+                {
+                    // @formatter:off
+                    // clang-format off
+                    mov     ecx, [DIS]
+                    mov     edx, [ecx+64h]
+                    mov     eax, [edx+ecx+3Ch]
+                    mov     [dval], eax
+                    // @formatter:on
+                    // clang-format on
+                }
+            } else {
+                asm
+                {
+                    // @formatter:off
+                    // clang-format off
+                    mov     ecx, [DIS]
+                    mov     edx, [ecx+64h]
+                    xor     eax, eax
+                    mov     ax, [edx+ecx+3Ch]
+                    mov     [dval], eax
+                    // @formatter:on
+                    // clang-format on
+                }
             }
-            sprintf(p, "%08lX", dval);
-        }
-        else
-        {
-            asm
-            {
-                // @formatter:off
-                // clang-format off
-                mov     ecx, [DIS]
-                mov     edx, [ecx+64h]
-                xor     eax, eax
-                mov     ax, [edx+ecx+3Eh]
-                mov     [dval], eax
-                // @formatter:on
-                // clang-format on
-            }
-            p += sprintf(p, "%04lX:", dval);
-            asm
-            {
-                // @formatter:off
-                // clang-format off
-                mov     ecx, [DIS]
-                mov     edx, [ecx+64h]
-                xor     eax, eax
-                mov     ax, [edx+ecx+3Ch]
-                mov     [dval], eax
-                // @formatter:on
-                // clang-format on
-            }
-            sprintf(p, "%04lX", dval);
-        }
-        break;
-    //cr#
-    case 2:
-        sprintf(Op, "cr%d", GetPostByteReg());
-        break;
-    //Integer value (sar, shr)
-    case 3:
-        sprintf(Op, "%d", arg);
-        pDisInfo->Immediate = arg;
-        //pDisInfo->ImmPresent = true;
-        break;
-    //dr#
-    case 4:
-        sprintf(Op, "dr%d", GetPostByteReg());
-        break;
-    //General register
-    case 5:
-        idxval = GetCop() & 7;
-        idxofs = OutputGeneralRegister(Op, idxval, arg);
-        pDisInfo->OpRegIdx[argno] = idxofs + idxval;
-        break;
-    //General register
-    case 6:
-        idxval = GetCop1() & 7;
-        idxofs = OutputGeneralRegister(Op, idxval, arg);
-        pDisInfo->OpRegIdx[argno] = idxofs + idxval;
-        break;
-    //Immediate byte
-    case 7:
-        if (GetCop() == 0x83)
-        {
-            asm
-            {
-                // @formatter:off
-                // clang-format off
-                mov     ecx, [DIS]
-                mov     edx, [ecx+64h]
-                movsx   eax, byte ptr [edx+ecx+3Ch]
-                mov     [dval], eax
-                // @formatter:on
-                // clang-format on
-            }
-        }
-        else
-        {
-            asm
-            {
-                // @formatter:off
-                // clang-format off
-                mov     ecx, [DIS]
-                mov     edx, [ecx+64h]
-                movzx   eax, byte ptr [edx+ecx+3Ch]
-                mov     [dval], eax
-                // @formatter:on
-                // clang-format on
-            }
-        }
-        pDisInfo->Immediate = dval;
-        //pDisInfo->ImmPresent = true;
-        //pDisInfo->ImmSize = 1;
-        OutputHex(Op, dval);
-        break;
-    //Immediate byte
-    case 8:
-        asm
-        {
-            // @formatter:off
-            // clang-format off
-            mov     ecx, [DIS]
-            mov     edx, [ecx+64h]
-            xor     eax, eax
-            mov     al, [edx+ecx+3Eh]
-            mov     [dval], eax
-            // @formatter:on
-            // clang-format on
-        }
-        pDisInfo->Immediate = dval;
-        //pDisInfo->ImmPresent = true;
-        //pDisInfo->ImmSize = 1;
-        OutputHex(Op, dval);
-        break;
-    //Immediate dword
-    case 9:
-        OperandSize = GetOperandSize();
-        if (OperandSize)
-        {
-            asm
-            {
-                // @formatter:off
-                // clang-format off
-                mov     ecx, [DIS]
-                mov     edx, [ecx+64h]
-                mov     eax, [edx+ecx+3Ch]
-                mov     [dval], eax
-                // @formatter:on
-                // clang-format on
-            }
-        }
-        else
-        {
-            asm
-            {
-                // @formatter:off
-                // clang-format off
-                mov     ecx, [DIS]
-                mov     edx, [ecx+64h]
-                xor     eax, eax
-                mov     ax, [edx+ecx+3Ch]
-                mov     [dval], eax
-                // @formatter:on
-                // clang-format on
-            }
-        }
-        pDisInfo->Immediate = dval;
-        //pDisInfo->ImmPresent = true;
-        //pDisInfo->ImmSize = 4;
-        OutputHex(Op, dval);
-        break;
-    //Immediate word (ret)
-    case 0xA:
-        asm
-        {
-            // @formatter:off
-            // clang-format off
-            mov     ecx, [DIS]
-            mov     edx, [ecx+64h]
-            xor     eax, eax
-            mov     ax, [edx+ecx+3Ch]
-            mov     [dval], eax
-            // @formatter:on
-            // clang-format on
-        }
-        pDisInfo->Immediate = dval;
-        //pDisInfo->ImmPresent = true;
-        //pDisInfo->ImmSize = 2;
-        OutputHex(Op, dval);
-        break;
-    //Address (jmp, jcond, call)
-    case 0xB:
-    case 0xC:
-        adr = GetAddress();
-        pDisInfo->Immediate = adr;
-        //pDisInfo->ImmPresent = true;
-        sprintf(Op, "%08lX", adr);
-        break;
-    //Memory
-    case 0xD:
-    case 0xF:
-    case 0x1B:
-        AddressSize = GetAddressSize();
-        if (AddressSize)
-            OutputMemAdr32(argno, Op, arg, (cmd == 0xD), (cmd == 0x1B), pDisInfo, disLine);
-        else
-            OutputMemAdr16(argno, Op, arg, (cmd == 0xD), (cmd == 0x1B), pDisInfo, disLine);
-        break;
-    //mm#
-    case 0xE:
-        sprintf(Op, "mm%d", GetPostByteReg());
-        break;
-    //General register
-    case 0x10:
-        idxval = GetPostByteReg();
-        idxofs = OutputGeneralRegister(Op, idxval, arg);
-        pDisInfo->OpRegIdx[argno] = idxofs + idxval;
-        break;
-    //Segment register
-    case 0x11:
-        idxval = GetPostByteReg();
-        pDisInfo->OpRegIdx[argno] = idxval + 24;
-        sprintf(Op, "%s", SegRegTab[idxval]);
-        break;
-    //sreg:memory
-    case 0x12:
-        OutputSegPrefix(Op, pDisInfo);
-        AddressSize = GetAddressSize();
-        if (AddressSize)
-        {
-            asm
-            {
-                // @formatter:off
-                // clang-format off
-                mov     ecx, [DIS]
-                mov     edx, [ecx+64h]
-                mov     eax, [edx+ecx+3Ch]
-                mov     [dval], eax
-                // @formatter:on
-                // clang-format on
-            }
-        }
-        else
-        {
+            pDisInfo->Immediate = dval;
+            // pDisInfo->ImmPresent = true;
+            // pDisInfo->ImmSize = 4;
+            OutputHex(Op, dval);
+            break;
+        // Immediate word (ret)
+        case 0xA:
             asm
             {
                 // @formatter:off
@@ -1256,122 +1106,176 @@ void __fastcall MDisasm::FormatArg(int argno, DWord cmd, DWord arg, PDISINFO pDi
                 // @formatter:on
                 // clang-format on
             }
-        }
-        sprintf(Op + strlen(Op), "[%08lX]", dval);
-        pDisInfo->Offset = dval;    //!
-        break;
-    //8-bit register
-    case 0x13:
-        strcpy(Op, Reg8Tab[arg]);
-        pDisInfo->OpRegIdx[argno] = arg;
-        break;
-    //General register
-    case 0x14:
-        idxval = arg;
-        idxofs = OutputGeneralRegister(Op, idxval, 0);
-        pDisInfo->OpRegIdx[argno] = idxofs + idxval;
-        break;
-    //8-bit register
-    case 0x15:
-        strcpy(Op, Reg8Tab[arg]);
-        pDisInfo->OpRegIdx[argno] = arg;
-        break;
-    //st
-    case 0x16:
-        strcpy(Op, "st");
-        pDisInfo->OpRegIdx[argno] = 30;
-        break;
-    //st(#)
-    case 0x17:
-        stno = GetPostByteRm();
-        sprintf(Op, "st(%d)", stno);
-        pDisInfo->OpRegIdx[argno] = stno + 30;
-        break;
-    //Segment register
-    case 0x18:
-        strcpy(Op, SegRegTab[arg]);
-        pDisInfo->OpRegIdx[argno] = arg + 24;
-        break;
-    //tr#
-    case 0x19:
-        sprintf(Op, "tr%d", GetPostByteReg());
-        break;
-    //[esi] or [si]
-    case 0x1A:
-        OutputSizePtr(arg, false, pDisInfo, disLine);
-        OutputSegPrefix(Op, pDisInfo);
-        AddressSize = GetAddressSize();
-        if (AddressSize)
-        {
-            pDisInfo->BaseReg = 22;
-            sprintf(Op + strlen(Op), "[%s]", "esi");
-        }
-        else
-        {
-            pDisInfo->BaseReg = 14;
-            strcat(Op, "[si]");
-        }
-        break;
-    //xmm#
-    case 0x1C:
-        sprintf(Op, "xmm%d", GetPostByteReg());
-        break;
-    //[edi] or es:[di]
-    case 0x1D:
-        OutputSizePtr(arg, false, pDisInfo, disLine);
-        AddressSize = GetAddressSize();
-        if (AddressSize)
-        {
-            pDisInfo->BaseReg = 23;
-            sprintf(Op, "[%s]", "edi");
-        }
-        else
-        {
-            pDisInfo->SegPrefix = 0;
-            pDisInfo->BaseReg = 15;
-            strcpy(Op, "es:[di]");
-        }
-        break;
-    //[ebx] or [bx]
-    case 0x1E:
-        OutputSizePtr(1, false, pDisInfo, disLine);
-        OutputSegPrefix(Op, pDisInfo);
-        AddressSize = GetAddressSize();
-        if (AddressSize)
-        {
-            pDisInfo->BaseReg = 19;
-            sprintf(Op + strlen(Op), "[%s]", "ebx");
-        }
-        else
-        {
-            pDisInfo->BaseReg = 11;
-            strcat(Op, "[bx]");
-        }
-        break;
+            pDisInfo->Immediate = dval;
+            // pDisInfo->ImmPresent = true;
+            // pDisInfo->ImmSize = 2;
+            OutputHex(Op, dval);
+            break;
+        // Address (jmp, jcond, call)
+        case 0xB:
+        case 0xC:
+            adr = GetAddress();
+            pDisInfo->Immediate = adr;
+            // pDisInfo->ImmPresent = true;
+            sprintf(Op, "%08lX", adr);
+            break;
+        // Memory
+        case 0xD:
+        case 0xF:
+        case 0x1B:
+            AddressSize = GetAddressSize();
+            if (AddressSize)
+                OutputMemAdr32(argno, Op, arg, (cmd == 0xD), (cmd == 0x1B), pDisInfo, disLine);
+            else
+                OutputMemAdr16(argno, Op, arg, (cmd == 0xD), (cmd == 0x1B), pDisInfo, disLine);
+            break;
+        // mm#
+        case 0xE:
+            sprintf(Op, "mm%d", GetPostByteReg());
+            break;
+        // General register
+        case 0x10:
+            idxval = GetPostByteReg();
+            idxofs = OutputGeneralRegister(Op, idxval, arg);
+            pDisInfo->OpRegIdx[argno] = idxofs + idxval;
+            break;
+        // Segment register
+        case 0x11:
+            idxval = GetPostByteReg();
+            pDisInfo->OpRegIdx[argno] = idxval + 24;
+            sprintf(Op, "%s", SegRegTab[idxval]);
+            break;
+        // sreg:memory
+        case 0x12:
+            OutputSegPrefix(Op, pDisInfo);
+            AddressSize = GetAddressSize();
+            if (AddressSize) {
+                asm
+                {
+                    // @formatter:off
+                    // clang-format off
+                    mov     ecx, [DIS]
+                    mov     edx, [ecx+64h]
+                    mov     eax, [edx+ecx+3Ch]
+                    mov     [dval], eax
+                    // @formatter:on
+                    // clang-format on
+                }
+            } else {
+                asm
+                {
+                    // @formatter:off
+                    // clang-format off
+                    mov     ecx, [DIS]
+                    mov     edx, [ecx+64h]
+                    xor     eax, eax
+                    mov     ax, [edx+ecx+3Ch]
+                    mov     [dval], eax
+                    // @formatter:on
+                    // clang-format on
+                }
+            }
+            sprintf(Op + strlen(Op), "[%08lX]", dval);
+            pDisInfo->Offset = dval; //!
+            break;
+        // 8-bit register
+        case 0x13:
+            strcpy(Op, Reg8Tab[arg]);
+            pDisInfo->OpRegIdx[argno] = arg;
+            break;
+        // General register
+        case 0x14:
+            idxval = arg;
+            idxofs = OutputGeneralRegister(Op, idxval, 0);
+            pDisInfo->OpRegIdx[argno] = idxofs + idxval;
+            break;
+        // 8-bit register
+        case 0x15:
+            strcpy(Op, Reg8Tab[arg]);
+            pDisInfo->OpRegIdx[argno] = arg;
+            break;
+        // st
+        case 0x16:
+            strcpy(Op, "st");
+            pDisInfo->OpRegIdx[argno] = 30;
+            break;
+        // st(#)
+        case 0x17:
+            stno = GetPostByteRm();
+            sprintf(Op, "st(%d)", stno);
+            pDisInfo->OpRegIdx[argno] = stno + 30;
+            break;
+        // Segment register
+        case 0x18:
+            strcpy(Op, SegRegTab[arg]);
+            pDisInfo->OpRegIdx[argno] = arg + 24;
+            break;
+        // tr#
+        case 0x19:
+            sprintf(Op, "tr%d", GetPostByteReg());
+            break;
+        // [esi] or [si]
+        case 0x1A:
+            OutputSizePtr(arg, false, pDisInfo, disLine);
+            OutputSegPrefix(Op, pDisInfo);
+            AddressSize = GetAddressSize();
+            if (AddressSize) {
+                pDisInfo->BaseReg = 22;
+                sprintf(Op + strlen(Op), "[%s]", "esi");
+            } else {
+                pDisInfo->BaseReg = 14;
+                strcat(Op, "[si]");
+            }
+            break;
+        // xmm#
+        case 0x1C:
+            sprintf(Op, "xmm%d", GetPostByteReg());
+            break;
+        // [edi] or es:[di]
+        case 0x1D:
+            OutputSizePtr(arg, false, pDisInfo, disLine);
+            AddressSize = GetAddressSize();
+            if (AddressSize) {
+                pDisInfo->BaseReg = 23;
+                sprintf(Op, "[%s]", "edi");
+            } else {
+                pDisInfo->SegPrefix = 0;
+                pDisInfo->BaseReg = 15;
+                strcpy(Op, "es:[di]");
+            }
+            break;
+        // [ebx] or [bx]
+        case 0x1E:
+            OutputSizePtr(1, false, pDisInfo, disLine);
+            OutputSegPrefix(Op, pDisInfo);
+            AddressSize = GetAddressSize();
+            if (AddressSize) {
+                pDisInfo->BaseReg = 19;
+                sprintf(Op + strlen(Op), "[%s]", "ebx");
+            } else {
+                pDisInfo->BaseReg = 11;
+                strcat(Op, "[bx]");
+            }
+            break;
     }
 
-    if (argno == 0)
-    {
+    if (argno == 0) {
         strcpy(pDisInfo->Op1, Op);
         pDisInfo->OpType[0] = GetOpType(Op);
-    }
-    else if (argno == 1)
-    {
-        //strcpy(pDisInfo->Op2, Op);
+    } else if (argno == 1) {
+        // strcpy(pDisInfo->Op2, Op);
         pDisInfo->OpType[1] = GetOpType(Op);
-    }
-    else
-    {
-        //strcpy(pDisInfo->Op3, Op);
+    } else {
+        // strcpy(pDisInfo->Op3, Op);
         pDisInfo->OpType[2] = GetOpType(Op);
     }
 
     if (disLine) strcat(disLine, Op);
 }
 //---------------------------------------------------------------------------
-bool __fastcall MDisasm::GetAddressSize()
-{
-bool        res;
+bool __fastcall MDisasm::GetAddressSize() {
+    bool res;
+
     asm
     {
         // @formatter:off
@@ -1385,9 +1289,9 @@ bool        res;
     return res;
 }
 //---------------------------------------------------------------------------
-bool __fastcall MDisasm::GetOperandSize()
-{
-bool        res;
+bool __fastcall MDisasm::GetOperandSize() {
+    bool res;
+
     asm
     {
         // @formatter:off
@@ -1401,9 +1305,9 @@ bool        res;
     return res;
 }
 //---------------------------------------------------------------------------
-Byte __fastcall MDisasm::GetSegPrefix()
-{
-Byte        res;
+Byte __fastcall MDisasm::GetSegPrefix() {
+    Byte res;
+
     asm
     {
         // @formatter:off
@@ -1417,9 +1321,8 @@ Byte        res;
     return res;
 }
 //---------------------------------------------------------------------------
-Byte __fastcall MDisasm::GetRepPrefix()
-{
-Byte        res;
+Byte __fastcall MDisasm::GetRepPrefix() {
+    Byte res;
 
     asm
     {
@@ -1434,9 +1337,9 @@ Byte        res;
     return res;
 }
 //---------------------------------------------------------------------------
-Byte __fastcall MDisasm::GetCop()
-{
-Byte        res;
+Byte __fastcall MDisasm::GetCop() {
+    Byte res;
+
     asm
     {
         // @formatter:off
@@ -1451,9 +1354,8 @@ Byte        res;
     return res;
 }
 //---------------------------------------------------------------------------
-Byte __fastcall MDisasm::GetCop1()
-{
-Byte        res;
+Byte __fastcall MDisasm::GetCop1() {
+    Byte res;
 
     asm
     {
@@ -1469,9 +1371,8 @@ Byte        res;
     return res;
 }
 //---------------------------------------------------------------------------
-Byte __fastcall MDisasm::GetPostByte()
-{
-Byte         res;
+Byte __fastcall MDisasm::GetPostByte() {
+    Byte res;
 
     asm
     {
@@ -1487,8 +1388,7 @@ Byte         res;
     return res;
 }
 //---------------------------------------------------------------------------
-void __fastcall MDisasm::SetPostByte(Byte b)
-{
+void __fastcall MDisasm::SetPostByte(Byte b) {
     asm
     {
         // @formatter:off
@@ -1502,9 +1402,8 @@ void __fastcall MDisasm::SetPostByte(Byte b)
     }
 }
 //---------------------------------------------------------------------------
-Byte __fastcall MDisasm::GetPostByteMod()
-{
-Byte         res;
+Byte __fastcall MDisasm::GetPostByteMod() {
+    Byte res;
 
     asm
     {
@@ -1521,9 +1420,8 @@ Byte         res;
     return res;
 }
 //---------------------------------------------------------------------------
-int __fastcall MDisasm::GetPostByteReg()
-{
-int         res;
+int __fastcall MDisasm::GetPostByteReg() {
+    int res;
 
     asm
     {
@@ -1541,9 +1439,8 @@ int         res;
     return res;
 }
 //---------------------------------------------------------------------------
-int __fastcall MDisasm::GetPostByteRm()
-{
-int         res;
+int __fastcall MDisasm::GetPostByteRm() {
+    int res;
 
     asm
     {
@@ -1560,11 +1457,9 @@ int         res;
     return res;
 }
 //---------------------------------------------------------------------------
-void __fastcall MDisasm::SetOffset(DWord ofs)
-{
+void __fastcall MDisasm::SetOffset(DWord ofs) {
     Byte AddressSize = GetAddressSize();
-    if (AddressSize)
-    {
+    if (AddressSize) {
         asm
         {
             // @formatter:off
@@ -1576,9 +1471,7 @@ void __fastcall MDisasm::SetOffset(DWord ofs)
             // @formatter:on
             // clang-format on
         }
-    }
-    else
-    {
+    } else {
         asm
         {
             // @formatter:off
@@ -1593,8 +1486,7 @@ void __fastcall MDisasm::SetOffset(DWord ofs)
     }
 }
 //---------------------------------------------------------------------------
-void __fastcall MDisasm::GetInstrBytes(Byte* dst)
-{
+void __fastcall MDisasm::GetInstrBytes(Byte *dst) {
     asm
     {
         // @formatter:off

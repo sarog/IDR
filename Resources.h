@@ -3,7 +3,6 @@
 #define ResourcesH
 //---------------------------------------------------------------------------
 #include "UfrmFormTree.h"
-
 //---------------------------------------------------------------------------
 typedef struct {
     String CompName;  //Component Name
@@ -101,6 +100,7 @@ public:
 
 typedef void __fastcall(__closure *TFindMethodSourceEvent)(TObject *Sender, const String &ClassName,
                                                            const String &MethodName);
+
 // typedef void __fastcall (__closure *TFindMethodSourceEvent)
 //     (TObject* Sender, String& ClassName, String& MethodName);
 
@@ -214,4 +214,3 @@ protected:
 
 //---------------------------------------------------------------------------
 #endif
-

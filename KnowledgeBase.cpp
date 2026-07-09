@@ -156,7 +156,7 @@ bool __fastcall MKnowledgeBase::CheckKBFile() {
 /**
  * Open a Knowledge Base file.
  * @param filename Knowledge Base filename
- * @return If file was opened successfully or not.
+ * @return If the file was opened successfully or not.
  */
 bool __fastcall MKnowledgeBase::Open(char *filename) {
     if (Inited) {
@@ -808,7 +808,7 @@ int __fastcall MKnowledgeBase::GetTypeIdxsByName(const char *TypeName, int *Type
 }
 
 //---------------------------------------------------------------------------
-int __fastcall MKnowledgeBase::GetTypeIdxByUID(char *UID) {}
+// int __fastcall MKnowledgeBase::GetTypeIdxByUID(char *UID) {} // unused
 //---------------------------------------------------------------------------
 int __fastcall MKnowledgeBase::GetVarIdx(Word *ModuleIDs, const char *VarName) {
     if (!Inited) return -1;

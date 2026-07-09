@@ -18,7 +18,7 @@ extern int LastResStrNo;
 
 void __fastcall AddFieldXref(PFIELDINFO fInfo, DWord ProcAdr, int ProcOfs, char type);
 //---------------------------------------------------------------------------
-//structure for saving context of all registers (branch instruction)
+// Structure for saving context of all registers (branch instruction)
 typedef struct {
     int sp;
     DWord adr;
@@ -75,14 +75,14 @@ void __fastcall SetRegisterValue(PRINFO regs, int Idx, DWord Value) {
 }
 
 //---------------------------------------------------------------------------
-//Possible values
-//'V' - Virtual table base (for calls processing)
-//'v' - var
-//'L' - lea local var
-//'l' - local var
-//'A' - lea argument
-//'a' - argument
-//'I' - Integer
+// Possible values
+// 'V' - Virtual table base (for calls processing)
+// 'v' - var
+// 'L' - lea local var
+// 'l' - local var
+// 'A' - lea argument
+// 'a' - argument
+// 'I' - Integer
 void __fastcall SetRegisterSource(PRINFO regs, int Idx, char Value) {
     if (Idx >= 16 && Idx <= 19) {
         regs[Idx - 16].source = Value;
@@ -164,12 +164,12 @@ void __fastcall SetRegisterType(PRINFO regs, int Idx, String Value) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool AnalyzeRetType) {
-    //saved context
+    // saved context
     TList *sctx = new TList;
     for (int n = 0; n < 3; n++) {
         if (!AnalyzeProc2(fromAdr, addArg, AnalyzeRetType, sctx)) break;
     }
-    //delete sctx
+    // delete sctx
     CleanupList<RCONTEXT>(sctx);
 }
 
@@ -181,7 +181,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
     Word bpBase;
     int n, num, instrLen, instrLen1, instrLen2, _ap, _procSize;
     int reg1Idx, reg2Idx;
-    int sp = -1, fromIdx = -1; //fromIdx - index of register in instruction mov eax,reg (for processing call @IsClass)
+    int sp = -1, fromIdx = -1; // fromIdx - index of register in instruction mov eax,reg (for processing call @IsClass)
     DWord b;
     int fromPos, curPos, Pos;
     DWord curAdr;
@@ -206,26 +206,26 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
     if (IsFlagSet(cfEmbedded, fromPos)) return false;
     if (IsFlagSet(cfExport, fromPos)) return false;
 
-    //b1 = Code[fromPos];
-    //b2 = Code[fromPos + 1];
-    //if (!b1 && !b2) return false;
+    // b1 = Code[fromPos];
+    // b2 = Code[fromPos + 1];
+    // if (!b1 && !b2) return false;
 
-    //Import - return ret type of function
+    // Import - return ret type of function
     if (IsFlagSet(cfImport, fromPos)) return false;
     recN = GetInfoRec(fromAdr);
 
-    //if recN = 0 (Interface Methods!!!) then return
+    // if recN = 0 (Interface Methods!!!) then return
     if (!recN || !recN->procInfo) return false;
 
-    //Procedure from Knowledge Base not analyzed
+    // Procedure from Knowledge Base not analyzed
     if (recN && recN->kbIdx != -1) return false;
 
-    //if (!IsFlagSet(cfPass1, fromPos))
+    // if (!IsFlagSet(cfPass1, fromPos))
     //???
 
     SetFlag(cfProcStart | cfPass2, fromPos);
 
-    //If function name contains class name get it
+    // If function name contains class name get it
     className = ExtractClassName(recN->GetName());
     bpBased = (recN->procInfo->flags & PF_BPBASED);
     bpBase = (recN->procInfo->bpBase);
@@ -236,7 +236,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
     rtmp.type = "";
     for (n = 0; n < 32; n++) registers[n] = rtmp;
 
-    //Get args
+    // Get args
     _eax_Type = _edx_Type = _ecx_Type = "";
     Byte callKind = recN->procInfo->flags & 7;
     if (recN->procInfo->args && !callKind) {
@@ -248,21 +248,21 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                 else
                     registers[16].type = argInfo->TypeDef;
                 _eax_Type = registers[16].type;
-                //var
+                // var
                 if (argInfo->Tag == 0x22) registers[16].source = 'v';
                 continue;
             }
             if (argInfo->Ndx == 1) {
                 registers[18].type = argInfo->TypeDef;
                 _edx_Type = registers[18].type;
-                //var
+                // var
                 if (argInfo->Tag == 0x22) registers[18].source = 'v';
                 continue;
             }
             if (argInfo->Ndx == 2) {
                 registers[17].type = argInfo->TypeDef;
                 _ecx_Type = registers[17].type;
-                //var
+                // var
                 if (argInfo->Tag == 0x22) registers[17].source = 'v';
                 continue;
             }
@@ -278,10 +278,10 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
 
     while (1) {
         if (curAdr >= CodeBase + TotalSize) break;
-        //Skip exception table
+        // Skip exception table
         if (IsFlagSet(cfETable, curPos)) {
-            //dd num
-            num = *((int *) (Code + curPos));
+            // dd num
+            num = *reinterpret_cast<int *>(Code + curPos);
             curPos += 4 + 8 * num;
             curAdr += 4 + 8 * num;
             continue;
@@ -292,7 +292,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
         if (!b1 && !b2 && !lastAdr) break;
 
         instrLen = Disasm.Disassemble(Code + curPos, (__int64) curAdr, &DisInfo, 0);
-        //if (!instrLen) break;
+        // if (!instrLen) break;
         if (!instrLen) {
             curPos++;
             curAdr++;
@@ -300,9 +300,9 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
         }
 
         op = Disasm.GetOp(DisInfo.Mnem);
-        //Code
+        // Code
         SetFlags(cfCode, curPos, instrLen);
-        //Instruction begin
+        // Instruction begins
         SetFlag(cfInstruction, curPos);
 
         if (curAdr >= lastAdr) lastAdr = 0;
@@ -325,24 +325,25 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
         }
 
         if (DisInfo.Ret) {
-            //End of proc
+            // End of proc
             if (!lastAdr || curAdr == lastAdr) {
                 if (AnalyzeRetType) {
-                    //Если тип регистра eax не пустой, находим ближайшую сверху инструкцию его инциализации
+                    // Если тип регистра eax не пустой, находим ближайшую сверху инструкцию его инциализации
+                    // If the eax register type is not empty, we find the nearest initialization instruction from the top
                     if (registers[16].type != "") {
                         for (Pos = curPos - 1; Pos >= fromPos; Pos--) {
                             b = Flags[Pos];
                             if ((b & cfInstruction) & !(b & cfSkip)) {
                                 Disasm.Disassemble(Code + Pos, (__int64) Pos2Adr(Pos), &DisInfo, 0);
-                                //If branch - break
+                                // If branch - break
                                 if (DisInfo.Branch) break;
-                                //If call
-                                //Other cases (call [reg+Ofs]; call [Adr]) need to add
+                                // If call
+                                // Other cases (call [reg+Ofs]; call [Adr]) need to add
                                 if (DisInfo.Call) {
                                     Adr = DisInfo.Immediate;
                                     if (IsValidCodeAdr(Adr)) {
                                         recN1 = GetInfoRec(Adr);
-                                        if (recN1 && recN1->procInfo/*recN1->kind == ikFunc*/) {
+                                        if (recN1 && recN1->procInfo /*recN1->kind == ikFunc*/) {
                                             typeName = recN1->type;
                                             recN1 = GetInfoRec(fromAdr);
                                             if (!(recN1->procInfo->flags & (PF_EVENT | PF_DYNAMIC)) &&
@@ -369,7 +370,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
             if (!IsFlagSet(cfSkip, curPos)) sp = -1;
         }
 
-        //cfBracket
+        // cfBracket
         if (IsFlagSet(cfBracket, curPos)) {
             if (op == OP_PUSH && sp < 255) {
                 reg1Idx = DisInfo.OpRegIdx[0];
@@ -384,7 +385,8 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
             curAdr += instrLen;
             continue;
         }
-        //Проверим, не попал ли внутрь инструкции Fixup или ThreadVar
+        // Проверим, не попал ли внутрь инструкции Fixup или ThreadVar
+        // Let's check if the Fixup or ThreadVar instructions got inside
         bool NameInside = false;
         for (int k = 1; k < instrLen; k++) {
             if (Infos[curPos + k]) {
@@ -397,32 +399,34 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
 
         if (op == OP_MOV) lastMovAdr = DisInfo.Offset;
 
-        //If loc then try get context
+        // If loc then try to get context
         if (curAdr != fromAdr && IsFlagSet(cfLoc, curPos)) {
             rinfo = GetCtx(sctx, curAdr);
             if (rinfo) {
                 sp = rinfo->sp;
                 for (n = 0; n < 32; n++) registers[n] = rinfo->registers[n];
             }
-            //context not found - set flag to continue on the next step
+            // Context wasn't found - set flag to continue on the next step
             else {
                 fContinue = true;
             }
         }
 
-        if (b1 == 0xFF && (b2 & 0x38) == 0x20 && DisInfo.OpType[0] == otMEM && IsValidImageAdr(DisInfo.Offset))
-        //near absolute indirect jmp (Case)
-        {
+        if (b1 == 0xFF && (b2 & 0x38) == 0x20 && DisInfo.OpType[0] == otMEM && IsValidImageAdr(DisInfo.Offset)) {
+            // near absolute indirect jmp (Case)
             if (!IsValidCodeAdr(DisInfo.Offset)) break;
             DWord cTblAdr = 0, jTblAdr = 0;
 
             Pos = curPos + instrLen;
             Adr = curAdr + instrLen;
-            //Адрес таблицы - последние 4 байта инструкции
-            jTblAdr = *((DWord *) (Code + Pos - 4));
-            //Анализируем промежуток на предмет таблицы cTbl
+            // Адрес таблицы - последние 4 байта инструкции
+            // The table address is the last 4 bytes of the instruction.
+            jTblAdr = *reinterpret_cast<DWord *>(Code + Pos - 4);
+            // Анализируем промежуток на предмет таблицы cTbl
+            // We analyze the interval for the cTbl table
             if (Adr <= lastMovAdr && lastMovAdr < jTblAdr) cTblAdr = lastMovAdr;
-            //Если есть cTblAdr, пропускаем эту таблицу
+            // Если есть cTblAdr, пропускаем эту таблицу
+            // If there is a cTblAdr, skip this table
             Byte CTab[256];
             if (cTblAdr) {
                 int CNum = jTblAdr - cTblAdr;
@@ -430,21 +434,21 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                 Adr += CNum;
             }
             for (int k = 0; k < 4096; k++) {
-                //Loc - end of table
+                // Loc - end of table
                 if (IsFlagSet(cfLoc, Pos)) break;
 
-                Adr1 = *((DWord *) (Code + Pos));
-                //Validate Adr1
+                Adr1 = *reinterpret_cast<DWord *>(Code + Pos);
+                // Validate Adr1
                 if (!IsValidCodeAdr(Adr1) || Adr1 < fromAdr) break;
-                //Set cfLoc
+                // Set cfLoc
                 SetFlag(cfLoc, Adr2Pos(Adr1));
-                //Save context
+                // Save context
                 if (!GetCtx(sctx, Adr1)) {
                     rinfo = new RCONTEXT;
                     rinfo->sp = sp;
                     rinfo->adr = Adr1;
                     for (n = 0; n < 32; n++) rinfo->registers[n] = registers[n];
-                    sctx->Add((void *) rinfo);
+                    sctx->Add(static_cast<void *>(rinfo));
                 }
 
                 Pos += 4;
@@ -456,75 +460,73 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
             curAdr = Adr;
             continue;
         }
-        if (b1 == 0x68) //try block (push loc_TryBeg)
-        {
+        // try block (push loc_TryBeg)
+        if (b1 == 0x68) {
             DWord NPos = curPos + instrLen;
-            //check that next instruction is push fs:[reg] or retn
+            // check that next instruction is push fs:[reg] or retn
             if ((Code[NPos] == 0x64 &&
                  Code[NPos + 1] == 0xFF &&
                  ((Code[NPos + 2] >= 0x30 && Code[NPos + 2] <= 0x37) || Code[NPos + 2] == 0x75)) ||
                 Code[NPos] == 0xC3) {
-                Adr = DisInfo.Immediate; //Adr=@1
+                Adr = DisInfo.Immediate; // Adr=@1
                 if (IsValidCodeAdr(Adr)) {
                     if (Adr > lastAdr) lastAdr = Adr;
                     Pos = Adr2Pos(Adr);
                     if (Pos >= 0 && Pos - NPos < MAX_DISASSEMBLE) {
-                        if (Code[Pos] == 0xE9) //jmp Handle...
-                        {
-                            //Disassemble jmp
+                        if (Code[Pos] == 0xE9) { // jmp Handle...
+                            // Disassemble jmp
                             instrLen1 = Disasm.Disassemble(Code + Pos, (__int64) Adr, &DisInfo, 0);
 
                             recN = GetInfoRec(DisInfo.Immediate);
                             if (recN) {
                                 if (recN->SameName("@HandleFinally")) {
-                                    //jmp HandleFinally
+                                    // jmp HandleFinally
                                     Pos += instrLen1;
                                     Adr += instrLen1;
-                                    //jmp @2
+                                    // jmp @2
                                     instrLen2 = Disasm.Disassemble(Code + Pos, (__int64) Adr, &DisInfo, 0);
                                     Adr += instrLen2;
                                     if (Adr > lastAdr) lastAdr = Adr;
-                                } else if (recN->SameName("@HandleAnyException") || recN->SameName(
-                                               "@HandleAutoException")) {
-                                    //jmp HandleAnyException
+                                } else if (recN->SameName("@HandleAnyException") || recN->SameName("@HandleAutoException")) {
+                                    // jmp HandleAnyException
                                     Pos += instrLen1;
                                     Adr += instrLen1;
-                                    //call DoneExcept
+                                    // call DoneExcept
                                     instrLen2 = Disasm.Disassemble(Code + Pos, (__int64) Adr, 0, 0);
                                     Adr += instrLen2;
                                     if (Adr > lastAdr) lastAdr = Adr;
                                 } else if (recN->SameName("@HandleOnException")) {
-                                    //jmp HandleOnException
+                                    // jmp HandleOnException
                                     Pos += instrLen1;
                                     Adr += instrLen1;
-                                    //dd num
-                                    num = *((int *) (Code + Pos));
+                                    // dd num
+                                    num = *reinterpret_cast<int *>(Code + Pos);
                                     Pos += 4;
                                     if (Adr + 4 + 8 * num > lastAdr) lastAdr = Adr + 4 + 8 * num;
 
                                     for (int k = 0; k < num; k++) {
-                                        //dd offset ExceptionInfo
-                                        Adr = *((DWord *) (Code + Pos));
+                                        // dd offset ExceptionInfo
+                                        Adr = *reinterpret_cast<DWord *>(Code + Pos);
                                         Pos += 4;
                                         if (IsValidImageAdr(Adr)) {
                                             recN1 = GetInfoRec(Adr);
                                             if (recN1 && recN1->kind == ikVMT) className = recN1->GetName();
                                         }
-                                        //dd offset ExceptionProc
-                                        procAdr = *((DWord *) (Code + Pos));
+                                        // dd offset ExceptionProc
+                                        procAdr = *reinterpret_cast<DWord *>(Code + Pos);
                                         Pos += 4;
                                         if (IsValidImageAdr(procAdr)) {
-                                            //Save context
+                                            // Save context
                                             if (!GetCtx(sctx, procAdr)) {
                                                 rinfo = new RCONTEXT;
                                                 rinfo->sp = sp;
                                                 rinfo->adr = procAdr;
                                                 for (n = 0; n < 32; n++) rinfo->registers[n] = registers[n];
-                                                //eax
+                                                // eax
                                                 rinfo->registers[16].value = GetClassAdr(className);
                                                 rinfo->registers[16].type = className;
 
-                                                sctx->Add((void *) rinfo);
+                                                sctx->Add(static_cast<void *>(rinfo));
                                             }
                                         }
                                     }
@@ -538,22 +540,22 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                 continue;
             }
         }
-        //branch
+        // branch
         if (DisInfo.Branch) {
             Adr = DisInfo.Immediate;
             if (IsValidCodeAdr(Adr)) {
                 _ap = Adr2Pos(Adr);
-                //SetFlag(cfLoc, _ap);
-                //recN1 = GetInfoRec(Adr);
-                //if (!recN1) recN1 = new InfoRec(_ap, ikUnknown);
-                //recN1->AddXref('C', fromAdr, curAdr - fromAdr);
-                //Save context
+                // SetFlag(cfLoc, _ap);
+                // recN1 = GetInfoRec(Adr);
+                // if (!recN1) recN1 = new InfoRec(_ap, ikUnknown);
+                // recN1->AddXref('C', fromAdr, curAdr - fromAdr);
+                // Save context
                 if (!GetCtx(sctx, Adr)) {
                     rinfo = new RCONTEXT;
                     rinfo->sp = sp;
                     rinfo->adr = Adr;
                     for (n = 0; n < 32; n++) rinfo->registers[n] = registers[n];
-                    sctx->Add((void *) rinfo);
+                    sctx->Add(static_cast<void *>(rinfo));
                 }
                 if (Adr >= fromAdr && Adr > lastAdr) lastAdr = Adr;
             }
@@ -563,12 +565,14 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
         }
         if (registers[16].type != "" && registers[16].type[1] == '#') {
             DWord dd = *((DWord *) (registers[16].type.c_str()));
-            //Если был вызов функции @GetTls, смотрим след. инструкцию вида [eax+N]
+            // Если был вызов функции @GetTls, смотрим след. инструкцию вида [eax+N]
+            // If there was a call to the @GetTls function, look at the next instruction of the form [eax+N]
             if (dd == 'SLT#') {
-                //Если нет внутреннего имени (Fixup, ThreadVar)
+                // Если нет внутреннего имени (Fixup, ThreadVar)
+                // If there is no internal name (Fixup, ThreadVar)
                 if (!NameInside) {
-                    //Destination (GlobalLists := TList.Create)
-                    //Source (GlobalLists.Add)
+                    // Destination (GlobalLists := TList.Create)
+                    // Source (GlobalLists.Add)
                     if ((DisInfo.OpType[0] == otMEM || DisInfo.OpType[1] == otMEM) && DisInfo.BaseReg == 16) {
                         _ap = Adr2Pos(curAdr);
                         assert(_ap >= 0);
@@ -584,21 +588,22 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                 continue;
             }
         }
-        //Call
+        // Call
         if (DisInfo.Call) {
             Adr = DisInfo.Immediate;
             if (IsValidImageAdr(Adr)) {
                 recN = GetInfoRec(Adr);
                 if (recN && recN->procInfo) {
-                    int retBytes = (int) recN->procInfo->retBytes;
+                    int retBytes = recN->procInfo->retBytes;
                     if (retBytes != -1 && sp >= retBytes)
                         sp -= retBytes;
                     else
                         sp = -1;
 
-                    //for constructor type is in eax
+                    // for constructor type is in eax
                     if (recN->kind == ikConstructor) {
-                        //Если dl = 1, регистр eax после вызова используется
+                        // Если dl = 1, регистр eax после вызова используется
+                        // If dl = 1, the eax register is used after the call
                         if (registers[2].value == 1) {
                             classAdr = GetClassAdr(registers[16].type);
                             if (IsValidImageAdr(classAdr)) {
@@ -613,37 +618,34 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                         }
                         SetFlag(cfSetA, curPos);
                     } else {
-                        //Found @Halt0 - exit
+                        // Found @Halt0 - exit
                         if (recN->SameName("@Halt0") && fromAdr == EP && !lastAdr) break;
 
                         DWord dynAdr;
                         if (recN->SameName("@ClassCreate")) {
                             SetRegisterType(registers, 16, className);
                             SetFlag(cfSetA, curPos);
-                        } else if (recN->SameName("@CallDynaInst") ||
-                                   recN->SameName("@CallDynaClass")) {
+                        } else if (recN->SameName("@CallDynaInst") || recN->SameName("@CallDynaClass")) {
                             if (DelphiVersion <= 5)
                                 comment = GetDynaInfo(GetClassAdr(registers[16].type), registers[11].value, &dynAdr);
-                                //bx
+                                // bx
                             else
                                 comment = GetDynaInfo(GetClassAdr(registers[16].type), registers[14].value, &dynAdr);
-                            //si
+                            // si
                             AddPicode(curPos, OP_CALL, comment, dynAdr);
                             SetRegisterType(registers, 16, "");
-                        } else if (recN->SameName("@FindDynaInst") ||
-                                   recN->SameName("@FindDynaClass")) {
-                            comment = GetDynaInfo(GetClassAdr(registers[16].type), registers[10].value, &dynAdr); //dx
+                        } else if (recN->SameName("@FindDynaInst") || recN->SameName("@FindDynaClass")) {
+                            comment = GetDynaInfo(GetClassAdr(registers[16].type), registers[10].value, &dynAdr); // dx
                             AddPicode(curPos, OP_CALL, comment, dynAdr);
                             SetRegisterType(registers, 16, "");
-                        }
-                        //@XStrArrayClr
-                        else if (recN->SameName("@LStrArrayClr") || recN->SameName("@WStrArrayClr") || recN->SameName(
-                                     "@UStrArrayClr")) {
+                        } else if (recN->SameName("@LStrArrayClr") ||
+                            recN->SameName("@WStrArrayClr") ||
+                            recN->SameName("@UStrArrayClr")) { // @XStrArrayClr
                             DWord arrAdr = registers[16].value;
                             int cnt = registers[18].value;
-                            //Direct address???
+                            // Direct address???
                             if (IsValidImageAdr(arrAdr)) {}
-                            //Local vars
+                            // Local vars
                             else if ((registers[16].source & 0xDF) == 'L') {
                                 recN1 = GetInfoRec(fromAdr);
                                 int aofs = registers[16].value;
@@ -657,10 +659,8 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                 }
                             }
                             SetRegisterType(registers, 16, "");
-                        }
-                        //@TryFinallyExit
-                        else if (recN->SameName("@TryFinallyExit")) {
-                            //Find first jxxx
+                        } else if (recN->SameName("@TryFinallyExit")) { // @TryFinallyExit
+                            // Find first jxxx
                             for (Pos = curPos - 1; Pos >= fromPos; Pos--) {
                                 b = Flags[Pos];
                                 if (b & cfInstruction) {
@@ -669,7 +669,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                     SetFlags(cfSkip | cfFinallyExit, Pos, instrLen1);
                                 }
                             }
-                            //@TryFinallyExit + jmp XXXXXXXX
+                            // @TryFinallyExit + jmp XXXXXXXX
                             instrLen += Disasm.Disassemble(Code + curPos + instrLen,
                                                            (__int64)(Pos2Adr(curPos) + instrLen), &DisInfo, 0);
                             SetFlags(cfSkip | cfFinallyExit, curPos, instrLen);
@@ -679,9 +679,9 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                             for (int mm = 16; mm <= 18; mm++) {
                                 if (registers[mm].result == 1) {
                                     if ((registers[mm].source & 0xDF) == 'L') {
-                                        recN1->procInfo->AddLocal((int) registers[mm].value, 4, "", registers[mm].type);
+                                        recN1->procInfo->AddLocal(static_cast<int>(registers[mm].value), 4, "", registers[mm].type);
                                     } else if ((registers[mm].source & 0xDF) == 'A')
-                                        recN1->procInfo->AddArg(0x21, (int) registers[mm].value, 4, "",
+                                        recN1->procInfo->AddArg(0x21, static_cast<int>(registers[mm].value), 4, "",
                                                                 registers[mm].type);
                                 }
                             }
@@ -693,12 +693,12 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                     SetRegisterType(registers, 16, "");
                 }
             }
-            //call Memory
+            // call Memory
             else if (DisInfo.OpType[0] == otMEM && DisInfo.IndxReg == -1) {
                 sp = -1;
-                //call [Offset]
+                // call [Offset]
                 if (DisInfo.BaseReg == -1) {}
-                //call [BaseReg + Offset]
+                // call [BaseReg + Offset]
                 else {
                     classAdr = registers[DisInfo.BaseReg].value;
                     SetRegisterType(registers, 16, "");
@@ -707,7 +707,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                         if (recN && recN->vmtInfo && recN->vmtInfo->methods) {
                             for (int mm = 0; mm < recN->vmtInfo->methods->Count; mm++) {
                                 PMethodRec recM = (PMethodRec) recN->vmtInfo->methods->Items[mm];
-                                if (recM->kind == 'V' && recM->id == (int) DisInfo.Offset) {
+                                if (recM->kind == 'V' && recM->id == static_cast<int>(DisInfo.Offset)) {
                                     recN1 = GetInfoRec(recM->address);
 
                                     if (recM->name != "")
@@ -743,8 +743,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                     else
                                         delete fInfo;
                                 } else if (vmt) {
-                                    fInfo = AddField(fromAdr, curAdr - fromAdr, typeName, FIELD_PUBLIC, callOfs, -1, "",
-                                                     "");
+                                    fInfo = AddField(fromAdr, curAdr - fromAdr, typeName, FIELD_PUBLIC, callOfs, -1, "", "");
                                     if (fInfo) AddFieldXref(fInfo, fromAdr, curAdr - fromAdr, 'C');
                                 }
                             }
@@ -761,7 +760,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
             continue;
         }
         sType = String(DisInfo.sSize);
-        //floating point operations
+        // floating point operations
         if (DisInfo.Float) {
             float singleVal;
             long double extendedVal;
@@ -785,7 +784,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
 
             Adr = DisInfo.Offset;
             _ap = Adr2Pos(Adr);
-            //fxxx [Adr]
+            // fxxx [Adr]
             if (DisInfo.BaseReg == -1 && DisInfo.IndxReg == -1) {
                 if (IsValidImageAdr(Adr)) {
                     if (_ap >= 0) {
@@ -821,14 +820,14 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                     }
                 }
             } else if (DisInfo.BaseReg != -1) {
-                //fxxxx [BaseReg + Offset]
+                // fxxxx [BaseReg + Offset]
                 if (DisInfo.IndxReg == -1) {
-                    //fxxxx [ebp - Offset]
-                    if (bpBased && DisInfo.BaseReg == 21 && (int) DisInfo.Offset < 0) {
+                    // fxxxx [ebp - Offset]
+                    if (bpBased && DisInfo.BaseReg == 21 && static_cast<int>(DisInfo.Offset) < 0) {
                         recN1 = GetInfoRec(fromAdr);
-                        recN1->procInfo->AddLocal((int) DisInfo.Offset, DisInfo.OpSize, "", sType);
+                        recN1->procInfo->AddLocal(static_cast<int>(DisInfo.Offset), DisInfo.OpSize, "", sType);
                     }
-                    //fxxx [esp + Offset]
+                    // fxxx [esp + Offset]
                     else if (DisInfo.BaseReg == 20) {
                         dummy = 1;
                     } else {
@@ -849,22 +848,22 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                 }
                             }
                         }
-                        //fxxxx [BaseReg + Offset]
-                        else if ((int) DisInfo.Offset > 0) {
+                        // fxxxx [BaseReg + Offset]
+                        else if (static_cast<int>(DisInfo.Offset) > 0) {
                             typeName = TrimTypeName(registers[DisInfo.BaseReg].type);
                             if (typeName != "") {
-                                fInfo = GetField(typeName, (int) DisInfo.Offset, &vmt, &vmtAdr, "");
+                                fInfo = GetField(typeName, static_cast<int>(DisInfo.Offset), &vmt, &vmtAdr, "");
                                 if (fInfo) {
                                     if (vmt) {
                                         if (CanReplace(fInfo->Type, sType)) fInfo->Type = sType;
                                         AddFieldXref(fInfo, fromAdr, curAdr - fromAdr, 'C');
                                     } else
                                         delete fInfo;
-                                    //if (vmtAdr) typeName = GetClsName(vmtAdr);
+                                    // if (vmtAdr) typeName = GetClsName(vmtAdr);
                                     AddPicode(curPos, 0, typeName, DisInfo.Offset);
                                 } else if (vmt) {
                                     fInfo = AddField(fromAdr, curAdr - fromAdr, typeName, FIELD_PUBLIC,
-                                                     (int) DisInfo.Offset, -1, "", sType);
+                                                     static_cast<int>(DisInfo.Offset), -1, "", sType);
                                     if (fInfo) {
                                         AddFieldXref(fInfo, fromAdr, curAdr - fromAdr, 'C');
                                         AddPicode(curPos, 0, typeName, DisInfo.Offset);
@@ -872,20 +871,20 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                 }
                             }
                         }
-                        //fxxxx [BaseReg - Offset]
+                        // fxxxx [BaseReg - Offset]
                         else {}
                     }
                 }
-                //fxxxx [BaseReg + IndxReg*Scale + Offset]
+                // fxxxx [BaseReg + IndxReg*Scale + Offset]
                 else {}
             }
             curPos += instrLen;
             curAdr += instrLen;
             continue;
         }
-        //No operands
+        // No operands
         if (DisInfo.OpNum == 0) {
-            //cdq
+            // cdq
             if (op == OP_CDQ) {
                 SetRegisterSource(registers, 16, 'I');
                 SetRegisterValue(registers, 16, 0xFFFFFFFF);
@@ -894,10 +893,8 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                 SetRegisterValue(registers, 18, 0xFFFFFFFF);
                 SetRegisterType(registers, 18, "Integer");
             }
-        }
-        //1 operand
-        else if (DisInfo.OpNum == 1) {
-            //op Imm
+        } else if (DisInfo.OpNum == 1) { // 1 operand
+            // op Imm
             if (DisInfo.OpType[0] == otIMM) {
                 if (IsValidImageAdr(DisInfo.Immediate)) {
                     _ap = Adr2Pos(DisInfo.Immediate);
@@ -909,20 +906,16 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                         if (recN1) recN1->AddXref('C', fromAdr, curAdr - fromAdr);
                     }
                 }
-            }
-            //op reg
-            else if (DisInfo.OpType[0] == otREG && op != OP_UNK && op != OP_PUSH) {
+            } else if (DisInfo.OpType[0] == otREG && op != OP_UNK && op != OP_PUSH) { // op reg
                 reg1Idx = DisInfo.OpRegIdx[0];
                 SetRegisterSource(registers, reg1Idx, 0);
                 SetRegisterValue(registers, reg1Idx, 0xFFFFFFFF);
                 SetRegisterType(registers, reg1Idx, "");
-            }
-            //op [BaseReg + Offset]
-            else if (DisInfo.OpType[0] == otMEM) {
-                if (DisInfo.BaseReg != -1 && DisInfo.IndxReg == -1 && (int) DisInfo.Offset > 0) {
+            } else if (DisInfo.OpType[0] == otMEM) { // op [BaseReg + Offset]
+                if (DisInfo.BaseReg != -1 && DisInfo.IndxReg == -1 && static_cast<int>(DisInfo.Offset) > 0) {
                     typeName = TrimTypeName(registers[DisInfo.BaseReg].type);
                     if (typeName != "") {
-                        fInfo = GetField(typeName, (int) DisInfo.Offset, &vmt, &vmtAdr, "");
+                        fInfo = GetField(typeName, static_cast<int>(DisInfo.Offset), &vmt, &vmtAdr, "");
                         if (fInfo) {
                             if (vmt)
                                 AddFieldXref(fInfo, fromAdr, curAdr - fromAdr, 'C');
@@ -930,7 +923,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                 delete fInfo;
                             AddPicode(curPos, 0, typeName, DisInfo.Offset);
                         } else if (vmt) {
-                            fInfo = AddField(fromAdr, curAdr - fromAdr, typeName, FIELD_PUBLIC, (int) DisInfo.Offset,
+                            fInfo = AddField(fromAdr, curAdr - fromAdr, typeName, FIELD_PUBLIC, static_cast<int>(DisInfo.Offset),
                                              -1, "", sType);
                             if (fInfo) {
                                 AddFieldXref(fInfo, fromAdr, curAdr - fromAdr, 'C');
@@ -948,22 +941,18 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                     SetRegisterType(registers, 18, "Integer");
                 }
             }
-        }
-        //2 or 3 operands
-        else if (DisInfo.OpNum >= 2) {
+        } else if (DisInfo.OpNum >= 2) { // 2 or 3 operands
             if (op & OP_A2)
-            //if (op == OP_MOV || op == OP_CMP || op == OP_LEA || op == OP_XOR || op == OP_ADD || op == OP_SUB ||
-            //    op == OP_AND || op == OP_TEST || op == OP_XCHG || op == OP_IMUL || op == OP_IDIV || op == OP_OR ||
-            //    op == OP_BT || op == OP_BTC || op == OP_BTR || op == OP_BTS)
+            // if (op == OP_MOV || op == OP_CMP || op == OP_LEA || op == OP_XOR || op == OP_ADD || op == OP_SUB ||
+            //     op == OP_AND || op == OP_TEST || op == OP_XCHG || op == OP_IMUL || op == OP_IDIV || op == OP_OR ||
+            //     op == OP_BT || op == OP_BTC || op == OP_BTR || op == OP_BTS)
             {
-                if (DisInfo.OpType[0] == otREG) //cop reg,...
-                {
+                if (DisInfo.OpType[0] == otREG) { //cop reg,...
                     reg1Idx = DisInfo.OpRegIdx[0];
                     source = registers[reg1Idx].source;
                     SetRegisterSource(registers, reg1Idx, 0);
 
-                    if (DisInfo.OpType[1] == otIMM) //cop reg, Imm
-                    {
+                    if (DisInfo.OpType[1] == otIMM) { //cop reg, Imm
                         if (reset) {
                             typeName = TrimTypeName(registers[reg1Idx].type);
                             SetRegisterValue(registers, reg1Idx, 0xFFFFFFFF);
@@ -971,18 +960,18 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
 
                             if (op == OP_ADD) {
                                 if (typeName != "" && source != 'v') {
-                                    fInfo = GetField(typeName, (int) DisInfo.Immediate, &vmt, &vmtAdr, "");
+                                    fInfo = GetField(typeName, static_cast<int>(DisInfo.Immediate), &vmt, &vmtAdr, "");
                                     if (fInfo) {
                                         registers[reg1Idx].type = fInfo->Type;
                                         if (vmt)
                                             AddFieldXref(fInfo, fromAdr, curAdr - fromAdr, 'C');
                                         else
                                             delete fInfo;
-                                        //if (vmtAdr) typeName = GetClsName(vmtAdr);
+                                        // if (vmtAdr) typeName = GetClsName(vmtAdr);
                                         AddPicode(curPos, 0, typeName, DisInfo.Immediate);
                                     } else if (vmt) {
                                         fInfo = AddField(fromAdr, curAdr - fromAdr, typeName, FIELD_PUBLIC,
-                                                         (int) DisInfo.Immediate, -1, "", "");
+                                                         static_cast<int>(DisInfo.Immediate), -1, "", "");
                                         if (fInfo) {
                                             AddFieldXref(fInfo, fromAdr, curAdr - fromAdr, 'C');
                                             AddPicode(curPos, 0, typeName, DisInfo.Immediate);
@@ -1034,8 +1023,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                 }
                             }
                         }
-                    } else if (DisInfo.OpType[1] == otREG) //cop reg, reg
-                    {
+                    } else if (DisInfo.OpType[1] == otREG) { // cop reg, reg
                         reg2Idx = DisInfo.OpRegIdx[1];
                         if (reset) {
                             if (op == OP_MOV) {
@@ -1065,11 +1053,9 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                 SetRegisterType(registers, reg1Idx, "");
                             }
                         }
-                    } else if (DisInfo.OpType[1] == otMEM) //cop reg, Memory
-                    {
+                    } else if (DisInfo.OpType[1] == otMEM) { // cop reg, Memory
                         if (DisInfo.BaseReg == -1) {
-                            if (DisInfo.IndxReg == -1) //cop reg, [Offset]
-                            {
+                            if (DisInfo.IndxReg == -1) { // cop reg, [Offset]
                                 if (reset) {
                                     if (op == OP_IMUL) {
                                         SetRegisterSource(registers, reg1Idx, 0);
@@ -1100,7 +1086,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                             recN1 = GetInfoRec(Adr);
                                                             AddPicode(curPos, OP_COMMENT, recN1->GetName(), 0);
                                                         } else if (!IsFlagSet(cfRTTI, _ap)) {
-                                                            Val = *((DWord *) (Code + _ap));
+                                                            Val = *reinterpret_cast<DWord *>(Code + _ap);
                                                             if (reset) SetRegisterValue(registers, reg1Idx, Val);
                                                             if (IsValidImageAdr(Val)) {
                                                                 _ap = Adr2Pos(Val);
@@ -1129,11 +1115,9 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                                         'C', fromAdr, curAdr - fromAdr);
                                                                 } else {
                                                                     if (recN->HasName())
-                                                                        recN1 = AddToBSSInfos(
-                                                                            Val, recN->GetName(), recN->type);
+                                                                        recN1 = AddToBSSInfos(Val, recN->GetName(), recN->type);
                                                                     else
-                                                                        recN1 = AddToBSSInfos(
-                                                                            Val, MakeGvarName(Val), recN->type);
+                                                                        recN1 = AddToBSSInfos(Val, MakeGvarName(Val), recN->type);
                                                                     if (recN1) recN1->AddXref(
                                                                         'C', fromAdr, curAdr - fromAdr);
                                                                 }
@@ -1146,7 +1130,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                         if (reg1Idx <= 7) {
                                                             Val = *(Code + _ap);
                                                         } else if (reg1Idx <= 15) {
-                                                            Val = *((Word *) (Code + _ap));
+                                                            Val = *reinterpret_cast<Word *>(Code + _ap);
                                                         }
                                                         AddPicode(curPos, OP_COMMENT, "0x" + Val2Str0(Val), 0);
                                                         SetFlags(cfData, _ap, 4);
@@ -1158,7 +1142,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                             MakeGvar(recN, Adr, curAdr);
                                             if (reg1Idx < 24) {
                                                 if (reg1Idx >= 16) {
-                                                    Val = *((DWord *) (Code + _ap));
+                                                    Val = *reinterpret_cast<DWord *>(Code + _ap);
                                                     if (reset) SetRegisterValue(registers, reg1Idx, Val);
                                                     if (IsValidImageAdr(Val)) {
                                                         _ap = Adr2Pos(Val);
@@ -1208,7 +1192,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                     if (reg1Idx <= 7) {
                                                         Val = *(Code + _ap);
                                                     } else if (reg1Idx <= 15) {
-                                                        Val = *((Word *) (Code + _ap));
+                                                        Val = *reinterpret_cast<Word *>(Code + _ap);
                                                     }
                                                     AddPicode(curPos, OP_COMMENT, "0x" + Val2Str0(Val), 0);
                                                     SetFlags(cfData, _ap, 4);
@@ -1220,8 +1204,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                         if (recN1) recN1->AddXref('C', fromAdr, curAdr - fromAdr);
                                     }
                                 }
-                            } else //cop reg, [Offset + IndxReg*Scale]
-                            {
+                            } else { // cop reg, [Offset + IndxReg*Scale]
                                 if (reset) {
                                     if (op == OP_IMUL) {
                                         SetRegisterSource(registers, reg1Idx, 0);
@@ -1255,10 +1238,8 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                             }
                         } else {
                             if (DisInfo.IndxReg == -1) {
-                                if (bpBased && DisInfo.BaseReg == 21) //cop reg, [ebp + Offset]
-                                {
-                                    if ((int) DisInfo.Offset < 0) //cop reg, [ebp - Offset]
-                                    {
+                                if (bpBased && DisInfo.BaseReg == 21)  { // cop reg, [ebp + Offset]
+                                    if (static_cast<int>(DisInfo.Offset) < 0)  { // cop reg, [ebp - Offset]
                                         if (reset) {
                                             if (op == OP_IMUL) {
                                                 SetRegisterSource(registers, reg1Idx, 0);
@@ -1270,24 +1251,22 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                 SetRegisterType(registers, reg1Idx, "");
                                             }
                                         }
-                                        //xchg ecx, [ebp-4] (ecx = 0, [ebp-4] = _ecx_)
-                                        if ((int) DisInfo.Offset == -4 && reg1Idx == 17) {
+                                        // xchg ecx, [ebp-4] (ecx = 0, [ebp-4] = _ecx_)
+                                        if (static_cast<int>(DisInfo.Offset) == -4 && reg1Idx == 17) {
                                             recN1 = GetInfoRec(fromAdr);
-                                            locInfo = recN1->procInfo->AddLocal((int) DisInfo.Offset, 4, "", "");
+                                            locInfo = recN1->procInfo->AddLocal(static_cast<int>(DisInfo.Offset), 4, "", "");
                                             SetRegisterType(registers, reg1Idx, _ecx_Type);
                                         } else {
                                             recN1 = GetInfoRec(fromAdr);
-                                            locInfo = recN1->procInfo->AddLocal(
-                                                (int) DisInfo.Offset, DisInfo.OpSize, "", "");
-                                            //mov, xchg
+                                            locInfo = recN1->procInfo->AddLocal(static_cast<int>(DisInfo.Offset), DisInfo.OpSize, "", "");
+                                            // mov, xchg
                                             if (op == OP_MOV || op == OP_XCHG) {
                                                 SetRegisterType(registers, reg1Idx, locInfo->TypeDef);
                                             } else if (op == OP_LEA && locInfo->TypeDef != "") {
                                                 SetRegisterType(registers, reg1Idx, locInfo->TypeDef);
                                             }
                                         }
-                                    } else //cop reg, [ebp + Offset]
-                                    {
+                                    } else { // cop reg, [ebp + Offset]
                                         if (reset) {
                                             if (op == OP_IMUL) {
                                                 SetRegisterSource(registers, reg1Idx, 0);
@@ -1309,8 +1288,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                             }
                                         }
                                     }
-                                } else if (DisInfo.BaseReg == 20) //cop reg, [esp + Offset]
-                                {
+                                } else if (DisInfo.BaseReg == 20) { // cop reg, [esp + Offset]
                                     if (reset) {
                                         if (op == OP_IMUL) {
                                             SetRegisterSource(registers, reg1Idx, 0);
@@ -1321,10 +1299,8 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                             SetRegisterType(registers, reg1Idx, "");
                                         }
                                     }
-                                } else //cop reg, [BaseReg + Offset]
-                                {
-                                    if (!DisInfo.Offset) //cop reg, [BaseReg]
-                                    {
+                                } else { // cop reg, [BaseReg + Offset]
+                                    if (!DisInfo.Offset) { // cop reg, [BaseReg]
                                         Adr = registers[DisInfo.BaseReg].value;
                                         typeName = TrimTypeName(registers[DisInfo.BaseReg].type);
                                         if (reset) {
@@ -1343,7 +1319,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                 SetRegisterValue(registers, reg1Idx, GetClassAdr(typeName));
                                                 SetRegisterType(registers, reg1Idx, typeName); //???
                                                 SetRegisterSource(registers, reg1Idx, 'V');
-                                                //Virtual table base (for calls processing)
+                                                // Virtual table base (for calls processing)
                                             }
                                             if (IsValidImageAdr(Adr)) {
                                                 _ap = Adr2Pos(Adr);
@@ -1365,8 +1341,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                 }
                                             }
                                         }
-                                    } else if ((int) DisInfo.Offset > 0) //cop reg, [BaseReg + Offset]
-                                    {
+                                    } else if (static_cast<int>(DisInfo.Offset) > 0) { // cop reg, [BaseReg + Offset]
                                         typeName = TrimTypeName(registers[DisInfo.BaseReg].type);
                                         if (reset) {
                                             if (op == OP_IMUL) {
@@ -1380,7 +1355,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                             }
                                         }
                                         if (typeName != "") {
-                                            fInfo = GetField(typeName, (int) DisInfo.Offset, &vmt, &vmtAdr, "");
+                                            fInfo = GetField(typeName, static_cast<int>(DisInfo.Offset), &vmt, &vmtAdr, "");
                                             if (fInfo) {
                                                 if (op == OP_MOV || op == OP_XCHG) {
                                                     registers[reg1Idx].type = fInfo->Type;
@@ -1390,19 +1365,18 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                     AddFieldXref(fInfo, fromAdr, curAdr - fromAdr, 'C');
                                                 } else
                                                     delete fInfo;
-                                                //if (vmtAdr) typeName = GetClsName(vmtAdr);
+                                                // if (vmtAdr) typeName = GetClsName(vmtAdr);
                                                 AddPicode(curPos, 0, typeName, DisInfo.Offset);
                                             } else if (vmt) {
                                                 fInfo = AddField(fromAdr, curAdr - fromAdr, typeName, FIELD_PUBLIC,
-                                                                 (int) DisInfo.Offset, -1, "", sType);
+                                                                 static_cast<int>(DisInfo.Offset), -1, "", sType);
                                                 if (fInfo) {
                                                     AddFieldXref(fInfo, fromAdr, curAdr - fromAdr, 'C');
                                                     AddPicode(curPos, 0, typeName, DisInfo.Offset);
                                                 }
                                             }
                                         }
-                                    } else //cop reg, [BaseReg - Offset]
-                                    {
+                                    } else { // cop reg, [BaseReg - Offset]
                                         if (reset) {
                                             if (op == OP_IMUL) {
                                                 SetRegisterSource(registers, reg1Idx, 0);
@@ -1415,10 +1389,8 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                         }
                                     }
                                 }
-                            } else //cop reg, [BaseReg + IndxReg*Scale + Offset]
-                            {
-                                if (DisInfo.BaseReg == 21) //cop reg, [ebp + IndxReg*Scale + Offset]
-                                {
+                            } else { // cop reg, [BaseReg + IndxReg*Scale + Offset]
+                                if (DisInfo.BaseReg == 21) { // cop reg, [ebp + IndxReg*Scale + Offset]
                                     if (reset) {
                                         if (op == OP_IMUL) {
                                             SetRegisterSource(registers, reg1Idx, 0);
@@ -1429,8 +1401,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                             SetRegisterType(registers, reg1Idx, "");
                                         }
                                     }
-                                } else if (DisInfo.BaseReg == 20) //cop reg, [esp + IndxReg*Scale + Offset]
-                                {
+                                } else if (DisInfo.BaseReg == 20) { // cop reg, [esp + IndxReg*Scale + Offset]
                                     if (reset) {
                                         if (op == OP_IMUL) {
                                             SetRegisterSource(registers, reg1Idx, 0);
@@ -1441,19 +1412,16 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                             SetRegisterType(registers, reg1Idx, "");
                                         }
                                     }
-                                } else //cop reg, [BaseReg + IndxReg*Scale + Offset]
-                                {
+                                } else { // cop reg, [BaseReg + IndxReg*Scale + Offset]
                                     typeName = TrimTypeName(registers[DisInfo.BaseReg].type);
                                     if (reset) {
                                         if (op == OP_LEA) {
-                                            //BaseReg - points to class
+                                            // BaseReg - points to class
                                             if (typeName != "") {
                                                 SetRegisterSource(registers, reg1Idx, 0);
                                                 SetRegisterValue(registers, reg1Idx, 0xFFFFFFFF);
                                                 SetRegisterType(registers, reg1Idx, "");
-                                            }
-                                            //Else - general arifmetics
-                                            else {
+                                            } else { // Else - general arithmetics
                                                 SetRegisterSource(registers, reg1Idx, 0);
                                                 SetRegisterValue(registers, reg1Idx, 0xFFFFFFFF);
                                                 SetRegisterType(registers, reg1Idx, "Integer");
@@ -1471,12 +1439,10 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                             }
                         }
                     }
-                }
-                //cop Mem,...
-                else {
-                    //cop Mem, Imm
+                } else { // cop Mem,...
+                    // cop Mem, Imm
                     if (DisInfo.OpType[1] == otIMM) {
-                        //cop [Offset], Imm
+                        // cop [Offset], Imm
                         if (DisInfo.BaseReg == -1 && DisInfo.IndxReg == -1) {
                             Adr = DisInfo.Offset;
                             if (IsValidImageAdr(Adr)) {
@@ -1491,23 +1457,19 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                     if (recN1) recN1->AddXref('C', fromAdr, curAdr - fromAdr);
                                 }
                             }
-                        }
-                        //cop [BaseReg + IndxReg*Scale + Offset], Imm
-                        else if (DisInfo.BaseReg != -1) {
-                            //cop [BaseReg + Offset], Imm
+                        } else if (DisInfo.BaseReg != -1) { // cop [BaseReg + IndxReg*Scale + Offset], Imm
+                            // cop [BaseReg + Offset], Imm
                             if (DisInfo.IndxReg == -1) {
-                                //cop [ebp - Offset], Imm
-                                if (bpBased && DisInfo.BaseReg == 21 && (int) DisInfo.Offset < 0) {
+                                // cop [ebp - Offset], Imm
+                                if (bpBased && DisInfo.BaseReg == 21 && static_cast<int>(DisInfo.Offset) < 0) {
                                     recN1 = GetInfoRec(fromAdr);
-                                    recN1->procInfo->AddLocal((int) DisInfo.Offset, DisInfo.OpSize, "", "");
-                                }
-                                //cop [esp], Imm
-                                else if (DisInfo.BaseReg == 20) {
+                                    recN1->procInfo->AddLocal(static_cast<int>(DisInfo.Offset), DisInfo.OpSize, "", "");
+                                } else if (DisInfo.BaseReg == 20) { // cop [esp], Imm
                                     dummy = 1;
                                 }
-                                //other registers
+                                // other registers
                                 else {
-                                    //cop [BaseReg], Imm
+                                    // cop [BaseReg], Imm
                                     if (!DisInfo.Offset) {
                                         Adr = registers[DisInfo.BaseReg].value;
                                         if (IsValidImageAdr(Adr)) {
@@ -1522,12 +1484,10 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                 if (recN1) recN1->AddXref('C', fromAdr, curAdr - fromAdr);
                                             }
                                         }
-                                    }
-                                    //cop [BaseReg + Offset], Imm
-                                    else if ((int) DisInfo.Offset > 0) {
+                                    } else if (static_cast<int>(DisInfo.Offset) > 0) { // cop [BaseReg + Offset], Imm
                                         typeName = TrimTypeName(registers[DisInfo.BaseReg].type);
                                         if (typeName != "") {
-                                            fInfo = GetField(typeName, (int) DisInfo.Offset, &vmt, &vmtAdr, "");
+                                            fInfo = GetField(typeName, static_cast<int>(DisInfo.Offset), &vmt, &vmtAdr, "");
                                             if (fInfo) {
                                                 if (vmt) {
                                                     if (op != OP_CMP && op != OP_TEST)
@@ -1536,11 +1496,11 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                         AddFieldXref(fInfo, fromAdr, curAdr - fromAdr, 'C');
                                                 } else
                                                     delete fInfo;
-                                                //if (vmtAdr) typeName = GetClsName(vmtAdr);
+                                                // if (vmtAdr) typeName = GetClsName(vmtAdr);
                                                 AddPicode(curPos, 0, typeName, DisInfo.Offset);
                                             } else if (vmt) {
                                                 fInfo = AddField(fromAdr, curAdr - fromAdr, typeName, FIELD_PUBLIC,
-                                                                 (int) DisInfo.Offset, -1, "", sType);
+                                                                 static_cast<int>(DisInfo.Offset), -1, "", sType);
                                                 if (fInfo) {
                                                     if (op != OP_CMP && op != OP_TEST)
                                                         AddFieldXref(fInfo, fromAdr, curAdr - fromAdr, 'c');
@@ -1550,21 +1510,13 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                 }
                                             }
                                         }
-                                    }
-                                    //cop [BaseReg - Offset], Imm
-                                    else {}
+                                    } else {} // cop [BaseReg - Offset], Imm
                                 }
-                            }
-                            //cop [BaseReg + IndxReg*Scale + Offset], Imm
-                            else {}
-                        }
-                        //Other instructions
-                        else {}
-                    }
-                    //cop Mem, reg
-                    else if (DisInfo.OpType[1] == otREG) {
+                            } else {} // cop [BaseReg + IndxReg*Scale + Offset], Imm
+                        } else {} // Other instructions
+                    } else if (DisInfo.OpType[1] == otREG) { // cop Mem, reg
                         reg2Idx = DisInfo.OpRegIdx[1];
-                        //op [Offset], reg
+                        // op [Offset], reg
                         if (DisInfo.BaseReg == -1 && DisInfo.IndxReg == -1) {
                             varAdr = DisInfo.Offset;
                             if (IsValidImageAdr(varAdr)) {
@@ -1582,20 +1534,16 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                     if (recN1) recN1->AddXref('C', fromAdr, curAdr - fromAdr);
                                 }
                             }
-                        }
-                        //cop [BaseReg + IndxReg*Scale + Offset], reg
-                        else if (DisInfo.BaseReg != -1) {
+                        } else if (DisInfo.BaseReg != -1) { // cop [BaseReg + IndxReg*Scale + Offset], reg
                             if (DisInfo.IndxReg == -1) {
-                                //cop [ebp - Offset], reg
-                                if (bpBased && DisInfo.BaseReg == 21 && (int) DisInfo.Offset < 0) {
+                                // cop [ebp - Offset], reg
+                                if (bpBased && DisInfo.BaseReg == 21 && static_cast<int>(DisInfo.Offset) < 0) {
                                     recN1 = GetInfoRec(fromAdr);
-                                    recN1->procInfo->AddLocal((int) DisInfo.Offset, 4, "", registers[reg2Idx].type);
-                                }
-                                //esp
-                                else if (DisInfo.BaseReg == 20) {}
-                                //other registers
-                                else {
-                                    //cop [BaseReg], reg
+                                    recN1->procInfo->AddLocal(static_cast<int>(DisInfo.Offset), 4, "", registers[reg2Idx].type);
+                                } else if (DisInfo.BaseReg == 20) {
+                                    // esp
+                                } else { // other registers
+                                    // cop [BaseReg], reg
                                     if (!DisInfo.Offset) {
                                         varAdr = registers[DisInfo.BaseReg].value;
                                         if (IsValidImageAdr(varAdr)) {
@@ -1605,18 +1553,16 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                 if (!recN1) recN1 = new InfoRec(_ap, ikData);
                                                 MakeGvar(recN1, varAdr, curAdr);
                                                 if (recN1->type == "") recN1->type = registers[reg2Idx].type;
-                                                if (!IsValidCodeAdr(varAdr)) recN1->AddXref(
-                                                    'C', fromAdr, curAdr - fromAdr);
+                                                if (!IsValidCodeAdr(varAdr)) recN1->AddXref('C', fromAdr, curAdr - fromAdr);
                                             } else {
-                                                recN1 = AddToBSSInfos(varAdr, MakeGvarName(varAdr),
-                                                                      registers[reg2Idx].type);
+                                                recN1 = AddToBSSInfos(varAdr, MakeGvarName(varAdr), registers[reg2Idx].type);
                                                 if (recN1) recN1->AddXref('C', fromAdr, curAdr - fromAdr);
                                             }
                                         } else {
                                             typeName = TrimTypeName(registers[DisInfo.BaseReg].type);
                                             if (typeName != "") {
                                                 if (registers[reg2Idx].type != "") sType = registers[reg2Idx].type;
-                                                fInfo = GetField(typeName, (int) DisInfo.Offset, &vmt, &vmtAdr, "");
+                                                fInfo = GetField(typeName, static_cast<int>(DisInfo.Offset), &vmt, &vmtAdr, "");
                                                 if (fInfo) {
                                                     if (vmt) {
                                                         if (CanReplace(fInfo->Type, sType)) fInfo->Type = sType;
@@ -1626,7 +1572,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                     AddPicode(curPos, 0, typeName, DisInfo.Offset);
                                                 } else if (vmt) {
                                                     fInfo = AddField(fromAdr, curAdr - fromAdr, typeName, FIELD_PUBLIC,
-                                                                     (int) DisInfo.Offset, -1, "", sType);
+                                                                     static_cast<int>(DisInfo.Offset), -1, "", sType);
                                                     if (fInfo) {
                                                         AddFieldXref(fInfo, fromAdr, curAdr - fromAdr, 'c');
                                                         AddPicode(curPos, 0, typeName, DisInfo.Offset);
@@ -1634,56 +1580,46 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                 }
                                             }
                                         }
-                                    }
-                                    //cop [BaseReg + Offset], reg
-                                    else if ((int) DisInfo.Offset > 0) {
+                                    } else if (static_cast<int>(DisInfo.Offset) > 0) { //cop [BaseReg + Offset], reg
                                         typeName = TrimTypeName(registers[DisInfo.BaseReg].type);
                                         if (typeName != "") {
                                             if (registers[reg2Idx].type != "") sType = registers[reg2Idx].type;
-                                            fInfo = GetField(typeName, (int) DisInfo.Offset, &vmt, &vmtAdr, "");
+                                            fInfo = GetField(typeName, static_cast<int>(DisInfo.Offset), &vmt, &vmtAdr, "");
                                             if (fInfo) {
                                                 if (vmt) {
                                                     if (CanReplace(fInfo->Type, sType)) fInfo->Type = sType;
                                                     AddFieldXref(fInfo, fromAdr, curAdr - fromAdr, 'c');
                                                 } else
                                                     delete fInfo;
-                                                //if (vmtAdr) typeName = GetClsName(vmtAdr);
+                                                // if (vmtAdr) typeName = GetClsName(vmtAdr);
                                                 AddPicode(curPos, 0, typeName, DisInfo.Offset);
                                             } else if (vmt) {
                                                 fInfo = AddField(fromAdr, curAdr - fromAdr, typeName, FIELD_PUBLIC,
-                                                                 (int) DisInfo.Offset, -1, "", sType);
+                                                                 static_cast<int>(DisInfo.Offset), -1, "", sType);
                                                 if (fInfo) {
                                                     AddFieldXref(fInfo, fromAdr, curAdr - fromAdr, 'c');
                                                     AddPicode(curPos, 0, typeName, DisInfo.Offset);
                                                 }
                                             }
                                         }
-                                    }
-                                    //cop [BaseReg - Offset], reg
-                                    else {}
+                                    } else {} // cop [BaseReg - Offset], reg
                                 }
-                            }
-                            //cop [BaseReg + IndxReg*Scale + Offset], reg
-                            else {
-                                //cop [BaseReg + IndxReg*Scale + Offset], reg
-                                if (bpBased && DisInfo.BaseReg == 21 && (int) DisInfo.Offset < 0) {}
-                                //esp
-                                else if (DisInfo.BaseReg == 20) {}
-                                //other registers
-                                else {
-                                    //[BaseReg]
-                                    if (!DisInfo.Offset) {}
-                                    //cop [BaseReg + IndxReg*Scale + Offset], reg
-                                    else if ((int) DisInfo.Offset > 0) {
+                            } else { // cop [BaseReg + IndxReg*Scale + Offset], reg
+                                // cop [BaseReg + IndxReg*Scale + Offset], reg
+                                if (bpBased && DisInfo.BaseReg == 21 && static_cast<int>(DisInfo.Offset) < 0) {
+
+                                } else if (DisInfo.BaseReg == 20) {
+                                    // esp
+                                } else { // other registers
+                                    // [BaseReg]
+                                    if (!DisInfo.Offset) {
+
+                                    } else if (static_cast<int>(DisInfo.Offset) > 0) { // cop [BaseReg + IndxReg*Scale + Offset], reg
                                         typeName = TrimTypeName(registers[DisInfo.BaseReg].type);
-                                    }
-                                    //cop [BaseReg - Offset], reg
-                                    else {}
+                                    } else {} // cop [BaseReg - Offset], reg
                                 }
                             }
-                        }
-                        //Other instructions
-                        else {}
+                        } else {} //Other instructions
                     }
                 }
             } else if (op == OP_ADC || op == OP_SBB) {
@@ -1693,13 +1629,13 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                     registers[reg1Idx].type = "";
                 }
             } else if (op == OP_MUL || op == OP_DIV) {
-                //Clear register eax
+                // Clear register eax
                 SetRegisterValue(registers, 16, 0xFFFFFFFF);
                 for (n = 0; n <= 16; n += 4) {
                     if (n == 12) continue;
                     registers[n].type = "";
                 }
-                //Clear register edx
+                // Clear register edx
                 SetRegisterValue(registers, 18, 0xFFFFFFFF);
                 for (n = 2; n <= 18; n += 4) {
                     if (n == 14) continue;
@@ -1712,7 +1648,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                     registers[reg1Idx].type = "";
                 }
             }
-            //SHL??? SHR???
+            // SHL??? SHR???
         }
         curPos += instrLen;
         curAdr += instrLen;
@@ -1731,14 +1667,14 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
     PARGINFO argInfo;
     String typeDef, typeName, retName, _vs;
     DISINFO _disInfo;
-    char buf[1024]; //for LoadStr function
+    char buf[1024]; // for LoadStr function
 
     _ap = Adr2Pos(callAdr);
     if (_ap < 0) return "";
 
     retName = "";
     recN = GetInfoRec(callAdr);
-    //If procedure is skipped return
+    // If procedure is skipped return
     if (IsFlagSet(cfSkip, callPos)) {
         //@BeforeDestruction
         if (recN->SameName("@BeforeDestruction")) return registers[16].type;
@@ -1746,7 +1682,7 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
         return recN->type;
     }
 
-    //cdecl, stdcall
+    // cdecl, stdcall
     if (recN->procInfo->flags & 1) {
         if (!recN->procInfo->args || !recN->procInfo->args->Count) {
             return recN->type;
@@ -1755,7 +1691,7 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
         for (pos = callPos, pushn = -1;; pos--) {
             if (!IsFlagSet(cfInstruction, pos)) continue;
             if (IsFlagSet(cfProcStart, pos)) break;
-            //I cannot yet handle this situation
+            // I cannot yet handle this situation
             if (IsFlagSet(cfCall, pos) && pos != callPos) break;
             if (IsFlagSet(cfPush, pos)) {
                 pushn++;
@@ -1771,9 +1707,9 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                             if (itemPos >= 0) {
                                 recN1 = GetInfoRec(itemAdr);
                                 if (!recN1) recN1 = new InfoRec(itemPos, ikData);
-                                //var - use pointer
+                                // var - use pointer
                                 if (argInfo->Tag == 0x22) {
-                                    strAdr = *((DWord *) (Code + itemPos));
+                                    strAdr = *reinterpret_cast<DWord *>(Code + itemPos);
                                     if (!strAdr) {
                                         SetFlags(cfData, itemPos, 4);
                                         MakeGvar(recN1, itemAdr, Pos2Adr(pos));
@@ -1789,7 +1725,7 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                                         }
                                     }
                                 }
-                                //val
+                                // val
                                 else if (argInfo->Tag == 0x21) {
                                     recN1->kind = ikCString;
                                     len = strlen(reinterpret_cast<const char*>(Code + itemPos));
@@ -1812,9 +1748,9 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                             if (itemPos) {
                                 recN1 = GetInfoRec(itemAdr);
                                 if (!recN1) recN1 = new InfoRec(itemPos, ikData);
-                                //var - use pointer
+                                // var - use pointer
                                 if (argInfo->Tag == 0x22) {
-                                    strAdr = *((DWord *) (Code + itemPos));
+                                    strAdr = *reinterpret_cast<DWord *>(Code + itemPos);
                                     if (!strAdr) {
                                         SetFlags(cfData, itemPos, 4);
                                         MakeGvar(recN1, itemAdr, Pos2Adr(pos));
@@ -1822,26 +1758,23 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                                     } else {
                                         _ap = Adr2Pos(strAdr);
                                         if (_ap >= 0) {
-                                            len = wcslen((wchar_t *) (Code + Adr2Pos(strAdr)));
+                                            len = wcslen(reinterpret_cast<wchar_t *>(Code + Adr2Pos(strAdr)));
                                             SetFlags(cfData, Adr2Pos(strAdr), 2 * len + 1);
                                         } else if (_ap == -1) {
                                             recN1 = AddToBSSInfos(strAdr, MakeGvarName(strAdr), typeDef);
                                             if (recN1) recN1->AddXref('C', callAdr, callPos);
                                         }
                                     }
-                                }
-                                //val
-                                else if (argInfo->Tag == 0x21) {
+                                } else if (argInfo->Tag == 0x21) { // val
                                     recN1->kind = ikWCString;
-                                    len = wcslen((wchar_t *) (Code + itemPos));
+                                    len = wcslen(reinterpret_cast<wchar_t *>(Code + itemPos));
                                     if (!recN1->HasName()) {
                                         if (IsValidCodeAdr(itemAdr)) {
-                                            WideString wStr = WideString((wchar_t *) (Code + itemPos));
+                                            WideString wStr = WideString(reinterpret_cast<wchar_t *>(Code + itemPos));
                                             int size = WideCharToMultiByte(CP_ACP, 0, wStr.c_bstr(), len, 0, 0, 0, 0);
                                             if (size) {
                                                 tmpBuf = new char[size + 1];
-                                                WideCharToMultiByte(
-                                                    CP_ACP, 0, wStr.c_bstr(), len, (LPSTR) tmpBuf, size, 0, 0);
+                                                WideCharToMultiByte(CP_ACP, 0, wStr.c_bstr(), len, (LPSTR) tmpBuf, size, 0, 0);
                                                 recN1->SetName(TransformString(tmpBuf, size));
                                                 delete[] tmpBuf;
                                                 if (recN->SameName("GetProcAddress")) retName = recN1->GetName();
@@ -1887,7 +1820,7 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
     }
     if (recN->HasName()) {
         if (recN->SameName("LoadStr") || recN->SameName("FmtLoadStr") || recN->SameName("LoadResString")) {
-            int ident = registers[16].value; //eax = string ID
+            int ident = registers[16].value; // eax = string ID
             if (ident != -1) {
                 HINSTANCE hInst = LoadLibraryEx(AnsiString(SourceFile).c_str(), 0, LOAD_LIBRARY_AS_DATAFILE);
                 if (hInst) {
@@ -1899,9 +1832,9 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
             return "";
         }
         if (recN->SameName("TApplication.CreateForm")) {
-            DWord vmtAdr = registers[18].value + cVmtSelfPtr; //edx
+            DWord vmtAdr = registers[18].value + cVmtSelfPtr; // edx
 
-            DWord refAdr = registers[17].value; //ecx
+            DWord refAdr = registers[17].value; // ecx
             if (IsValidImageAdr(refAdr)) {
                 typeName = GetClsName(vmtAdr);
                 _ap = Adr2Pos(refAdr);
@@ -1922,10 +1855,10 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
             return "";
         }
         if (recN->SameName("@FinalizeRecord")) {
-            DWord recAdr = registers[16].value;     //eax
-            DWord recTypeAdr = registers[18].value; //edx
+            DWord recAdr = registers[16].value;     // eax
+            DWord recTypeAdr = registers[18].value; // edx
             typeName = GetTypeName(recTypeAdr);
-            //Address given directly
+            // Address given directly
             if (IsValidImageAdr(recAdr)) {
                 _ap = Adr2Pos(recAdr);
                 if (_ap >= 0) {
@@ -1938,17 +1871,15 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                     recN1 = AddToBSSInfos(recAdr, MakeGvarName(recAdr), typeName);
                     if (recN1) recN1->AddXref('C', callAdr, callPos);
                 }
-            }
-            //Local variable
-            else if ((registers[16].source & 0xDF) == 'L') {
+            } else if ((registers[16].source & 0xDF) == 'L') { // Local variable
                 if (registers[16].type == "" && typeName != "") registers[16].type = typeName;
                 registers[16].result = 1;
             }
             return "";
         }
         if (recN->SameName("@DynArrayAddRef")) {
-            DWord arrayAdr = registers[16].value; //eax
-            //Address given directly
+            DWord arrayAdr = registers[16].value; // eax
+            // Address given directly
             if (IsValidImageAdr(arrayAdr)) {
                 _ap = Adr2Pos(arrayAdr);
                 if (_ap >= 0) {
@@ -1960,9 +1891,7 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                     recN1 = AddToBSSInfos(arrayAdr, MakeGvarName(arrayAdr), "");
                     if (recN1) recN1->AddXref('C', callAdr, callPos);
                 }
-            }
-            //Local variable
-            else if ((registers[16].source & 0xDF) == 'L') {
+            } else if ((registers[16].source & 0xDF) == 'L') { // Local variable
                 if (registers[16].type == "") registers[16].type = "array of ?";
                 registers[16].result = 1;
             }
@@ -1972,10 +1901,10 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
             recN->SameName("@DynArrayClear") ||
             recN->SameName("DynArraySetLength") ||
             recN->SameName("@DynArraySetLength")) {
-            DWord arrayAdr = registers[16].value;  //eax
-            DWord elTypeAdr = registers[18].value; //edx
+            DWord arrayAdr = registers[16].value;  // eax
+            DWord elTypeAdr = registers[18].value; // edx
             typeName = GetTypeName(elTypeAdr);
-            //Address given directly
+            // Address given directly
             if (IsValidImageAdr(arrayAdr)) {
                 _ap = Adr2Pos(arrayAdr);
                 if (_ap >= 0) {
@@ -1988,20 +1917,18 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                     recN1 = AddToBSSInfos(arrayAdr, MakeGvarName(arrayAdr), typeName);
                     if (recN1) recN1->AddXref('C', callAdr, callPos);
                 }
-            }
-            //Local variable
-            else if ((registers[16].source & 0xDF) == 'L') {
+            } else if ((registers[16].source & 0xDF) == 'L') { // Local variable
                 if (registers[16].type == "" && typeName != "") registers[16].type = typeName;
                 registers[16].result = 1;
             }
             return "";
         }
         if (recN->SameName("@DynArrayCopy")) {
-            DWord arrayAdr = registers[16].value;    //eax
-            DWord elTypeAdr = registers[18].value;   //edx
-            DWord dstArrayAdr = registers[17].value; //ecx
+            DWord arrayAdr = registers[16].value;    // eax
+            DWord elTypeAdr = registers[18].value;   // edx
+            DWord dstArrayAdr = registers[17].value; // ecx
             typeName = GetTypeName(elTypeAdr);
-            //Address given directly
+            // Address given directly
             if (IsValidImageAdr(arrayAdr)) {
                 _ap = Adr2Pos(arrayAdr);
                 if (_ap >= 0) {
@@ -2014,13 +1941,11 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                     recN1 = AddToBSSInfos(arrayAdr, MakeGvarName(arrayAdr), typeName);
                     if (recN1) recN1->AddXref('C', callAdr, callPos);
                 }
-            }
-            //Local variable
-            else if ((registers[16].source & 0xDF) == 'L') {
+            } else if ((registers[16].source & 0xDF) == 'L') { // Local variable
                 if (registers[16].type == "" && typeName != "") registers[16].type = typeName;
                 registers[16].result = 1;
             }
-            //Address given directly
+            // Address given directly
             if (IsValidImageAdr(dstArrayAdr)) {
                 _ap = Adr2Pos(dstArrayAdr);
                 if (_ap >= 0) {
@@ -2033,9 +1958,7 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                     recN1 = AddToBSSInfos(dstArrayAdr, MakeGvarName(dstArrayAdr), typeName);
                     if (recN1) recN1->AddXref('C', callAdr, callPos);
                 }
-            }
-            //Local variable
-            else if ((registers[17].source & 0xDF) == 'L') {
+            } else if ((registers[17].source & 0xDF) == 'L') { // Local variable
                 if (registers[17].type == "" && typeName != "") registers[17].type = typeName;
                 registers[17].result = 1;
             }
@@ -2060,9 +1983,9 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
             return "";
         }
         if (recN->SameName("@FinalizeArray")) {
-            DWord arrayAdr = registers[16].value;  //eax
-            int elNum = registers[17].value;       //ecx
-            DWord elTypeAdr = registers[18].value; //edx
+            DWord arrayAdr = registers[16].value;  // eax
+            int elNum = registers[17].value;       // ecx
+            DWord elTypeAdr = registers[18].value; // edx
 
             if (IsValidImageAdr(arrayAdr)) {
                 typeName = "array[" + String(elNum) + "] of " + GetTypeName(elTypeAdr);
@@ -2081,7 +2004,7 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
             return "";
         }
         if (recN->SameName("@VarClr")) {
-            DWord strAdr = registers[16].value; //eax
+            DWord strAdr = registers[16].value; // eax
             if (IsValidImageAdr(strAdr)) {
                 _ap = Adr2Pos(strAdr);
                 if (_ap >= 0) {
@@ -2097,22 +2020,22 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
             }
             return "";
         }
-        //@AsClass
+        // @AsClass
         if (recN->SameName("@AsClass")) {
             return registers[18].type;
         }
-        //@IsClass
+        // @IsClass
         if (recN->SameName("@IsClass")) {
             return "";
         }
-        //@GetTls
+        // @GetTls
         if (recN->SameName("@GetTls")) {
             return "#TLS";
         }
-        //@AfterConstruction
+        // @AfterConstruction
         if (recN->SameName("@AfterConstruction")) return "";
     }
-    //try prototype
+    // try prototype
     Byte callKind = recN->procInfo->flags & 7;
     if (recN->procInfo->args && !callKind) {
         registers[16].result = 0;
@@ -2122,11 +2045,11 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
         for (n = 0; n < recN->procInfo->args->Count; n++) {
             argInfo = (PARGINFO) recN->procInfo->args->Items[n];
             regIdx = -1;
-            if (argInfo->Ndx == 0) //eax
+            if (argInfo->Ndx == 0) // eax
                 regIdx = 16;
-            else if (argInfo->Ndx == 1) //edx
+            else if (argInfo->Ndx == 1) // edx
                 regIdx = 18;
-            else if (argInfo->Ndx == 2) //ecx
+            else if (argInfo->Ndx == 2) // ecx
                 regIdx = 17;
             if (regIdx == -1) continue;
             if (argInfo->TypeDef == "") {
@@ -2135,16 +2058,16 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
             } else {
                 if (registers[regIdx].type == "") {
                     registers[regIdx].type = argInfo->TypeDef;
-                    //registers[regIdx].result = 1;
+                    // registers[regIdx].result = 1;
                 } else {
                     typeName = GetCommonType(argInfo->TypeDef, TrimTypeName(registers[regIdx].type));
                     if (typeName != "") argInfo->TypeDef = typeName;
                 }
-                //Aliases ???????????
+                // Aliases ???????????
             }
 
             typeDef = argInfo->TypeDef;
-            //Local var (lea - remove ^ before type)
+            // Local var (lea - remove ^ before type)
             if (registers[regIdx].source == 'L') {
                 if (SameText(typeDef, "Pointer"))
                     registers[regIdx].type = "Byte";
@@ -2156,11 +2079,11 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                 registers[regIdx].result = 1;
                 continue;
             }
-            //Local var
+            // Local var
             if (registers[regIdx].source == 'l') {
                 continue;
             }
-            //Arg
+            // Arg
             if ((registers[regIdx].source & 0xDF) == 'A') {
                 continue;
             }
@@ -2175,9 +2098,9 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                         if (SameText(typeDef, "PShortString") || SameText(typeDef, "ShortString")) {
                             recN1 = GetInfoRec(itemAdr);
                             if (!recN1) recN1 = new InfoRec(itemPos, ikData);
-                            //var - use pointer
+                            // var - use pointer
                             if (argInfo->Tag == 0x22) {
-                                strAdr = *((DWord *) (Code + itemPos));
+                                strAdr = *reinterpret_cast<DWord *>(Code + itemPos);
                                 if (IsValidCodeAdr(strAdr)) {
                                     _ap = Adr2Pos(strAdr);
                                     len = *(Code + _ap);
@@ -2187,9 +2110,7 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                                     MakeGvar(recN1, itemAdr, 0);
                                     if (typeDef != "") recN1->type = typeDef;
                                 }
-                            }
-                            //val
-                            else if (argInfo->Tag == 0x21) {
+                            } else if (argInfo->Tag == 0x21) { // val
                                 recN1->kind = ikString;
                                 len = *(Code + itemPos);
                                 if (!recN1->HasName()) {
@@ -2205,9 +2126,9 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                         } else if (SameText(typeDef, "PAnsiChar") || SameText(typeDef, "PChar")) {
                             recN1 = GetInfoRec(itemAdr);
                             if (!recN1) recN1 = new InfoRec(itemPos, ikData);
-                            //var - use pointer
+                            // var - use pointer
                             if (argInfo->Tag == 0x22) {
-                                strAdr = *((DWord *) (Code + itemPos));
+                                strAdr = *reinterpret_cast<DWord *>(Code + itemPos);
                                 if (IsValidCodeAdr(strAdr)) {
                                     _ap = Adr2Pos(strAdr);
                                     len = strlen(reinterpret_cast<const char*>(Code + _ap));
@@ -2217,9 +2138,7 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                                     MakeGvar(recN1, itemAdr, 0);
                                     if (typeDef != "") recN1->type = typeDef;
                                 }
-                            }
-                            //val
-                            else if (argInfo->Tag == 0x21) {
+                            } else if (argInfo->Tag == 0x21) { // val
                                 recN1->kind = ikCString;
                                 len = strlen(reinterpret_cast<const char*>(Code + itemPos));
                                 if (!recN1->HasName()) {
@@ -2238,19 +2157,19 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                                    SameText(typeDef, "UnicodeString")) {
                             recN1 = GetInfoRec(itemAdr);
                             if (!recN1) recN1 = new InfoRec(itemPos, ikData);
-                            //var - use pointer
+                            // var - use pointer
                             if (argInfo->Tag == 0x22) {
-                                strAdr = *((DWord *) (Code + itemPos));
+                                strAdr = *reinterpret_cast<DWord *>(Code + itemPos);
                                 _ap = Adr2Pos(strAdr);
                                 if (IsValidCodeAdr(strAdr)) {
-                                    refcnt = *((int *) (Code + _ap - 8));
-                                    len = *((int *) (Code + _ap - 4));
+                                    refcnt = *reinterpret_cast<int *>(Code + _ap - 8);
+                                    len = *reinterpret_cast<int *>(Code + _ap - 4);
                                     if (refcnt == -1 && len >= 0 && len < 25000) {
                                         if (DelphiVersion < 2009) {
                                             SetFlags(cfData, _ap - 8, (8 + len + 1 + 3) & (-4));
                                         } else {
-                                            codePage = *((Word *) (Code + _ap - 12));
-                                            elemSize = *((Word *) (Code + _ap - 10));
+                                            codePage = *reinterpret_cast<Word *>(Code + _ap - 12);
+                                            elemSize = *reinterpret_cast<Word *>(Code + _ap - 10);
                                             SetFlags(cfData, _ap - 12, (12 + (len + 1) * elemSize + 3) & (-4));
                                         }
                                     } else {
@@ -2265,16 +2184,14 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                                         recN1 = AddToBSSInfos(itemAdr, MakeGvarName(itemAdr), typeDef);
                                     }
                                 }
-                            }
-                            //val
-                            else if (argInfo->Tag == 0x21) {
-                                refcnt = *((int *) (Code + itemPos - 8));
-                                len = wcslen((wchar_t *) (Code + itemPos));
+                            } else if (argInfo->Tag == 0x21) { // val
+                                refcnt = *reinterpret_cast<int *>(Code + itemPos - 8);
+                                len = wcslen(reinterpret_cast<wchar_t *>(Code + itemPos));
                                 if (DelphiVersion < 2009) {
                                     recN1->kind = ikLString;
                                 } else {
-                                    codePage = *((Word *) (Code + itemPos - 12));
-                                    elemSize = *((Word *) (Code + itemPos - 10));
+                                    codePage = *reinterpret_cast<Word *>(Code + itemPos - 12);
+                                    elemSize = *reinterpret_cast<Word *>(Code + itemPos - 10);
                                     recN1->kind = ikUString;
                                 }
                                 if (refcnt == -1 && len >= 0 && len < 25000) {
@@ -2283,8 +2200,7 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                                             if (DelphiVersion < 2009)
                                                 recN1->SetName(TransformString(reinterpret_cast<char *>(Code + itemPos), len));
                                             else
-                                                recN1->SetName(
-                                                    TransformUString(codePage, reinterpret_cast<const wchar_t*>(Code + itemPos), len));
+                                                recN1->SetName(TransformUString(codePage, reinterpret_cast<const wchar_t*>(Code + itemPos), len));
                                         } else {
                                             recN1->SetName(MakeGvarName(itemAdr));
                                             if (typeDef != "") recN1->type = typeDef;
@@ -2309,12 +2225,12 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                         } else if (SameText(typeDef, "WideString")) {
                             recN1 = GetInfoRec(itemAdr);
                             if (!recN1) recN1 = new InfoRec(itemPos, ikData);
-                            //var - use pointer
+                            // var - use pointer
                             if (argInfo->Tag == 0x22) {
-                                strAdr = *((DWord *) (Code + itemPos));
+                                strAdr = *reinterpret_cast<DWord *>(Code + itemPos);
                                 _ap = Adr2Pos(strAdr);
                                 if (IsValidCodeAdr(strAdr)) {
-                                    len = *((int *) (Code + _ap - 4));
+                                    len = *reinterpret_cast<int *>(Code + _ap - 4);
                                     SetFlags(cfData, _ap - 4, (4 + len + 1 + 3) & (-4));
                                 } else {
                                     if (_ap >= 0) {
@@ -2325,20 +2241,18 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                                         recN1 = AddToBSSInfos(itemAdr, MakeGvarName(itemAdr), typeDef);
                                     }
                                 }
-                            }
-                            //val
-                            else if (argInfo->Tag == 0x21) {
+                            } else if (argInfo->Tag == 0x21) { // val
                                 recN1->kind = ikWString;
-                                len = wcslen((wchar_t *) (Code + itemPos));
+                                len = wcslen(reinterpret_cast<wchar_t *>(Code + itemPos));
                                 if (!recN1->HasName()) {
                                     if (IsValidCodeAdr(itemAdr)) {
-                                        WideString wStr = WideString((wchar_t *) (Code + itemPos));
+                                        WideString wStr = WideString(reinterpret_cast<wchar_t *>(Code + itemPos));
                                         int size = WideCharToMultiByte(CP_ACP, 0, wStr.c_bstr(), len, 0, 0, 0, 0);
                                         if (size) {
                                             tmpBuf = reinterpret_cast<char *>(new Byte[size + 1]);
                                             WideCharToMultiByte(CP_ACP, 0, wStr.c_bstr(), len, (LPSTR) tmpBuf, size, 0,
                                                                 0);
-                                            recN1->SetName(TransformString(tmpBuf, size)); //???size - 1
+                                            recN1->SetName(TransformString(tmpBuf, size)); // ???size - 1
                                             delete[] tmpBuf;
                                         }
                                     } else {
@@ -2368,13 +2282,13 @@ String __fastcall TFMain_11011981::AnalyzeTypes(DWord parentAdr, int callPos, DW
                                 recN1->type = "TResStringRec";
                                 recN1->ConcatName("SResString" + String(LastResStrNo));
                                 LastResStrNo++;
-                                //Set Flags
+                                // Set Flags
                                 SetFlags(cfData, itemPos, 8);
-                                //Get Context
+                                // Get Context
                                 HINSTANCE hInst = LoadLibraryEx(AnsiString(SourceFile).c_str(), 0,
                                                                 LOAD_LIBRARY_AS_DATAFILE);
                                 if (hInst) {
-                                    DWord resid = *((DWord *) (Code + itemPos + 4));
+                                    DWord resid = *reinterpret_cast<DWord *>(Code + itemPos + 4);
                                     if (resid < 0x10000) {
                                         int Bytes = LoadString(hInst, (UINT) resid, buf, 1024);
                                         recN1->rsInfo->value = String(buf, Bytes);

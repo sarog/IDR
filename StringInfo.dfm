@@ -1,8 +1,8 @@
 object FStringInfo_11011981: TFStringInfo_11011981
   Left = 270
   Top = 390
-  Width = 853
-  Height = 190
+  ClientHeight = 151
+  ClientWidth = 837
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -10,17 +10,15 @@ object FStringInfo_11011981: TFStringInfo_11011981
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
-  PixelsPerInch = 96
   TextHeight = 13
   object memStringInfo: TMemo
     Left = 0
     Top = 0
     Width = 837
-    Height = 152
+    Height = 151
     Align = alClient
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
@@ -31,5 +29,6 @@ object FStringInfo_11011981: TFStringInfo_11011981
     ReadOnly = True
     ScrollBars = ssVertical
     TabOrder = 0
+    ExplicitHeight = 152
   end
 end

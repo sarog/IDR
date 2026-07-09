@@ -25,8 +25,7 @@ extern PInfoRec *Infos;
 
 TFExplorer_11011981 *FExplorer_11011981;
 //---------------------------------------------------------------------------
-__fastcall TFExplorer_11011981::TFExplorer_11011981(TComponent *Owner)
-    : TForm(Owner) {
+__fastcall TFExplorer_11011981::TFExplorer_11011981(TComponent *Owner) : TForm(Owner) {
     WAlign = 0;
     DefineAs = 0;
     Adr = 0;

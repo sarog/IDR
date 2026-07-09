@@ -8,7 +8,8 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-
+TFTypeInfo_11011981 *FTypeInfo_11011981;
+//---------------------------------------------------------------------------
 extern DWord ImageBase;
 extern DWord CodeBase;
 extern DWord *Flags;
@@ -17,11 +18,8 @@ extern Byte *Code;
 extern int DelphiVersion;
 extern TList *TypeList;
 extern MKnowledgeBase KnowledgeBase;
-
-TFTypeInfo_11011981 *FTypeInfo_11011981;
 //---------------------------------------------------------------------------
-__fastcall TFTypeInfo_11011981::TFTypeInfo_11011981(TComponent *Owner)
-    : TForm(Owner) {}
+__fastcall TFTypeInfo_11011981::TFTypeInfo_11011981(TComponent *Owner) : TForm(Owner) {}
 
 //---------------------------------------------------------------------------
 void __fastcall TFTypeInfo_11011981::ShowKbInfo(MTypeInfo *tInfo) {
@@ -47,17 +45,17 @@ void __fastcall TFTypeInfo_11011981::ShowKbInfo(MTypeInfo *tInfo) {
         for (int n = 0; n < tInfo->FieldsNum; n++) {
             fInfo.Scope = *p;
             p++;
-            fInfo.Offset = *((int *) p);
+            fInfo.Offset = *reinterpret_cast<int *>(p);
             p += 4;
-            fInfo.Case = *((int *) p);
+            fInfo.Case = *reinterpret_cast<int *>(p);
             p += 4;
-            Len = *((Word *) p);
+            Len = *reinterpret_cast<Word *>(p);
             p += 2;
-            fInfo.Name = String((char *) p, Len);
+            fInfo.Name = String(reinterpret_cast<char *>(p), Len);
             p += Len + 1;
-            Len = *((Word *) p);
+            Len = *reinterpret_cast<Word *>(p);
             p += 2;
-            fInfo.Type = TrimTypeName(String((char *) p, Len));
+            fInfo.Type = TrimTypeName(String(reinterpret_cast<char *>(p), Len));
             p += Len + 1;
 
             line = "f" + Val2Str0(fInfo.Offset) + " ";
@@ -89,29 +87,29 @@ void __fastcall TFTypeInfo_11011981::ShowKbInfo(MTypeInfo *tInfo) {
         for (int n = 0; n < tInfo->PropsNum; n++) {
             pInfo.Scope = *p;
             p++;
-            pInfo.Index = *((int *) p);
+            pInfo.Index = *reinterpret_cast<int *>(p);
             p += 4;
-            pInfo.DispID = *((int *) p);
+            pInfo.DispID = *reinterpret_cast<int *>(p);
             p += 4;
             Len = *((Word *) p);
             p += 2;
-            pInfo.Name = String((char *) p, Len);
+            pInfo.Name = String(reinterpret_cast<char *>(p), Len);
             p += Len + 1;
             Len = *((Word *) p);
             p += 2;
-            pInfo.TypeDef = String((char *) p, Len);
+            pInfo.TypeDef = String(reinterpret_cast<char *>(p), Len);
             p += Len + 1;
             Len = *((Word *) p);
             p += 2;
-            pInfo.ReadName = String((char *) p, Len);
+            pInfo.ReadName = String(reinterpret_cast<char *>(p), Len);
             p += Len + 1;
             Len = *((Word *) p);
             p += 2;
-            pInfo.WriteName = String((char *) p, Len);
+            pInfo.WriteName = String(reinterpret_cast<char *>(p), Len);
             p += Len + 1;
             Len = *((Word *) p);
             p += 2;
-            pInfo.StoredName = String((char *) p, Len);
+            pInfo.StoredName = String(reinterpret_cast<char *>(p), Len);
             p += Len + 1;
 
             line = "";
@@ -160,9 +158,9 @@ void __fastcall TFTypeInfo_11011981::ShowKbInfo(MTypeInfo *tInfo) {
             p++;
             mInfo.MethodKind = *p;
             p++;
-            Len = *((Word *) p);
+            Len = *reinterpret_cast<Word *>(p);
             p += 2;
-            mInfo.Prototype = String((char *) p, Len);
+            mInfo.Prototype = String(reinterpret_cast<char *>(p), Len);
             p += Len + 1;
 
             line = "";
@@ -317,7 +315,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
     pos++;
     Byte len = Code[pos];
     pos++;
-    RTTIName = String((char *) (Code + pos), len);
+    RTTIName = String(reinterpret_cast<char *>(Code + pos), len);
     pos += len;
     Caption = RTTIName;
     String result = "", proto;
@@ -330,9 +328,9 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
         case ikWChar:
             ordType = Code[pos];
             pos++;
-            minValue = *((DWord *) (Code + pos));
+            minValue = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
-            maxValue = *((DWord *) (Code + pos));
+            maxValue = *reinterpret_cast<DWord *>(Code + pos);
             //Signed type
             if (!(ordType & 1))
                 result = IntToStr((int) minValue) + ".." + IntToStr((int) maxValue);
@@ -344,12 +342,12 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
             result = "(";
             ordType = Code[pos];
             pos++;
-            minValue = *((DWord *) (Code + pos));
+            minValue = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
-            maxValue = *((DWord *) (Code + pos));
+            maxValue = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
             //BaseTypeAdr
-            typeAdr = *((DWord *) (Code + pos));
+            typeAdr = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
 
             if (SameText(RTTIName, "ByteBool") ||
@@ -368,9 +366,9 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                 pos++;
                 pos += len; //BaseClassName
                 pos++;      //ordType
-                minValueB = *((DWord *) (Code + pos));
+                minValueB = *reinterpret_cast<DWord *>(Code + pos);
                 pos += 4;
-                maxValueB = *((DWord *) (Code + pos));
+                maxValueB = *reinterpret_cast<DWord *>(Code + pos);
                 pos += 4;
                 pos += 4; //BaseClassPtr
             } else {
@@ -382,7 +380,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                 len = Code[pos];
                 pos++;
                 if (i >= minValue && i <= maxValue) {
-                    name = String((char *) (Code + pos), len);
+                    name = String(reinterpret_cast<char *>(Code + pos), len);
                     if (i != minValue) result += ", ";
                     result += name;
                 }
@@ -393,7 +391,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
             len = Code[pos];
             if (IsValidName(len, pos + 1)) {
                 pos++;
-                Caption = String((char *) (Code + pos), len).Trim() + "." + Caption;
+                Caption = String(reinterpret_cast<char *>(Code + pos), len).Trim() + "." + Caption;
             }
             break;
         case ikFloat:
@@ -432,41 +430,41 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
         case ikSet:
             result = "set of ";
             pos++; //skip ordType
-            typeAdr = *((DWord *) (Code + pos));
+            typeAdr = *reinterpret_cast<DWord *>(Code + pos);
             result = "set of " + GetTypeName(typeAdr);
             break;
         case ikClass:
             result = "class";
-            classVMT = *((DWord *) (Code + pos));
+            classVMT = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
-            parentAdr = *((DWord *) (Code + pos));
+            parentAdr = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
             if (parentAdr) result += "(" + GetTypeName(parentAdr) + ")";
-            propCount = *((Word *) (Code + pos));
+            propCount = *reinterpret_cast<Word *>(Code + pos);
             pos += 2;
 
             //UnitName
             len = Code[pos];
             pos++;
-            Caption = String((char *) (Code + pos), len).Trim() + "." + Caption;
+            Caption = String(reinterpret_cast<char *>(Code + pos), len).Trim() + "." + Caption;
             pos += len;
 
-            propCount = *((Word *) (Code + pos));
+            propCount = *reinterpret_cast<Word *>(Code + pos);
             pos += 2;
             for (i = 0; i < propCount; i++) {
-                propType = *((DWord *) (Code + pos));
+                propType = *reinterpret_cast<DWord *>(Code + pos);
                 pos += 4;
                 posn = Adr2Pos(propType);
                 posn += 4;
                 posn++; //property type
                 len = Code[posn];
                 posn++;
-                typname = String((char *) (Code + posn), len);
-                getProc = *((DWord *) (Code + pos));
+                typname = String(reinterpret_cast<char *>(Code + posn), len);
+                getProc = *reinterpret_cast<DWord *>(Code + pos);
                 pos += 4;
-                setProc = *((DWord *) (Code + pos));
+                setProc = *reinterpret_cast<DWord *>(Code + pos);
                 pos += 4;
-                storedProc = *((DWord *) (Code + pos));
+                storedProc = *reinterpret_cast<DWord *>(Code + pos);
                 pos += 4;
                 //idx
                 pos += 4;
@@ -476,7 +474,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                 pos += 2;
                 len = Code[pos];
                 pos++;
-                name = String((char *) (Code + pos), len);
+                name = String(reinterpret_cast<char *>(Code + pos), len);
                 pos += len;
                 result += "\n" + name + ":" + typname;
                 if ((getProc & 0xFFFFFF00)) {
@@ -489,7 +487,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                         else
                             vmtofs = getProc & 0x0000FFFF;
                         posn = Adr2Pos(classVMT) + vmtofs;
-                        getProc = *((DWord *) (Code + posn));
+                        getProc = *reinterpret_cast<DWord *>(Code + posn);
 
                         result += " vmt" + Val2Str0(vmtofs) + " " + Val2Str0(getProc);
                         recN = GetInfoRec(getProc);
@@ -510,7 +508,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                         else
                             vmtofs = setProc & 0x0000FFFF;
                         posn = Adr2Pos(classVMT) + vmtofs;
-                        setProc = *((DWord *) (Code + posn));
+                        setProc = *reinterpret_cast<DWord *>(Code + posn);
                         result += " vmt" + Val2Str0(vmtofs) + " " + Val2Str0(setProc);
                         recN = GetInfoRec(setProc);
                         if (recN && recN->HasName()) result += " " + recN->GetName();
@@ -530,7 +528,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                         else
                             vmtofs = storedProc & 0x0000FFFF;
                         posn = Adr2Pos(classVMT) + vmtofs;
-                        storedProc = *((DWord *) (Code + posn));
+                        storedProc = *reinterpret_cast<DWord *>(Code + posn);
                         result += " vmt" + Val2Str0(vmtofs) + " " + Val2Str0(storedProc);
                         recN = GetInfoRec(storedProc);
                         if (recN && recN->HasName()) result += " " + recN->GetName();
@@ -542,22 +540,22 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                 }
             }
             if (DelphiVersion >= 2010) {
-                propCount = *((Word *) (Code + pos));
+                propCount = *reinterpret_cast<Word *>(Code + pos);
                 pos += 2;
                 for (i = 0; i < propCount; i++) {
                     //Flags
                     propFlags = Code[pos];
                     pos++;
                     //PPropInfo
-                    propType = *((DWord *) (Code + pos));
+                    propType = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
                     //AttrData
-                    dw = *((Word *) (Code + pos));
+                    dw = *reinterpret_cast<Word *>(Code + pos);
                     pos += dw; //ATR!!
                     spos = pos;
                     //PropInfo
                     pos = Adr2Pos(propType);
-                    propType = *((DWord *) (Code + pos));
+                    propType = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
 
                     if (IsFlagSet(cfImport, Adr2Pos(propType))) {
@@ -569,14 +567,14 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                         posn++; //property type
                         len = Code[posn];
                         posn++;
-                        typname = String((char *) (Code + posn), len);
+                        typname = String(reinterpret_cast<char *>(Code + posn), len);
                     }
 
-                    getProc = *((DWord *) (Code + pos));
+                    getProc = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
-                    setProc = *((DWord *) (Code + pos));
+                    setProc = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
-                    storedProc = *((DWord *) (Code + pos));
+                    storedProc = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
                     //idx
                     pos += 4;
@@ -586,7 +584,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                     pos += 2;
                     len = Code[pos];
                     pos++;
-                    name = String((char *) (Code + pos), len);
+                    name = String(reinterpret_cast<char *>(Code + pos), len);
                     pos += len;
                     result += "\n" + name + ":" + typname;
                     if ((getProc & 0xFFFFFF00)) {
@@ -599,7 +597,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                             else
                                 vmtofs = getProc & 0x0000FFFF;
                             posn = Adr2Pos(classVMT) + vmtofs;
-                            getProc = *((DWord *) (Code + pos));
+                            getProc = *reinterpret_cast<DWord *>(Code + pos);
 
                             result += " vmt" + Val2Str0(vmtofs) + " " + Val2Str0(getProc);
                             recN = GetInfoRec(getProc);
@@ -620,7 +618,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                             else
                                 vmtofs = setProc & 0x0000FFFF;
                             posn = Adr2Pos(classVMT) + vmtofs;
-                            setProc = *((DWord *) (Code + pos));
+                            setProc = *reinterpret_cast<DWord *>(Code + pos);
                             result += " vmt" + Val2Str0(vmtofs) + " " + Val2Str0(setProc);
                             recN = GetInfoRec(setProc);
                             if (recN && recN->HasName()) result += " " + recN->GetName();
@@ -640,7 +638,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                             else
                                 vmtofs = storedProc & 0x0000FFFF;
                             posn = Adr2Pos(classVMT) + vmtofs;
-                            storedProc = *((DWord *) (Code + pos));
+                            storedProc = *reinterpret_cast<DWord *>(Code + pos);
                             result += " vmt" + Val2Str0(vmtofs) + " " + Val2Str0(storedProc);
                             recN = GetInfoRec(storedProc);
                             if (recN && recN->HasName()) result += " " + recN->GetName();
@@ -653,11 +651,11 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                     pos = spos;
                 }
                 //AttrData
-                dw = *((Word *) (Code + pos));
+                dw = *reinterpret_cast<Word *>(Code + pos);
                 pos += dw; //ATR!!
                 if (DelphiVersion >= 2012) {
                     //ArrayPropCount
-                    propCount = *((Word *) (Code + pos));
+                    propCount = *reinterpret_cast<Word *>(Code + pos);
                     pos += 2;
                     for (i = 0; i < propCount; i++) {
                         //Flags
@@ -669,11 +667,11 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                         //Name
                         len = Code[pos];
                         pos++;
-                        name = String((char *) (Code + pos), len);
+                        name = String(reinterpret_cast<char *>(Code + pos), len);
                         pos += len;
                         result += "\n" + name;
                         //AttrData
-                        dw = *((Word *) (Code + pos));
+                        dw = *reinterpret_cast<Word *>(Code + pos);
                         pos += dw; //ATR!!
                     }
                 }
@@ -730,12 +728,12 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                     proto += "array ";
                 len = Code[pos];
                 pos++;
-                name = String((char *) (Code + pos), len);
+                name = String(reinterpret_cast<char *>(Code + pos), len);
                 pos += len;
                 proto += name + ":";
                 len = Code[pos];
                 pos++;
-                name = String((char *) (Code + pos), len);
+                name = String(reinterpret_cast<char *>(Code + pos), len);
                 pos += len;
                 proto += name;
                 if (i != paramCount - 1) proto += "; ";
@@ -745,10 +743,10 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
             if (methodKind) {
                 len = Code[pos];
                 pos++;
-                name = String((char *) (Code + pos), len);
+                name = String(reinterpret_cast<char *>(Code + pos), len);
                 pos += len;
                 if (DelphiVersion > 6) {
-                    typeAdr = *((DWord *) (Code + pos));
+                    typeAdr = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
                     name = GetTypeName(typeAdr);
                 }
@@ -762,10 +760,10 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                 pos += 4 * paramCount;
                 if (DelphiVersion >= 2010) {
                     //MethSig
-                    procSig = *((DWord *) (Code + pos));
+                    procSig = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
                     //AttrData
-                    dw = *((Word *) (Code + pos));
+                    dw = *reinterpret_cast<Word *>(Code + pos);
                     pos += dw; //ATR!!
                     //Procedure Signature
                     if (procSig) {
@@ -781,7 +779,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                             callConv = Code[posn];
                             posn++;
                             //ResultType
-                            resultTypeAdr = *((DWord *) (Code + posn));
+                            resultTypeAdr = *reinterpret_cast<DWord *>(Code + posn);
                             posn += 4;
                             //ParamCount
                             paramCount = Code[posn];
@@ -796,16 +794,16 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                                     proto += "const ";
                                 else if (paramFlags & PfArray)
                                     proto += "array ";
-                                typeAdr = *((DWord *) (Code + posn));
+                                typeAdr = *reinterpret_cast<DWord *>(Code + posn);
                                 posn += 4;
                                 len = Code[posn];
                                 posn++;
-                                name = String((char *) (Code + posn), len);
+                                name = String(reinterpret_cast<char *>(Code + posn), len);
                                 posn += len;
                                 proto += name + ":" + GetTypeName(typeAdr);
                                 if (i != paramCount - 1) proto += "; ";
                                 //AttrData
-                                dw = *((Word *) (Code + posn));
+                                dw = *reinterpret_cast<Word *>(Code + posn);
                                 posn += dw; //ATR!!
                             }
                             if (paramCount > 0) proto += ")";
@@ -826,11 +824,11 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
             result = "Variant";
             break;
         case ikArray:
-            Size = *((DWord *) (Code + pos));
+            Size = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
-            elNum = *((DWord *) (Code + pos));
+            elNum = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
-            resultTypeAdr = *((DWord *) (Code + pos));
+            resultTypeAdr = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
             result = "array [1.." + String(elNum);
             if (DelphiVersion >= 2010) {
@@ -839,7 +837,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                 dimCount = Code[pos];
                 pos++;
                 for (i = 0; i < dimCount; i++) {
-                    typeAdr = *((DWord *) (Code + pos));
+                    typeAdr = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
                     if (IsValidImageAdr(typeAdr))
                         result += GetTypeName(typeAdr);
@@ -858,16 +856,16 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
             result += "] of " + GetTypeName(resultTypeAdr);
             break;
         case ikRecord:
-            Size = *((DWord *) (Code + pos));
+            Size = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
             result = RTTIName + " = record//size=0x" + Val2Str0(Size);
-            elNum = *((DWord *) (Code + pos));
+            elNum = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4; //FldCount
             if (elNum) {
                 for (i = 0; i < elNum; i++) {
-                    typeAdr = *((DWord *) (Code + pos));
+                    typeAdr = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
-                    elOff = *((DWord *) (Code + pos));
+                    elOff = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
                     result += "\nf" + Val2Str0(elOff) + ":" + GetTypeName(typeAdr) + ";//f" + Val2Str0(elOff);
                 }
@@ -882,48 +880,48 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                 {
                     pos += 4;
                 }
-                elNum = *((DWord *) (Code + pos));
+                elNum = *reinterpret_cast<DWord *>(Code + pos);
                 pos += 4; //RecFldCnt
 
                 if (elNum) {
                     for (i = 0; i < elNum; i++) {
                         //TypeRef
-                        typeAdr = *((DWord *) (Code + pos));
+                        typeAdr = *reinterpret_cast<DWord *>(Code + pos);
                         pos += 4;
                         //FldOffset
-                        elOff = *((DWord *) (Code + pos));
+                        elOff = *reinterpret_cast<DWord *>(Code + pos);
                         pos += 4;
                         //Flags
                         pos++;
                         //Name
                         len = Code[pos];
                         pos++;
-                        name = String((char *) (Code + pos), len);
+                        name = String(reinterpret_cast<char *>(Code + pos), len);
                         pos += len;
                         result += "\n" + name + ":" + GetTypeName(typeAdr) + ";//f" + Val2Str0(elOff);
                         //AttrData
-                        dw = *((Word *) (Code + pos));
+                        dw = *reinterpret_cast<Word *>(Code + pos);
                         pos += dw; //ATR!!
                     }
                     result += "\nend;";
                 }
                 //AttrData
-                dw = *((Word *) (Code + pos));
+                dw = *reinterpret_cast<Word *>(Code + pos);
                 pos += dw; //ATR!!
                 if (DelphiVersion >= 2012) {
-                    methCnt = *((Word *) (Code + pos));
+                    methCnt = *reinterpret_cast<Word *>(Code + pos);
                     pos += 2;
                     if (methCnt > 0) result += "\n//Methods:";
                     for (m = 0; m < methCnt; m++) {
                         //Flags
                         pos++;
                         //Code
-                        methAdr = *((DWord *) (Code + pos));
+                        methAdr = *reinterpret_cast<DWord *>(Code + pos);
                         pos += 4;
                         //Name
                         len = Code[pos];
                         pos++;
-                        name = String((char *) (Code + pos), len);
+                        name = String(reinterpret_cast<char *>(Code + pos), len);
                         pos += len;
                         result += "\n" + name;
                         //ProcedureSignature
@@ -934,7 +932,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                             //CC
                             pos++;
                             //ResultType
-                            resultTypeAdr = *((DWord *) (Code + pos));
+                            resultTypeAdr = *reinterpret_cast<DWord *>(Code + pos);
                             pos += 4;
                             //ParamCnt
                             paramCount = Code[pos];
@@ -945,17 +943,17 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                                 //Flags
                                 pos++;
                                 //ParamType
-                                typeAdr = *((DWord *) (Code + pos));
+                                typeAdr = *reinterpret_cast<DWord *>(Code + pos);
                                 pos += 4;
                                 //Name
                                 len = Code[pos];
                                 pos++;
-                                name = String((char *) (Code + pos), len);
+                                name = String(reinterpret_cast<char *>(Code + pos), len);
                                 pos += len;
                                 result += name + ":" + GetTypeName(typeAdr);
                                 if (n != paramCount - 1) result += ";";
                                 //AttrData
-                                dw = *((Word *) (Code + pos));
+                                dw = *reinterpret_cast<Word *>(Code + pos);
                                 pos += dw; //ATR!!
                             }
                             if (paramCount > 0) result += ")";
@@ -963,7 +961,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                             result += ";//" + Val2Str8(methAdr);
                         }
                         //AttrData
-                        dw = *((Word *) (Code + pos));
+                        dw = *reinterpret_cast<Word *>(Code + pos);
                         pos += dw; //ATR!!
                     }
                 }
@@ -972,7 +970,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
         case ikInterface:
             result = "interface";
             //IntfParent
-            typeAdr = *((DWord *) (Code + pos));
+            typeAdr = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
             if (typeAdr) result += "(" + GetTypeName(typeAdr) + ")";
             //IntfFlags
@@ -985,16 +983,16 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
             //UnitName
             len = Code[pos];
             pos++;
-            Caption = String((char *) (Code + pos), len).Trim() + "." + Caption;
+            Caption = String(reinterpret_cast<char *>(Code + pos), len).Trim() + "." + Caption;
             pos += len;
 
             //Methods
-            propCount = *((Word *) (Code + pos));
+            propCount = *reinterpret_cast<Word *>(Code + pos);
             pos += 2;
             result += "Methods Count = " + String(propCount);
             if (DelphiVersion >= 6) {
                 //RttiCount
-                dw = *((Word *) (Code + pos));
+                dw = *reinterpret_cast<Word *>(Code + pos);
                 pos += 2;
                 if (dw != 0xFFFF) {
                     if (DelphiVersion >= 2010) {
@@ -1002,7 +1000,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                             //Name
                             len = Code[pos];
                             pos++;
-                            result += "\n" + String((char *) (Code + pos), len);
+                            result += "\n" + String(reinterpret_cast<char *>(Code + pos), len);
                             pos += len;
                             //Kind
                             methodKind = Code[pos];
@@ -1020,12 +1018,12 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                                 //ParamName
                                 len = Code[pos];
                                 pos++;
-                                result += String((char *) (Code + pos), len);
+                                result += String(reinterpret_cast<char *>(Code + pos), len);
                                 pos += len;
                                 //TypeName
                                 len = Code[pos];
                                 pos++;
-                                result += ":" + String((char *) (Code + pos), len);
+                                result += ":" + String(reinterpret_cast<char *>(Code + pos), len);
                                 pos += len;
                                 //ParamType
                                 pos += 4;
@@ -1036,7 +1034,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                                 //ResultTypeName
                                 len = Code[pos];
                                 pos++;
-                                result += String((char *) (Code + pos), len);
+                                result += String(reinterpret_cast<char *>(Code + pos), len);
                                 pos += len;
                                 if (len) {
                                     //ResultType
@@ -1063,7 +1061,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                             //Name
                             len = Code[pos];
                             pos++;
-                            result += "\n" + String((char *) (Code + pos), len);
+                            result += "\n" + String(reinterpret_cast<char *>(Code + pos), len);
                             pos += len;
                         }
                     }
@@ -1078,14 +1076,14 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
             break;
         case ikDynArray:
             //elSize
-            elSize = *((DWord *) (Code + pos));
+            elSize = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
             //elType
-            elType = *((DWord *) (Code + pos));
+            elType = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
             result = "array of " + GetTypeName(elType);
             //varType
-            varType = *((DWord *) (Code + pos));
+            varType = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
             if (DelphiVersion >= 6) {
                 //elType2
@@ -1093,12 +1091,12 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                 //UnitName
                 len = Code[pos];
                 pos++;
-                Caption = String((char *) (Code + pos), len).Trim() + "." + Caption;
+                Caption = String(reinterpret_cast<char *>(Code + pos), len).Trim() + "." + Caption;
                 pos += len;
             }
             if (DelphiVersion >= 2010) {
                 //DynArrElType
-                elType = *((DWord *) (Code + pos));
+                elType = *reinterpret_cast<DWord *>(Code + pos);
                 result = "array of " + GetTypeName(elType);
             }
             result += ";";
@@ -1109,20 +1107,20 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
             result = "UString";
             break;
         case ikClassRef: //0x13
-            typeAdr = *((DWord *) (Code + pos));
+            typeAdr = *reinterpret_cast<DWord *>(Code + pos);
             if (typeAdr) result = "class of " + GetTypeName(typeAdr);
             break;
         case ikPointer: //0x14
-            typeAdr = *((DWord *) (Code + pos));
+            typeAdr = *reinterpret_cast<DWord *>(Code + pos);
             if (typeAdr) result = "^" + GetTypeName(typeAdr);
             break;
         case ikProcedure: //0x15
             result = RTTIName;
             //MethSig
-            procSig = *((DWord *) (Code + pos));
+            procSig = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
             //AttrData
-            dw = *((Word *) (Code + pos));
+            dw = *reinterpret_cast<Word *>(Code + pos);
             pos += dw; //ATR!!
             //Procedure Signature
             if (procSig) {
@@ -1138,7 +1136,7 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                     callConv = Code[pos];
                     pos++;
                     //ResultType
-                    resultTypeAdr = *((DWord *) (Code + pos));
+                    resultTypeAdr = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
                     if (resultTypeAdr)
                         result = "function ";
@@ -1158,17 +1156,17 @@ String __fastcall TFTypeInfo_11011981::GetRTTI(DWord adr) {
                         if (paramFlags & 1) result += "var ";
                         if (paramFlags & 2) result += "const ";
                         //ParamType
-                        typeAdr = *((DWord *) (Code + pos));
+                        typeAdr = *reinterpret_cast<DWord *>(Code + pos);
                         pos += 4;
                         //Name
                         len = Code[pos];
                         pos++;
-                        result += String((char *) (Code + pos), len) + ":";
+                        result += String(reinterpret_cast<char *>(Code + pos), len) + ":";
                         pos += len;
                         result += GetTypeName(typeAdr);
                         if (i != paramCount - 1) result += "; ";
                         //AttrData
-                        dw = *((Word *) (Code + pos));
+                        dw = *reinterpret_cast<Word *>(Code + pos);
                         pos += dw; //ATR!!
                     }
                     if (paramCount) result += ")";
@@ -1285,17 +1283,17 @@ void __fastcall TFTypeInfo_11011981::bSaveClick(TObject *Sender) {
 
     int pos = Adr2Pos(RTTIAdr);
     pos += 4;
-    pos++; //Kind
+    pos++; // Kind
     Byte len = Code[pos];
     pos++;
-    pos += len; //Name
+    pos += len; // Name
 
     switch (RTTIKind) {
         case ikDynArray:
             //elSize
             pos += 4;
             //elType
-            *((DWord *) (Code + pos)) = GetOwnTypeAdr(GetArrayElementType(decl));
+            *reinterpret_cast<DWord *>(Code + pos) = GetOwnTypeAdr(GetArrayElementType(decl));
             break;
     }
     ModalResult = mrOk;
@@ -1333,8 +1331,8 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWord adr, int *o_pSize, i
     MTypeInfo tInfo;
     TList *fieldsList;
     TStringList *intfList;
-    FIELD_INFO *FieldInfo; //For records
-    PFIELDINFO fInfo;      //for VMT
+    FIELD_INFO *FieldInfo; // For records
+    PFIELDINFO fInfo;      // for VMT
 
     RTTIAdr = adr;
     recN = GetInfoRec(adr);
@@ -1348,7 +1346,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWord adr, int *o_pSize, i
         pos++;
         len = Code[pos];
         pos++;
-        RTTIName = String((char *) (Code + pos), len);
+        RTTIName = String(reinterpret_cast<char *>(Code + pos), len);
         pos += len;
     } else {
         RTTIKind = ikVMT;
@@ -1365,10 +1363,10 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWord adr, int *o_pSize, i
         case ikWChar:
             ordType = Code[pos];
             pos++;
-            //Unsigned type
+            // Unsigned type
             if ((ordType & 1) != 0)
                 result += "unsigned ";
-            ordType &= 0xFE; //Clean sign bit
+            ordType &= 0xFE; // Clean sign bit
             if (ordType == 0)
                 result += "char";
             else if (ordType == 2)
@@ -1379,27 +1377,27 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWord adr, int *o_pSize, i
         case ikEnumeration:
             ordType = Code[pos];
             pos++;
-            minValue = *((DWord *) (Code + pos));
+            minValue = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
-            maxValue = *((DWord *) (Code + pos));
+            maxValue = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
-            //BaseTypeAdr
-            typeAdr = *((DWord *) (Code + pos));
+            // BaseTypeAdr
+            typeAdr = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
-            //If BaseTypeAdr != SelfAdr then fields extracted from BaseType
+            // If BaseTypeAdr != SelfAdr then fields extracted from BaseType
             if (typeAdr != RTTIAdr) {
                 pos = Adr2Pos(typeAdr);
-                pos += 4; //SelfPointer
-                pos++;    //typeKind
+                pos += 4; // SelfPointer
+                pos++;    // typeKind
                 len = Code[pos];
                 pos++;
-                pos += len; //BaseClassName
-                pos++;      //ordType
-                minValueB = *((DWord *) (Code + pos));
+                pos += len; // BaseClassName
+                pos++;      // ordType
+                minValueB = *reinterpret_cast<DWord *>(Code + pos);
                 pos += 4;
-                maxValueB = *((DWord *) (Code + pos));
+                maxValueB = *reinterpret_cast<DWord *>(Code + pos);
                 pos += 4;
-                pos += 4; //BaseClassPtr
+                pos += 4; // BaseClassPtr
             } else {
                 minValueB = minValue;
                 maxValueB = maxValue;
@@ -1410,9 +1408,9 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWord adr, int *o_pSize, i
                 len = Code[pos];
                 pos++;
                 if (i >= minValue && i <= maxValue) {
-                    name = String((char *) (Code + pos), len);
+                    name = String(reinterpret_cast<char *>(Code + pos), len);
                     if (i != minValue) result += ",\n";
-                    if (action == 1) result += "bf_"; //Make bitfield info
+                    if (action == 1) result += "bf_"; // Make bitfield info
                     result += name;
                     if (action == 1) {
                         if (k == 0) {
@@ -1433,8 +1431,8 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWord adr, int *o_pSize, i
             result = "String";
             break;
         case ikSet:
-            pos++; //skip ordType
-            typeAdr = *((DWord *) (Code + pos));
+            pos++; // skip ordType
+            typeAdr = *reinterpret_cast<DWord *>(Code + pos);
             result = GetCppTypeInfo(typeAdr, o_pSize, 1);
             break;
         case ikMethod:
@@ -1450,11 +1448,11 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWord adr, int *o_pSize, i
                 pos++;
                 len = Code[pos];
                 pos++;
-                name = String((char *) (Code + pos), len);
+                name = String(reinterpret_cast<char *>(Code + pos), len);
                 pos += len;
                 len = Code[pos];
                 pos++;
-                typname = String((char *) (Code + pos), len);
+                typname = String(reinterpret_cast<char *>(Code + pos), len);
                 pos += len;
                 typeKind = GetTypeKind(typname, &size);
                 if (typeKind == ikVMT || typeKind == ikProcedure)
@@ -1471,10 +1469,10 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWord adr, int *o_pSize, i
             if (methodKind) {
                 len = Code[pos];
                 pos++;
-                name = String((char *) (Code + pos), len);
+                name = String(reinterpret_cast<char *>(Code + pos), len);
                 pos += len;
                 if (DelphiVersion > 6) {
-                    typeAdr = *((DWord *) (Code + pos));
+                    typeAdr = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
                     name = GetTypeName(typeAdr);
                 }
@@ -1486,35 +1484,35 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWord adr, int *o_pSize, i
             } else
                 result = "void " + result;
             if (DelphiVersion > 6) {
-                //CC
+                // CC
                 callConv = Code[pos];
                 pos++;
-                //ParamTypeRefs
+                // ParamTypeRefs
                 pos += 4 * paramCount;
                 if (DelphiVersion >= 2010) {
-                    //MethSig
-                    procSig = *((DWord *) (Code + pos));
+                    // MethSig
+                    procSig = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
-                    //AttrData
-                    dw = *((Word *) (Code + pos));
-                    pos += dw; //ATR!!
-                    //Procedure Signature
+                    // AttrData
+                    dw = *reinterpret_cast<Word *>(Code + pos);
+                    pos += dw; // ATR!!
+                    // Procedure Signature
                     if (procSig) {
                         if (IsValidImageAdr(procSig))
                             posn = Adr2Pos(procSig);
                         else
                             posn = _ap + procSig;
-                        //Flags
+                        // Flags
                         flags = Code[posn];
                         posn++;
                         if (flags != 0xFF) {
-                            //CC
+                            // CC
                             callConv = Code[posn];
                             posn++;
-                            //ResultType
-                            resultTypeAdr = *((DWord *) (Code + posn));
+                            // ResultType
+                            resultTypeAdr = *reinterpret_cast<DWord *>(Code + posn);
                             posn += 4;
-                            //ParamCount
+                            // ParamCount
                             paramCount = Code[posn];
                             posn++;
                             result = "__fastcall (*P" + RTTIName + ")(";
@@ -1522,11 +1520,11 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWord adr, int *o_pSize, i
                                 if (i) result += ", ";
                                 Byte paramFlags = Code[posn];
                                 posn++;
-                                typeAdr = *((DWord *) (Code + posn));
+                                typeAdr = *reinterpret_cast<DWord *>(Code + posn);
                                 posn += 4;
                                 len = Code[posn];
                                 posn++;
-                                name = String((char *) (Code + posn), len);
+                                name = String(reinterpret_cast<char *>(Code + posn), len);
                                 posn += len;
                                 typname = GetTypeName(typeAdr);
                                 typeKind = GetTypeKind(typname, &size);
@@ -1538,9 +1536,9 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWord adr, int *o_pSize, i
                                 if (paramFlags & PfVar)
                                     result += "*";
                                 result += " " + name;
-                                //AttrData
-                                dw = *((Word *) (Code + posn));
-                                posn += dw; //ATR!!
+                                // AttrData
+                                dw = *reinterpret_cast<Word *>(Code + posn);
+                                posn += dw; // ATR!!
                             }
                             result += ")";
                             if (resultTypeAdr) {
@@ -1564,21 +1562,21 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWord adr, int *o_pSize, i
             result = "WideString";
             break;
         case ikArray:
-            *o_pSize = *((DWord *) (Code + pos));
+            *o_pSize = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
-            elNum = *((DWord *) (Code + pos));
+            elNum = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
-            resultTypeAdr = *((DWord *) (Code + pos));
+            resultTypeAdr = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
             result = GetTypeName(resultTypeAdr) + " %s";
 
             if (DelphiVersion >= 2010) {
-                //DimCount
+                // DimCount
                 dimCount = Code[pos];
                 pos++;
                 for (i = 0; i < dimCount; i++) {
                     result += "[";
-                    typeAdr = *((DWord *) (Code + pos));
+                    typeAdr = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
                     if (IsValidImageAdr(typeAdr)) {
                         typname = GetTypeName(typeAdr);
@@ -1602,70 +1600,70 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWord adr, int *o_pSize, i
             break;
         case ikRecord:
             fieldsList = new TList;
-            *o_pSize = *((DWord *) (Code + pos));
+            *o_pSize = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
-            elNum = *((DWord *) (Code + pos));
-            pos += 4; //FldCount
-            //First cycle - fill fieldsList
+            elNum = *reinterpret_cast<DWord *>(Code + pos);
+            pos += 4; // FldCount
+            // First cycle - fill fieldsList
             if (elNum) {
                 curOfs = 0;
                 for (i = 0; i < elNum; i++) {
                     FieldInfo = new FIELD_INFO;
-                    typeAdr = *((DWord *) (Code + pos));
+                    typeAdr = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
                     typname = GetTypeName(typeAdr);
-                    elOff = *((DWord *) (Code + pos));
+                    elOff = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
                     FieldInfo->Offset = elOff;
-                    //Find type size
+                    // Find type size
                     GetTypeKind(typname, &typeSize);
                     FieldInfo->Size = typeSize;
                     FieldInfo->Name = "";
                     FieldInfo->Type = typname;
-                    fieldsList->Add((void *) FieldInfo);
+                    fieldsList->Add(static_cast<void *>(FieldInfo));
                 }
             }
             if (DelphiVersion >= 2010) {
-                //NumOps
+                // NumOps
                 numOps = Code[pos];
                 pos++;
-                for (i = 0; i < numOps; i++) //RecOps
-                {
+                // RecOps
+                for (i = 0; i < numOps; i++) {
                     pos += 4;
                 }
-                elNum = *((DWord *) (Code + pos));
-                pos += 4; //RecFldCnt
+                elNum = *reinterpret_cast<DWord *>(Code + pos);
+                pos += 4; // RecFldCnt
 
                 if (elNum) {
                     curOfs = 0;
                     for (i = 0; i < elNum; i++) {
-                        //TypeRef
-                        typeAdr = *((DWord *) (Code + pos));
+                        // TypeRef
+                        typeAdr = *reinterpret_cast<DWord *>(Code + pos);
                         pos += 4;
                         typname = GetTypeName(typeAdr);
-                        //FldOffset
-                        elOff = *((DWord *) (Code + pos));
+                        // FldOffset
+                        elOff = *reinterpret_cast<DWord *>(Code + pos);
                         pos += 4;
                         GetTypeKind(typname, &typeSize);
-                        //Flags
+                        // Flags
                         pos++;
-                        //Name
+                        // Name
                         len = Code[pos];
                         pos++;
-                        name = String((char *) (Code + pos), len);
+                        name = String(reinterpret_cast<char *>(Code + pos), len);
                         pos += len;
-                        //AttrData
-                        dw = *((Word *) (Code + pos));
-                        pos += dw; //ATR!!
+                        // AttrData
+                        dw = *reinterpret_cast<Word *>(Code + pos);
+                        pos += dw; // ATR!!
                         FieldInfo = FindFieldInfoByOffset(fieldsList, elOff);
-                        //If field with elOff exists then add name
+                        // If field with elOff exists then add name
                         if (FieldInfo) {
                             if (FieldInfo->Name != "")
                                 FieldInfo->Name += "|" + name;
                             else
                                 FieldInfo->Name = name;
                         }
-                        //Else add new FieldInfo
+                        // Else add new FieldInfo
                         else {
                             FieldInfo = new FIELD_INFO;
                             FieldInfo->Offset = elOff;
@@ -1676,77 +1674,77 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWord adr, int *o_pSize, i
                         }
                     }
                 }
-                //AttrData
-                dw = *((Word *) (Code + pos));
-                pos += dw; //ATR!!
+                // AttrData
+                dw = *reinterpret_cast<Word *>(Code + pos);
+                pos += dw; // ATR!!
                 if (DelphiVersion >= 2012) {
-                    methCnt = *((Word *) (Code + pos));
+                    methCnt = *reinterpret_cast<Word *>(Code + pos);
                     pos += 2;
                     if (methCnt > 0) result += "\n//Methods:";
                     for (m = 0; m < methCnt; m++) {
-                        //Flags
+                        // Flags
                         pos++;
-                        //Code
-                        methAdr = *((DWord *) (Code + pos));
+                        // Code
+                        methAdr = *reinterpret_cast<DWord *>(Code + pos);
                         pos += 4;
-                        //Name
+                        // Name
                         len = Code[pos];
                         pos++;
-                        name = String((char *) (Code + pos), len);
+                        name = String(reinterpret_cast<char *>(Code + pos), len);
                         pos += len;
                         result += "\n" + name;
-                        //ProcedureSignature
-                        //Flags
+                        // ProcedureSignature
+                        // Flags
                         flags = Code[pos];
                         pos++;
                         if (flags != 0xFF) {
-                            //CC
+                            // CC
                             pos++;
-                            //ResultType
-                            resultTypeAdr = *((DWord *) (Code + pos));
+                            // ResultType
+                            resultTypeAdr = *reinterpret_cast<DWord *>(Code + pos);
                             pos += 4;
-                            //ParamCnt
+                            // ParamCnt
                             paramCount = Code[pos];
                             pos++;
                             if (paramCount > 0) result += "(";
-                            //Params
+                            // Params
                             for (n = 0; n < paramCount; n++) {
-                                //Flags
+                                // Flags
                                 pos++;
-                                //ParamType
-                                typeAdr = *((DWord *) (Code + pos));
+                                // ParamType
+                                typeAdr = *reinterpret_cast<DWord *>(Code + pos);
                                 pos += 4;
-                                //Name
+                                // Name
                                 len = Code[pos];
                                 pos++;
-                                name = String((char *) (Code + pos), len);
+                                name = String(reinterpret_cast<char *>(Code + pos), len);
                                 pos += len;
                                 result += name + ":" + GetTypeName(typeAdr);
                                 if (n != paramCount - 1) result += ";";
-                                //AttrData
-                                dw = *((Word *) (Code + pos));
-                                pos += dw; //ATR!!
+                                // AttrData
+                                dw = *reinterpret_cast<Word *>(Code + pos);
+                                pos += dw; // ATR!!
                             }
                             if (paramCount > 0) result += ")";
                             if (resultTypeAdr) result += ":" + GetTypeName(resultTypeAdr);
                             result += ";//" + Val2Str8(methAdr);
                         }
-                        //AttrData
-                        dw = *((Word *) (Code + pos));
-                        pos += dw; //ATR!!
+                        // AttrData
+                        dw = *reinterpret_cast<Word *>(Code + pos);
+                        pos += dw; // ATR!!
                     }
                 }
             }
             fieldsList->Sort(FieldInfoCmpFunction);
-            //Second cycle - process fieldsList
+            // Second cycle - process fieldsList
             curOfs = 0;
             for (i = 0; i < fieldsList->Count; i++) {
                 FieldInfo = (FIELD_INFO *) fieldsList->Items[i];
                 elOff = FieldInfo->Offset;
-                //Skip big offsets (who knows about it's appearence, for example in TComponent)
+                // Skip big offsets (who knows about it's appearence, for example in TComponent)
                 if (elOff > *o_pSize)
                     break;
-                //Check long types like double, that has two referenced parts (or records and so on)
+                // Check long types like double, that has two referenced parts (or records and so on)
                 if (elOff < curOfs)
                     continue;
 
@@ -1758,7 +1756,7 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWord adr, int *o_pSize, i
                 if (FieldInfo->Type != "?" && FieldInfo->Type != "") {
                     typeKind = GetTypeKind(FieldInfo->Type, &size);
                     if (typeKind == ikEnumeration) size = 1;
-                    //if (typeKind == ikSet) size = 1;
+                    // if (typeKind == ikSet) size = 1;
                     if (typeKind == ikMethod) size = 8;
                     if (typeKind == ikInterface) size = 4;
                     if (typeKind == ikRecord || typeKind == ikVMT)
@@ -1784,91 +1782,91 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWord adr, int *o_pSize, i
             delete fieldsList;
             break;
         case ikInterface:
-            //IntfParent
+            // IntfParent
             pos += 4;
-            //IntfFlags
+            // IntfFlags
             pos++;
-            //GUID
+            // GUID
             pos += 16;
-            //UnitName
+            // UnitName
             len = Code[pos];
             pos++;
             pos += len;
-            //Methods
-            propCount = *((Word *) (Code + pos));
+            // Methods
+            propCount = *reinterpret_cast<Word *>(Code + pos);
             pos += 2;
             if (DelphiVersion >= 6) {
-                //RttiCount
-                dw = *((Word *) (Code + pos));
+                // RttiCount
+                dw = *reinterpret_cast<Word *>(Code + pos);
                 pos += 2;
                 if (dw != 0xFFFF) {
                     if (DelphiVersion >= 2010) {
                         for (i = 0; i < propCount; i++) {
-                            //Name
+                            // Name
                             len = Code[pos];
                             pos++;
-                            result += "\n" + String((char *) (Code + pos), len);
+                            result += "\n" + String(reinterpret_cast<char *>(Code + pos), len);
                             pos += len;
-                            //Kind
+                            // Kind
                             methodKind = Code[pos];
                             pos++;
-                            //CallConv
+                            // CallConv
                             pos++;
-                            //ParamCount
+                            // ParamCount
                             paramCount = Code[pos];
                             pos++;
                             if (paramCount) result += "(";
                             for (m = 0; m < paramCount; m++) {
                                 if (m) result += ";";
-                                //Flags
+                                // Flags
                                 pos++;
-                                //ParamName
+                                // ParamName
                                 len = Code[pos];
                                 pos++;
-                                result += String((char *) (Code + pos), len);
+                                result += String(reinterpret_cast<char *>(Code + pos), len);
                                 pos += len;
-                                //TypeName
+                                // TypeName
                                 len = Code[pos];
                                 pos++;
-                                result += ":" + String((char *) (Code + pos), len);
+                                result += ":" + String(reinterpret_cast<char *>(Code + pos), len);
                                 pos += len;
-                                //ParamType
+                                // ParamType
                                 pos += 4;
                             }
                             if (paramCount) result += ")";
                             if (methodKind) {
                                 result += ":";
-                                //ResultTypeName
+                                // ResultTypeName
                                 len = Code[pos];
                                 pos++;
-                                result += String((char *) (Code + pos), len);
+                                result += String(reinterpret_cast<char *>(Code + pos), len);
                                 pos += len;
                                 if (len) {
-                                    //ResultType
+                                    // ResultType
                                     pos += 4;
                                 }
                             }
                         }
                     } else {
                         for (i = 0; i < propCount; i++) {
-                            //PropType
+                            // PropType
                             pos += 4;
-                            //GetProc
+                            // GetProc
                             pos += 4;
-                            //SetProc
+                            // SetProc
                             pos += 4;
-                            //StoredProc
+                            // StoredProc
                             pos += 4;
-                            //Index
+                            // Index
                             pos += 4;
-                            //Default
+                            // Default
                             pos += 4;
-                            //NameIndex
+                            // NameIndex
                             pos += 2;
-                            //Name
+                            // Name
                             len = Code[pos];
                             pos++;
-                            result += "\n" + String((char *) (Code + pos), len);
+                            result += "\n" + String(reinterpret_cast<char *>(Code + pos), len);
                             pos += len;
                         }
                     }
@@ -1879,79 +1877,79 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWord adr, int *o_pSize, i
             result = "__int64";
             break;
         case ikDynArray:
-            //elSize
+            // elSize
             pos += 4;
-            //elType
-            elType = *((DWord *) (Code + pos));
+            // elType
+            elType = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
             result = SanitizeName(GetTypeName(elType));
-            //varType
+            // varType
             pos += 4;
             if (DelphiVersion >= 6) {
-                //elType2
+                // elType2
                 pos += 4;
-                //UnitName
+                // UnitName
                 len = Code[pos];
                 pos++;
                 pos += len;
             }
             if (DelphiVersion >= 2010) {
-                //DynArrElType
-                elType = *((DWord *) (Code + pos));
+                // DynArrElType
+                elType = *reinterpret_cast<DWord *>(Code + pos);
                 result = SanitizeName(GetTypeName(elType));
             }
             break;
         case ikUString:
             result = "UString";
             break;
-        case ikClassRef: //0x13
-            typeAdr = *((DWord *) (Code + pos));
+        case ikClassRef: // 0x13
+            typeAdr = *reinterpret_cast<DWord *>(Code + pos);
             if (typeAdr) result = GetTypeName(typeAdr);
             break;
-        case ikPointer: //0x14
-            typeAdr = *((DWord *) (Code + pos));
+        case ikPointer: // 0x14
+            typeAdr = *reinterpret_cast<DWord *>(Code + pos);
             if (typeAdr) result = GetTypeName(typeAdr);
             break;
-        case ikProcedure: //0x15
+        case ikProcedure: // 0x15
             result = "__fastcall (*" + RTTIName + ")";
-            //MethSig
-            procSig = *((DWord *) (Code + pos));
+            // MethSig
+            procSig = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
-            //AttrData
-            dw = *((Word *) (Code + pos));
+            // AttrData
+            dw = *reinterpret_cast<Word *>(Code + pos);
             pos += dw; //ATR!!
-            //Procedure Signature
+            // Procedure Signature
             if (procSig) {
                 if (IsValidImageAdr(procSig))
                     pos = Adr2Pos(procSig);
                 else
                     pos = _ap + procSig;
-                //Flags
+                // Flags
                 flags = Code[pos];
                 pos++;
                 if (flags != 0xFF) {
-                    //CallConv
+                    // CallConv
                     callConv = Code[pos];
                     pos++;
-                    //ResultType
-                    resultTypeAdr = *((DWord *) (Code + pos));
+                    // ResultType
+                    resultTypeAdr = *reinterpret_cast<DWord *>(Code + pos);
                     pos += 4;
                     result += "(";
-                    //ParamCount
+                    // ParamCount
                     paramCount = Code[pos];
                     pos++;
                     for (i = 0; i < paramCount; i++) {
                         if (i) result += " ,";
-                        //Flags
+                        // Flags
                         paramFlags = Code[pos];
                         pos++;
-                        //ParamType
-                        typeAdr = *((DWord *) (Code + pos));
+                        // ParamType
+                        typeAdr = *reinterpret_cast<DWord *>(Code + pos);
                         pos += 4;
-                        //Name
+                        // Name
                         len = Code[pos];
                         pos++;
-                        name = String((char *) (Code + pos), len);
+                        name = String(reinterpret_cast<char *>(Code + pos), len);
                         pos += len;
                         typname = GetTypeName(typeAdr);
                         typeKind = GetTypeKind(typname, &size);
@@ -1962,9 +1960,9 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWord adr, int *o_pSize, i
                             result += "*";
                         if (paramFlags & 1) result += "*";
                         result += " " + name;
-                        //AttrData
-                        dw = *((Word *) (Code + pos));
-                        pos += dw; //ATR!!
+                        // AttrData
+                        dw = *reinterpret_cast<Word *>(Code + pos);
+                        pos += dw; // ATR!!
                     }
                     result += ")";
 
@@ -1983,39 +1981,39 @@ String __fastcall TFTypeInfo_11011981::GetCppTypeInfo(DWord adr, int *o_pSize, i
         case ikVMT:
             fieldsList = new TList;
             fieldsNum = FMain_11011981->LoadAllFields(adr, fieldsList);
-            //Add fields from Interface Table
+            // Add fields from Interface Table
             intfList = new TStringList;
             intfNum = FMain_11011981->LoadIntfTable(adr, intfList);
             prevOfs = -1;
             for (m = 0; m < intfNum; m++) {
-                //item has format "ADDRESS OFFSET GUID"
+                // item has format "ADDRESS OFFSET GUID"
                 item = intfList->Strings[m];
-                //pos points to OFFSET
+                // pos points to OFFSET
                 item = item.SubString(item.Pos(' ') + 1, 4);
                 curOfs = StrToInt("$" + item);
-                //Check repeated fields
+                // Check repeated fields
                 if (prevOfs == -1 || prevOfs != curOfs) {
                     fInfo = new FIELDINFO;
                     fInfo->Name = "Interface_table";
                     fInfo->Offset = curOfs;
                     fInfo->Type = "IInterface";
-                    fieldsList->Add((void *) fInfo);
+                    fieldsList->Add(static_cast<void *>(fInfo));
                     prevOfs = curOfs;
                 }
             }
 
             fieldsList->Sort(FieldsCmpFunction);
-            //struct begins from pointer to vmt
+            // struct begins from pointer to vmt
             result += "struct " + RTTIName + "_vmt* v;\n";
             curOfs = 4;
             for (m = 0; m < fieldsList->Count; m++) {
                 fInfo = (PFIELDINFO) fieldsList->Items[m];
                 elOff = fInfo->Offset;
-                //Skip big offsets (who knows about it's appearence, for example in TComponent)
+                // Skip big offsets (who knows about its appearance, for example in TComponent)
                 if (elOff > GetClassSize(adr))
                     break;
 
-                //Check long types like double, that has two referenced parts (or records and so on)
+                // Check long types like double, that has two referenced parts (or records and so on)
                 if (elOff < curOfs)
                     continue;
 

@@ -5,7 +5,7 @@
 
 #include <Vcl.Styles.hpp>
 #include <Vcl.Themes.hpp>
-
+//---------------------------------------------------------------------------
 USEFORM("StringInfo.cpp", FStringInfo_11011981);
 USEFORM("TypeInfo2.cpp", FTypeInfo_11011981);
 USEFORM("UfrmFormTree.cpp", IdrDfmFormTree_11011981);

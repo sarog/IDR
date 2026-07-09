@@ -105,10 +105,10 @@ int AnalyzeThreadRetVal = 0;
 bool SourceIsLibrary = false;
 bool ClassTreeDone;
 bool ProjectModified = false;
-bool UserKnowledgeBase = false;
+bool UserKnowledgeBase = false; // User is using a custom Knowledge Base file
 bool SplitIDC = false;
-bool BCB = false;
-int SplitSize = 0;
+bool BCB = false; // Borland C++ Builder executable
+int SplitSize = 0; // IDC split file size
 UINT CodePage;
 // Common variables
 String IDPFile;
@@ -190,8 +190,7 @@ void __fastcall ClearClassAdrMap();
 TCriticalSection *CrtSection = 0;
 TFMain_11011981 *FMain_11011981;
 //---------------------------------------------------------------------------
-__fastcall TFMain_11011981::TFMain_11011981(TComponent *Owner)
-    : dragdropHelper(Handle), TForm(Owner) {
+__fastcall TFMain_11011981::TFMain_11011981(TComponent *Owner) : dragdropHelper(Handle), TForm(Owner) {
     CrtSection = new TCriticalSection;
 }
 
@@ -794,7 +793,7 @@ void __fastcall TFMain_11011981::StrapVMT(int pos, int ConstId, MConstInfo *Cons
                                             recN->procInfo->AddArg(&argInfo);
                                         }
                                     }
-                                    //Set kbIdx for fast search
+                                    // Set kbIdx for fast search
                                     recN->kbIdx = Idx;
                                     recN->procInfo->flags |= PF_KBPROTO;
                                 }
@@ -810,7 +809,7 @@ void __fastcall TFMain_11011981::StrapVMT(int pos, int ConstId, MConstInfo *Cons
 }
 
 //---------------------------------------------------------------------------
-//Check possibility of "straping" procedure (only at the first level)
+// Check possibility of "strapping" procedure (only at the first level)
 bool __fastcall TFMain_11011981::StrapCheck(int pos, MProcInfo *ProcInfo) {
     int _ap;
     String name, fName, _key;
@@ -819,9 +818,9 @@ bool __fastcall TFMain_11011981::StrapCheck(int pos, MProcInfo *ProcInfo) {
     if (!ProcInfo) return false;
 
     Byte *dump = ProcInfo->Dump;
-    //Fixup data begin
+    // Fixup data begin
     Byte *p = dump + 2 * (ProcInfo->DumpSz);
-    //If procedure is jmp off_XXXXXXXX, return false
+    // If procedure is jmp off_XXXXXXXX, return false
     if (*dump == 0xFF && *(dump + 1) == 0x25) return false;
 
     FIXUPINFO fixupInfo;
@@ -836,39 +835,39 @@ bool __fastcall TFMain_11011981::StrapCheck(int pos, MProcInfo *ProcInfo) {
         p += Len + 1;
 
         String fName = String(fixupInfo.Name);
-        //Fixupname begins with "_Dn_" - skip it
+        // Fixupname begins with "_Dn_" - skip it
         if (fName.Pos("_Dn_") == 1) continue;
-        //Fixupname begins with "_NF_" - skip it
+        // Fixupname begins with "_NF_" - skip it
         if (fName.Pos("_NF_") == 1) continue;
-        //Fixupname is "_DV_" - skip it
+        // Fixupname is "_DV_" - skip it
         if (SameText(fName, "_DV_")) continue;
-        //Fixupname begins with "_DV_"
+        // Fixupname begins with "_DV_"
         if (fName.Pos("_DV_") == 1) {
             char c = fName[5];
-            //Fixupname is _DV_number - skip it
+            // Fixupname is _DV_number - skip it
             if (c >= '0' && c <= '9') continue;
-            //Else transfrom fixupname to normal
+            // Else transfrom fixupname to normal
             if (fName[Len] == '_')
                 fName = fName.SubString(5, Len - 5);
             else
                 fName = fName.SubString(5, Len - 4);
         }
-        //Empty fixupname - skip it
+        // Empty fixupname - skip it
         if (fName == "") continue;
 
         DWord Adr, Ofs, Val = *(reinterpret_cast<DWord *>(Code + pos + fixupInfo.Ofs));
         if (fixupInfo.Type == 'A' || fixupInfo.Type == 'S') {
-            Ofs = *(reinterpret_cast<DWord *>(dump + fixupInfo.Ofs));
+            Ofs = *reinterpret_cast<DWord *>(dump + fixupInfo.Ofs);
             Adr = Val - Ofs;
             if (IsValidImageAdr(Adr)) {
                 _ap = Adr2Pos(Adr);
                 recN = GetInfoRec(Adr);
                 if (recN && recN->HasName()) {
-                    //If not import call just compare names
+                    // If not import call just compare names
                     if (_ap >= 0 && !IsFlagSet(cfImport, _ap)) {
                         if (!recN->SameName(fName)) return false;
                     }
-                    //Else may be partial unmatching
+                    // Else may be partially unmatching
                     else {
                         name = ExtractProcName(recN->GetName());
                         if (!SameText(name, fName) && !SameText(name.SubString(1, name.Length() - 1), fName))
@@ -882,11 +881,11 @@ bool __fastcall TFMain_11011981::StrapCheck(int pos, MProcInfo *ProcInfo) {
                 _ap = Adr2Pos(Adr);
                 recN = GetInfoRec(Adr);
                 if (recN && recN->HasName()) {
-                    //If not import call just compare names
+                    // If not import call just compare names
                     if (_ap >= 0 && !IsFlagSet(cfImport, _ap)) {
                         if (!recN->SameName(fName)) return false;
                     }
-                    //Else may be partial unmatching
+                    // Else may be partially unmatching
                     else {
                         name = ExtractProcName(recN->GetName());
                         if (!SameText(name, fName)) {
@@ -911,10 +910,10 @@ bool __fastcall TFMain_11011981::StrapCheck(int pos, MProcInfo *ProcInfo) {
 }
 
 //---------------------------------------------------------------------------
-//"Strap" procedure ProcIdx int code from position pos
+// "Strap" procedure ProcIdx int code from position pos
 void __fastcall TFMain_11011981::StrapProc(int pos, int ProcIdx, MProcInfo *ProcInfo, bool useFixups, int procSize) {
     if (!ProcInfo) return;
-    //Citadel!!!
+    // Citadel!!!
     if (SameText(ProcInfo->ProcName, "CtdReg")) {
         if (procSize == 1) return;
         CtdRegAdr = Pos2Adr(pos);
@@ -927,7 +926,7 @@ void __fastcall TFMain_11011981::StrapProc(int pos, int ProcIdx, MProcInfo *Proc
 
     String ModuleName = KnowledgeBase.GetModuleName(ProcInfo->ModuleID);
     if (!IsUnitExist(ModuleName)) {
-        //Get unit by pos
+        // Get unit by pos
         PUnitRec recU = GetUnit(Pos2Adr(pos));
         if (recU) {
             SetUnitName(recU, ModuleName);
@@ -940,13 +939,13 @@ void __fastcall TFMain_11011981::StrapProc(int pos, int ProcIdx, MProcInfo *Proc
         SetFlags(cfData, pos, procSize);
     } else {
         SetFlags(cfCode, pos, procSize);
-        //Mark proc begin
+        // Mark proc begin
         SetFlag(cfProcStart, pos);
-        //SetFlag(cfProcEnd, pos + procSize - 1);
+        // SetFlag(cfProcEnd, pos + procSize - 1);
 
         recN = GetInfoRec(Pos2Adr(pos));
         if (!recN) recN = new InfoRec(pos, ikRefine);
-        //Mark proc end
+        // Mark proc end
         recN->procInfo->procSize = procSize;
 
         switch (ProcInfo->MethodKind) {
@@ -979,24 +978,24 @@ void __fastcall TFMain_11011981::StrapProc(int pos, int ProcIdx, MProcInfo *Proc
                 for (int k = 0; k < ProcInfo->ArgsNum; k++) {
                     argInfo.Tag = *p;
                     p++;
-                    int locflags = *((int *) p);
+                    int locflags = *reinterpret_cast<int *>(p);
                     p += 4;
 
                     if ((locflags & 7) == 1) argInfo.Tag = 0x23; //Add by ZGL
 
                     argInfo.Register = (locflags & 8);
                     //Ndx
-                    int ndx = *((int *) p);
+                    int ndx = *reinterpret_cast<int *>(p);
                     p += 4;
 
                     argInfo.Size = 4;
-                    Word wlen = *((Word *) p);
+                    Word wlen = *reinterpret_cast<Word *>(p);
                     p += 2;
-                    argInfo.Name = String((char *) p, wlen);
+                    argInfo.Name = String(reinterpret_cast<char *>(p), wlen);
                     p += wlen + 1;
-                    wlen = *((Word *) p);
+                    wlen = *reinterpret_cast<Word *>(p);
                     p += 2;
-                    argInfo.TypeDef = TrimTypeName(String((char *) p, wlen));
+                    argInfo.TypeDef = TrimTypeName(String(reinterpret_cast<char *>(p), wlen));
                     p += wlen + 1;
                     //Some correction of knowledge base
                     if (SameText(argInfo.Name, "Message") && SameText(argInfo.TypeDef, "void")) {
@@ -1068,18 +1067,18 @@ void __fastcall TFMain_11011981::StrapProc(int pos, int ProcIdx, MProcInfo *Proc
             fixupInfo.Name = reinterpret_cast<char *>(p);
             p += Len + 1;
             fName = String(fixupInfo.Name, Len);
-            //Fixupname begins with _Dn_ - skip it
+            // Fixupname begins with _Dn_ - skip it
             if (fName.Pos("_Dn_") == 1) continue;
-            //Fixupname begins with _NF_ - skip it
+            // Fixupname begins with _NF_ - skip it
             if (fName.Pos("_NF_") == 1) continue;
-            //Fixupname is "_DV_" - skip it
+            // Fixupname is "_DV_" - skip it
             if (SameText(fName, "_DV_")) continue;
-            //Fixupname begins with _DV_
+            // Fixupname begins with _DV_
             if (fName.Pos("_DV_") == 1) {
                 char c = fName[5];
-                //Fixupname is _DV_number - skip it
+                // Fixupname is _DV_number - skip it
                 if (c >= '0' && c <= '9') continue;
-                //Else transfrom fixupname to normal
+                // Else transform fixupname to normal
                 if (fName[Len] == '_')
                     fName = fName.SubString(5, Len - 5);
                 else
@@ -1101,7 +1100,8 @@ void __fastcall TFMain_11011981::StrapProc(int pos, int ProcIdx, MProcInfo *Proc
                 }
                 continue;
             }
-            //Сначала подсчитаем адрес, а потом будем пытаться определять секцию
+            // Сначала подсчитаем адрес, а потом будем пытаться определять секцию
+            // First we will calculate the address, and then we will try to determine the section
             if (fixupInfo.Type == 'A' || fixupInfo.Type == 'S' || fixupInfo.Type == '4' || fixupInfo.Type == '8') {
                 // Смотрим, какая величина стоит в дампе в позиции фиксапа | Let's look at what value is in the dump in the fixup position.
                 Ofs = *(reinterpret_cast<DWord *>(ProcInfo->Dump + fixupInfo.Ofs));
@@ -1151,7 +1151,8 @@ void __fastcall TFMain_11011981::StrapProc(int pos, int ProcIdx, MProcInfo *Proc
             }
 
             int Sections = KnowledgeBase.GetItemSection(uses, fixupInfo.Name);
-            //Адрес в кодовом сегменте вне тела самой функции
+            // Адрес в кодовом сегменте вне тела самой функции
+            // An address in a code segment outside the body of the function itself
             if (IsValidCodeAdr(Adr)) {
                 recN = GetInfoRec(Adr);
                 if (!recN) {
@@ -1390,13 +1391,13 @@ int __fastcall TFMain_11011981::GetDelphiVersion() {
     MProcInfo aInfo;
     MProcInfo *pInfo = &aInfo;
 
-    if (IsExtendedInitTab(&unitsTab)) //>=2010
-    {
+    //>=2010
+    if (IsExtendedInitTab(&unitsTab)) {
         KBFileName = AppDir + "syskb2014.bin";
         if (SysKB.Open(AnsiString(KBFileName).c_str())) {
             moduleID = SysKB.GetModuleID("System");
             if (moduleID != 0xFFFF) {
-                //Find index of function "StringCopy" in this module
+                // Find index of function "StringCopy" in this module
                 idx = SysKB.GetProcIdx(moduleID, "StringCopy");
                 if (idx != -1) {
                     pInfo = SysKB.GetProcInfo(SysKB.ProcOffsets[idx].NamId, INFO_DUMP, &aInfo);
@@ -1409,11 +1410,12 @@ int __fastcall TFMain_11011981::GetDelphiVersion() {
             }
             SysKB.Close();
         }
+
         KBFileName = AppDir + "syskb2013.bin";
         if (SysKB.Open(AnsiString(KBFileName).c_str())) {
             moduleID = SysKB.GetModuleID("System");
             if (moduleID != 0xFFFF) {
-                //Find index of function "@FinalizeResStrings" in this module
+                // Find index of function "@FinalizeResStrings" in this module
                 idx = SysKB.GetProcIdx(moduleID, "@FinalizeResStrings");
                 if (idx != -1) {
                     pInfo = SysKB.GetProcInfo(SysKB.ProcOffsets[idx].NamId, INFO_DUMP, &aInfo);
@@ -1431,7 +1433,7 @@ int __fastcall TFMain_11011981::GetDelphiVersion() {
         if (SysKB.Open(AnsiString(KBFileName).c_str())) {
             moduleID = SysKB.GetModuleID("System");
             if (moduleID != 0xFFFF) {
-                //Find index of function "@InitializeControlWord" in this module
+                // Find index of function "@InitializeControlWord" in this module
                 idx = SysKB.GetProcIdx(moduleID, "@InitializeControlWord");
                 if (idx != -1) {
                     pInfo = SysKB.GetProcInfo(SysKB.ProcOffsets[idx].NamId, INFO_DUMP, &aInfo);
@@ -1449,7 +1451,7 @@ int __fastcall TFMain_11011981::GetDelphiVersion() {
         if (SysKB.Open(AnsiString(KBFileName).c_str())) {
             moduleID = SysKB.GetModuleID("System");
             if (moduleID != 0xFFFF) {
-                //Find index of function "ErrorAt" in this module
+                // Find index of function "ErrorAt" in this module
                 idx = SysKB.GetProcIdx(moduleID, "ErrorAt");
                 if (idx != -1) {
                     pInfo = SysKB.GetProcInfo(SysKB.ProcOffsets[idx].NamId, INFO_DUMP, &aInfo);
@@ -1466,17 +1468,20 @@ int __fastcall TFMain_11011981::GetDelphiVersion() {
     }
 
     TControlInstSize = 0;
-    //Пробуем для начала как в DeDe (Ищем тип TControl)
+    // Пробуем для начала как в DeDe (Ищем тип TControl)
+    // Let's try it first as in DeDe (Look for the TControl type)
     for (int n = 0; n < TotalSize - 14; n += 4) {
         if (Image[n] == 7 && Image[n + 1] == 8 &&
             Image[n + 2] == 'T' && Image[n + 3] == 'C' &&
             Image[n + 4] == 'o' && Image[n + 5] == 'n' &&
             Image[n + 6] == 't' && Image[n + 7] == 'r' &&
             Image[n + 8] == 'o' && Image[n + 9] == 'l') {
-            // После типа должен следовать указатель на таблицу VMT (0) | The type must be followed by a pointer to the VMT table (0)
+            // После типа должен следовать указатель на таблицу VMT (0)
+            // The type must be followed by a pointer to the VMT table (0)
             vmtAdr = *(reinterpret_cast<DWord *>(Image + n + 10));
             if (IsValidImageAdr(vmtAdr)) {
-                // Проверяем смещение -0x18 | Checking offset -0x18
+                // Проверяем смещение -0x18
+                // Checking offset -0x18
                 TControlInstSize = *(reinterpret_cast<DWord *>(Image + Adr2Pos(vmtAdr) - 0x18));
                 if (TControlInstSize == 0xA8) return 2;
                 // Проверяем смещение -0x1C
@@ -1489,15 +1494,18 @@ int __fastcall TFMain_11011981::GetDelphiVersion() {
                 if (TControlInstSize == 0x15C) //6 или 7
                 {
                     DWord TFormInstSize = 0;
-                    // Ищем тип TForm (выбор между версией 6 и 7) | We are looking for the TForm type (choosing between versions 6 and 7)
+                    // Ищем тип TForm (выбор между версией 6 и 7)
+                    // We are looking for the TForm type (choosing between versions 6 and 7)
                     for (int m = 0; m < TotalSize - 11; m += 4) {
                         if (Image[m] == 7 && Image[m + 1] == 5 && Image[m + 2] == 'T' &&
                             Image[m + 3] == 'F' && Image[m + 4] == 'o' &&
                             Image[m + 5] == 'r' && Image[m + 6] == 'm') {
-                            // После типа должен следовать указатель на таблицу VMT (0) | The type must be followed by a pointer to the VMT table (0)
+                            // После типа должен следовать указатель на таблицу VMT (0)
+                            // The type must be followed by a pointer to the VMT table (0)
                             vmtAdr = *(reinterpret_cast<DWord *>(Image + m + 7));
                             if (IsValidImageAdr(vmtAdr)) {
                                 // Проверяем смещение -0x28
+                                // Checking offset -0x28
                                 TFormInstSize = *(reinterpret_cast<DWord *>(Image + Adr2Pos(vmtAdr) - 0x28));
                                 if (TFormInstSize == 0x2F0) return 6;
                                 if (TFormInstSize == 0x2F8) return 7;
@@ -1515,7 +1523,8 @@ int __fastcall TFMain_11011981::GetDelphiVersion() {
             }
         }
     }
-    //Оставшиеся варианты проверяем через базу знаний
+    // Оставшиеся варианты проверяем через базу знаний
+    // We check the remaining options through the knowledge base
     for (int v = 0; DelphiVersions[v]; v++) {
         version = DelphiVersions[v];
         if (TControlInstSize == 0x190 && version != 2006 && version != 2007) continue;
@@ -1523,7 +1532,8 @@ int __fastcall TFMain_11011981::GetDelphiVersion() {
         if (SysKB.Open(AnsiString(KBFileName).c_str())) {
             moduleID = SysKB.GetModuleID("System");
             if (moduleID != 0xFFFF) {
-                //Ищем индекс функции "System" в данном модуле
+                // Ищем индекс функции "System" в данном модуле
+                // We are looking for the index of the "System" function in this module
                 idx = SysKB.GetProcIdx(moduleID, "System");
                 if (idx != -1) {
                     pInfo = SysKB.GetProcInfo(SysKB.ProcOffsets[idx].NamId, INFO_DUMP, &aInfo);
@@ -1550,7 +1560,8 @@ int __fastcall TFMain_11011981::GetDelphiVersion() {
                                 }
                             }
                         } else if (version == 2009 || version == 2010) {
-                            //Ищем индекс функции "@Halt0" в данном модуле
+                            // Ищем индекс функции "@Halt0" в данном модуле
+                            // We are looking for the index of the function "@Halt0" in this module
                             idx = SysKB.GetProcIdx(moduleID, "@Halt0");
                             if (idx != -1) {
                                 pInfo = SysKB.GetProcInfo(SysKB.ProcOffsets[idx].NamId, INFO_DUMP, &aInfo);
@@ -1570,7 +1581,7 @@ int __fastcall TFMain_11011981::GetDelphiVersion() {
             SysKB.Close();
         }
     }
-    //Analyze VMTs (if exists)
+    // Analyze VMTs (if exists)
     version = -1;
     for (int n = 0; n < CodeSize; n += 4) {
         vmtAdr = *(reinterpret_cast<DWord *>(Code + n)); // Points to vmt0 (cVmtSelfPtr)
@@ -1797,6 +1808,10 @@ void __fastcall TFMain_11011981::InitSysProcs() {
 }
 
 //---------------------------------------------------------------------------
+/**
+ * Set VMT Constants
+ * @param version Delphi version
+ */
 void __fastcall TFMain_11011981::SetVmtConsts(int version) {
     switch (version) {
         case 2:
@@ -2646,7 +2661,7 @@ int __fastcall TFMain_11011981::GetUnits(String dprName) {
         if (iniAdr && *(reinterpret_cast<DWord *>(Image + Adr2Pos(iniAdr))) == 0) continue;
         if (finAdr && *(reinterpret_cast<DWord *>(Image + Adr2Pos(finAdr))) == 0) continue;
 
-        //MAY BE REPEATED ADRESSES!!!
+        // MAY BE REPEATED ADDRESSES!!!
         bool found = false;
         for (n = 0; n < Units->Count; n++) {
             recU = (PUnitRec) Units->Items[n];
@@ -3400,7 +3415,7 @@ Automated Methods
         Entries: array[1..Count] of TAutoEntry;
       end;
 */
-//Auto function prototype can be recovered from AutoTable!!!
+// Auto function prototype can be recovered from AutoTable!!!
 void __fastcall TFMain_11011981::ScanAutoTable(DWord Adr) {
     if (!IsValidImageAdr(Adr)) return;
 
@@ -3413,19 +3428,19 @@ void __fastcall TFMain_11011981::ScanAutoTable(DWord Adr) {
     PInfoRec recN = GetInfoRec(Adr);
 
     pos = Adr2Pos(autoAdr);
-    int entryCount = *((int *) (Code + pos));
+    int entryCount = *reinterpret_cast<int *>(Code + pos);
     pos += 4;
 
     for (int i = 0; i < entryCount; i++) {
-        int dispID = *((int *) (Code + pos));
+        int dispID = *reinterpret_cast<int *>(Code + pos);
         pos += 4;
 
-        DWord nameAdr = *(reinterpret_cast<DWord *>(Code + pos));
+        DWord nameAdr = *reinterpret_cast<DWord *>(Code + pos);
         pos += 4;
         DWord posn = Adr2Pos(nameAdr);
         Byte len = *(Code + posn);
         posn++;
-        String name = String((char *) (Code + posn), len);
+        String name = String(reinterpret_cast<char *>(Code + posn), len);
         String procname = className + ".";
 
         int flags = *((int *) (Code + pos));
@@ -3539,7 +3554,7 @@ void __fastcall TFMain_11011981::ScanInitTable(DWord Adr) {
         post++;                            //skip tkKind
         Byte len = *(Code + post);
         post++;
-        String typeName = String((char *) &Code[post], len);
+        String typeName = String(reinterpret_cast<char *>(&Code[post]), len);
         if (typeName.Pos(":") > 0) {
             Byte typeKind = GetTypeKind(typeAdr);
             typeName = TransformShadowName(typeName, typeKind, typeAdr); //SHADOW
@@ -3591,7 +3606,7 @@ void __fastcall TFMain_11011981::ScanFieldTable(DWord Adr) {
         pos += 2;
         Byte len = Code[pos];
         pos++;
-        String name = String((char *) (Code + pos), len);
+        String name = String(reinterpret_cast<char *>(Code + pos), len);
         pos += len;
 
         DWord post = Adr2Pos(typesTab) + 2 + 4 * idx;
@@ -3616,7 +3631,7 @@ void __fastcall TFMain_11011981::ScanFieldTable(DWord Adr) {
             pos += 4;
             Byte len = Code[pos];
             pos++;
-            String name = String((char *) (Code + pos), len);
+            String name = String(reinterpret_cast<char *>(Code + pos), len);
             pos += len;
             Word dw = *(reinterpret_cast<Word *>(Code + pos));
             pos += dw;
@@ -3626,11 +3641,41 @@ void __fastcall TFMain_11011981::ScanFieldTable(DWord Adr) {
 }
 
 //---------------------------------------------------------------------------
+//{ vmtMethodTable entry in VMT }
+//TVmtMethodTable = packed record
+//  Count: Word;
+//  {Entry: array[1..Count] of TVmtMethodEntry;}
+//  {ExCount: Word;}
+//  {ExEntry: array[1..ExCount] of TVmtMethodExEntry;}
+//  {VirtCount: Word;}
+//TVmtMethodEntry = packed record
+//  Len: Word;
+//  CodeAddress: Pointer;
+//  Name: ShortString;
+//  {Tail: TVmtMethodEntryTail;} // only exists if Len indicates data here
+//TVmtMethodEntryTail = packed record
+//  Version: Byte; // =3
+//  CC: TCallConv;
+//  ResultType: PPTypeInfo; // nil for procedures
+//  ParOff: Word; // total size of data needed for stack parameters + 8 (ret-addr + pushed EBP)
+//  ParamCount: Byte;
+//  {Params: array[1..ParamCount] of TVmtMethodParam;
+//  AttrData: TAttrData;}
+//TVmtMethodExEntry = packed record
+//  Entry: PVmtMethodEntry;
+//  Flags: Word;
+//  VirtualIndex: Smallint; // signed word
+//TVmtMethodParam = packed record
+//  Flags: Byte;
+//  ParamType: PPTypeInfo;
+//  ParOff: Byte; // Parameter location: 0..2 for reg, >=8 for stack
+//  Name: ShortStringBase;
+//  {AttrData: TAttrData;}
 void __fastcall TFMain_11011981::ScanMethodTable(DWord adr, String className) {
     Byte len;
     Word skipNext;
     DWord codeAdr;
-    int spos, pos;
+    int spos;
     String name, methodName;
 
     if (!IsValidImageAdr(adr)) return;
@@ -3639,19 +3684,19 @@ void __fastcall TFMain_11011981::ScanMethodTable(DWord adr, String className) {
     DWord methodAdr = *(reinterpret_cast<DWord *>(Code + Adr2Pos(vmtAdr) + cVmtMethodTable));
     if (!methodAdr) return;
 
-    pos = Adr2Pos(methodAdr);
+    int pos = Adr2Pos(methodAdr);
     Word count = *(reinterpret_cast<Word *>(Code + pos));
     pos += 2;
 
     for (int n = 0; n < count; n++) {
         spos = pos;
-        skipNext = *(reinterpret_cast<Word *>(Code + pos));
+        skipNext = *(reinterpret_cast<Word *>(Code + pos)); // Length
         pos += 2;
-        codeAdr = *(reinterpret_cast<DWord *>(Code + pos));
+        codeAdr = *(reinterpret_cast<DWord *>(Code + pos)); // Code address
         pos += 4;
         len = Code[pos];
         pos++;
-        name = String((char *) &Code[pos], len);
+        name = String(reinterpret_cast<char *>(&Code[pos]), len); // Name
         pos += len;
 
         //as added   why this code was removed?
@@ -3667,19 +3712,20 @@ void __fastcall TFMain_11011981::ScanMethodTable(DWord adr, String className) {
         Infos[Adr2Pos(adr)]->vmtInfo->AddMethod(false, 'M', -1, codeAdr, methodName);
         pos = spos + skipNext;
     }
+
     if (DelphiVersion >= 2010) {
         Word exCount = *(reinterpret_cast<Word *>(Code + pos));
         pos += 2;
         for (int n = 0; n < exCount; n++) {
-            //Entry
+            // Entry
             DWord entry = *(reinterpret_cast<DWord *>(Code + pos));
             pos += 4;
-            //Flags
+            // Flags
             pos += 2;
-            //VirtualIndex
+            // VirtualIndex
             pos += 2;
             spos = pos;
-            //Entry
+            // Entry
             pos = Adr2Pos(entry);
             skipNext = *(reinterpret_cast<Word *>(Code + pos));
             pos += 2;
@@ -3687,7 +3733,7 @@ void __fastcall TFMain_11011981::ScanMethodTable(DWord adr, String className) {
             pos += 4;
             len = Code[pos];
             pos++;
-            name = String((char *) &Code[pos], len);
+            name = String(reinterpret_cast<char *>(&Code[pos]), len);
             pos += len;
             Infos[Adr2Pos(adr)]->vmtInfo->AddMethod(false, 'M', -1, codeAdr, className + "." + name);
             pos = spos;
@@ -4009,11 +4055,11 @@ PMsgMInfo __fastcall GetMsgInfo(Word msg) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::ScanDynamicTable(DWord adr) {
-    PInfoRec recN, recN1, recN2;
+    PInfoRec recN1, recN2;
 
     if (!IsValidImageAdr(adr)) return;
 
-    recN = GetInfoRec(adr);
+    PInfoRec recN = GetInfoRec(adr);
 
     if (!recN) return;
 
@@ -4123,24 +4169,23 @@ bool __fastcall IsOwnVirtualMethod(DWord vmtAdr, DWord procAdr) {
 //---------------------------------------------------------------------------
 //Create recN->methods list
 void __fastcall TFMain_11011981::ScanVirtualTable(DWord adr) {
-    int m, pos, idx = 0;
-    DWord vmtAdr, stopAt;
+    int idx = 0;
     String clsName;
-    PInfoRec recN, recN1;
+    PInfoRec recN1;
     MethodRec recM;
     MProcInfo aInfo;
     MProcInfo *pInfo = &aInfo;
 
     if (!IsValidImageAdr(adr)) return;
     clsName = GetClsName(adr);
-    vmtAdr = adr - cVmtSelfPtr;
-    stopAt = GetStopAt(vmtAdr);
+    DWord vmtAdr = adr - cVmtSelfPtr;
+    DWord stopAt = GetStopAt(vmtAdr);
     if (vmtAdr == stopAt) return;
 
-    pos = Adr2Pos(vmtAdr) + cVmtParent + 4;
-    recN = GetInfoRec(vmtAdr + cVmtSelfPtr);
+    int pos = Adr2Pos(vmtAdr) + cVmtParent + 4;
+    PInfoRec recN = GetInfoRec(vmtAdr + cVmtSelfPtr);
 
-    for (m = cVmtParent + 4;; m += 4, pos += 4) {
+    for (int m = cVmtParent + 4;; m += 4, pos += 4) {
         if (Pos2Adr(pos) == stopAt) break;
 
         recM.abstract = false;
@@ -4359,21 +4404,28 @@ void __fastcall TFMain_11011981::FormCreate(TObject *Sender) {
     Application->HelpFile = AppDir + "idr.chm";
     IniFileRead();
 
-    miDelphi2->Enabled = FileExists(AppDir + "kb2.bin");
-    miDelphi3->Enabled = FileExists(AppDir + "kb3.bin");
-    miDelphi4->Enabled = FileExists(AppDir + "kb4.bin");
-    miDelphi5->Enabled = FileExists(AppDir + "kb5.bin");
-    miDelphi6->Enabled = FileExists(AppDir + "kb6.bin");
-    miDelphi7->Enabled = FileExists(AppDir + "kb7.bin");
-    miDelphi2005->Enabled = FileExists(AppDir + "kb2005.bin");
-    miDelphi2006->Enabled = FileExists(AppDir + "kb2006.bin");
-    miDelphi2007->Enabled = FileExists(AppDir + "kb2007.bin");
-    miDelphi2009->Enabled = FileExists(AppDir + "kb2009.bin");
-    miDelphi2010->Enabled = FileExists(AppDir + "kb2010.bin");
-    miDelphiXE1->Enabled = FileExists(AppDir + "kb2011.bin");
-    miDelphiXE2->Enabled = FileExists(AppDir + "kb2012.bin");
-    miDelphiXE3->Enabled = FileExists(AppDir + "kb2013.bin");
-    miDelphiXE4->Enabled = FileExists(AppDir + "kb2014.bin");
+#ifdef _DEBUG
+    // BinsDir = AppDir + "Bins\\";
+    BinsDir = AppDir + "..\\..\\KBs\\";
+#else
+    BinsDir = AppDir + "KBs\\";
+#endif
+
+    miDelphi2->Enabled = FileExists(BinsDir + "kb2.bin");
+    miDelphi3->Enabled = FileExists(BinsDir + "kb3.bin");
+    miDelphi4->Enabled = FileExists(BinsDir + "kb4.bin");
+    miDelphi5->Enabled = FileExists(BinsDir + "kb5.bin");
+    miDelphi6->Enabled = FileExists(BinsDir + "kb6.bin");
+    miDelphi7->Enabled = FileExists(BinsDir + "kb7.bin");
+    miDelphi2005->Enabled = FileExists(BinsDir + "kb2005.bin");
+    miDelphi2006->Enabled = FileExists(BinsDir + "kb2006.bin");
+    miDelphi2007->Enabled = FileExists(BinsDir + "kb2007.bin");
+    miDelphi2009->Enabled = FileExists(BinsDir + "kb2009.bin");
+    miDelphi2010->Enabled = FileExists(BinsDir + "kb2010.bin");
+    miDelphiXE1->Enabled = FileExists(BinsDir + "kb2011.bin");
+    miDelphiXE2->Enabled = FileExists(BinsDir + "kb2012.bin");
+    miDelphiXE3->Enabled = FileExists(BinsDir + "kb2013.bin");
+    miDelphiXE4->Enabled = FileExists(BinsDir + "kb2014.bin");
 
     SegmentList = new TList;
     ExpFuncList = new TList;
@@ -5235,21 +5287,21 @@ void __fastcall TFMain_11011981::AnalyzeMethodTable(int Pass, DWord Adr, const v
     PInfoRec recN;
     String paramName, methodName;
     DWord vmtAdr = Adr - cVmtSelfPtr;
-    DWord methodAdr = *(reinterpret_cast<DWord *>(Code + Adr2Pos(vmtAdr) + cVmtMethodTable));
+    DWord methodAdr = *reinterpret_cast<DWord *>(Code + Adr2Pos(vmtAdr) + cVmtMethodTable);
 
     if (!methodAdr) return;
 
     String className = GetClsName(Adr);
     int pos = Adr2Pos(methodAdr);
-    Word count = *(reinterpret_cast<Word *>(Code + pos));
+    Word count = *reinterpret_cast<Word *>(Code + pos);
     pos += 2;
 
     for (int n = 0; n < count && !*Terminated; n++) {
-        skipNext = *(reinterpret_cast<Word *>(Code + pos));
-        procAdr = *(reinterpret_cast<DWord *>(Code + pos + 2));
+        skipNext = *reinterpret_cast<Word *>(Code + pos);
+        procAdr = *reinterpret_cast<DWord *>(Code + pos + 2);
         procPos = Adr2Pos(procAdr);
         sLen = Code[pos + 6];
-        methodName = String((char *) (Code + pos + 7), sLen);
+        methodName = String(reinterpret_cast<char *>(Code + pos + 7), sLen);
 
         AnalyzeProc(Pass, procAdr);
 
@@ -5265,25 +5317,25 @@ void __fastcall TFMain_11011981::AnalyzeMethodTable(int Pass, DWord Adr, const v
         pos += skipNext;
     }
     if (DelphiVersion >= 2010) {
-        Word exCount = *(reinterpret_cast<Word *>(Code + pos));
+        Word exCount = *reinterpret_cast<Word *>(Code + pos);
         pos += 2;
         for (int n = 0; n < exCount && !*Terminated; n++) {
-            DWord methodEntry = *(reinterpret_cast<DWord *>(Code + pos));
+            DWord methodEntry = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
-            Word flags = *(reinterpret_cast<Word *>(Code + pos));
+            Word flags = *reinterpret_cast<Word *>(Code + pos);
             pos += 2;
-            Word vIndex = *(reinterpret_cast<Word *>(Code + pos));
+            Word vIndex = *reinterpret_cast<Word *>(Code + pos);
             pos += 2;
             int spos = pos;
             pos = Adr2Pos(methodEntry);
-            //Length
-            skipNext = *(reinterpret_cast<Word *>(Code + pos));
+            // Length
+            skipNext = *reinterpret_cast<Word *>(Code + pos);
             pos += 2;
-            procAdr = *(reinterpret_cast<DWord *>(Code + pos));
+            procAdr = *reinterpret_cast<DWord *>(Code + pos);
             pos += 4;
             procPos = Adr2Pos(procAdr);
             sLen = Code[pos];
-            methodName = String((char *) (Code + pos + 1), sLen);
+            methodName = String(reinterpret_cast<char *>(Code + pos + 1), sLen);
             pos += sLen + 1;
 
             if (procAdr == Adr) continue;
@@ -6795,8 +6847,7 @@ void __fastcall TFMain_11011981::tvClassesDblClick(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::tvClassesShortKeyDown(TObject *Sender,
-                                                       Word &Key, TShiftState Shift) {
+void __fastcall TFMain_11011981::tvClassesShortKeyDown(TObject *Sender, Word &Key, TShiftState Shift) {
     if (Key == VK_RETURN) tvClassesDblClick(Sender);
 }
 
@@ -6854,9 +6905,8 @@ void __fastcall TFMain_11011981::miSearchVMTClick(TObject *Sender) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::miCollapseAllClick(TObject *Sender) {
-    TTreeView *tv;
     if (ActiveControl == tvClassesFull || ActiveControl == tvClassesShort) {
-        tv = (TTreeView *) ActiveControl;
+        TTreeView *tv = (TTreeView *) ActiveControl;
         tv->Items->BeginUpdate();
         TTreeNode *rootNode = tv->Items->Item[0];
         const int cnt = rootNode->Count;
@@ -6878,7 +6928,8 @@ void __fastcall TFMain_11011981::miEditClassClick(TObject *Sender) {
                 sscanf(AnsiString(node->Text).c_str(), "%lX", &FieldOfs);
             while (node) {
                 int pos = node->Text.Pos("#");
-                //Указан адрес
+                // Указан адрес
+                // The address is indicated
                 if (pos && node->Text.Pos("Sz=")) {
                     DWord vmtAdr;
                     sscanf(AnsiString(node->Text).c_str() + pos, "%lX", &vmtAdr);
@@ -6921,7 +6972,8 @@ void __fastcall TFMain_11011981::lbFormsDblClick(TObject *Sender) {
         //As Form
         case 1:
             if (dfm->Open != 2) {
-                //Если есть открытые формы, закрываем их
+                // Если есть открытые формы, закрываем их
+                // If there are open forms, close them.
                 ResInfo->CloseAllForms();
 
                 ShowDfm(dfm);
@@ -6959,14 +7011,12 @@ void __fastcall TFMain_11011981::ShowDfm(TDfm *dfm) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::lbFormsKeyDown(TObject *Sender, Word &Key,
-                                                TShiftState Shift) {
+void __fastcall TFMain_11011981::lbFormsKeyDown(TObject *Sender, Word &Key, TShiftState Shift) {
     if (lbForms->ItemIndex >= 0 && Key == VK_RETURN) lbFormsDblClick(Sender);
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::lbCodeKeyDown(TObject *Sender,
-                                               Word &Key, TShiftState Shift) {
+void __fastcall TFMain_11011981::lbCodeKeyDown(TObject *Sender, Word &Key, TShiftState Shift) {
     switch (Key) {
         case VK_RETURN:
             lbCodeDblClick(Sender);
@@ -7651,14 +7701,13 @@ void __fastcall TFMain_11011981::LoadFile(String FileName, int version) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::LoadDelphiFile(int version) {
+void __fastcall TFMain_11011981::LoadDelphiFile(const int version) {
     DoOpenDelphiFile(version, "", true, true);
 }
 
 //---------------------------------------------------------------------------
 //version: 0 for autodetect, else - exact version
-//
-void __fastcall TFMain_11011981::DoOpenDelphiFile(int version, String FileName, bool loadExp, bool loadImp) {
+void __fastcall TFMain_11011981::DoOpenDelphiFile(const int version, String FileName, const bool loadExp, const bool loadImp) {
     if (ProjectModified) {
         int res = Application->MessageBox(L"Save active Project?", L"Confirmation", MB_YESNOCANCEL);
         if (res == IDCANCEL) return;
@@ -7714,8 +7763,8 @@ void __fastcall TFMain_11011981::LoadDelphiFile1(String FileName, int version, b
     ResInfo->ShowResources(lbForms);
     tsForms->Enabled = (lbForms->Items->Count > 0);
 
-    if (version == DELHPI_VERSION_AUTO) //Autodetect
-    {
+    // Autodetect
+    if (version == DELHPI_VERSION_AUTO) {
         DelphiVersion = GetDelphiVersion();
         if (DelphiVersion == 1) {
             Screen->Cursor = crDefault;
@@ -7739,6 +7788,7 @@ void __fastcall TFMain_11011981::LoadDelphiFile1(String FileName, int version, b
         }
     } else
         DelphiVersion = version;
+
     Screen->Cursor = crDefault;
 
     UserKnowledgeBase = false;
@@ -7751,7 +7801,7 @@ void __fastcall TFMain_11011981::LoadDelphiFile1(String FileName, int version, b
             UserKnowledgeBase = true;
         }
     } else
-        KBFileName = AppDir + "kb" + DelphiVersion + ".bin";
+        KBFileName = BinsDir + "kb" + DelphiVersion + ".bin";
 
     if (KBFileName == "") {
         ShowMessage("Knowledge Base file is not selected");
@@ -7884,7 +7934,7 @@ bool __fastcall TFMain_11011981::ImportsValid(DWord ImpRVA, DWord ImpSize) {
                 break;
 
             if (!IsValidImageAdr(ImportDescriptor.Name + ImageBase)) return false;
-            int NameLength = strlen((char *) (Image + Adr2Pos(ImportDescriptor.Name + ImageBase)));
+            int NameLength = strlen(reinterpret_cast<char *>(Image + Adr2Pos(ImportDescriptor.Name + ImageBase)));
             if (NameLength < 0 || NameLength > 256) return false;
             if (!IsValidModuleName(NameLength, Adr2Pos(ImportDescriptor.Name + ImageBase))) return false;
 
@@ -8198,7 +8248,7 @@ int __fastcall TFMain_11011981::LoadImageFile(FILE *f, int version, bool loadExp
 
                         //if (hLib) fnProc = (DWord)GetProcAddress(hLib, (char*)Hint);
 
-                        //Addresse get from FirstThunk only
+                        //Address get from FirstThunk only
                         //recI->name = modName + "." + String(Hint);
                         recI->name = String(Hint);
                     } else {
@@ -8269,7 +8319,7 @@ void __fastcall TFMain_11011981::DoOpenProjectFile(String FileName) {
     }
     if (FileName != "") {
         if (!FileExists(FileName)) {
-            ShowMessage("File " + FileName + " not exists");
+            ShowMessage("File " + FileName + " does not exist.");
             return;
         }
         CloseProject();
@@ -8335,7 +8385,7 @@ void __fastcall TFMain_11011981::OpenProject(String FileName) {
             _useFuzzy = false;
         }
     }
-    if (!UserKnowledgeBase) KBFileName = AppDir + "kb" + DelphiVersion + ".bin";
+    if (!UserKnowledgeBase) KBFileName = BinsDir + "kb" + DelphiVersion + ".bin";
 
     MaxBufLen = 0;
     fseek(projectFile, -4L, SEEK_END);
@@ -9440,7 +9490,7 @@ void __fastcall TFMain_11011981::EditFunction(DWord Adr) {
             AnalyzeProc2(Adr, false, false);
             AnalyzeArguments(Adr);
 
-            //If virtual then propogate VMT names
+            // If virtual, then propagate VMT names
             //!!! prototype !!!
             procName = ExtractProcName(recN->GetName());
             if (recN->procInfo->flags & PF_VIRTUAL) {
@@ -9851,11 +9901,10 @@ void __fastcall TFMain_11011981::pmUnitsPopup(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-//MXXXXXXXXM   COP Op1, Op2, Op3;commentF
-//XXXXXXXX - address
-//F - flags (1:cfLoc; 2:cfSkip; 4:cfLoop; 8:jmp or jcc
-void __fastcall TFMain_11011981::lbCodeDrawItem(TWinControl *Control,
-                                                int Index, TRect &Rect, TOwnerDrawState State) {
+// MXXXXXXXXM   COP Op1, Op2, Op3;commentF
+// XXXXXXXX - address
+// F - flags (1:cfLoc; 2:cfSkip; 4:cfLoop; 8:jmp or jcc
+void __fastcall TFMain_11011981::lbCodeDrawItem(TWinControl *Control, int Index, TRect &Rect, TOwnerDrawState State) {
     bool ib;
     Byte _f, _db;
     int flags, _textLen, _len, _sWid, _cPos, _offset, _ap;
@@ -9868,7 +9917,7 @@ void __fastcall TFMain_11011981::lbCodeDrawItem(TWinControl *Control,
     PInfoRec _recN;
     DISINFO _disInfo;
 
-    //After closing Project we cannot execute this handler (Code = 0)
+    // After closing Project we cannot execute this handler (Code = 0)
     if (!Image) return;
 
     lb = (TListBox *) Control;
@@ -9885,7 +9934,7 @@ void __fastcall TFMain_11011981::lbCodeDrawItem(TWinControl *Control,
         _textLen = text.Length();
         //lb->ItemHeight = canvas->TextHeight("T");
 
-        //First row (name of procedure with prototype) output without highlighting
+        // First row (name of procedure with prototype) output without highlighting
         if (!Index) {
             Rect.Right = Rect.Left;
             DrawOneItem(text, canvas, Rect, TColor(0), flags);
@@ -9896,34 +9945,34 @@ void __fastcall TFMain_11011981::lbCodeDrawItem(TWinControl *Control,
         canvas->Brush->Color = TColor(0xFFFFFF);
         if (State.Contains(odSelected))
             canvas->Brush->Color = TColor(0xFFFFC0);
-        else if (_f & 2) //skip
+        else if (_f & 2) // skip
             canvas->Brush->Color = TColor(0xF5F5FF);
         canvas->FillRect(Rect);
 
-        //Width of space
+        // Width of space
         _sWid = canvas->TextWidth(" ");
-        //Comment position
+        // Comment position
         _cPos = text.Pos(";");
-        //Sign for > (blue)
+        // Sign for > (blue)
         _item = text.SubString(1, 1);
         Rect.Right = Rect.Left;
         DrawOneItem(_item, canvas, Rect, TColor(0xFF8080), flags);
 
-        //Address (loop is blue, loc is black, others are light gray)
+        // Address (loop is blue, loc is black, others are light gray)
         _item = text.SubString(2, 8);
         _adr = StrToInt(String("$") + _item);
         //loop or loc
         if (_f & 5)
             _color = TColor(0xFF8080);
         else
-            _color = TColor(0xBBBBBB); //LightGray
+            _color = TColor(0xBBBBBB); // LightGray
         DrawOneItem(_item, canvas, Rect, _color, flags);
 
-        //Sign for > (blue)
+        // Sign for > (blue)
         _item = text.SubString(10, 1);
         DrawOneItem(_item, canvas, Rect, TColor(0xFF8080), flags);
 
-        //Data (case or exeption table)
+        // Data (case or exception table)
         _dbPos = text.Pos(" db ");
         _ddPos = text.Pos(" dd ");
         if (_dbPos || _ddPos) {
@@ -9941,7 +9990,7 @@ void __fastcall TFMain_11011981::lbCodeDrawItem(TWinControl *Control,
                 _dd = *(reinterpret_cast<DWord *>(Code + Adr2Pos(_adr)));
                 DrawOneItem(Val2Str8(_dd), canvas, Rect, TColor(0xFF8080), flags);
             }
-            //Comment (light gray)
+            // Comment (light gray)
             if (_cPos) {
                 _item = text.SubString(_cPos, _textLen);
                 _item.SetLength(_item.Length() - 1);
@@ -9949,9 +9998,9 @@ void __fastcall TFMain_11011981::lbCodeDrawItem(TWinControl *Control,
             }
             return;
         }
-        //Get instruction tokens
+        // Get instruction tokens
         Disasm.Disassemble(Code + Adr2Pos(_adr), (__int64) _adr, &_disInfo, 0);
-        //repprefix
+        // repprefix
         _len = 0;
         if (_disInfo.RepPrefix != -1) {
             _item = RepPrefixTab[_disInfo.RepPrefix];
@@ -9963,7 +10012,7 @@ void __fastcall TFMain_11011981::lbCodeDrawItem(TWinControl *Control,
         }
         Rect.Right += _sWid;
 
-        //Cop (black, if float then green)
+        // Cop (black, if float then green)
         _item = String(_disInfo.Mnem);
         _len = _item.Length();
         if (!_disInfo.Float)
@@ -9972,7 +10021,7 @@ void __fastcall TFMain_11011981::lbCodeDrawItem(TWinControl *Control,
             _color = TColor(0x808000);
         if (!SameText(_item, "movs")) {
             DrawOneItem(_item, canvas, Rect, _color, flags);
-            //Operands
+            // Operands
             if (_disInfo.OpNum) {
                 Rect.Right += (ASMMAXCOPLEN - _len) * _sWid;
                 for (int n = 0; n < _disInfo.OpNum; n++) {
@@ -9980,7 +10029,7 @@ void __fastcall TFMain_11011981::lbCodeDrawItem(TWinControl *Control,
 
                     ib = (_disInfo.BaseReg != -1 || _disInfo.IndxReg != -1);
                     _offset = _disInfo.Offset;
-                    //Op1
+                    // Op1
                     if (_disInfo.OpType[n] == otIMM) {
                         _val = _disInfo.Immediate;
                         _ap = Adr2Pos(_val);
@@ -10063,12 +10112,12 @@ void __fastcall TFMain_11011981::lbCodeDrawItem(TWinControl *Control,
                 }
             }
         }
-        //movsX
+        // movsX
         else {
             _item += String(_disInfo.sSize[0]);
             DrawOneItem(_item, canvas, Rect, _color, flags);
         }
-        //Comment (light gray)
+        // Comment (light gray)
         if (_cPos) {
             _item = text.SubString(_cPos, _textLen);
             _item.SetLength(_item.Length() - 1);
@@ -10263,7 +10312,7 @@ void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWord fromAdr, String pr
     DWord lastAdr = 0;
     PInfoRec recN;
     String line;
-    DISINFO DisInfo, DisInfo1;
+    DISINFO DisInfo;
     char disLine[100];
 
     fromPos = Adr2Pos(fromAdr);
@@ -10282,19 +10331,19 @@ void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWord fromAdr, String pr
     curAdr = fromAdr;
 
     while (row < outRows) {
-        //End of procedure
+        // End of procedure
         if (curAdr != fromAdr && _procSize && curAdr - fromAdr >= _procSize) break;
         flags = 0;
-        //Only comments?
+        // Only comments?
         if (onlyComments) flags |= 0x10;
-        //Loc?
+        // Loc?
         if (IsFlagSet(cfLoc, curPos)) flags |= 1;
-        //Skip?
+        // Skip?
         if (IsFlagSet(cfSkip | cfDSkip, curPos)) flags |= 2;
 
-        //If exception table, output it
+        // If exception table, output it
         if (IsFlagSet(cfETable, curPos)) {
-            //dd num
+            // dd num
             num = *((int *) (Code + curPos));
             OutputLine(outF, flags, curAdr, "dd          " + String(num));
             row++;
@@ -10305,7 +10354,7 @@ void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWord fromAdr, String pr
                 // dd offset ExceptionInfo
                 Adr = *(reinterpret_cast<DWord *>(Code + curPos));
                 line = "dd          " + Val2Str8(Adr);
-                //Name of Exception
+                // Name of Exception
                 if (IsValidCodeAdr(Adr)) {
                     recN = GetInfoRec(Adr);
                     if (recN && recN->HasName()) line += ";" + recN->GetName();
@@ -10339,7 +10388,7 @@ void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWord fromAdr, String pr
         }
         op = Disasm.GetOp(DisInfo.Mnem);
 
-        //Check inside instruction Fixup or ThreadVar
+        // Check inside instruction Fixup or ThreadVar
         bool NameInside = false;
         DWord NameInsideAdr = 0;
         for (int k = 1; k < instrLen; k++) {
@@ -10385,8 +10434,8 @@ void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWord fromAdr, String pr
             continue;
         }
 
-        if (b1 == 0xE9) //relative abs jmp or cond jmp
-        {
+        // relative abs jmp or cond jmp
+        if (b1 == 0xE9) {
             Adr = DisInfo.Immediate;
             if (IsValidCodeAdr(Adr)) {
                 _ap = Adr2Pos(Adr);
@@ -10404,8 +10453,8 @@ void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWord fromAdr, String pr
             continue;
         }
 
-        if (DisInfo.Call) //call sub_XXXXXXXX
-        {
+        // call sub_XXXXXXXX
+        if (DisInfo.Call) {
             Adr = DisInfo.Immediate;
             if (IsValidCodeAdr(Adr)) {
                 recN = GetInfoRec(Adr);
@@ -10428,9 +10477,8 @@ void __fastcall TFMain_11011981::OutputCode(FILE *outF, DWord fromAdr, String pr
             continue;
         }
 
-        if (b1 == 0xFF && (b2 & 0x38) == 0x20 && DisInfo.OpType[0] == otMEM && IsValidImageAdr(DisInfo.Offset))
-        //near absolute indirect jmp (Case)
-        {
+        // near absolute indirect jmp (Case)
+        if (b1 == 0xFF && (b2 & 0x38) == 0x20 && DisInfo.OpType[0] == otMEM && IsValidImageAdr(DisInfo.Offset)) {
             OutputLine(outF, flags, curAdr, line);
             row++;
             if (!IsValidCodeAdr(DisInfo.Offset)) break;
@@ -10830,17 +10878,16 @@ void __fastcall TFMain_11011981::miEmptyHistoryClick(TObject *Sender) {
 
 //---------------------------------------------------------------------------
 PFIELDINFO __fastcall TFMain_11011981::GetField(String TypeName, int Offset, bool *vmt, DWord *vmtAdr, String prefix) {
-    int idx, kind, size, Ofs, Ofs1, Ofs2, pos1, pos2;
-    DWord classAdr;
+    int kind, size, Ofs, Ofs1, Ofs2, pos1, pos2;
     Byte *p, *ps;
-    Word *uses, Len;
+    Word Len;
     MTypeInfo atInfo;
     MTypeInfo *tInfo = &atInfo;
     PFIELDINFO fInfo, fInfo1, fInfo2;
 
     *vmt = false;
     *vmtAdr = 0;
-    classAdr = GetClassAdr(TypeName);
+    DWord classAdr = GetClassAdr(TypeName);
     if (IsValidImageAdr(classAdr)) {
         *vmt = true;
         *vmtAdr = classAdr;
@@ -10897,9 +10944,9 @@ PFIELDINFO __fastcall TFMain_11011981::GetField(String TypeName, int Offset, boo
         return 0;
     }
 
-    //try KB
-    uses = KnowledgeBase.GetTypeUses(AnsiString(TypeName).c_str());
-    idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(TypeName).c_str());
+    // Try KB
+    Word *uses = KnowledgeBase.GetTypeUses(AnsiString(TypeName).c_str());
+    int idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(TypeName).c_str());
     if (uses) delete[] uses;
 
     if (idx != -1) {
@@ -10909,37 +10956,37 @@ PFIELDINFO __fastcall TFMain_11011981::GetField(String TypeName, int Offset, boo
                 p = tInfo->Fields;
                 for (int n = 0; n < tInfo->FieldsNum; n++) {
                     ps = p;
-                    p++; //scope
-                    Ofs1 = *((int *) p);
-                    p += 4; //offset
-                    p += 4; //case
-                    Len = *((Word *) p);
-                    p += Len + 3; //name
-                    Len = *((Word *) p);
-                    p += Len + 3; //type
+                    p++; // scope
+                    Ofs1 = *reinterpret_cast<int *>(p);
+                    p += 4; // offset
+                    p += 4; // case
+                    Len = *reinterpret_cast<Word *>(p);
+                    p += Len + 3; // name
+                    Len = *reinterpret_cast<Word *>(p);
+                    p += Len + 3; // type
                     if (n == tInfo->FieldsNum - 1) {
                         Ofs2 = 0;
                     } else {
-                        Ofs2 = *((int *) (p + 1));
+                        Ofs2 = *reinterpret_cast<int *>(p + 1);
                     }
                     if (Offset >= Ofs1 && Offset < Ofs2) {
                         p = ps;
-                        p++; //Scope
-                        Ofs = *((int *) p);
-                        p += 4; //offset
+                        p++; // Scope
+                        Ofs = *reinterpret_cast<int *>(p);
+                        p += 4; // offset
                         fInfo = new FIELDINFO;
                         fInfo->Offset = Offset - Ofs;
                         fInfo->Scope = SCOPE_TMP;
-                        fInfo->Case = *((int *) p);
+                        fInfo->Case = *reinterpret_cast<int *>(p);
                         p += 4;
                         fInfo->xrefs = 0;
-                        Len = *((Word *) p);
+                        Len = *reinterpret_cast<Word *>(p);
                         p += 2;
-                        fInfo->Name = String((char *) p, Len);
+                        fInfo->Name = String(reinterpret_cast<char *>(p), Len);
                         p += Len + 1;
-                        Len = *((Word *) p);
+                        Len = *reinterpret_cast<Word *>(p);
                         p += 2;
-                        fInfo->Type = TrimTypeName(String((char *) p, Len));
+                        fInfo->Type = TrimTypeName(String(reinterpret_cast<char *>(p), Len));
                         return fInfo;
                     }
                 }
@@ -12422,11 +12469,11 @@ void __fastcall TFMain_11011981::mniShellIntegration1Click(TObject *Sender) {
     if (!mniShellIntegration1->Checked) {
         TRegistry *reg = new TRegistry(KEY_ALL_ACCESS);
         reg->RootKey = HKEY_CLASSES_ROOT;
-        reg->OpenKey("\exefile\shell\Open with IDR\command", true);
+        reg->OpenKey(R"(\exefile\shell\Open with IDR\command)", true);
         reg->WriteString("", (ExtractFilePath(Application->ExeName) + "Idr.exe %1"));
         reg->CloseKey();
 
-        reg->OpenKey("\dllfile\shell\Open with IDR\command", true);
+        reg->OpenKey(R"(\dllfile\shell\Open with IDR\command)", true);
         reg->WriteString("", (ExtractFilePath(Application->ExeName) + "Idr.exe %1"));
         reg->CloseKey();
         delete reg;
@@ -12434,8 +12481,8 @@ void __fastcall TFMain_11011981::mniShellIntegration1Click(TObject *Sender) {
     } else {
         TRegistry *reg = new TRegistry(KEY_ALL_ACCESS);
         reg->RootKey = HKEY_CLASSES_ROOT;
-        reg->DeleteKey("\exefile\shell\Open with IDR");
-        reg->DeleteKey("\dllfile\shell\Open with IDR");
+        reg->DeleteKey(R"(\exefile\shell\Open with IDR)");
+        reg->DeleteKey(R"(\dllfile\shell\Open with IDR)");
         delete reg;
         mniShellIntegration1->Checked = false;
     }
@@ -12524,6 +12571,7 @@ CPPvsDELPHIdecl ForwardDeclarations[] = {
     {"double", "Real"},
     {NULL, NULL}
 };
+
 //---------------------------------------------------------------------------
 void __fastcall OutputStandardForwardDeclarations(FILE *hF) {
     for (int n = 0;; n++) {
@@ -12575,12 +12623,12 @@ void __fastcall TFMain_11011981::OutputForwardDeclarationsHeader(FILE *hF) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::OutputForwardDeclarationsOfKind(FILE *hF, Byte kind) {
-    int n, size, typeKind;
+    int size, typeKind;
     DWord adr;
     PTypeRec recT;
     String str, RTTIName;
 
-    for (n = 0; n < OwnTypeList->Count; n++) {
+    for (int n = 0; n < OwnTypeList->Count; n++) {
         recT = static_cast<PTypeRec>(OwnTypeList->Items[n]);
         if (recT->kind == kind) {
             adr = recT->adr;

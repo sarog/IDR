@@ -22,7 +22,7 @@ elseif (BCC32C)
     add_compile_options(-D_DEBUG -DUSEPACKAGES)
 elseif (BCC32X)
     add_compile_options(-D_DEBUG -DUSEPACKAGES)
-elseif (BCC64)
+elseif (BCC64 OR BCC64X)
     # -DUNICODE -D_UNICODE
     add_compile_options(-D_DEBUG -DUSEPACKAGES -D FRAMEWORK_VCL)
 endif ()
@@ -75,7 +75,8 @@ target_link_libraries(${APP} PRIVATE
         "${EMBT_BPI_DIR}/bcbsmp.bpi"
         "${EMBT_BPI_DIR}/vclx.bpi"
         "${EMBT_BPI_DIR}/vclimg.bpi"
-        "Idr.res"
+        "Idr.rc.res"
+        "IdcDialog.rc.res"
 )
 
 add_custom_command(

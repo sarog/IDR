@@ -1,112 +1,140 @@
 object FKBViewer_11011981: TFKBViewer_11011981
   Left = 227
   Top = 178
+  Margins.Left = 2
+  Margins.Top = 2
+  Margins.Right = 2
+  Margins.Bottom = 2
   BorderStyle = bsToolWindow
   Caption = 'KBViewer'
-  ClientHeight = 696
-  ClientWidth = 1257
+  ClientHeight = 557
+  ClientWidth = 1004
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -13
+  Font.Height = -10
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   FormStyle = fsStayOnTop
-  OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
   OnShow = FormShow
-  PixelsPerInch = 120
-  TextHeight = 16
+  TextHeight = 13
   object Splitter1: TSplitter
-    Left = 465
-    Top = 33
-    Width = 3
-    Height = 693
-    Cursor = crHSplit
+    Left = 372
+    Top = 26
+    Width = 2
+    Height = 555
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     Align = alNone
+    MinSize = 24
   end
   object lbKB: TListBox
     Left = 0
-    Top = 41
-    Width = 590
-    Height = 655
+    Top = 33
+    Width = 472
+    Height = 524
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     AutoComplete = False
     Align = alLeft
     Color = 15597544
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -13
+    Font.Height = -10
     Font.Name = 'Fixedsys'
     Font.Style = []
-    ItemHeight = 20
     MultiSelect = True
     ParentFont = False
     TabOrder = 0
   end
   object lbIDR: TListBox
-    Left = 590
-    Top = 41
-    Width = 590
-    Height = 655
+    Left = 472
+    Top = 33
+    Width = 470
+    Height = 524
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     AutoComplete = False
     Align = alClient
     Font.Charset = RUSSIAN_CHARSET
     Font.Color = clWindowText
-    Font.Height = -13
+    Font.Height = -10
     Font.Name = 'Fixedsys'
     Font.Style = []
-    ItemHeight = 20
     MultiSelect = True
     ParentFont = False
     TabOrder = 1
   end
   object Panel3: TPanel
-    Left = 1180
-    Top = 41
-    Width = 77
-    Height = 655
+    Left = 942
+    Top = 33
+    Width = 62
+    Height = 524
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     Align = alRight
     TabOrder = 3
     object lPosition: TLabel
-      Left = 8
-      Top = 292
-      Width = 64
-      Height = 16
+      Left = 6
+      Top = 234
+      Width = 52
+      Height = 12
+      Margins.Left = 2
+      Margins.Top = 2
+      Margins.Right = 2
+      Margins.Bottom = 2
       Alignment = taCenter
       AutoSize = False
       Caption = 'Position'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -15
+      Font.Height = -12
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
       ParentFont = False
     end
     object lKBIdx: TLabel
-      Left = 5
-      Top = 12
-      Width = 64
-      Height = 16
+      Left = 4
+      Top = 10
+      Width = 51
+      Height = 12
+      Margins.Left = 2
+      Margins.Top = 2
+      Margins.Right = 2
+      Margins.Bottom = 2
       Alignment = taCenter
       AutoSize = False
       Caption = 'KB Index'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -15
+      Font.Height = -12
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
       ParentFont = False
     end
     object bPrev: TButton
-      Left = 8
-      Top = 229
-      Width = 64
-      Height = 30
+      Left = 6
+      Top = 183
+      Width = 52
+      Height = 24
+      Margins.Left = 2
+      Margins.Top = 2
+      Margins.Right = 2
+      Margins.Bottom = 2
       Caption = 'Prev'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -13
+      Font.Height = -10
       Font.Name = 'MS Sans Serif'
       Font.Style = []
       ParentFont = False
@@ -114,14 +142,18 @@ object FKBViewer_11011981: TFKBViewer_11011981
       OnClick = bPrevClick
     end
     object bNext: TButton
-      Left = 8
-      Top = 349
-      Width = 64
-      Height = 30
+      Left = 6
+      Top = 279
+      Width = 52
+      Height = 24
+      Margins.Left = 2
+      Margins.Top = 2
+      Margins.Right = 2
+      Margins.Bottom = 2
       Caption = 'Next'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -13
+      Font.Height = -10
       Font.Name = 'MS Sans Serif'
       Font.Style = []
       ParentFont = False
@@ -129,15 +161,19 @@ object FKBViewer_11011981: TFKBViewer_11011981
       OnClick = bNextClick
     end
     object btnOk: TButton
-      Left = 8
-      Top = 587
-      Width = 64
-      Height = 30
+      Left = 6
+      Top = 470
+      Width = 52
+      Height = 24
       Cursor = crHandPoint
+      Margins.Left = 2
+      Margins.Top = 2
+      Margins.Right = 2
+      Margins.Bottom = 2
       Caption = 'Use'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -13
+      Font.Height = -10
       Font.Name = 'MS Sans Serif'
       Font.Style = []
       ParentFont = False
@@ -145,15 +181,19 @@ object FKBViewer_11011981: TFKBViewer_11011981
       OnClick = btnOkClick
     end
     object btnCancel: TButton
-      Left = 8
-      Top = 619
-      Width = 64
-      Height = 30
+      Left = 6
+      Top = 495
+      Width = 52
+      Height = 24
       Cursor = crHandPoint
+      Margins.Left = 2
+      Margins.Top = 2
+      Margins.Right = 2
+      Margins.Bottom = 2
       Caption = 'Cancel'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -13
+      Font.Height = -10
       Font.Name = 'MS Sans Serif'
       Font.Style = []
       ParentFont = False
@@ -161,10 +201,14 @@ object FKBViewer_11011981: TFKBViewer_11011981
       OnClick = btnCancelClick
     end
     object edtCurrIdx: TEdit
-      Left = 6
-      Top = 32
-      Width = 65
-      Height = 24
+      Left = 5
+      Top = 26
+      Width = 52
+      Height = 21
+      Margins.Left = 2
+      Margins.Top = 2
+      Margins.Right = 2
+      Margins.Bottom = 2
       TabOrder = 2
       OnChange = edtCurrIdxChange
     end
@@ -172,40 +216,55 @@ object FKBViewer_11011981: TFKBViewer_11011981
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 1257
-    Height = 41
+    Width = 1004
+    Height = 33
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     Align = alTop
     TabOrder = 2
     object Label1: TLabel
-      Left = 176
-      Top = 11
-      Width = 55
-      Height = 16
+      Left = 141
+      Top = 9
+      Width = 48
+      Height = 13
+      Margins.Left = 2
+      Margins.Top = 2
+      Margins.Right = 2
+      Margins.Bottom = 2
       Caption = 'KB Unit:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -13
+      Font.Height = -10
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
       ParentFont = False
     end
     object lblKbIdxs: TLabel
-      Left = 776
-      Top = 8
+      Left = 621
+      Top = 6
       Width = 3
-      Height = 16
+      Height = 13
+      Margins.Left = 2
+      Margins.Top = 2
+      Margins.Right = 2
+      Margins.Bottom = 2
     end
     object cbUnits: TComboBox
-      Left = 240
-      Top = 8
-      Width = 529
+      Left = 192
+      Top = 6
+      Width = 423
       Height = 24
+      Margins.Left = 2
+      Margins.Top = 2
+      Margins.Right = 2
+      Margins.Bottom = 2
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -13
+      Font.Height = -10
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
-      ItemHeight = 16
       ParentFont = False
       TabOrder = 0
       OnChange = cbUnitsChange

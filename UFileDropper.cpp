@@ -6,8 +6,7 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 //---------------------------------------------------------------------------
-TDragDropHelper::TDragDropHelper(const HWND h)
-    : wndHandle(h) {
+TDragDropHelper::TDragDropHelper(const HWND h) : wndHandle(h) {
     ::DragAcceptFiles(wndHandle, true);
 }
 
@@ -17,8 +16,7 @@ TDragDropHelper::~TDragDropHelper() {
 }
 
 //---------------------------------------------------------------------------
-__fastcall TFileDropper::TFileDropper(HDROP aDropHandle)
-    : DropHandle(aDropHandle) {}
+__fastcall TFileDropper::TFileDropper(HDROP aDropHandle) : DropHandle(aDropHandle) {}
 
 //---------------------------------------------------------------------------
 __fastcall TFileDropper::~TFileDropper() {
