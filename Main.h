@@ -687,6 +687,19 @@ class TFMain_11011981 : public TForm {
     void __fastcall miDelphiXE2Click(TObject *Sender);
     void __fastcall miDelphiXE3Click(TObject *Sender);
     void __fastcall miDelphiXE4Click(TObject *Sender);
+    void __fastcall miDelphiXE5Click(TObject *Sender);
+    void __fastcall miDelphiXE6Click(TObject *Sender);
+    void __fastcall miDelphiXE7Click(TObject *Sender);
+    void __fastcall miDelphiXE8Click(TObject *Sender);
+    void __fastcall miDelphiSeattleClick(TObject *Sender);
+    void __fastcall miDelphiBerlinClick(TObject *Sender);
+    void __fastcall miDelphiTokyoClick(TObject *Sender);
+    void __fastcall miDelphiRioClick(TObject *Sender);
+    void __fastcall miDelphiSydneyClick(TObject *Sender);
+    void __fastcall miDelphiAlexandriaClick(TObject *Sender);
+    void __fastcall miDelphiAthensClick(TObject *Sender);
+    void __fastcall miDelphiFlorenceClick(TObject *Sender);
+
     void __fastcall miProcessDumperClick(TObject *Sender);
     void __fastcall lbSourceCodeClick(TObject *Sender);
     void __fastcall miSetlvartypeClick(TObject *Sender);
