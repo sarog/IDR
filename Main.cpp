@@ -4426,6 +4426,19 @@ void __fastcall TFMain_11011981::FormCreate(TObject *Sender) {
     miDelphiXE2->Enabled = FileExists(BinsDir + "kb2012.bin");
     miDelphiXE3->Enabled = FileExists(BinsDir + "kb2013.bin");
     miDelphiXE4->Enabled = FileExists(BinsDir + "kb2014.bin");
+    // todo:
+    miDelphiXE5->Enabled = FileExists(BinsDir + "kbXXX.bin");
+    miDelphiXE6->Enabled = FileExists(BinsDir + "kbXXX.bin");
+    miDelphiXE7->Enabled = FileExists(BinsDir + "kbXXX.bin");
+    miDelphiXE8->Enabled = FileExists(BinsDir + "kbXXX.bin");
+    miDelphiSeattle->Enabled = FileExists(BinsDir + "kbXXX.bin");
+    miDelphiBerlin->Enabled = FileExists(BinsDir + "kbXXX.bin");
+    miDelphiTokyo->Enabled = FileExists(BinsDir + "kbXXX.bin");
+    miDelphiRio->Enabled = FileExists(BinsDir + "kbXXX.bin");
+    miDelphiSydney->Enabled = FileExists(BinsDir + "kbXXX.bin");
+    miDelphiAlexandria->Enabled = FileExists(BinsDir + "kbXXX.bin");
+    miDelphiAthens->Enabled = FileExists(BinsDir + "kbXXX.bin");
+    miDelphiFlorence->Enabled = FileExists(BinsDir + "kbXXX.bin");
 
     SegmentList = new TList;
     ExpFuncList = new TList;
@@ -7670,6 +7683,39 @@ void __fastcall TFMain_11011981::miDelphiXE3Click(TObject *Sender) {
 void __fastcall TFMain_11011981::miDelphiXE4Click(TObject *Sender) {
     LoadDelphiFile(2014);
 }
+
+//---------------------------------------------------------------------------
+void __fastcall TFMain_11011981::miDelphiXE5Click(TObject *Sender) {
+    // todo
+    LoadDelphiFile(1);
+}
+
+//---------------------------------------------------------------------------
+void __fastcall TFMain_11011981::miDelphiXE6Click(TObject *Sender) {
+    // todo
+    LoadDelphiFile(1);
+}
+
+//---------------------------------------------------------------------------
+void __fastcall TFMain_11011981::miDelphiXE7Click(TObject *Sender) {
+    // todo
+    LoadDelphiFile(1);
+}
+
+//---------------------------------------------------------------------------
+void __fastcall TFMain_11011981::miDelphiXE8Click(TObject *Sender) {
+    // todo
+    LoadDelphiFile(1);
+}
+
+void __fastcall TFMain_11011981::miDelphiSeattleClick(TObject * Sender) { LoadDelphiFile(1); }
+void __fastcall TFMain_11011981::miDelphiBerlinClick(TObject * Sender) { LoadDelphiFile(1); }
+void __fastcall TFMain_11011981::miDelphiTokyoClick(TObject * Sender) { LoadDelphiFile(1); }
+void __fastcall TFMain_11011981::miDelphiRioClick(TObject * Sender) { LoadDelphiFile(1); }
+void __fastcall TFMain_11011981::miDelphiSydneyClick(TObject * Sender) { LoadDelphiFile(1); }
+void __fastcall TFMain_11011981::miDelphiAlexandriaClick(TObject * Sender) { LoadDelphiFile(1); }
+void __fastcall TFMain_11011981::miDelphiAthensClick(TObject * Sender) { LoadDelphiFile(1); }
+void __fastcall TFMain_11011981::miDelphiFlorenceClick(TObject * Sender) { LoadDelphiFile(1); }
 
 //---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::LoadFile(String FileName, int version) {
