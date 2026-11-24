@@ -3283,7 +3283,7 @@ void __fastcall TFMain_11011981::ScanIntfTable(DWord adr) {
     if (!intfAdr) return;
 
     pos = Adr2Pos(intfAdr);
-    entryCount = *((int *) (Code + pos));
+    int entryCount = *reinterpret_cast<int *>(Code + pos);
     pos += 4;
 
     for (int n = 0; n < entryCount; n++) {
