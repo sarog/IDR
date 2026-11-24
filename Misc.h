@@ -136,8 +136,8 @@ String __fastcall TransformString(char *str, int len);
 String __fastcall TransformUString(Word codePage, const wchar_t *data, int len);
 String __fastcall TrimTypeName(const String &TypeName);
 String __fastcall TypeKind2Name(Byte kind);
-//String __fastcall UnmangleName(String Name);
-//Decompiler
+// String __fastcall UnmangleName(String Name);
+// Decompiler
 int __fastcall IsAbs(DWord fromAdr);
 int __fastcall IsIntOver(DWord fromAdr);
 int __fastcall IsInlineLengthCmp(DWord fromAdr);

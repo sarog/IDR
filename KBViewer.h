@@ -1,5 +1,4 @@
 ﻿//---------------------------------------------------------------------------
-
 #ifndef KBViewerH
 #define KBViewerH
 //---------------------------------------------------------------------------
@@ -10,7 +9,7 @@
 
 //---------------------------------------------------------------------------
 class TFKBViewer_11011981 : public TForm {
-    __published: // IDE-managed Components
+__published: // IDE-managed Components
     TListBox * lbKB;
     TListBox *lbIDR;
     TPanel *Panel3;
@@ -42,8 +41,8 @@ private: // User declarations
 
 public: // User declarations
     int Position;
-    DWord FromIdx; //First Unit idx
-    DWord ToIdx;   //Last Unit idx
+    DWord FromIdx; // First Unit idx
+    DWord ToIdx;   // Last Unit idx
     __fastcall TFKBViewer_11011981(TComponent *Owner);
     void __fastcall ShowCode(DWord adr, int idx);
 };

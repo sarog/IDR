@@ -4,20 +4,20 @@
 
 #include "KnowledgeBase.h"
 //---------------------------------------------------------------------------
-//lastVar
-//vmtAdr
-//typeIdx??? - for Type search
+// lastVar
+// vmtAdr
+// typeIdx??? - for Type search
 //---------------------------------------------------------------------------
-//Class Methods Information
+// Class Methods Information
 typedef struct {
-    bool abstract; //call @AbstractError
-    char kind;     //'M' - method; 'V' - virtual; 'D' - dynamic
-    int id;        //ID (for virtual methods - offset, for dynamics - MsgId)
-    DWord address; //Call Address
-    String name;   //Method Name
+    bool abstract; // call @AbstractError
+    char kind;     // 'M' - method; 'V' - virtual; 'D' - dynamic
+    int id;        // ID (for virtual methods - offset, for dynamics - MsgId)
+    DWord address; // Call Address
+    String name;   // Method Name
 } MethodRec, *PMethodRec;
 
-//Information about class fields (look VmtSelfPtr)
+// Information about class fields (look VmtSelfPtr)
 #define FIELD_PRIVATE   9
 #define FIELD_PROTECTED 10
 #define FIELD_PUBLIC    11
@@ -55,20 +55,20 @@ typedef InfoVmtInfo *PInfoVmtInfo;
 #define     PF_DYNAMIC      0x10000000
 #define     PF_EVENT        0x08000000
 #define     PF_OUTEAX       0x04000000
-#define     PF_KBPROTO      0x02000000  //if prototype for kb was got
+#define     PF_KBPROTO      0x02000000  // If prototype for kb was got
 #define		PF_BPBASED      0x01000000
-#define     PF_ARGSIZEG     0x00800000  //If delta between retN and total arguments size > 0
-#define     PF_ARGSIZEL     0x00400000  //If delta between retN and total arguments size < 0
-#define     PF_METHOD       0x00200000  //is method of class (other than virtual, dynamic or event)
-#define     PF_PUBLISHED    0x00100000  //published
+#define     PF_ARGSIZEG     0x00800000  // If delta between retN and total arguments size > 0
+#define     PF_ARGSIZEL     0x00400000  // If delta between retN and total arguments size < 0
+#define     PF_METHOD       0x00200000  // is method of class (other than virtual, dynamic or event)
+#define     PF_PUBLISHED    0x00100000  // published
 
 #define     PF_ALLMETHODS   (PF_METHOD | PF_VIRTUAL | PF_DYNAMIC | PF_EVENT)
-//first 3 bits - call kind (1, 2, 3, 4)
+// first 3 bits - call kind (1, 2, 3, 4)
 
 class InfoProcInfo {
 public:
     DWord flags;
-    Word bpBase; //First argument distance from base ebp
+    Word bpBase; // First argument distance from base ebp
     Word retBytes;
     int procSize;
     int stackSize;
@@ -98,13 +98,13 @@ typedef InfoProcInfo *PInfoProcInfo;
 #define		OP_CALL		0x11
 
 typedef struct {
-    Byte Op; //Operation
+    Byte Op; // Operation
     union {
-        int Offset;    //Field offset
-        DWord Address; //Proc address for OP_CALL
+        int Offset;    // Field offset
+        DWord Address; // Proc address for OP_CALL
     } Ofs;
 
-    String Name; //Type name
+    String Name; // Type name
 } PICODE, *PPICODE;
 
 class InfoRec {
@@ -112,8 +112,8 @@ public:
     Byte counter;
     Byte kind;
     int kbIdx;
-    String type;    //Return value type for function
-    PPICODE picode; //Internal code
+    String type;    // Return value type for function
+    PPICODE picode; // Internal code
     TList *xrefs;
     PInfoResStringInfo rsInfo;
     PInfoVmtInfo vmtInfo;
@@ -136,9 +136,9 @@ public:
     void __fastcall ScanUpItemAndAddRef(int fromPos, DWord itemAdr, char refType, DWord refAdr);
     virtual void __fastcall Save(FILE *outs);
     virtual void __fastcall Load(FILE *ins, char *buf);
-    //virtual void __fastcall Save(TStream* outs);
-    //virtual void __fastcall Load(TStream* ins, char* buf);
-    //virtual void __fastcall Skip(TStream* ins, char* buf, Byte asKind);
+    // virtual void __fastcall Save(TStream* outs);
+    // virtual void __fastcall Load(TStream* ins, char* buf);
+    // virtual void __fastcall Skip(TStream* ins, char* buf, Byte asKind);
     String __fastcall MakePrototype(int adr, bool showKind, bool showTail, bool multiline, bool fullName, bool allArgs);
     String __fastcall MakeDelphiPrototype(int Adr, PMethodRec recM);
     String __fastcall MakeMultilinePrototype(int Adr, int *ArgsBytes, String MethodType);
@@ -148,5 +148,6 @@ public:
 };
 
 typedef InfoRec *PInfoRec;
+
 //---------------------------------------------------------------------------
 #endif

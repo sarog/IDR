@@ -4,7 +4,8 @@
 //---------------------------------------------------------------------------
 #include <stdio.h>
 //---------------------------------------------------------------------------
-// Информация о смещениях имен и данных | Information about name and data offsets
+// Информация о смещениях имен и данных
+// Information about name and data offsets
 typedef struct {
     DWord Offset;
     DWord Size;
@@ -12,7 +13,7 @@ typedef struct {
     int NamId; // Names
 } OFFSETSINFO, *POFFSETSINFO;
 
-//Fixup info
+// Fixup info
 typedef struct {
     Byte Type; // 'A' - ADR, 'J' - JMP, 'D' - DAT
     DWord Ofs; // Смещение относительно начала дампа | Offset relative to the start of the dump
@@ -22,7 +23,8 @@ typedef struct {
 /*
 ModuleDataTable
 ---------------
-//Состоит из ModuleCount записей вида
+// Состоит из ModuleCount записей вида
+// Consists of ModuleCount records of the form
 Word 	ID;
 PSTR 	ModuleName;
 PSTR	Filename;
@@ -32,13 +34,14 @@ PSTR	UsesNames[UsesNum];	//Массив имен модулей
 
 ConstDataTable
 --------------
-//Состоит из ModuleCount записей вида
+// Состоит из ModuleCount записей вида
+// Consists of ModuleCount records of the form
 Word 	ModuleID;
 PSTR 	ConstName;
 Byte 	Type; //'C'-ConstDecl, 'P'-PDecl (VMT), 'V'-VarCDecl
 PSTR 	TypeDef; //Тип
 PSTR 	Value; //Значение
-DWord	DumpTotal;	//Общий размер дампа (дамп+релоки+фиксапы)
+DWord	DumpTotal;	//Общий размер дампа (дамп+релоки+фиксапы) | Total dump size (dump + relocks + fixups)
 DWord 	DumpSize; //Размер бинарного дампа (RTTI)
 DWord 	FixupNum; //Количество фиксапов дампа
 Byte 	Dump[DumpSize]; //Бинарный дамп (RTTI)
@@ -47,14 +50,15 @@ FIXUPINFO Fixups[FixupNum]; //Массив фиксапов
 
 TypeDataTable
 -------------
-//Состоит из TypeCount записей вида
+// Состоит из TypeCount записей вида
+// Consists of TypeCount records of the type
 DWord   Size; //Size of Type
 Word 	ModuleID;
 PSTR 	TypeName;
 Byte 	Kind; //drArrayDef,...,drVariantDef (см. начало)
 DWord 	VMCnt; //Количество элементов VMT (начиная с 0)
 PSTR 	Decl; //Декларация
-DWord	DumpTotal;	//Общий размер дампа (дамп+релоки+фиксапы)
+DWord	DumpTotal;	//Общий размер дампа (дамп+релоки+фиксапы) | Total dump size (dump + relocks + fixups)
 DWord 	DumpSize; //Размер бинарного дампа (RTTI)
 DWord 	FixupNum; //Количество фиксапов дампа
 Byte 	Dump[DumpSize]; //Бинарный дамп (RTTI)
@@ -72,16 +76,18 @@ METHODINFO Methods[MethodNum]; //Методы
 
 VarDataTable
 ------------
-//Состоит из VarCount записей вида
+// Состоит из VarCount записей вида
+// Consists of VarCount records of the type
 Word 	ModuleID;
 PSTR 	VarName;
 Byte 	Type; //'V'-Var;'A'-AbsVar;'S'-SpecVar;'T'-ThreadVar
 PSTR 	TypeDef;
-PSTR 	AbsName; //Для ключевого слова absolute
+PSTR 	AbsName; //Для ключевого слова absolute | For the absolute keyword
 
 ResStrDataTable
 ---------------
-//Состоит из ResStrCount записей вида
+// Состоит из ResStrCount записей вида
+// Consists of ResStrCount records of the form
 Word 	ModuleID;
 PSTR 	ResStrName;
 PSTR 	TypeDef;
@@ -89,7 +95,7 @@ PSTR	Context;
 
 ProcDataTable
 -------------
-//Contains ProcCount structures:
+// Contains ProcCount structures:
 Word 	ModuleID;
 PSTR 	ProcName;
 Byte 	Embedded; //Contains embedded procs
@@ -131,9 +137,9 @@ typedef struct {
     int DispID;        // ???
     String Name;       // Имя свойства | Property name
     String TypeDef;    // Тип свойства | Property type
-    String ReadName;   // Процедура для чтения свойства или соответствующее поле
-    String WriteName;  // Процедура для записи свойства или соответствующее поле
-    String StoredName; // Процедура для проверки свойства или соответствующее значение
+    String ReadName;   // Процедура для чтения свойства или соответствующее поле | Procedure for reading the property or corresponding field
+    String WriteName;  // Процедура для записи свойства или соответствующее поле | Procedure for writing a property or corresponding field
+    String StoredName; // Процедура для проверки свойства или соответствующее значение | Procedure for checking the property or corresponding value
 } PROPINFO, *PPROPINFO;
 
 typedef struct {
@@ -164,7 +170,8 @@ typedef struct {
     int offset; // offset in procedure
 } XrefRec, *PXrefRec;
 
-//Флажки для заполнения членов классов
+// Флажки для заполнения членов классов
+// Checkboxes for filling class members
 #define INFO_DUMP       1
 #define INFO_ARGS       2
 #define INFO_LOCALS     4
@@ -183,7 +190,7 @@ public:
     String ConstName;
     Byte Type;      // 'C'-ConstDecl, 'P'-PDecl (VMT), 'V'-VarCDecl
     String TypeDef; // Тип | Type
-    String Value;   // Значение
+    String Value;   // Значение | Meaning
     DWord DumpSz;   // Размер бинарного дампа | Binary dump size
     DWord FixupNum; // Количество фиксапов дампа | Number of dump fixups
     Byte *Dump;     // Бинарный дамп | Binary dump
@@ -206,7 +213,8 @@ public:
 #define drStringDef         0x52    //'R'
 #define drTextDef           0x50    //'P'
 #define drVariantDef        0x53    //'S'
-#define drAliasDef          0x41    //'Z'
+#define drAliasDef          0x5A    //'Z'
+// #define drAliasDef          0x41    //'Z' // todo: verify: is this correct? 0x41 == 'A' // re: BuildKB: #define drAlias 0x5A
 
 class MTypeInfo {
 public:
@@ -217,21 +225,21 @@ public:
     DWord Size;
     Word ModuleID;
     String TypeName;
-    Byte Kind;      //drArrayDef,...,drVariantDef
-    Word VMCnt;     //VMT elements number (from 0)
-    String Decl;    //Declaration
-    DWord DumpSz;   //Binary dump size
-    DWord FixupNum; //Binary dump fixup number
-    Byte *Dump;     //Binary dump
-    Word FieldsNum; //Fields number (class, interface, record)
+    Byte Kind;       // drArrayDef,...,drVariantDef
+    Word VMCnt;      // VMT elements number (from 0)
+    String Decl;     // Declaration
+    DWord DumpSz;    // Binary dump size
+    DWord FixupNum;  // Binary dump fixup number
+    Byte *Dump;      // Binary dump
+    Word FieldsNum;  // Fields number (class, interface, record)
     Byte *Fields;
-    Word PropsNum; //Properties number (class, interface)
+    Word PropsNum;   // The number of properties (class, interface)
     Byte *Props;
-    Word MethodsNum; //Methods number (class, interface)
+    Word MethodsNum; // The number of methods (class, interface)
     Byte *Methods;
 };
 
-//Var Type field
+// Var Type field
 #define VT_VAR          'V'
 #define VT_ABSVAR       'A'
 #define VT_SPECVAR      'S'
@@ -245,9 +253,9 @@ public:
 public:
     Word ModuleID;
     String VarName;
-    Byte Type; //'V'-Var;'A'-AbsVar;'S'-SpecVar;'T'-ThreadVar
+    Byte Type;      // 'V'-Var;'A'-AbsVar;'S'-SpecVar;'T'-ThreadVar
     String TypeDef;
-    String AbsName; //Для ключевого слова absolute
+    String AbsName; // Для ключевого слова absolute | For the absolute keyword
 };
 
 class MResStrInfo {
@@ -259,7 +267,7 @@ public:
     Word ModuleID;
     String ResStrName;
     String TypeDef;
-    //String      Context;
+    // String Context;
 };
 
 class MProcInfo {
@@ -270,22 +278,23 @@ public:
 public:
     Word ModuleID;
     String ProcName;
-    bool Embedded;   //true-содержит вложенные процедуры
-    char DumpType;   //'C' - код, 'D' - данные
-    char MethodKind; //'M'-method,'P'-procedure,'F'-function,'C'-constructor,'D'-destructor
-    Byte CallKind;   //1-'cdecl', 2-'pascal', 3-'stdcall', 4-'safecall'
-    int VProc;       //флажок для "overload" (если версия Дельфи > verD3 и VProc&0x1000 != 0)
-    String TypeDef;  //Тип
-    DWord DumpSz;    //Размер бинарного дампа
-    DWord FixupNum;  //Количество фиксапов дампа
-    Byte *Dump;      //Бинарный дамп (включает в себя собственно дамп, релоки и фиксапы)
-    Word ArgsNum;    //Количество аргументов процедуры
-    Byte *Args;      //Список аргументов
-    //Word 	    LocalsNum;  //Количество локальных переменных процедуры
-    //Byte        *Locals;    //Список локальных переменных
+    bool Embedded;   // true: содержит вложенные процедуры | contains nested procedures
+    char DumpType;   // 'C' - код, 'D' - данные
+    char MethodKind; // 'M'-method,'P'-procedure,'F'-function,'C'-constructor,'D'-destructor
+    Byte CallKind;   // 1-'cdecl', 2-'pascal', 3-'stdcall', 4-'safecall'
+    int VProc;       // флажок для "overload" (если версия Дельфи > verD3 и VProc&0x1000 != 0) | flag for "overload" (if Delphi version > verD3 and VProc&0x1000 != 0)
+    String TypeDef;  // Тип | Type
+    DWord DumpSz;    // Размер бинарного дампа | Binary dump size
+    DWord FixupNum;  // Количество фиксапов дампа | Number of dump fixups
+    Byte *Dump;      // Бинарный дамп (включает в себя собственно дамп, релоки и фиксапы) | Binary dump (includes the dump itself, relocks and fixes)
+    Word ArgsNum;    // Количество аргументов процедуры | Number of procedure arguments
+    Byte *Args;      // Список аргументов | List of arguments
+    // Word 	    LocalsNum;  // Количество локальных переменных процедуры | Number of local variables of a procedure
+    // Byte        *Locals;    // Список локальных переменных | List of local variables
 };
 
-//Секции базы знаний
+// Секции базы знаний
+// Knowledge Base Sections
 #define     KB_NO_SECTION       0
 #define     KB_CONST_SECTION    1
 #define     KB_TYPE_SECTION     2
@@ -356,25 +365,25 @@ private:
     bool __fastcall CheckKBFile();
 
     long SectionsOffset;
-    //Modules
+    // Modules
     int MaxModuleDataSize;
-    //Consts
+    // Consts
     int ConstCount;
     int MaxConstDataSize;
-    //Types
+    // Types
     int TypeCount;
     int MaxTypeDataSize;
-    //Vars
+    // Vars
     int VarCount;
     int MaxVarDataSize;
-    //ResStr
+    // ResStr
     int ResStrCount;
     int MaxResStrDataSize;
-    //Procs
+    // Procs
     int MaxProcDataSize;
     int ProcCount;
 
-    //as temp test (global KB file cache in mem)
+    // as temp test (global KB file cache in mem)
     const Byte *KBCache;
     long SizeKBFile;
     String NameKBFile;

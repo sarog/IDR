@@ -8,7 +8,7 @@
 
 //---------------------------------------------------------------------------
 class TFLegend_11011981 : public TForm {
-    __published: // IDE-managed Components
+__published: // IDE-managed Components
     TGroupBox * gb1;
     TLabel *Label1;
     TLabel *Label2;

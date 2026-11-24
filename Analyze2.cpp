@@ -831,7 +831,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                     else if (DisInfo.BaseReg == 20) {
                         dummy = 1;
                     } else {
-                        //fxxxx [BaseReg]
+                        // fxxxx [BaseReg]
                         if (!DisInfo.Offset) {
                             varAdr = registers[DisInfo.BaseReg].value;
                             if (IsValidImageAdr(varAdr)) {
@@ -942,12 +942,11 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                 }
             }
         } else if (DisInfo.OpNum >= 2) { // 2 or 3 operands
-            if (op & OP_A2)
+            if (op & OP_A2) {
             // if (op == OP_MOV || op == OP_CMP || op == OP_LEA || op == OP_XOR || op == OP_ADD || op == OP_SUB ||
             //     op == OP_AND || op == OP_TEST || op == OP_XCHG || op == OP_IMUL || op == OP_IDIV || op == OP_OR ||
             //     op == OP_BT || op == OP_BTC || op == OP_BTR || op == OP_BTS)
-            {
-                if (DisInfo.OpType[0] == otREG) { //cop reg,...
+            if (DisInfo.OpType[0] == otREG) { //cop reg,...
                     reg1Idx = DisInfo.OpRegIdx[0];
                     source = registers[reg1Idx].source;
                     SetRegisterSource(registers, reg1Idx, 0);
@@ -1111,8 +1110,8 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                                         if (recN->type != "")
                                                                             registers[reg1Idx].type = recN->type;
                                                                     }
-                                                                    if (recN) recN->AddXref(
-                                                                        'C', fromAdr, curAdr - fromAdr);
+                                                                    if (recN)
+                                                                        recN->AddXref('C', fromAdr, curAdr - fromAdr);
                                                                 } else {
                                                                     if (recN->HasName())
                                                                         recN1 = AddToBSSInfos(Val, recN->GetName(), recN->type);
@@ -1152,9 +1151,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                             if (recN1) {
                                                                 MakeGvar(recN1, Val, curAdr);
                                                                 varName = recN1->GetName();
-                                                                if (varName != "" && (
-                                                                        recN1->kind == ikLString || recN1->kind ==
-                                                                        ikWString || recN1->kind == ikUString))
+                                                                if (varName != "" && (recN1->kind == ikLString || recN1->kind == ikWString || recN1->kind == ikUString))
                                                                     varName = "\"" + varName + "\"";
                                                                 if (varName != "") recN->SetName("^" + varName);
                                                                 if (recN->type != "")
@@ -1168,9 +1165,7 @@ bool __fastcall TFMain_11011981::AnalyzeProc2(DWord fromAdr, bool addArg, bool A
                                                                 recN1 = new InfoRec(_ap, ikData);
                                                                 MakeGvar(recN1, Val, curAdr);
                                                                 varName = recN1->GetName();
-                                                                if (varName != "" && (
-                                                                        recN1->kind == ikLString || recN1->kind ==
-                                                                        ikWString || recN1->kind == ikUString))
+                                                                if (varName != "" && (recN1->kind == ikLString || recN1->kind == ikWString || recN1->kind == ikUString))
                                                                     varName = "\"" + varName + "\"";
                                                                 if (varName != "") recN->SetName("^" + varName);
                                                                 if (recN->type != "")

@@ -41,7 +41,7 @@ void __fastcall TFKBViewer_11011981::FormCreate(TObject *Sender) {
 //---------------------------------------------------------------------------
 void __fastcall TFKBViewer_11011981::ShowCode(DWord adr, int idx) {
     bool outfixup;
-    int n, m, wid, maxwid, row;
+    int wid, maxwid, row;
     int _firstProcIdx, _lastProcIdx;
     DWord Val, Adr;
     TCanvas *canvas;
@@ -57,15 +57,15 @@ void __fastcall TFKBViewer_11011981::ShowCode(DWord adr, int idx) {
     lbIDR->Clear();
     canvas = lbIDR->Canvas;
     maxwid = 0;
-    for (m = 0; m < FMain_11011981->lbCode->Count; m++) {
+    for (int m = 0; m < FMain_11011981->lbCode->Count; m++) {
         line = FMain_11011981->lbCode->Items->Strings[m];
-        //Ignore first byte (for symbol <)
+        // Ignore first byte (for symbol <)
         int _bytes = line.Length() - 1;
-        //If instruction, ignore flags (last byte)
+        // If instruction, ignore flags (last byte)
         if (m) _bytes--;
-        //Extract original instruction
+        // Extract original instruction
         line = line.SubString(2, _bytes);
-        //For first row add prefix IDR:
+        // For first row add prefix IDR:
         if (!m) line = "IDR:" + line;
         lbIDR->Items->Add(line);
         wid = canvas->TextWidth(line);
@@ -97,7 +97,7 @@ void __fastcall TFKBViewer_11011981::ShowCode(DWord adr, int idx) {
         if (pInfo->FixupNum) {
             char *p = reinterpret_cast<char *>(pInfo->Dump + 2 * pInfo->DumpSz);
 
-            for (n = 0; n < pInfo->FixupNum; n++) {
+            for (int n = 0; n < pInfo->FixupNum; n++) {
                 char fixupType = *p;
                 p++;
                 int fixupOfs = *reinterpret_cast<DWord *>(p);
@@ -110,7 +110,7 @@ void __fastcall TFKBViewer_11011981::ShowCode(DWord adr, int idx) {
                 while (pos <= fixupOfs && pos < pInfo->DumpSz) {
                     instrLen = Disasm.Disassemble(pInfo->Dump + pos, (__int64) curAdr, &DisInfo, disLine);
                     if (!instrLen) {
-                        //return;
+                        // return;
                         lbKB->Items->Add(Val2Str8(curAdr) + "      ???");
                         row++;
                         pos++;
@@ -125,10 +125,12 @@ void __fastcall TFKBViewer_11011981::ShowCode(DWord adr, int idx) {
                         if (DisInfo.Call) {
                             line = Val2Str8(curAdr) + "      call        ";
                             outfixup = true;
-                        } else if (op == OP_JMP)
+                        } else if (op == OP_JMP) {
                             line = Val2Str8(curAdr) + "      jmp         ";
-                        else
+                        } else {
                             line += ";";
+                        }
+
                         if (!SameText(fixupName, pInfo->ProcName)) {
                             line += fixupName;
                         } else {
@@ -153,6 +155,7 @@ void __fastcall TFKBViewer_11011981::ShowCode(DWord adr, int idx) {
                 }
             }
         }
+
         while (pos < pInfo->DumpSz) {
             instrLen = Disasm.Disassemble(pInfo->Dump + pos, (__int64) curAdr, &DisInfo, disLine);
             if (!instrLen) {
@@ -186,26 +189,24 @@ void __fastcall TFKBViewer_11011981::bNextClick(TObject *Sender) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFKBViewer_11011981::btnOkClick(TObject *Sender) {
-    int m, k1, k2, ap, pos, pos1, pos2, Idx, val;
-    DWord adr;
+    int k1, k2, pos, pos1, pos2, Idx, val;
     MProcInfo aInfo;
     MProcInfo *pInfo = &aInfo;
-    PInfoRec recN;
     String kbName, idrName, kbLine, idrLine;
 
     if (KnowledgeBase.GetProcInfo(CurrIdx, INFO_DUMP | INFO_ARGS, pInfo)) {
-        adr = CurProcAdr;
-        ap = Adr2Pos(adr);
+        DWord adr = CurProcAdr;
+        int ap = Adr2Pos(adr);
         if (ap < 0) return;
-        recN = GetInfoRec(adr);
+        PInfoRec recN = GetInfoRec(adr);
         if (!recN) return;
         recN->procInfo->DeleteArgs();
         FMain_11011981->StrapProc(ap, CurrIdx, pInfo, false, FMain_11011981->EstimateProcSize(CurProcAdr));
-        //Strap all selected items (in IDR list box)
+        // Strap all selected items (in IDR list box)
         if (lbKB->SelCount == lbIDR->SelCount) {
             k1 = 0;
             k2 = 0;
-            for (m = 0; m < lbKB->SelCount; m++) {
+            for (int m = 0; m < lbKB->SelCount; m++) {
                 kbLine = "";
                 idrLine = "";
                 for (; k1 < lbKB->Items->Count; k1++) {
@@ -285,18 +286,17 @@ void __fastcall TFKBViewer_11011981::edtCurrIdxChange(TObject *Sender) {
 
 //---------------------------------------------------------------------------
 void __fastcall TFKBViewer_11011981::cbUnitsChange(TObject *Sender) {
-    Word _moduleID;
-    int k, _firstProcIdx = 0, _lastProcIdx = 0, _idx;
+    int _firstProcIdx = 0, _lastProcIdx = 0, _idx;
     MProcInfo _aInfo;
     MProcInfo *_pInfo = &_aInfo;
 
     Position = -1;
-    _moduleID = KnowledgeBase.GetModuleID(AnsiString(cbUnits->Text).c_str());
+    Word _moduleID = KnowledgeBase.GetModuleID(AnsiString(cbUnits->Text).c_str());
     if (_moduleID != 0xFFFF) {
         if (KnowledgeBase.GetProcIdxs(_moduleID, &_firstProcIdx, &_lastProcIdx)) {
             edtCurrIdx->Text = String(_firstProcIdx);
             lblKbIdxs->Caption = String(_firstProcIdx) + " - " + String(_lastProcIdx);
-            for (k = _firstProcIdx; k <= _lastProcIdx; k++) {
+            for (int k = _firstProcIdx; k <= _lastProcIdx; k++) {
                 _idx = KnowledgeBase.ProcOffsets[k].ModId;
                 if (!KnowledgeBase.IsUsedProc(_idx)) {
                     if (KnowledgeBase.GetProcInfo(_idx, INFO_DUMP | INFO_ARGS, _pInfo)) {

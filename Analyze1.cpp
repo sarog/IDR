@@ -12,9 +12,9 @@ extern PInfoRec *Infos;
 extern DWord EP;
 
 //---------------------------------------------------------------------------
-//Create XRefs
-//Scan procedure calls (include constructors and destructors)
-//Calculate size of stack for arguments
+// Create XRefs
+// Scan procedure calls (include constructors and destructors)
+// Calculate size of stack for arguments
 void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWord xrefAdr, int xrefOfs, bool maybeEmb) {
     Byte op, b1, b2;
     bool bpBased = false;

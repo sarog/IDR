@@ -226,7 +226,7 @@ void __fastcall FillArgInfo(int k, Byte callkind, PARGINFO argInfo, Byte **p, in
     int ndx = *reinterpret_cast<int *>(pp);
     pp += 4;
 
-    //fastcall
+    // fastcall
     if (!callkind) {
         if (argInfo->Register && k < 3) {
             argInfo->Ndx = k; // << 24;???
@@ -234,7 +234,7 @@ void __fastcall FillArgInfo(int k, Byte callkind, PARGINFO argInfo, Byte **p, in
             argInfo->Ndx = ndx;
         }
     }
-    //stdcall, cdecl, pascal
+    // stdcall, cdecl, pascal
     else {
         argInfo->Ndx = ss;
         ss += 4;
@@ -267,10 +267,10 @@ String __fastcall TrimTypeName(const String &TypeName) {
     if (pos >= TypeName.Length() || TypeName[pos + 1] == '.')
         return TypeName;
 
-    char c, *p = AnsiString(TypeName).c_str();
+    char *p = AnsiString(TypeName).c_str();
     // Check special symbols upto '.'
     while (true) {
-        c = *p++;
+        char c = *p++;
         if (c == '.')
             break;
         if (c < '0' || c == '<')

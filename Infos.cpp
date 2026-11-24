@@ -18,7 +18,7 @@ extern Byte *Code;
 extern TCriticalSection *CrtSection;
 extern MKnowledgeBase KnowledgeBase;
 extern char StringBuf[MAXSTRBUFFER];
-//as some statistics for memory leaks detection (remove it when fixed)
+// as some statistics for memory leaks detection (remove it when fixed)
 long stat_InfosOverride = 0;
 //---------------------------------------------------------------------------
 InfoVmtInfo::InfoVmtInfo() {
@@ -41,8 +41,7 @@ void __fastcall InfoVmtInfo::AddInterface(String Value) {
 }
 
 //---------------------------------------------------------------------------
-PFIELDINFO __fastcall InfoVmtInfo::AddField(DWord ProcAdr, int ProcOfs, Byte Scope, int Offset, int Case, String Name,
-                                            String Type) {
+PFIELDINFO __fastcall InfoVmtInfo::AddField(DWord ProcAdr, int ProcOfs, Byte Scope, int Offset, int Case, String Name, String Type) {
     PFIELDINFO fInfo = 0;
 
     if (!fields) fields = new TList;
@@ -230,20 +229,18 @@ PARGINFO __fastcall InfoProcInfo::AddArg(Byte Tag, int Ofs, int Size, String Nam
 
 //---------------------------------------------------------------------------
 String __fastcall InfoProcInfo::AddArgsFromDeclaration(char *Decl, int from, int callKind) {
-    bool fColon;
-    char *p, *pp, *cp, c, sc;
-    int ss, num;
+    char *pp, *cp, c, sc;
     ARGINFO argInfo;
     char _Name[256];
     char _Type[256];
     char _Size[256];
 
-    p = strchr(Decl, '(');
+    char *p = strchr(Decl, '(');
     if (p) {
         p++;
         pp = p;
-        num = 0;
-        fColon = false;
+        int num = 0;
+        bool fColon = false;
         while (true) {
             c = *pp;
             if (c == ')') break;
@@ -256,7 +253,7 @@ String __fastcall InfoProcInfo::AddArgsFromDeclaration(char *Decl, int from, int
             pp++;
         }
         if (num) {
-            ss = bpBase;
+            int ss = bpBase;
             for (int arg = from;; arg++) {
                 _Name[0] = _Type[0] = 0;
                 sc = ';';
@@ -266,7 +263,7 @@ String __fastcall InfoProcInfo::AddArgsFromDeclaration(char *Decl, int from, int
                     pp = strchr(p, sc);
                 }
                 *pp = 0;
-                //Tag
+                // Tag
                 argInfo.Tag = 0x21;
                 while (*p == ' ') p++;
                 sscanf(AnsiString(p).c_str(), "%s", _Name);
@@ -274,29 +271,23 @@ String __fastcall InfoProcInfo::AddArgsFromDeclaration(char *Decl, int from, int
                     argInfo.Tag = 0x22;
                     p += strlen(_Name);
                     while (*p == ' ') p++;
-                    //Name
+                    // Name
                     sscanf(AnsiString(p).c_str(), "%s", _Name);
-                }
-
-                //Insert by ZGL
-                else if (!stricmp(_Name, "const")) {
+                } else if (!stricmp(_Name, "const")) { // Insert by ZGL
                     argInfo.Tag = 0x23;
                     p += strlen(_Name);
                     while (*p == ' ') p++;
-                    //Name
+                    // Name
                     sscanf(AnsiString(p).c_str(), "%s", _Name);
-                }
-                ////////////////
-
-                else if (!stricmp(_Name, "val")) {
+                } else if (!stricmp(_Name, "val")) {
                     p += strlen(_Name);
                     while (*p == ' ') p++;
-                    //Name
+                    // Name
                     sscanf(AnsiString(p).c_str(), "%s", _Name);
                 }
                 p += strlen(_Name);
                 while (*p == ' ') p++;
-                //Type
+                // Type
                 strcpy(_Type, p);
                 p += strlen(_Type);
                 while (*p == ' ') p++;
@@ -306,8 +297,8 @@ String __fastcall InfoProcInfo::AddArgsFromDeclaration(char *Decl, int from, int
                     sscanf(AnsiString(cp).c_str() + 1, "%d", &argInfo.Size);
                     *cp = 0;
                 }
-                if (callKind == 0) //fastcall
-                {
+                // fastcall
+                if (callKind == 0) {
                     if (arg < 3 && argInfo.Size == 4)
                         argInfo.Ndx = arg;
                     else {
@@ -354,21 +345,15 @@ String __fastcall InfoProcInfo::AddArgsFromDeclaration(char *Decl, int from, int
 
 //---------------------------------------------------------------------------
 PARGINFO __fastcall InfoProcInfo::GetArg(int n) {
-    if (args &&n 
-    >=
-    0 && n < args->Count
-    )
-    return (PARGINFO) args->Items[n];
+    if (args && n >= 0 && n < args->Count)
+        return (PARGINFO) args->Items[n];
     return 0;
 }
 
 //---------------------------------------------------------------------------
 void __fastcall InfoProcInfo::DeleteArg(int n) {
-    if (args &&n 
-    >=
-    0 && n < args->Count
-    )
-    args->Delete(n);
+    if (args && n >= 0 && n < args->Count)
+        args->Delete(n);
 }
 
 //---------------------------------------------------------------------------
@@ -463,11 +448,8 @@ PLOCALINFO __fastcall InfoProcInfo::GetLocal(String Name) {
 
 //---------------------------------------------------------------------------
 void __fastcall InfoProcInfo::DeleteLocal(int n) {
-    if (locals &&n 
-    >=
-    0 && n < locals->Count
-    )
-    locals->Delete(n);
+    if (locals && n >= 0 && n < locals->Count)
+        locals->Delete(n);
 }
 
 //---------------------------------------------------------------------------
@@ -513,7 +495,7 @@ void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef) {
                 fclose(recFile);
             }
             while (true) {
-                //KB
+                // KB
                 Word *uses = KnowledgeBase.GetTypeUses(AnsiString(TypeDef).c_str());
                 int idx = KnowledgeBase.GetTypeIdxByModuleIds(uses, AnsiString(TypeDef).c_str());
                 if (uses) delete[] uses;
@@ -526,17 +508,17 @@ void __fastcall InfoProcInfo::SetLocalType(int Ofs, String TypeDef) {
                     if (tInfo.FieldsNum) {
                         char *p = reinterpret_cast<char *>(tInfo.Fields);
                         for (int k = 0; k < tInfo.FieldsNum; k++) {
-                            //Scope
+                            // Scope
                             p++;
                             int elofs = *reinterpret_cast<int *>(p);
                             p += 4;
-                            p += 4; //case
-                            //Name
+                            p += 4; // case
+                            // Name
                             int len = *reinterpret_cast<Word *>(p);
                             p += 2;
                             String name = String(static_cast<char *>(p), len);
                             p += len + 1;
-                            //Type
+                            // Type
                             len = *reinterpret_cast<Word *>(p);
                             p += 2;
                             String type = TrimTypeName(String(static_cast<char *>(p), len));
@@ -576,7 +558,7 @@ InfoRec::InfoRec(int APos, Byte AKind) {
 
     if (APos >= 0) {
         if (Infos[APos]) {
-            //as: if we here - memory leak then!
+            // as: if we here, memory leak then!
             ++stat_InfosOverride;
         }
         Infos[APos] = this;
@@ -720,7 +702,7 @@ void __fastcall InfoRec::ScanUpItemAndAddRef(int fromPos, DWord itemAdr, char re
  * @param outs Output file
  */
 void __fastcall InfoRec::Save(FILE *outs) {
-    int m, xm, num, xnum, len;
+    int m, num, xnum, len;
 
     // kbIdx
     fwrite(&kbIdx, sizeof(kbIdx), 1, outs);
@@ -807,7 +789,7 @@ void __fastcall InfoRec::Save(FILE *outs) {
             else
                 xnum = 0;
             fwrite(&xnum, sizeof(xnum), 1, outs);
-            for (xm = 0; xm < xnum; xm++) {
+            for (int xm = 0; xm < xnum; xm++) {
                 PXrefRec recX = static_cast<PXrefRec>(fInfo->xrefs->Items[xm]);
                 fwrite(&recX->type, sizeof(recX->type), 1, outs);
                 fwrite(&recX->adr, sizeof(recX->adr), 1, outs);
@@ -1681,8 +1663,8 @@ String __fastcall InfoRec::MakePrototype(int adr, bool showKind, bool showTail, 
     }
     if (showTail) {
         if (argres != "") result += " in" + argres;
-        //output registers
-        //if (info.procInfo->flags & PF_OUTEAX) result += " out";
+        // output registers
+        // if (info.procInfo->flags & PF_OUTEAX) result += " out";
 
         if (procInfo->retBytes)
             result += " RET" + Val2Str0(procInfo->retBytes);
@@ -1840,18 +1822,18 @@ String __fastcall InfoRec::MakeMultilinePrototype(int Adr, int *ArgsBytes, Strin
 
         else if (argInfo->Tag == 0x23) result += "const "; //Add by ZGL
 
-        //name
+        // name
         if (argInfo->Name != "")
             result += argInfo->Name;
         else
             result += "?";
-        //type
+        // type
         result += ":";
         if (argInfo->TypeDef != "")
             result += argInfo->TypeDef;
         else
             result += "?";
-        //size
+        // size
         if (argInfo->Size > 4) result += ":" + String(argInfo->Size);
 
         if (argInfo->Ndx > 2) argsBytes += argInfo->Size;
@@ -1872,8 +1854,7 @@ String __fastcall InfoRec::MakeMultilinePrototype(int Adr, int *ArgsBytes, Strin
 
 //---------------------------------------------------------------------------
 String __fastcall InfoRec::MakeCppPrototype(int Adr, String FType) {
-    int argsNum, typeKind, size;
-    PARGINFO argInfo;
+    int typeKind, size;
     String argType, result = "";
 
     if (kind == ikFunc) {
@@ -1896,10 +1877,10 @@ String __fastcall InfoRec::MakeCppPrototype(int Adr, String FType) {
         result += "@<eax>";
     result += "(";
 
-    argsNum = (procInfo->args) ? procInfo->args->Count : 0;
+    int argsNum = (procInfo->args) ? procInfo->args->Count : 0;
     for (int n = 0; n < argsNum; n++) {
         if (n) result += ", ";
-        argInfo = static_cast<PARGINFO>(procInfo->args->Items[n]);
+        PARGINFO argInfo = static_cast<PARGINFO>(procInfo->args->Items[n]);
         argType = argInfo->TypeDef;
         if (argType != "" && argType != "?") {
             typeKind = GetTypeKind(argType, &size);
@@ -1938,9 +1919,9 @@ String __fastcall InfoRec::MakeMapName(int Adr) {
 bool __fastcall InfoRec::MakeArgsManually() {
     String _sname;
 
-    //if (info.procInfo->flags & PF_KBPROTO) return true;
-    //Some procedures not begin with '@'
-    //function QueryInterface(Self:Pointer; IID:TGUID; var Obj:Pointer);
+    // if (info.procInfo->flags & PF_KBPROTO) return true;
+    // Some procedures not begin with '@'
+    // function QueryInterface(Self:Pointer; IID:TGUID; var Obj:Pointer);
     if (name.Pos(".QueryInterface")) {
         kind = ikFunc;
         type = "HRESULT";
@@ -1951,8 +1932,8 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x22, 16, 4, "Obj", "Pointer");
         return true;
     }
-    //function _AddRef(Self:Pointer):Integer;
-    //function _Release(Self:Pointer):Integer;
+    // function _AddRef(Self:Pointer):Integer;
+    // function _Release(Self:Pointer):Integer;
     if (name.Pos("._AddRef") || name.Pos("._Release")) {
         kind = ikFunc;
         type = "Integer";
@@ -1961,14 +1942,14 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 8, 4, "Self", "");
         return true;
     }
-    //procedure DynArrayClear(var arr:Pointer; typeInfo:PDynArrayTypeInfo);
+    // procedure DynArrayClear(var arr:Pointer; typeInfo:PDynArrayTypeInfo);
     if (SameText(name, "DynArrayClear")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "arr", "Pointer");
         procInfo->AddArg(0x21, 1, 4, "typeInfo", "PDynArrayTypeInfo");
         return true;
     }
-    //procedure DynArraySetLength(var arr:Pointer; typeInfo:PDynArrayTypeInfo; dimCnt:Longint; lenVec:PLongint);
+    // procedure DynArraySetLength(var arr:Pointer; typeInfo:PDynArrayTypeInfo; dimCnt:Longint; lenVec:PLongint);
     if (SameText(name, "DynArraySetLength")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "arr", "Pointer");
@@ -2229,7 +2210,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
             return true;
         }
     }
-    //ShortStrings--------------------------------------------------------------
+    // ShortStrings--------------------------------------------------------------
     _sname = "ShortString";
     // @Copy
     if (SameText(name, "@Copy")) {
@@ -2790,9 +2771,9 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 1, 4, "V", "TVarData");
         return true;
     }
-    //Other---------------------------------------------------------------------
-    //A
-    //function @AsClass(child:TObject; parent:TClass):TObject;
+    // Other---------------------------------------------------------------------
+    // A
+    // function @AsClass(child:TObject; parent:TClass):TObject;
     if (SameText(name, "@AsClass")) {
         kind = ikFunc;
         type = "TObject";
@@ -2830,7 +2811,7 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 2, 4, "TypeInfo", "Pointer");
         return true;
     }
-    //DynArrays
+    // DynArrays
     // @DynArrayAddRef
     if (SameText(name, "@DynArrayAddRef")) {
         kind = ikProc;
@@ -2958,15 +2939,15 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x21, 0, 12, "X", "Extended");
         return true;
     }
-    //V
-    //function @ValExt(s:AnsiString; var code:Integer):Extended;
+    // V
+    // function @ValExt(s:AnsiString; var code:Integer):Extended;
     if (SameText(name, "@ValExt")) {
         kind = ikProc;
         procInfo->AddArg(0x21, 0, 4, "s", "AnsiString");
         procInfo->AddArg(0x22, 1, 4, "code", "Integer");
         return true;
     }
-    //function @ValLong(s:AnsiString; var code:Integer):Longint;
+    // function @ValLong(s:AnsiString; var code:Integer):Longint;
     if (SameText(name, "@ValLong")) {
         kind = ikFunc;
         type = "Longint";
@@ -2974,39 +2955,39 @@ bool __fastcall InfoRec::MakeArgsManually() {
         procInfo->AddArg(0x22, 1, 4, "code", "Integer");
         return true;
     }
-    //procedure @VarFromCurr(var v: Variant; val:Currency);
+    // procedure @VarFromCurr(var v: Variant; val:Currency);
     if (SameText(name, "@VarFromCurr")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "v", "Variant");
         //procInfo->AddArg(0x21, ?, 8, "val", "Currency");
         return true;
     }
-    //procedure @VarFromReal(var v:Variant; val:Real);
+    // procedure @VarFromReal(var v:Variant; val:Real);
     if (SameText(name, "@VarFromReal")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "v", "Variant");
         //procInfo->AddArg(0x21, ?, 8, "val", "Real"); 	fld!
         return true;
     }
-    //procedure @VarFromTDateTime(var v: Variant; val:TDateTime);
+    // procedure @VarFromTDateTime(var v: Variant; val:TDateTime);
     if (SameText(name, "@VarFromTDateTime")) {
         kind = ikProc;
         procInfo->AddArg(0x22, 0, 4, "v", "Variant");
         //procInfo->AddArg(0x21, ?, 8, "val", "TDateTime");	fld!
         return true;
     }
-    //SET
-    //procedure @SetRange(lo:Byte; hi:Byte; size:Byte; VAR d:SET); AL,DL,ECX,AH {Usage: d = [lo..hi]}
-    //function @SetEq(left:SET; right:SET; size:Byte):ZF; {Usage: left = right}
-    //function @SetLe(left:SET; right:SET; size:Byte):ZF;
-    //procedure @SetIntersect(var dest:SET; src:SET; size:Byte);
-    //procedure @SetIntersect3(var dest:SET; src:SET; size:Longint; src2:SET);
-    //procedure @SetUnion(var dest:SET; src:SET; size:Byte);
-    //procedure @SetUnion3(var dest:SET; src:SET; size:Longint; src2:SET);
-    //procedure @SetSub(var dest:SET; src:SET; size:Byte);
-    //procedure @SetSub3(var dest:SET; src:SET; size:Longint; src2:SET);
-    //procedure @SetExpand(src:SET; var dest:SET; lo:Byte; hi:Byte); EAX,EDX,CH,CL
-    //in <-> bt
+    // SET
+    // procedure @SetRange(lo:Byte; hi:Byte; size:Byte; VAR d:SET); AL,DL,ECX,AH {Usage: d = [lo..hi]}
+    // function @SetEq(left:SET; right:SET; size:Byte):ZF; {Usage: left = right}
+    // function @SetLe(left:SET; right:SET; size:Byte):ZF;
+    // procedure @SetIntersect(var dest:SET; src:SET; size:Byte);
+    // procedure @SetIntersect3(var dest:SET; src:SET; size:Longint; src2:SET);
+    // procedure @SetUnion(var dest:SET; src:SET; size:Byte);
+    // procedure @SetUnion3(var dest:SET; src:SET; size:Longint; src2:SET);
+    // procedure @SetSub(var dest:SET; src:SET; size:Byte);
+    // procedure @SetSub3(var dest:SET; src:SET; size:Longint; src2:SET);
+    // procedure @SetExpand(src:SET; var dest:SET; lo:Byte; hi:Byte); EAX,EDX,CH,CL
+    // in <-> bt
     return false;
 }
 

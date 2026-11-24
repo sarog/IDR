@@ -26,8 +26,9 @@
 #define WM_DFMCLOSED            WM_USER + 101
 #define DELHPI_VERSION_AUTO     0
 //---------------------------------------------------------------------------
-//Internal unit types
-#define drStop              0
+
+// Internal unit types
+#define drStop              0x0
 #define drStop_a            0x61    //'a' - Last Tag in all files
 #define drStop1             0x63    //'c'
 #define drUnit              0x64    //'d'
