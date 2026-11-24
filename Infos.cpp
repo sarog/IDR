@@ -53,7 +53,7 @@ PFIELDINFO __fastcall InfoVmtInfo::AddField(DWord ProcAdr, int ProcOfs, Byte Sco
         fInfo->xrefs = 0;
         fInfo->Name = Name;
         fInfo->Type = Type;
-        fields->Add((void *) fInfo);
+        fields->Add(static_cast<void *>(fInfo));
         return fInfo;
     }
 
@@ -75,7 +75,7 @@ PFIELDINFO __fastcall InfoVmtInfo::AddField(DWord ProcAdr, int ProcOfs, Byte Sco
         fInfo->xrefs = 0;
         fInfo->Name = Name;
         fInfo->Type = Type;
-        fields->Add((void *) fInfo);
+        fields->Add(static_cast<void *>(fInfo));
         fields->Sort(FieldsCmpFunction);
     } else {
         if (fInfo->Name == "")
@@ -132,7 +132,7 @@ bool __fastcall InfoVmtInfo::AddMethod(bool Abstract, char Kind, int Id, DWord A
     recM->id = Id;
     recM->address = Address;
     recM->name = Name;
-    methods->Add((void *) recM);
+    methods->Add(static_cast<void *>(recM));
     return true;
 }
 
@@ -170,7 +170,7 @@ PARGINFO __fastcall InfoProcInfo::AddArg(Byte Tag, int Ofs, int Size, String Nam
         argInfo->Size = Size;
         argInfo->Name = Name;
         argInfo->TypeDef = TypeDef;
-        args->Add((void *) argInfo);
+        args->Add(static_cast<void *>(argInfo));
         return argInfo;
     }
 
@@ -184,7 +184,7 @@ PARGINFO __fastcall InfoProcInfo::AddArg(Byte Tag, int Ofs, int Size, String Nam
         argInfo->Size = Size;
         argInfo->Name = Name;
         argInfo->TypeDef = TypeDef;
-        args->Insert(F, (void *) argInfo);
+        args->Insert(F, static_cast<void *>(argInfo));
         return argInfo;
     }
     int L = args->Count - 1;
@@ -217,7 +217,7 @@ PARGINFO __fastcall InfoProcInfo::AddArg(Byte Tag, int Ofs, int Size, String Nam
         argInfo->Size = Size;
         argInfo->Name = Name;
         argInfo->TypeDef = TypeDef;
-        args->Insert(L, (void *) argInfo);
+        args->Insert(L, static_cast<void *>(argInfo));
         return argInfo;
     }
 
@@ -375,7 +375,7 @@ PLOCALINFO __fastcall InfoProcInfo::AddLocal(int Ofs, int Size, String Name, Str
         locInfo->Size = Size;
         locInfo->Name = Name;
         locInfo->TypeDef = TypeDef;
-        locals->Add((void *) locInfo);
+        locals->Add(static_cast<void *>(locInfo));
         return locInfo;
     }
 
@@ -387,7 +387,7 @@ PLOCALINFO __fastcall InfoProcInfo::AddLocal(int Ofs, int Size, String Name, Str
         locInfo->Size = Size;
         locInfo->Name = Name;
         locInfo->TypeDef = TypeDef;
-        locals->Insert(F, (void *) locInfo);
+        locals->Insert(F, static_cast<void *>(locInfo));
         return locInfo;
     }
     int L = locals->Count - 1;
@@ -398,7 +398,7 @@ PLOCALINFO __fastcall InfoProcInfo::AddLocal(int Ofs, int Size, String Name, Str
         locInfo->Size = Size;
         locInfo->Name = Name;
         locInfo->TypeDef = TypeDef;
-        locals->Add((void *) locInfo);
+        locals->Add(static_cast<void *>(locInfo));
         return locInfo;
     }
     while (F < L) {
@@ -416,7 +416,7 @@ PLOCALINFO __fastcall InfoProcInfo::AddLocal(int Ofs, int Size, String Name, Str
         locInfo->Size = Size;
         locInfo->Name = Name;
         locInfo->TypeDef = TypeDef;
-        locals->Insert(L, (void *) locInfo);
+        locals->Insert(L, static_cast<void *>(locInfo));
     } else {
         if (Name != "") locInfo->Name = Name;
         if (TypeDef != "") locInfo->TypeDef = TypeDef;
