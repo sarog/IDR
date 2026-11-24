@@ -30,12 +30,14 @@
 // Internal unit types
 #define drStop              0x0
 #define drStop_a            0x61    //'a' - Last Tag in all files
+#define drAssemblyData      0x62    //'b' - The data structure was found in .<PackageName> units of D8 packages
 #define drStop1             0x63    //'c'
 #define drUnit              0x64    //'d'
 #define drUnit1             0x65    //'e' - in implementation
 #define drImpType           0x66    //'f'
 #define drImpVal            0x67    //'g'
 #define drDLL               0x68    //'h'
+#define drDLL1              0xB3    // Athens 12 and higher
 #define drExport            0x69    //'i'
 #define drEmbeddedProcStart 0x6A    //'j'
 #define drEmbeddedProcEnd   0x6B    //'k'
@@ -47,7 +49,8 @@
 #define drObj               0x71    //'q'
 #define drRes               0x72    //'r'
 #define drAsm               0x73    //'s' - Found in D5 Debug versions
-#define drStop2             0x9F    //'_'
+#define drAssemblySrc       0x74    //'t'
+#define drStop2             0x9F    //'_' or 'Ÿ'
 #define drConst             0x25    //'%'
 #define drResStr            0x32    //'2'
 #define drType              0x2A    //'*'
@@ -80,6 +83,30 @@
 #define drInterfaceDef      0x54    //'T'
 #define drWideStrDef        0x55    //'U'
 #define drWideRangeDef      0x56    //'V'
+
+// ver10 and higher tags
+#define drSpecVar           0x37    //'7'
+#define arClassVarReal      0x2D    //real value
+#define arClassVar          0x36    //technical value
+#define drCLine             0xA0
+#define drA1Info            0xA1
+#define drA2Info            0xA2
+#define arCopyDecl          0xA3
+
+// ver12 and higher tags
+#define drDynArrayDef       0x58    //'X'
+#define drTemplateArgDef    0x59    //'Y'
+#define drTemplateCall      0x5A    //'Z'
+#define drUnicodeStringDef  0x5B    //'['
+#define drA5Info            0xA5
+#define drA6Info            0xA6
+#define drA7Info            0xA7
+#define drA8Info            0xA8
+#define drDelayedImpInfo    0xB0
+
+// ver13 and higher tags
+#define drUnitInlineSrc     0x76    //'v'
+#define arAnonymousBlock    0x01
 
 //---------------------------------------------------------------------------
 typedef struct {
