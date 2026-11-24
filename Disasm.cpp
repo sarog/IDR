@@ -70,14 +70,13 @@ MDisasm::~MDisasm()
     hModule = 0;
 }
 //---------------------------------------------------------------------------
-int __fastcall MDisasm::Init()
-{
+int __fastcall MDisasm::Init() {
     hModule = LoadLibrary("dis.dll");
     if (!hModule) return 0;
+    PdisNew = (DWord * (__stdcall *) (int)) GetProcAddress(hModule, "?PdisNew@DIS@@SGPAV1@W4DIST@1@@Z");
+    CchFormatInstr = (DWord(_stdcall *)(char *, DWord)) GetProcAddress(hModule, "?CchFormatInstr@DIS@@QBEIPADI@Z");
+    Dist = (DWord(_stdcall *)()) GetProcAddress(hModule, "?Dist@DIS@@QBE?AW4DIST@1@XZ");
     DIS = PdisNew(1);
-        PdisNew = (DWord * (__stdcall *) (int) ) GetProcAddress(hModule, "?PdisNew@DIS@@SGPAV1@W4DIST@1@@Z");
-        CchFormatInstr = (DWord(_stdcall *)(char *, DWord)) GetProcAddress(hModule, "?CchFormatInstr@DIS@@QBEIPADI@Z");
-        Dist = (DWord(_stdcall *)()) GetProcAddress(hModule, "?Dist@DIS@@QBE?AW4DIST@1@XZ");
     return 1;
 }
 //---------------------------------------------------------------------------
