@@ -780,66 +780,6 @@ object FMain_11011981: TFMain_11011981
           Enabled = False
           OnClick = miDelphiXE4Click
         end
-        object miDelphiXE5: TMenuItem
-          Caption = 'Delphi XE5'
-          Enabled = False
-          OnClick = miDelphiXE5Click
-        end
-        object miDelphiXE6: TMenuItem
-          Caption = 'Delphi XE6'
-          Enabled = False
-          OnClick = miDelphiXE6Click
-        end
-        object miDelphiXE7: TMenuItem
-          Caption = 'Delphi XE7'
-          Enabled = False
-          OnClick = miDelphiXE7Click
-        end
-        object miDelphiXE8: TMenuItem
-          Caption = 'Delphi XE8'
-          Enabled = False
-          OnClick = miDelphiXE8Click
-        end
-        object miDelphiSeattle: TMenuItem
-          Caption = 'Delphi Seattle (D23)'
-          Enabled = False
-          OnClick = miDelphiSeattleClick
-        end
-        object miDelphiBerlin: TMenuItem
-          Caption = 'Delphi Berlin (D24)'
-          Enabled = False
-          OnClick = miDelphiBerlinClick
-        end
-        object miDelphiTokyo: TMenuItem
-          Caption = 'Delphi Tokyo (D25)'
-          Enabled = False
-          OnClick = miDelphiTokyoClick
-        end
-        object miDelphiRio: TMenuItem
-          Caption = 'Delphi Rio (D26)'
-          Enabled = False
-          OnClick = miDelphiRioClick
-        end
-        object miDelphiSydney: TMenuItem
-          Caption = 'Delphi Sydney (D27)'
-          Enabled = False
-          OnClick = miDelphiSydneyClick
-        end
-        object miDelphiAlexandria: TMenuItem
-          Caption = 'Delphi Alexandria (D28)'
-          Enabled = False
-          OnClick = miDelphiAlexandriaClick
-        end
-        object miDelphiAthens: TMenuItem
-          Caption = 'Delphi Athens (D29)'
-          Enabled = False
-          OnClick = miDelphiAthensClick
-        end
-        object miDelphiFlorence: TMenuItem
-          Caption = 'Delphi Florence (D30)'
-          Enabled = False
-          OnClick = miDelphiFlorenceClick
-        end
       end
       object miOpenProject: TMenuItem
         Caption = 'Open Project'
