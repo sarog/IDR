@@ -40,13 +40,13 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
     recN = GetInfoRec(fromAdr);
     if (!recN || !recN->procInfo) return "";
 
-    //If cfPass is set exit
+    // If cfPass is set, exit
     if (IsFlagSet(cfPass, fromPos)) return recN->type;
 
-    //Proc start
+    // Proc start
     SetFlag(cfProcStart | cfPass, fromPos);
 
-    //Skip Imports
+    // Skip Imports
     if (IsFlagSet(cfImport, fromPos)) return recN->type;
 
     kb = (recN->procInfo->flags & PF_KBPROTO);
@@ -55,14 +55,14 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
     bpBase = recN->procInfo->bpBase;
     retBytes = recN->procInfo->retBytes;
 
-    //If constructor or destructor get class name
+    // If constructor or destructor get class name
     if (recN->kind == ikConstructor || recN->kind == ikDestructor)
         className = ExtractClassName(recN->GetName());
-    //If ClassName not given and proc is dynamic, try to find minimal class
+    // If ClassName not given and proc is dynamic, try to find minimal class
     if (className == "" && (recN->procInfo->flags & PF_DYNAMIC) && recN->xrefs) {
         minClassName = "";
         for (int n = 0; n < recN->xrefs->Count; n++) {
-            PXrefRec recX = (PXrefRec) recN->xrefs->Items[n];
+            PXrefRec recX = static_cast<PXrefRec>(recN->xrefs->Items[n]);
             if (recX->type == 'D') {
                 className = GetClsName(recX->adr);
                 if (minClassName == "" || !IsInheritsByClassName(className, minClassName)) minClassName = className;
@@ -70,11 +70,11 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
         }
         if (minClassName != "") className = minClassName;
     }
-    //If ClassName not given and proc is virtual, try to find minimal class
+    // If ClassName not given and proc is virtual, try to find minimal class
     if (className == "" && (recN->procInfo->flags & PF_VIRTUAL) && recN->xrefs) {
         minClassName = "";
         for (int n = 0; n < recN->xrefs->Count; n++) {
-            PXrefRec recX = (PXrefRec) recN->xrefs->Items[n];
+            PXrefRec recX = static_cast<PXrefRec>(recN->xrefs->Items[n]);
             if (recX->type == 'D') {
                 className = GetClsName(recX->adr);
                 if (minClassName == "" || !IsInheritsByClassName(className, minClassName)) minClassName = className;
@@ -83,18 +83,18 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
         if (minClassName != "") className = minClassName;
     }
 
-    argA = argD = argC = true; //On entry
-    inA = inD = inC = false;   //No arguments
+    argA = argD = argC = true; // On entry
+    inA = inD = inC = false;   // No arguments
 
     _procSize = GetProcSize(fromAdr);
     curPos = fromPos;
     curAdr = fromAdr;
 
-    while (1) {
+    while (true) {
         if (curAdr >= CodeBase + TotalSize) break;
-        //Skip exception table
+        // Skip exception table
         if (IsFlagSet(cfETable, curPos)) {
-            //dd num
+            // dd num
             num = *((int *) (Code + curPos));
             curPos += 4 + 8 * num;
             curAdr += 4 + 8 * num;
@@ -105,8 +105,8 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
         Byte b2 = Code[curPos + 1];
         if (!b1 && !b2 && !lastAdr) break;
 
-        instrLen = Disasm.Disassemble(Code + curPos, (__int64) curAdr, &DisInfo, 0);
-        //if (!instrLen) break;
+        instrLen = Disasm.Disassemble(Code + curPos, static_cast<__int64>(curAdr), &DisInfo, 0);
+        // if (!instrLen) break;
         if (!instrLen) {
             curPos++;
             curAdr++;
@@ -114,9 +114,9 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
         }
 
         op = Disasm.GetOp(DisInfo.Mnem);
-        //Code
+        // Code
         SetFlags(cfCode, curPos, instrLen);
-        //Instruction begin
+        // Instruction begins
         SetFlag(cfInstruction, curPos);
 
         if (curAdr >= lastAdr) lastAdr = 0;
@@ -139,46 +139,46 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
         }
 
         if (DisInfo.Ret) {
-            //End of proc
+            // End of proc
             if (!lastAdr || curAdr == lastAdr) {
-                //Get last instruction
+                // Get last instruction
                 curPos -= instrLen;
-                if ((DisInfo.Ret && !IsFlagSet(cfSkip, curPos)) || //ret not in SEH
-                    IsFlagSet(cfCall, curPos))                     //@Halt0
-                {
-                    if (IsFlagSet(cfCall, curPos)) spRestored = true; //acts like mov esp, ebp
+                // ret not in SEH _OR_ @Halt0
+                if ((DisInfo.Ret && !IsFlagSet(cfSkip, curPos)) ||
+                    IsFlagSet(cfCall, curPos)) {
+                    if (IsFlagSet(cfCall, curPos)) spRestored = true; // acts like mov esp, ebp
 
                     sp = -1;
                     SetFlags(cfFrame, curPos, instrLen);
-                    //ret - stop analyze output regs
+                    // ret - stop analyze output regs
                     lastCallAdr = 0;
                     firstPopRegIdx = -1;
                     popBytes = 0;
-                    //define all pop registers (ret skipped)
+                    // define all pop registers (ret skipped)
                     for (Pos = curPos - 1; Pos >= fromPos; Pos--) {
                         b = Flags[Pos];
                         if (b & cfInstruction) {
-                            //pop instruction
+                            // pop instruction
                             if (b & cfPop) {
-                                //pop ecx
+                                // pop ecx
                                 if (b & cfSkip) break;
-                                instrLen1 = Disasm.Disassemble(Code + Pos, (__int64) Pos2Adr(Pos), &DisInfo1, 0);
+                                instrLen1 = Disasm.Disassemble(Code + Pos, static_cast<__int64>(Pos2Adr(Pos)), &DisInfo1, 0);
                                 firstPopRegIdx = DisInfo1.OpRegIdx[0];
                                 popBytes += 4;
                                 SetFlags(cfFrame, Pos, instrLen1);
                             } else {
-                                //skip frame instruction
+                                // skip frame instruction
                                 if (b & cfFrame) continue;
-                                //set eax - function
+                                // set eax - function
                                 if (b & cfSetA) {
                                     recN1 = GetInfoRec(fromAdr);
                                     recN1->procInfo->flags |= PF_OUTEAX;
                                     if (!kb && !(recN1->procInfo->flags & (PF_EVENT | PF_DYNAMIC)) &&
                                         recN1->kind != ikConstructor && recN1->kind != ikDestructor) {
                                         recN1->kind = ikFunc;
-                                        Disasm.Disassemble(Code + Pos, (__int64) Pos2Adr(Pos), &DisInfo1, 0);
+                                        Disasm.Disassemble(Code + Pos, static_cast<__int64>(Pos2Adr(Pos)), &DisInfo1, 0);
                                         op = Disasm.GetOp(DisInfo1.Mnem);
-                                        //if setXX - return type is Boolean
+                                        // if setXX - return type is Boolean
                                         if (op == OP_SET) recN1->type = "Boolean";
                                     }
                                 }
@@ -188,15 +188,15 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                     }
                 }
                 if (firstPopRegIdx != -1) {
-                    //Skip pushed regs
+                    // Skip pushed regs
                     if (spRestored) {
                         for (Pos = fromPos;; Pos++) {
                             b = Flags[Pos];
-                            //Proc end
-                            //if (Pos != fromPos && (b & cfProcEnd))
+                            // Proc end
+                            // if (Pos != fromPos && (b & cfProcEnd))
                             if (_procSize && Pos - fromPos + 1 >= _procSize) break;
                             if (b & cfInstruction) {
-                                instrLen1 = Disasm.Disassemble(Code + Pos, (__int64) Pos2Adr(Pos), &DisInfo1, 0);
+                                instrLen1 = Disasm.Disassemble(Code + Pos, static_cast<__int64>(Pos2Adr(Pos)), &DisInfo1, 0);
                                 SetFlags(cfFrame, Pos, instrLen1);
                                 if ((b & cfPush) && (DisInfo1.OpRegIdx[0] == firstPopRegIdx)) break;
                             }
@@ -206,21 +206,21 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                             if (!popBytes) break;
 
                             b = Flags[Pos];
-                            //End of proc
-                            //if (Pos != fromPos && (b & cfProcEnd))
+                            // End of proc
+                            // if (Pos != fromPos && (b & cfProcEnd))
                             if (_procSize && Pos - fromPos + 1 >= _procSize) break;
                             if (b & cfInstruction) {
-                                instrLen1 = Disasm.Disassemble(Code + Pos, (__int64) Pos2Adr(Pos), &DisInfo1, 0);
+                                instrLen1 = Disasm.Disassemble(Code + Pos, static_cast<__int64>(Pos2Adr(Pos)), &DisInfo1, 0);
                                 op = Disasm.GetOp(DisInfo1.Mnem);
                                 SetFlags(cfFrame, Pos, instrLen1);
-                                //add esp,...
+                                // add esp,...
                                 if (op == OP_ADD && DisInfo1.OpRegIdx[0] == 20) {
-                                    popBytes += (int) DisInfo1.Immediate;
+                                    popBytes += static_cast<int>(DisInfo1.Immediate);
                                     continue;
                                 }
-                                //sub esp,...
+                                // sub esp,...
                                 if (op == OP_SUB && DisInfo1.OpRegIdx[0] == 20) {
-                                    popBytes -= (int) DisInfo1.Immediate;
+                                    popBytes -= static_cast<int>(DisInfo1.Immediate);
                                     continue;
                                 }
                                 if (b & cfPush) popBytes -= 4;
@@ -228,9 +228,9 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                         }
                     }
                 }
-                //If no prototype, try add information from analyze arguments result
+                // If no prototype, try add information from analyze arguments result
                 if (!recN->HasName() && className != "") {
-                    //dynamic
+                    // dynamic
                     if (recN->procInfo->flags & PF_DYNAMIC) {} else {}
                 }
                 if (!kb) {
@@ -259,18 +259,18 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
             lastMovAdr = DisInfo.Offset;
             lastMovImm = DisInfo.Immediate;
         }
-        //init stack via loop
+        // init stack via loop
         if (IsFlagSet(cfLoc, curPos)) {
             recN1 = GetInfoRec(curAdr);
             if (recN1 && recN1->xrefs && recN1->xrefs->Count == 1) {
-                PXrefRec recX = (PXrefRec) recN1->xrefs->Items[0];
+                PXrefRec recX = static_cast<PXrefRec>(recN1->xrefs->Items[0]);
                 Adr = recX->adr + recX->offset;
                 if (Adr > curAdr) {
                     sSize = IsInitStackViaLoop(curAdr, Adr);
                     if (sSize) {
                         procStackSize += sSize * lastMovImm;
-                        //skip jne
-                        instrLen = Disasm.Disassemble(Code + Adr2Pos(Adr), (__int64) Adr, 0, 0);
+                        // skip jne
+                        instrLen = Disasm.Disassemble(Code + Adr2Pos(Adr), static_cast<__int64>(Adr), 0, 0);
                         curAdr = Adr + instrLen;
                         curPos = Adr2Pos(curAdr);
                         SetFlags(cfFrame, fromPos, curAdr - fromAdr);
@@ -279,20 +279,20 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                 }
             }
         }
-        //add (sub) esp,...
+        // add (sub) esp,...
         if (DisInfo.OpRegIdx[0] == 20 && DisInfo.OpType[1] == otIMM) {
             if (op == OP_ADD) {
-                if ((int) DisInfo.Immediate < 0) procStackSize -= (int) DisInfo.Immediate;
+                if (static_cast<int>(DisInfo.Immediate) < 0) procStackSize -= static_cast<int>(DisInfo.Immediate);
             }
             if (op == OP_SUB) {
-                if ((int) DisInfo.Immediate > 0) procStackSize += (int) DisInfo.Immediate;
+                if (static_cast<int>(DisInfo.Immediate) > 0) procStackSize += static_cast<int>(DisInfo.Immediate);
             }
             curPos += instrLen;
             curAdr += instrLen;
             continue;
         }
         /*
-        //dec reg
+        // dec reg
         if (op == OP_DEC && DisInfo.Op1Type == otREG)
         {
             //Save (dec reg) address
@@ -311,7 +311,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
         }
         */
 
-        //mov esp, ebp
+        // mov esp, ebp
         if (b1 == 0x8B && b2 == 0xE5) spRestored = true;
 
         if (!IsFlagSet(cfSkip, curPos)) {
@@ -330,19 +330,18 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
             }
         }
 
-        if (b1 == 0xFF && (b2 & 0x38) == 0x20 && DisInfo.OpType[0] == otMEM && IsValidImageAdr(DisInfo.Offset))
-        //near absolute indirect jmp (Case)
-        {
+        // near absolute indirect jmp (Case)
+        if (b1 == 0xFF && (b2 & 0x38) == 0x20 && DisInfo.OpType[0] == otMEM && IsValidImageAdr(DisInfo.Offset)) {
             if (!IsValidCodeAdr(DisInfo.Offset)) break;
             DWord cTblAdr = 0, jTblAdr = 0;
 
             Pos = curPos + instrLen;
             Adr = curAdr + instrLen;
-            //Taqble address - last 4 bytes of instruction
-            jTblAdr = *((DWord *) (Code + Pos - 4));
-            //Analyze gap to find table cTbl
+            // Table address - last 4 bytes of instruction
+            jTblAdr = *reinterpret_cast<DWord *>(Code + Pos - 4);
+            // Analyze gap to find table cTbl
             if (Adr <= lastMovAdr && lastMovAdr < jTblAdr) cTblAdr = lastMovAdr;
-            //If cTblAdr exists, skip it
+            // If cTblAdr exists, skip it
             Byte CTab[256];
             if (cTblAdr) {
                 int CNum = jTblAdr - cTblAdr;
@@ -350,13 +349,13 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                 Adr += CNum;
             }
             for (int k = 0; k < 4096; k++) {
-                //Loc - end of table
+                // Loc - end of table
                 if (IsFlagSet(cfLoc, Pos)) break;
 
-                Adr1 = *((DWord *) (Code + Pos));
-                //Validate Adr1
+                Adr1 = *reinterpret_cast<DWord *>(Code + Pos);
+                // Validate Adr1
                 if (!IsValidCodeAdr(Adr1) || Adr1 < fromAdr) break;
-                //Set cfLoc
+                // Set cfLoc
                 SetFlag(cfLoc, Adr2Pos(Adr1));
 
                 Pos += 4;
@@ -390,56 +389,55 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
         //        dd offset ExceptionInfo
         //        dd offset ExceptionProc
         //----------------------------------
-        if (b1 == 0x68) //try block (push loc_TryBeg)
-        {
+
+        //try block (push loc_TryBeg)
+        if (b1 == 0x68) {
             DWord NPos = curPos + instrLen;
-            //check that next instruction is push fs:[reg] or retn
+            // check that next instruction is push fs:[reg] or retn
             if ((Code[NPos] == 0x64 &&
                  Code[NPos + 1] == 0xFF &&
                  ((Code[NPos + 2] >= 0x30 && Code[NPos + 2] <= 0x37) || Code[NPos + 2] == 0x75)) ||
                 Code[NPos] == 0xC3) {
-                Adr = DisInfo.Immediate; //Adr=@1
+                Adr = DisInfo.Immediate; // Adr=@1
                 if (IsValidCodeAdr(Adr)) {
                     if (Adr > lastAdr) lastAdr = Adr;
                     Pos = Adr2Pos(Adr);
                     if (Pos >= 0 && Pos - NPos < MAX_DISASSEMBLE) {
-                        if (Code[Pos] == 0xE9) //jmp Handle...
-                        {
-                            //Disassemble jmp
-                            instrLen1 = Disasm.Disassemble(Code + Pos, (__int64) Adr, &DisInfo, 0);
+                        if (Code[Pos] == 0xE9) { //jmp Handle...
+                            // Disassemble jmp
+                            instrLen1 = Disasm.Disassemble(Code + Pos, static_cast<__int64>(Adr), &DisInfo, 0);
 
                             recN1 = GetInfoRec(DisInfo.Immediate);
                             if (recN1) {
                                 if (recN1->SameName("@HandleFinally")) {
-                                    //ret + jmp HandleFinally
+                                    // ret + jmp HandleFinally
                                     Pos += instrLen1;
                                     Adr += instrLen1;
-                                    //jmp @2
-                                    instrLen2 = Disasm.Disassemble(Code + Pos, (__int64) Adr, &DisInfo, 0);
+                                    // jmp @2
+                                    instrLen2 = Disasm.Disassemble(Code + Pos, static_cast<__int64>(Adr), &DisInfo, 0);
                                     Adr += instrLen2;
                                     if (Adr > lastAdr) lastAdr = Adr;
-                                } else if (recN1->SameName("@HandleAnyException") || recN1->SameName(
-                                               "@HandleAutoException")) {
-                                    //jmp HandleAnyException
+                                } else if (recN1->SameName("@HandleAnyException") || recN1->SameName("@HandleAutoException")) {
+                                    // jmp HandleAnyException
                                     Pos += instrLen1;
                                     Adr += instrLen1;
-                                    //call DoneExcept
-                                    instrLen2 = Disasm.Disassemble(Code + Pos, (__int64) Adr, 0, 0);
+                                    // call DoneExcept
+                                    instrLen2 = Disasm.Disassemble(Code + Pos, static_cast<__int64>(Adr), 0, 0);
                                     Adr += instrLen2;
                                     if (Adr > lastAdr) lastAdr = Adr;
                                 } else if (recN1->SameName("@HandleOnException")) {
-                                    //jmp HandleOnException
+                                    // jmp HandleOnException
                                     Pos += instrLen1;
                                     Adr += instrLen1;
-                                    //dd num
+                                    // dd num
                                     num = *((int *) (Code + Pos));
                                     Pos += 4;
                                     if (Adr + 4 + 8 * num > lastAdr) lastAdr = Adr + 4 + 8 * num;
 
                                     for (int k = 0; k < num; k++) {
-                                        //dd offset ExceptionInfo
+                                        // dd offset ExceptionInfo
                                         Pos += 4;
-                                        //dd offset ExceptionProc
+                                        // dd offset ExceptionProc
                                         Pos += 4;
                                     }
                                 }
@@ -452,8 +450,8 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                 continue;
             }
         }
-        while (1) {
-            //Call - stop analyze of arguments
+        while (true) {
+            // Call - stop analyze of arguments
             if (DisInfo.Call) {
                 lastemb = false;
                 Adr = DisInfo.Immediate;
@@ -462,7 +460,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                     if (recN1 && recN1->procInfo) {
                         lastemb = (recN1->procInfo->flags & PF_EMBED);
                         Word retb;
-                        //@XStrCatN
+                        // @XStrCatN
                         if (recN1->SameName("@LStrCatN") ||
                             recN1->SameName("@WStrCatN") ||
                             recN1->SameName("@UStrCatN") ||
@@ -477,9 +475,9 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                             sp = -1;
                     } else
                         sp = -1;
-                    //call not always preserve registers eax, edx, ecx
+                    // call not always preserve registers eax, edx, ecx
                     if (recN1) {
-                        //@IntOver, @BoundErr nothing change
+                        // @IntOver, @BoundErr nothing change
                         if (!recN1->SameName("@IntOver") &&
                             !recN1->SameName("@BoundErr")) {
                             argA = argD = argC = false;
@@ -493,30 +491,30 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                 }
                 break;
             }
-            //jmp - stop analyze of output arguments
+            // jmp - stop analyze of output arguments
             if (op == OP_JMP) {
                 lastCallAdr = 0;
                 break;
             }
-            //cop ..., [ebp + Offset]
-            if (!kb && bpBased && DisInfo.BaseReg == 21 && DisInfo.IndxReg == -1 && (int) DisInfo.Offset > 0) {
+            // cop ..., [ebp + Offset]
+            if (!kb && bpBased && DisInfo.BaseReg == 21 && DisInfo.IndxReg == -1 && static_cast<int>(DisInfo.Offset) > 0) {
                 recN1 = GetInfoRec(fromAdr);
-                //For embedded procs we have on1 additional argument (pushed on stack first), that poped from stack by instrcution pop ecx
-                if (!emb || (int) DisInfo.Offset != retBytes + bpBase) {
+                // For embedded procs we have on1 additional argument (pushed on stack first), that popped from stack by instruction pop ecx
+                if (!emb || static_cast<int>(DisInfo.Offset) != retBytes + bpBase) {
                     int argSize = DisInfo.OpSize;
                     String argType = "";
                     if (argSize == 10) argType = "Extended";
                     //Each argument in stack has size 4*N bytes
                     if (argSize < 4) argSize = 4;
                     argSize = ((argSize + 3) / 4) * 4;
-                    recN1->procInfo->AddArg(0x21, (int) DisInfo.Offset, argSize, "", argType);
+                    recN1->procInfo->AddArg(0x21, static_cast<int>(DisInfo.Offset), argSize, "", argType);
                 }
             }
-            //Instruction pop reg always change reg
+            // Instruction pop reg always change reg
             if (op == OP_POP && DisInfo.OpType[0] == otREG) {
-                //eax
+                // eax
                 if (DisInfo.OpRegIdx[0] == 16) {
-                    //Forget last call and set flag cfSkip, if it was call of embedded proc
+                    // Forget last call and set flag cfSkip, if it was call of embedded proc
                     if (lastCallAdr) {
                         if (lastemb) {
                             SetFlag(cfSkip, curPos);
@@ -531,20 +529,20 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                         if (!inC) argC = false;
                     }
                 }
-                //edx
+                // edx
                 if (DisInfo.OpRegIdx[0] == 18) {
                     if (argD && !inD) {
                         argD = false;
                         if (!inC) argC = false;
                     }
                 }
-                //ecx
+                // ecx
                 if (DisInfo.OpRegIdx[0] == 17) {
                     if (argC && !inC) argC = false;
                 }
                 break;
             }
-            //cdq always change edx; eax may be output argument of last call
+            // cdq always change edx; eax may be output argument of last call
             if (op == OP_CDQ) {
                 if (lastCallAdr) {
                     recN1 = GetInfoRec(lastCallAdr);
@@ -563,11 +561,10 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                 break;
             }
             if (DisInfo.Float) {
-                //fstsw, fnstsw always change eax
+                // fstsw, fnstsw always change eax
                 if (!memcmp(DisInfo.Mnem + 1, "stsw", 4) || !memcmp(DisInfo.Mnem + 1, "nstsw", 5)) {
                     if (DisInfo.OpType[0] == otREG && (
-                            DisInfo.OpRegIdx[0] == 16 || DisInfo.OpRegIdx[0] == 8 || DisInfo.OpRegIdx[0] == 4 || DisInfo
-                            .OpRegIdx[0] == 0)) {
+                            DisInfo.OpRegIdx[0] == 16 || DisInfo.OpRegIdx[0] == 8 || DisInfo.OpRegIdx[0] == 4 || DisInfo .OpRegIdx[0] == 0)) {
                         if (lastCallAdr) lastCallAdr = 0;
 
                         if (argA && !inA) {
@@ -579,7 +576,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                     SetFlags(cfSkip, curPos, instrLen);
                     break;
                 }
-                //Instructions fst, fstp after call means that it was call of function
+                // Instructions fst, fstp after call means that it was call of function
                 if (!memcmp(DisInfo.Mnem + 1, "st", 2)) {
                     Pos = GetNearestUpInstruction(curPos, fromPos, 1);
                     if (Pos != -1 && IsFlagSet(cfCall, Pos)) {
@@ -597,8 +594,8 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                     break;
                 }
             }
-            //mul, div ?????????????????????????????????????????????????????????????????????
-            //xor reg, reg always change register
+            // mul, div ?????????????????????????????????????????????????????????????????????
+            // xor reg, reg always change register
             if (op == OP_XOR && DisInfo.OpType[0] == DisInfo.OpType[1] && DisInfo.OpRegIdx[0] == DisInfo.OpRegIdx[1]) {
                 if (DisInfo.OpRegIdx[0] == 16 || DisInfo.OpRegIdx[0] == 8 || DisInfo.OpRegIdx[0] == 4 || DisInfo.
                     OpRegIdx[0] == 0) {
@@ -609,7 +606,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                     if (lastCallAdr) lastCallAdr = 0;
                 }
 
-                //eax, ax, ah, al
+                // eax, ax, ah, al
                 if (DisInfo.OpRegIdx[0] == 16 || DisInfo.OpRegIdx[0] == 8 || DisInfo.OpRegIdx[0] == 4 || DisInfo.
                     OpRegIdx[0] == 0) {
                     SetFlag(cfSetA, curPos);
@@ -619,7 +616,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                         if (!inC) argC = false;
                     }
                 }
-                //edx, dx, dh, dl
+                // edx, dx, dh, dl
                 if (DisInfo.OpRegIdx[0] == 18 || DisInfo.OpRegIdx[0] == 10 || DisInfo.OpRegIdx[0] == 6 || DisInfo.
                     OpRegIdx[0] == 2) {
                     SetFlag(cfSetD, curPos);
@@ -628,7 +625,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                         if (!inC) argC = false;
                     }
                 }
-                //ecx, cx, ch, cl
+                // ecx, cx, ch, cl
                 if (DisInfo.OpRegIdx[0] == 17 || DisInfo.OpRegIdx[0] == 9 || DisInfo.OpRegIdx[0] == 5 || DisInfo.
                     OpRegIdx[0] == 1) {
                     SetFlag(cfSetC, curPos);
@@ -636,7 +633,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                 }
                 break;
             }
-            //If eax, edx, ecx in memory address - always used as registers
+            // If eax, edx, ecx in memory address, always used as registers
             if (DisInfo.BaseReg != -1 || DisInfo.IndxReg != -1) {
                 if (DisInfo.BaseReg == 16 || DisInfo.IndxReg == 16) {
                     if (lastCallAdr) {
@@ -681,11 +678,10 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                     }
                 }
             }
-            //xchg
+            // xchg
             if (op == OP_XCHG) {
                 if (DisInfo.OpType[0] == otREG) {
-                    if (DisInfo.OpRegIdx[0] == 16) //eax
-                    {
+                    if (DisInfo.OpRegIdx[0] == 16) { // eax
                         if (lastCallAdr) {
                             recN1 = GetInfoRec(lastCallAdr);
                             if (recN1 && recN1->procInfo &&
@@ -697,15 +693,14 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                             lastCallAdr = 0;
                         }
                     }
-                    if (DisInfo.OpRegIdx[0] == 16) //eax
-                    {
+                    if (DisInfo.OpRegIdx[0] == 16) { // eax
                         SetFlag(cfSetA, curPos);
                         if (argA && !inA) {
                             inA = true;
                             argA = false;
                         }
                     }
-                    if (DisInfo.OpRegIdx[0] == 18) //edx
+                    if (DisInfo.OpRegIdx[0] == 18) // edx
                     {
                         SetFlag(cfSetD, curPos);
                         if (argD && !inD) {
@@ -717,10 +712,9 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                             }
                         }
                     }
-                    if (DisInfo.OpRegIdx[0] == 17) //ecx
-                    {
+                    if (DisInfo.OpRegIdx[0] == 17) { // ecx
                         SetFlag(cfSetC, curPos);
-                        //xchg ecx, [ebp...] - ecx used as argument
+                        // xchg ecx, [ebp...] - ecx used as argument
                         if (DisInfo.BaseReg == 21) {
                             inC = true;
                             argC = false;
@@ -732,7 +726,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                                 inD = true;
                                 argD = false;
                             }
-                            //Set cfFrame upto start of procedure
+                            // Set cfFrame upto start of procedure
                             SetFlags(cfFrame, fromPos, (curPos + instrLen - fromPos));
                         } else if (argC && !inC) {
                             inC = true;
@@ -797,7 +791,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                 }
                 break;
             }
-            //cop ..., reg
+            // cop ..., reg
             if (DisInfo.OpType[1] == otREG) {
                 if (DisInfo.OpRegIdx[1] == 16 || DisInfo.OpRegIdx[1] == 8 || DisInfo.OpRegIdx[1] == 0) {
                     if (lastCallAdr) {
@@ -811,7 +805,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                         lastCallAdr = 0;
                     }
                 }
-                //eax, ax, ah, al
+                // eax, ax, ah, al
                 if (DisInfo.OpRegIdx[1] == 16 || DisInfo.OpRegIdx[1] == 8 || DisInfo.OpRegIdx[1] == 4 || DisInfo.
                     OpRegIdx[1] == 0) {
                     if (argA && !inA) {
@@ -819,7 +813,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                         argA = false;
                     }
                 }
-                //edx, dx, dh, dl
+                // edx, dx, dh, dl
                 if (DisInfo.OpRegIdx[1] == 18 || DisInfo.OpRegIdx[1] == 10 || DisInfo.OpRegIdx[1] == 6 || DisInfo.
                     OpRegIdx[1] == 2) {
                     if (argD && !inD) {
@@ -831,7 +825,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                         }
                     }
                 }
-                //ecx, cx, ch, cl
+                // ecx, cx, ch, cl
                 if (DisInfo.OpRegIdx[1] == 17 || DisInfo.OpRegIdx[1] == 9 || DisInfo.OpRegIdx[1] == 5 || DisInfo.
                     OpRegIdx[1] == 1) {
                     if (argC && !inC) {
@@ -851,7 +845,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
 
             if (DisInfo.OpType[0] == otREG && op != OP_UNK && op != OP_PUSH) {
                 if (op != OP_MOV && op != OP_LEA && op != OP_SET) {
-                    //eax, ax, ah, al
+                    // eax, ax, ah, al
                     if (DisInfo.OpRegIdx[0] == 16 || DisInfo.OpRegIdx[0] == 8 || DisInfo.OpRegIdx[0] == 4 || DisInfo.
                         OpRegIdx[0] == 0) {
                         if (argA && !inA) {
@@ -859,7 +853,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                             argA = false;
                         }
                     }
-                    //edx, dx, dh, dl
+                    // edx, dx, dh, dl
                     if (DisInfo.OpRegIdx[0] == 18 || DisInfo.OpRegIdx[0] == 10 || DisInfo.OpRegIdx[0] == 6 || DisInfo.
                         OpRegIdx[0] == 2) {
                         if (argD && !inD) {
@@ -871,7 +865,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                             }
                         }
                     }
-                    //ecx, cx, ch, cl
+                    // ecx, cx, ch, cl
                     if (DisInfo.OpRegIdx[0] == 17 || DisInfo.OpRegIdx[0] == 9 || DisInfo.OpRegIdx[0] == 5 || DisInfo.
                         OpRegIdx[0] == 1) {
                         if (argC && !inC) {
@@ -888,7 +882,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                         }
                     }
                 } else {
-                    //eax, ax, ah, al
+                    // eax, ax, ah, al
                     if (DisInfo.OpRegIdx[0] == 16 || DisInfo.OpRegIdx[0] == 8 || DisInfo.OpRegIdx[0] == 4 || DisInfo.
                         OpRegIdx[0] == 0) {
                         SetFlag(cfSetA, curPos);
@@ -899,7 +893,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                         }
                         if (lastCallAdr) lastCallAdr = 0;
                     }
-                    //edx, dx, dh, dl
+                    // edx, dx, dh, dl
                     if (DisInfo.OpRegIdx[0] == 18 || DisInfo.OpRegIdx[0] == 10 || DisInfo.OpRegIdx[0] == 6 || DisInfo.
                         OpRegIdx[0] == 2) {
                         SetFlag(cfSetD, curPos);
@@ -909,7 +903,7 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                         }
                         if (lastCallAdr) lastCallAdr = 0;
                     }
-                    //ecx, cx, ch, cl
+                    // ecx, cx, ch, cl
                     if (DisInfo.OpRegIdx[0] == 17 || DisInfo.OpRegIdx[0] == 9 || DisInfo.OpRegIdx[0] == 5 || DisInfo.
                         OpRegIdx[0] == 1) {
                         SetFlag(cfSetC, curPos);
@@ -920,8 +914,8 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
             break;
         }
 
-        if (DisInfo.Call) //call sub_XXXXXXXX
-        {
+        // call sub_XXXXXXXX
+        if (DisInfo.Call) {
             lastCallAdr = 0;
             Adr = DisInfo.Immediate;
             if (IsValidCodeAdr(Adr)) {
@@ -930,31 +924,27 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
 
                 recN1 = GetInfoRec(Adr);
                 if (recN1 && recN1->HasName()) {
-                    //Hide some procedures
-                    //@Halt0 is not executed
+                    // Hide some procedures
+                    // @Halt0 is not executed
                     if (recN1->SameName("@Halt0")) {
                         SetFlags(cfSkip, curPos, instrLen);
                         if (fromAdr == EP && !lastAdr) break;
-                    }
-                    //Procs together previous unstruction
-                    else if (recN1->SameName("@IntOver") ||
-                             recN1->SameName("@InitImports") ||
+                    } else if (recN1->SameName("@IntOver") || recN1->SameName("@InitImports") ||
                              recN1->SameName("@InitResStringImports")) {
+                        // Procs together previous instruction
                         Pos = GetNearestUpInstruction(curPos, fromPos, 1);
                         if (Pos != -1) SetFlags(cfSkip, Pos, (curPos - Pos) + instrLen);
-                    }
-                    //@BoundErr
-                    else if (recN1->SameName("@BoundErr")) {
+                    } else if (recN1->SameName("@BoundErr")) { // @BoundErr
                         if (IsFlagSet(cfLoc, curPos)) {
                             Pos = GetNearestUpInstruction(curPos, fromPos, 1);
-                            Disasm.Disassemble(Code + Pos, (__int64) Pos2Adr(Pos), &DisInfo1, 0);
+                            Disasm.Disassemble(Code + Pos, static_cast<__int64>(Pos2Adr(Pos)), &DisInfo1, 0);
                             if (DisInfo1.Branch) {
                                 Pos = GetNearestUpInstruction(Pos, fromPos, 3);
                                 SetFlags(cfSkip, Pos, (curPos - Pos) + instrLen);
                             }
                         } else {
                             Pos = GetNearestUpInstruction(curPos, fromPos, 1);
-                            Disasm.Disassemble(Code + Pos, (__int64) Pos2Adr(Pos), &DisInfo1, 0);
+                            Disasm.Disassemble(Code + Pos, static_cast<__int64>(Pos2Adr(Pos)), &DisInfo1, 0);
                             if (DisInfo1.Branch) {
                                 Pos = GetNearestUpInstruction(Pos, fromPos, 1);
                                 if (IsFlagSet(cfPop, Pos)) {
@@ -963,12 +953,9 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
                                 SetFlags(cfSkip, Pos, (curPos - Pos) + instrLen);
                             }
                         }
-                    }
-                    //Not in source code
-                    else if (recN1->SameName("@_IOTest") ||
-                             recN1->SameName("@InitExe") ||
-                             recN1->SameName("@InitLib") ||
-                             recN1->SameName("@DoneExcept")) {
+                    } else if (recN1->SameName("@_IOTest") || recN1->SameName("@InitExe") ||
+                             recN1->SameName("@InitLib") || recN1->SameName("@DoneExcept")) {
+                        // Not in source code
                         SetFlags(cfSkip, curPos, instrLen);
                     }
                 }
@@ -978,7 +965,8 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
             continue;
         }
 
-        if (b1 == 0xEB || //short relative abs jmp or cond jmp
+        // short relative abs jmp or cond jmp
+        if (b1 == 0xEB ||
             (b1 >= 0x70 && b1 <= 0x7F) ||
             (b1 == 0xF && b2 >= 0x80 && b2 <= 0x8F)) {
             Adr = DisInfo.Immediate;
@@ -989,8 +977,8 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
             curAdr += instrLen;
             continue;
         }
-        if (b1 == 0xE9) //relative abs jmp or cond jmp
-        {
+        // relative abs jmp or cond jmp
+        if (b1 == 0xE9)  {
             Adr = DisInfo.Immediate;
             if (IsValidCodeAdr(Adr)) {
                 recN1 = GetInfoRec(Adr);
@@ -1003,42 +991,41 @@ String __fastcall TFMain_11011981::AnalyzeArguments(DWord fromAdr) {
         curPos += instrLen;
         curAdr += instrLen;
     }
-    //Check matching ret bytes and summary size of stack arguments
+    // Check matching ret bytes and summary size of stack arguments
     if (bpBased) {
         if (recN->procInfo->args) {
             int delta = retBytes;
             for (int n = 0; n < recN->procInfo->args->Count; n++) {
-                argInfo = (PARGINFO) recN->procInfo->args->Items[n];
+                argInfo = static_cast<PARGINFO>(recN->procInfo->args->Items[n]);
                 if (argInfo->Ndx > 2) delta -= argInfo->Size;
             }
             if (delta < 0) {
-                //If delta between N bytes (in "ret N" instruction) and total size of argumnets != 0
+                // If delta between N bytes (in "ret N" instruction) and total size of argumnets != 0
                 recN->procInfo->flags |= PF_ARGSIZEG;
-                //delta = 4 and proc can be embbedded - allow that it really embedded
+                // delta = 4, and proc can be embedded - allow that it really embedded
                 if (delta == 4 && (recN->procInfo->flags & PF_MAYBEEMBED)) {
-                    //Ставим флажок PF_EMBED
+                    // Ставим флажок PF_EMBED
+                    // Check the PF_EMBED flag
                     recN->procInfo->flags |= PF_EMBED;
-                    //Skip following after call instrcution "pop ecx"
+                    // Skip following after call instruction "pop ecx"
                     for (int n = 0; n < recN->xrefs->Count; n++) {
-                        PXrefRec recX = (PXrefRec) recN->xrefs->Items[n];
+                        PXrefRec recX = static_cast<PXrefRec>(recN->xrefs->Items[n]);
                         if (recX->type == 'C') {
                             Adr = recX->adr + recX->offset;
                             Pos = Adr2Pos(Adr);
-                            instrLen = Disasm.Disassemble(Code + Pos, (__int64) Adr, &DisInfo, 0);
+                            instrLen = Disasm.Disassemble(Code + Pos, static_cast<__int64>(Adr), &DisInfo, 0);
                             Pos += instrLen;
                             if (Code[Pos] == 0x59) SetFlag(cfSkip, Pos);
                         }
                     }
                 }
-            }
-            //If delta < 0, then part of arguments can be unusable
-            else if (delta < 0) {
+            } else if (delta < 0) { // If delta < 0, then part of arguments can be unusable
                 recN->procInfo->flags |= PF_ARGSIZEL;
             }
         }
     }
     recN = GetInfoRec(fromAdr);
-    //if PF_OUTEAX not set - Procedure
+    // if PF_OUTEAX not set - Procedure
     if (!kb && !(recN->procInfo->flags & PF_OUTEAX)) {
         if (recN->kind != ikConstructor && recN->kind != ikDestructor) {
             recN->kind = ikProc;

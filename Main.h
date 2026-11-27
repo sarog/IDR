@@ -9,6 +9,7 @@
 #include <Vcl.Controls.hpp>
 #include <Vcl.Dialogs.hpp>
 #include <Vcl.ExtCtrls.hpp>
+#include <Vcl.Forms.hpp>
 #include <Vcl.Grids.hpp>
 #include <Vcl.Menus.hpp>
 #include <Vcl.StdCtrls.hpp>
@@ -317,7 +318,7 @@ class TDfm;
 
 class TFMain_11011981 : public TForm {
     __published: // IDE-managed Components
-    TMenuItem * miFile;
+    TMenuItem *miFile;
     TMenuItem *miLoadFile;
     TMenuItem *miExit;
     TMenuItem *miSaveProject;
@@ -406,8 +407,29 @@ class TFMain_11011981 : public TForm {
     TMenuItem *miDelphi5;
     TMenuItem *miDelphi6;
     TMenuItem *miDelphi7;
+    TMenuItem *miDelphi2005;
     TMenuItem *miDelphi2006;
     TMenuItem *miDelphi2007;
+    TMenuItem *miDelphi2009;
+    TMenuItem *miDelphi2010;
+    TMenuItem *miDelphiXE1;
+    TMenuItem *miDelphiXE2;
+    TMenuItem *miDelphiXE3;
+    TMenuItem *miDelphiXE4;
+    // -sg: todo: add new Delphi versions
+    TMenuItem *miDelphiXE5;
+    TMenuItem *miDelphiXE6;
+    TMenuItem *miDelphiXE7;
+    TMenuItem *miDelphiXE8;
+    TMenuItem *miDelphiSeattle;
+    TMenuItem *miDelphiBerlin;
+    TMenuItem *miDelphiTokyo;
+    TMenuItem *miDelphiRio;
+    TMenuItem *miDelphiSydney;
+    TMenuItem *miDelphiAlexandria;
+    TMenuItem *miDelphiAthens;
+    TMenuItem *miDelphiFlorence;
+
     TMenuItem *miKBTypeInfo;
     TMenuItem *miName;
     TMenuItem *miLister;
@@ -418,8 +440,6 @@ class TFMain_11011981 : public TForm {
     TPopupMenu *pmStrings;
     TMenuItem *miSearchString;
     TMenuItem *miViewClass;
-    TMenuItem *miDelphi2009;
-    TMenuItem *miDelphi2010;
     TPanel *Panel3;
     TListBox *lbSXrefs;
     TPanel *ShowSXrefs;
@@ -451,7 +471,6 @@ class TFMain_11011981 : public TForm {
     TMenuItem *miLegend;
     TMenuItem *miFuzzyScanKB;
     TMenuItem *miCopyList;
-    TMenuItem *miDelphi2005;
     TMenuItem *miCommentsGenerator;
     TMenuItem *miIDCGenerator;
     TMenuItem *miSaveDelphiProject;
@@ -484,9 +503,7 @@ class TFMain_11011981 : public TForm {
     TMenuItem *miCopyAddressCode;
     TPopupMenu *pmSourceCode;
     TMenuItem *miCopySource2Clipboard;
-    TMenuItem *miDelphiXE1;
     TMenuItem *miXRefs;
-    TMenuItem *miDelphiXE2;
     TMenuItem *miPlugins;
     TMenuItem *miViewAll;
     TCheckBox *cbMultipleSelection;
@@ -494,10 +511,8 @@ class TFMain_11011981 : public TForm {
     TMenuItem *miSwitchFrameFlag;
     TMenuItem *miSwitchFlag;
     TMenuItem *cfTry1;
-    TMenuItem *miDelphiXE3;
     TMenuItem *miSettings;
     TMenuItem *miacFontAll;
-    TMenuItem *miDelphiXE4;
     TMenuItem *miProcessDumper;
     TMenuItem *miSetlvartype;
     TPopupMenu *pmNames;
@@ -548,28 +563,18 @@ class TFMain_11011981 : public TForm {
     void __fastcall FindText (String Str);
     void __fastcall miSearchItemClick(TObject *Sender);
     void __fastcall ShowCXrefsClick(TObject *Sender);
-    void __fastcall lbUnitItemsDrawItem(TWinControl *Control,
-                                        int Index, TRect &Rect, TOwnerDrawState State);
-    void __fastcall lbUnitsMouseMove(TObject *Sender,
-                                     TShiftState Shift, int X, int Y);
-    void __fastcall lbRTTIsMouseMove(TObject *Sender,
-                                     TShiftState Shift, int X, int Y);
-    void __fastcall lbFormsMouseMove(TObject *Sender,
-                                     TShiftState Shift, int X, int Y);
-    void __fastcall lbCodeMouseMove(TObject *Sender,
-                                    TShiftState Shift, int X, int Y);
-    void __fastcall tvClassesFullMouseMove(TObject *Sender,
-                                           TShiftState Shift, int X, int Y);
-    void __fastcall lbStringsMouseMove(TObject *Sender,
-                                       TShiftState Shift, int X, int Y);
-    void __fastcall lbUnitItemsMouseMove(TObject *Sender,
-                                         TShiftState Shift, int X, int Y);
-    void __fastcall lbXrefsMouseMove(TObject *Sender,
-                                     TShiftState Shift, int X, int Y);
+    void __fastcall lbUnitItemsDrawItem(TWinControl *Control, int Index, TRect &Rect, TOwnerDrawState State);
+    void __fastcall lbUnitsMouseMove(TObject *Sender, TShiftState Shift, int X, int Y);
+    void __fastcall lbRTTIsMouseMove(TObject *Sender, TShiftState Shift, int X, int Y);
+    void __fastcall lbFormsMouseMove(TObject *Sender, TShiftState Shift, int X, int Y);
+    void __fastcall lbCodeMouseMove(TObject *Sender, TShiftState Shift, int X, int Y);
+    void __fastcall tvClassesFullMouseMove(TObject *Sender, TShiftState Shift, int X, int Y);
+    void __fastcall lbStringsMouseMove(TObject *Sender, TShiftState Shift, int X, int Y);
+    void __fastcall lbUnitItemsMouseMove(TObject *Sender, TShiftState Shift, int X, int Y);
+    void __fastcall lbXrefsMouseMove(TObject *Sender, TShiftState Shift, int X, int Y);
     void __fastcall miSortUnitsByNamClick(TObject *Sender);
     void __fastcall rgViewerModeClick(TObject *Sender);
-    void __fastcall tvClassesShortMouseMove(TObject *Sender,
-                                            TShiftState Shift, int X, int Y);
+    void __fastcall tvClassesShortMouseMove(TObject *Sender, TShiftState Shift, int X, int Y);
     void __fastcall miClassTreeBuilderClick(TObject *Sender);
     void __fastcall lbUnitsClick(TObject *Sender);
     void __fastcall lbRTTIsClick(TObject *Sender);
@@ -596,12 +601,11 @@ class TFMain_11011981 : public TForm {
     void __fastcall miIdp8Click(TObject *Sender);
     void __fastcall FormResize(TObject *Sender);
     void __fastcall miEditFunctionCClick(TObject *Sender);
-    void __fastcall lbXrefsDrawItem(TWinControl *Control, int Index,
-                                    TRect &Rect, TOwnerDrawState State);
+    void __fastcall lbXrefsDrawItem(TWinControl *Control, int Index, TRect &Rect, TOwnerDrawState State);
     void __fastcall miMapGeneratorClick(TObject *Sender);
     void __fastcall pmUnitsPopup(TObject *Sender);
-    void __fastcall lbCodeDrawItem(TWinControl *Control, int Index,
-                                   TRect &Rect, TOwnerDrawState State);
+    void __fastcall lbCodeDrawItem(TWinControl *Control, int Index, TRect &Rect, TOwnerDrawState State);
+
     void __fastcall miDelphi2Click(TObject *Sender);
     void __fastcall miDelphi3Click(TObject *Sender);
     void __fastcall miDelphi4Click(TObject *Sender);
@@ -611,6 +615,9 @@ class TFMain_11011981 : public TForm {
     void __fastcall miDelphi2005Click(TObject *Sender);
     void __fastcall miDelphi2006Click(TObject *Sender);
     void __fastcall miDelphi2007Click(TObject *Sender);
+    void __fastcall miDelphi2009Click(TObject *Sender);
+    void __fastcall miDelphi2010Click(TObject *Sender);
+
     void __fastcall lbXrefsKeyDown(TObject *Sender, Word &Key, TShiftState Shift);
     void __fastcall lbUnitsKeyDown(TObject *Sender, Word &Key, TShiftState Shift);
     void __fastcall lbRTTIsKeyDown(TObject *Sender, Word &Key, TShiftState Shift);
@@ -624,8 +631,7 @@ class TFMain_11011981 : public TForm {
     void __fastcall lbStringsClick(TObject *Sender);
     void __fastcall miViewClassClick(TObject *Sender);
     void __fastcall pmVMTsPopup(TObject *Sender);
-    //void __fastcall lbStringsDrawItem(TWinControl *Control, int Index,
-    //      TRect &Rect, TOwnerDrawState State);
+    //void __fastcall lbStringsDrawItem(TWinControl *Control, int Index, TRect &Rect, TOwnerDrawState State);
     void __fastcall ShowSXrefsClick(TObject *Sender);
     void __fastcall miAboutClick(TObject *Sender);
     void __fastcall miHelpClick(TObject *Sender);
@@ -645,8 +651,6 @@ class TFMain_11011981 : public TForm {
     void __fastcall Names1Click(TObject *Sender);
     void __fastcall miUnitDumperClick(TObject *Sender);
     void __fastcall miFuzzyScanKBClick(TObject *Sender);
-    void __fastcall miDelphi2009Click(TObject *Sender);
-    void __fastcall miDelphi2010Click(TObject *Sender);
     void __fastcall lbNamesClick(TObject *Sender);
     void __fastcall bApplyAliasClick(TObject *Sender);
     void __fastcall bCancelAliasClick(TObject *Sender);
@@ -664,24 +668,23 @@ class TFMain_11011981 : public TForm {
     void __fastcall miCopyAddressIClick(TObject *Sender);
     void __fastcall miCopyAddressCodeClick(TObject *Sender);
     void __fastcall miCopySource2ClipboardClick(TObject *Sender);
-    void __fastcall miDelphiXE1Click(TObject *Sender);
     void __fastcall pmCodePopup(TObject *Sender);
     void __fastcall lbFormsClick(TObject *Sender);
     void __fastcall lbCodeClick(TObject *Sender);
     void __fastcall pcInfoChange(TObject *Sender);
     void __fastcall pcWorkAreaChange(TObject *Sender);
-    void __fastcall miDelphiXE2Click(TObject *Sender);
     void __fastcall miPluginsClick(TObject *Sender);
     void __fastcall miCopyStringsClick(TObject *Sender);
     void __fastcall miViewAllClick(TObject *Sender);
-    void __fastcall lbSourceCodeMouseMove(TObject *Sender,
-                                          TShiftState Shift, int X, int Y);
+    void __fastcall lbSourceCodeMouseMove(TObject *Sender, TShiftState Shift, int X, int Y);
     void __fastcall cbMultipleSelectionClick(TObject *Sender);
-    void __fastcall lbSourceCodeDrawItem(TWinControl *Control, int Index,
-                                         TRect &Rect, TOwnerDrawState State);
+    void __fastcall lbSourceCodeDrawItem(TWinControl *Control, int Index,TRect &Rect, TOwnerDrawState State);
     void __fastcall miSwitchSkipFlagClick(TObject *Sender);
     void __fastcall miSwitchFrameFlagClick(TObject *Sender);
     void __fastcall cfTry1Click(TObject *Sender);
+
+    void __fastcall miDelphiXE1Click(TObject *Sender);
+    void __fastcall miDelphiXE2Click(TObject *Sender);
     void __fastcall miDelphiXE3Click(TObject *Sender);
     void __fastcall miDelphiXE4Click(TObject *Sender);
     void __fastcall miProcessDumperClick(TObject *Sender);
@@ -762,7 +765,8 @@ private: // User declarations
     void __fastcall miSearchNameClick(TObject *Sender);
 
 public: // User declarations
-    String AppDir;
+    String AppDir; // Application directory
+    String BinsDir; // KnowledgeBase files
     String WrkDir;
     String SourceFile;
     int SysProcsNum; // Number of elements in SysProcs array

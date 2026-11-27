@@ -14,8 +14,7 @@ void (__stdcall *fnAboutPlugIn)(void);
 
 TFPlugins *FPlugins;
 //---------------------------------------------------------------------------
-__fastcall TFPlugins::TFPlugins(TComponent *Owner)
-    : TForm(Owner) {
+__fastcall TFPlugins::TFPlugins(TComponent *Owner) : TForm(Owner) {
     PluginsPath = "";
     PluginName = "";
 }
@@ -34,10 +33,7 @@ void __fastcall TFPlugins::FormShow(TObject *Sender) {
                 HINSTANCE hModule = LoadLibrary(AnsiString(sr.Name).c_str());
                 if (hModule) {
                     String info = "";
-                    fnRegisterPlugIn = (void(__stdcall *)
-                    (LPCTSTR *)
-                    )
-                    GetProcAddress(hModule, "RegisterPlugIn");
+                    fnRegisterPlugIn = (void(__stdcall *) (LPCTSTR *) ) GetProcAddress(hModule, "RegisterPlugIn");
                     if (fnRegisterPlugIn) {
                         LPCTSTR ptr;
                         fnRegisterPlugIn(&ptr);
@@ -73,10 +69,7 @@ void __fastcall TFPlugins::cklbPluginsListDblClick(TObject *Sender) {
     if (filename != "") {
         HINSTANCE hModule = LoadLibrary(AnsiString(PluginsPath + "\\" + filename).c_str());
         if (hModule) {
-            fnAboutPlugIn = (void(__stdcall *)
-            (void)
-            )
-            GetProcAddress(hModule, "AboutPlugIn");
+            fnAboutPlugIn = (void(__stdcall *) (void) ) GetProcAddress(hModule, "AboutPlugIn");
             if (fnAboutPlugIn) fnAboutPlugIn();
             FreeLibrary(hModule);
         }
@@ -109,4 +102,3 @@ void __fastcall TFPlugins::FormCreate(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-

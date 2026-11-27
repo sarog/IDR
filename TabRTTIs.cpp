@@ -86,8 +86,7 @@ void __fastcall TFMain_11011981::lbRTTIsDblClick(TObject *Sender) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::lbRTTIsMouseMove(TObject *Sender,
-                                                  TShiftState Shift, int X, int Y) {
+void __fastcall TFMain_11011981::lbRTTIsMouseMove(TObject *Sender, TShiftState Shift, int X, int Y) {
     if (lbRTTIs->CanFocus()) ActiveControl = lbRTTIs;
 }
 

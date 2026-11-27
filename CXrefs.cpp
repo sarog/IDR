@@ -1,8 +1,9 @@
+//---------------------------------------------------------------------------
 #include "Main.h"
 #include "Misc.h"
-
-
+//---------------------------------------------------------------------------
 extern DWord CurProcAdr;
+//---------------------------------------------------------------------------
 void __fastcall TFMain_11011981::ShowCodeXrefs(DWord Adr, int selIdx) {
     lbCXrefs->Clear();
     PInfoRec recN = GetInfoRec(Adr);
@@ -34,8 +35,7 @@ void __fastcall TFMain_11011981::ShowCodeXrefs(DWord Adr, int selIdx) {
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TFMain_11011981::lbXrefsMouseMove(TObject *Sender,
-                                                  TShiftState Shift, int X, int Y) {
+void __fastcall TFMain_11011981::lbXrefsMouseMove(TObject *Sender, TShiftState Shift, int X, int Y) {
     TListBox *lb = (TListBox *) Sender;
     if (lb->CanFocus()) ActiveControl = lb;
 }

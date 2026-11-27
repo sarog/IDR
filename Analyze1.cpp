@@ -1,7 +1,8 @@
-﻿#include "Main.h"
+﻿//---------------------------------------------------------------------------
+#include "Main.h"
 #include "Misc.h"
 #include "Disasm.h"
-
+//---------------------------------------------------------------------------
 extern Byte *Code;
 extern DWord CodeBase;
 extern MDisasm Disasm;
@@ -245,7 +246,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
                     //Set flag cfETable
                     SetFlag(cfETable, Pos);
                     //dd num
-                    num = *((int *) (Code + Pos));
+                    num = *reinterpret_cast<int *>(Code + Pos);
                     SetFlags(cfSkip, Pos, 4);
                     Pos += 4;
                     if (Adr + 4 + 8 * num > lastAdr) lastAdr = Adr + 4 + 8 * num;
@@ -255,7 +256,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
                         SetFlags(cfSkip, Pos, 4);
                         Pos += 4;
                         //dd offset ExceptionProc
-                        DWord procAdr = *((DWord *) (Code + Pos));
+                        DWord procAdr = *reinterpret_cast<DWord *>(Code + Pos);
                         if (IsValidCodeAdr(procAdr)) SetFlag(cfLoc, Adr2Pos(procAdr));
                         SetFlags(cfSkip, Pos, 4);
                         Pos += 4;
@@ -329,7 +330,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
         //Skip exception table
         if (IsFlagSet(cfETable, curPos)) {
             //dd num
-            num = *((int *) (Code + curPos));
+            num = *reinterpret_cast<int *>(Code + curPos);
             curPos += 4 + 8 * num;
             curAdr += 4 + 8 * num;
             continue;
@@ -419,8 +420,8 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
         if (op == OP_POP) SetFlag(cfPop, curPos);
         //add (sub) esp,...
         if (DisInfo.OpRegIdx[0] == 20 && DisInfo.OpType[1] == otIMM) {
-            if (op == OP_ADD) bpBase -= (int) DisInfo.Immediate;
-            if (op == OP_SUB) bpBase += (int) DisInfo.Immediate;
+            if (op == OP_ADD) bpBase -= static_cast<int>(DisInfo.Immediate);
+            if (op == OP_SUB) bpBase += static_cast<int>(DisInfo.Immediate);
             //skip
             SetFlags(cfSkip, curPos, instrLen);
             curPos += instrLen;
@@ -442,7 +443,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
         if (op == OP_CMP) lastCmpPos = curPos;
 
         //Is instruction (not call and jmp), that contaibs operand [reg+xxx], where xxx is negative value
-        if (maybeEmb && !DisInfo.Call && !DisInfo.Branch && (int) DisInfo.Offset < 0 &&
+        if (maybeEmb && !DisInfo.Call && !DisInfo.Branch && static_cast<int>(DisInfo.Offset) < 0 &&
             (DisInfo.IndxReg == -1 && (DisInfo.BaseReg >= 16 && DisInfo.BaseReg <= 23 && DisInfo.BaseReg != 20 &&
                                        DisInfo.BaseReg != 21))) {
             //May be add condition that all Xrefs must points to one subroutine!!!!!!!!!!!!!
@@ -466,7 +467,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
             Pos = curPos + instrLen;
             Adr = curAdr + instrLen;
             //Table address  - last 4 bytes of instruction
-            jTblAdr = *((DWord *) (Code + Pos - 4));
+            jTblAdr = *reinterpret_cast<DWord *>(Code + Pos - 4);
             //Scan gap to find table cTbl
             if (Adr <= lastMovTarget && lastMovTarget < jTblAdr) cTblAdr = lastMovTarget;
             //If exists cTblAdr, skip it
@@ -481,7 +482,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
                 //Loc - end of table
                 if (IsFlagSet(cfLoc, Pos)) break;
 
-                Adr1 = *((DWord *) (Code + Pos));
+                Adr1 = *reinterpret_cast<DWord *>(Code + Pos);
                 //Validate Adr1
                 if (!IsValidCodeAdr(Adr1) || Adr1 < fromAdr) break;
                 //Set cfLoc
@@ -604,7 +605,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
                                     //Set flag cfETable
                                     SetFlag(cfETable, Pos);
                                     //dd num
-                                    num = *((int *) (Code + Pos));
+                                    num = *reinterpret_cast<int *>(Code + Pos);
                                     SetFlags(cfSkip, Pos, 4);
                                     Pos += 4;
                                     if (Adr + 4 + 8 * num > lastAdr) lastAdr = Adr + 4 + 8 * num;
@@ -614,7 +615,7 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
                                         SetFlags(cfSkip, Pos, 4);
                                         Pos += 4;
                                         //dd offset ExceptionProc
-                                        DWord procAdr = *((DWord *) (Code + Pos));
+                                        DWord procAdr = *reinterpret_cast<DWord *>(Code + Pos);
                                         if (IsValidCodeAdr(procAdr)) SetFlag(cfLoc, Adr2Pos(procAdr));
                                         SetFlags(cfSkip, Pos, 4);
                                         Pos += 4;
@@ -765,4 +766,3 @@ void __fastcall TFMain_11011981::AnalyzeProc1(DWord fromAdr, char xrefType, DWor
 }
 
 //---------------------------------------------------------------------------
-

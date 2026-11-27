@@ -9,8 +9,7 @@ extern int SplitSize;
 
 TFIdcSplitSize *FIdcSplitSize;
 //---------------------------------------------------------------------
-__fastcall TFIdcSplitSize::TFIdcSplitSize(TComponent *AOwner)
-    : TForm(AOwner) {
+__fastcall TFIdcSplitSize::TFIdcSplitSize(TComponent *AOwner) : TForm(AOwner) {
     Caption = "Split size: 1 Mbyte";
 }
 

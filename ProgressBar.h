@@ -1,13 +1,12 @@
 ﻿//---------------------------------------------------------------------------
-
 #ifndef ProgressBarH
 #define ProgressBarH
 //---------------------------------------------------------------------------
 #include <System.Classes.hpp>
 #include <Vcl.ComCtrls.hpp>
 #include <Vcl.Controls.hpp>
-#include "Main.h"
 
+#include "Main.h"
 //---------------------------------------------------------------------------
 class TFProgressBar : public TForm {
     __published: // IDE-managed Components

@@ -1426,7 +1426,7 @@ void __fastcall IdrDfmLoader::AncestorNotFound(TReader *Reader, String Component
 //---------------------------------------------------------------------------
 void __fastcall IdrDfmLoader::FindComponentClass(TReader *Reader, String ClassName, TMetaClass * &ComponentClass) {
     try {
-        ComponentClass = FindClass(ClassName);
+        ComponentClass = static_cast<TComponentClass>(FindClass(ClassName));
     } catch (Exception &e) {
         lastClassAliasName = ClassName;
 
